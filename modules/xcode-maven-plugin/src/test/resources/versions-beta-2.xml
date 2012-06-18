@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<versions>
+	<coordinates>
+		<groupId>com.sap.ondevice.production.ios.tests</groupId>
+		<artifactId>MyLibA</artifactId>
+		<version>1.0.1</version>
+	</coordinates>
+	<scm>
+		<repository>MY_PERFORCE_PORT</repository>
+		<path>//MY_DEPOT_PATH/...</path>
+		<snapshotId>4711</snapshotId>
+	</scm>
+	<dependencies>
+	<dependency>
+	<coordinates>
+		<groupId>com.sap.ondevice.production.ios.tests</groupId>
+		<artifactId>MyLibB</artifactId>
+		<version>1.0.1</version>
+	</coordinates>
+	<scm>
+		<repository>MY_PERFORCE_PORT</repository>
+		<path>//MY_DEPOT_PATH/...</path>
+		<snapshotId>0815</snapshotId>
+	</scm>
+	<dependencies>
+	<dependency>
+	<coordinates>
+		<groupId>com.sap.ondevice.production.ios.tests</groupId>
+		<artifactId>MyLibC</artifactId>
+		<version>1.0.1</version>
+	</coordinates>
+	<scm>
+		<repository>MY_PERFORCE_PORT_LIB_C</repository>
+		<path>//MY_DEPOT_PATH/LIB_C/...</path>
+		<snapshotId>1146</snapshotId>
+	</scm>
+	</dependency>
+	</dependencies>
+	</dependency>
+	</dependencies>
+</versions>

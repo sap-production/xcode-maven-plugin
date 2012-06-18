@@ -1,0 +1,11 @@
+.project
+.classpath
+.settings/
+/modules/archetype/target/
+/modules/it-xcode-maven-plugin/target/
+/modules/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/src/xcode/build/
+/modules/xcode-maven-plugin/target/
+/modules/plist-parser/target/
+/modules/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/target/
+project.xcworkspace/
+xcuserdata/

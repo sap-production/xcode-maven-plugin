@@ -1,0 +1,90 @@
+~~~
+~~ #%L
+~~ xcode-maven-plugin
+~~ %%
+~~ Copyright (C) 2012 SAP AG
+~~ %%
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~ 
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~ 
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~ #L%
+~~~
+ ------
+ Introduction
+ ------
+ ------
+ 2012-05-21
+ ------
+
+
+Maven Xcode Plugin
+
+  The Xcode Maven Plugin can be used in order to run Xcode builds embedded in a Maven lifecycle. Currently it supports
+  two build types:
+  
+  * <<iOS Library Builds>>: If you specify <<<xcode-lib>>> as packaging type in the <<<pom.xml>>> a couple of goals will 
+    be added to your Maven lifecycle that take care of resolving dependencies, executing the Xcode build and uploading
+    the build artifacts into your Maven repository.
+    
+  * <<iOS App Builds>>: This build is similar to library build, however, it also performs code signing that is 
+    necessary to upload the app to the AppStore. Apps are identified by a <<<xcode-app>>> packaging specification
+    in your <<<pom.xlm>>>.
+
+  If you are developing an app or a library in your Xcode environment there is no real need to run the Xcode build with Maven.
+  Nevertheless, you can call <<<mvn initialize>>> in order to retrieve your library dependencies out of a central
+  repository.
+  
+  However, if your central software production processes are already based on Maven, this plugin enables you to build
+  also your iOS libraries and apps with Maven and use a repository to distribute the binary build results. 
+
+
+* Prerequisites
+
+  The following prerequisites have to be fulfilled in order to use the Xcode plugin:
+
+    * <<Mac OS X>> The build has to run on a Mac computer 
+    
+    * <<JRE 6>> The Java runtime environment has to be installed on the computer.
+     
+    * <<Maven >= 3.0.2>> Maven 3 has to be installed an configured correctly so that is has access to central repositories
+     
+    * <<Xcode>> Xcode has to be installed as the plugin performs Xcode command line calls.
+
+
+* Goals Overview
+
+  The available goals are listed here: {{{./plugin-info.html}Goals}}.
+  
+  However, normally you do not have to call any of these goals manually as they get attached to the Maven build
+  lifecycle. Call <<<mvn initialize>>> to resolve the dependencies and make them available in your Xcode environment or 
+  <<<mvn clean install>>> to run the whole Xcode build with Maven. 
+  
+* Usage
+
+  General instructions on how to use the Xcode Plugin can be found on the {{{./usage.html}usage page}}. Some more
+  specific use cases are described in the examples given below.
+  
+  Additionally there exists a {{{./faq.html}FAQ}} section.
+
+~~  In case you still have questions regarding the plugin's usage, please have a look at the {{{./faq.html}FAQ}} and feel
+~~  free to contact the {{{mail-lists.html}user mailing list}}. The posts to the mailing list are archived and could
+~~  already contain the answer to your question as part of an older thread. Hence, it is also worth browsing/searching
+~~  the {{{mail-lists.html}mail archive}}.
+
+
+* Examples
+
+  To provide you with better understanding of some usages of the Plugin Name,
+  you can take a look into the following examples:
+
+  * {{{./examples/LibBuildExample.html}Example of a Library build}}
+
+  * {{{./examples/AppBuildExample.html}Example of an App build}}

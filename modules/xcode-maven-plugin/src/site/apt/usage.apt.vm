@@ -1,0 +1,56 @@
+ ------
+ Usage
+ ------
+ ------
+ 2012-05-21
+ ------
+ 
+Usage
+ 
+  The Xcode plugin binds itself to the Maven build cycles based on the packaging you have provided in your pom. 
+ 
+%{toc|section=1|fromDepth=2|toDepth=3}
+
+
+* Directory Layout
+
+  The following directory layout is expected for your Xcode sources. Please note that the directories can be overridden 
+  e.g. by the <<<xcodeCompileDirectory>>> configuration.
+  
+  <<Note:>> Currently the plugin expects that your Xcode project is configured to place your build results into a <<<build>>>
+  folder that resides on the same level as your <<<.xcodeproj>>> file.
+  
++-----------
+|-- project-root
+      |-- pom.xml                               The project pom xml.
+      |
+      |-- <MavenModule1Root>
+      |  |-- pom.xml                            The module pom.
+      |  |-- src
+      |     |-- xcode                           The "xcode" folder contains the whole XCode project. Copy your project there.
+      |           |-- <sources>, ...
+      |           |-- MyNewProject.xcodeproj
+      |           |-- MyNewProjectTests
+      |               |-- <test sources>, ...
+      |
+      |
+      |-- <MavenModule2Root>
+      |  |-- pom.xml                            The module pom.
+      |  |-- src
+      |     |-- xcode                           The "xcode" folder contains the whole XCode project. Copy your project there.
+      |           |-- <sources>, ...
+      |           |-- MyNewProject2.xcodeproj
+      |           |-- MyNewProjectTests2
+      |               |-- <test sources>, ...
++-----------  
+  
+
+* Building a Library
+
+  Here is an example how to build a library: {{{./examples/LibBuildExample.html}Example of a Library build}}
+
+
+
+* Building an App
+
+  Here is an example how to build an app: {{{./examples/AppBuildExample.html}Example of an App build}}

@@ -1,0 +1,52 @@
+ ------
+ Building an App Example
+ ------
+ ------
+ 2012-05-21
+ ------
+ 
+Building an iOS App Example
+
+  This example demonstrates how you can build an iOS app depending on another library using the Xcode plugin.
+  Due to the <<<xcode-app>>> packaging all Xcode specific tasks get automatically attached to the Maven lifecycle.
+  I.e. calling <<<mvn clean install>>> will resolve the dependencies, compile the Xcode code, perform the signing,
+  package the app and upload it into the local repository.
+  
+  
+* pom.xml
+
++-------------
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>my.package</groupId>
+  <artifactId>MyLibrary</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>xcode-lib</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>my.package</groupId>
+      <artifactId>MyLibrary</artifactId>
+      <version>1.0</version>
+      <type>xcode-lib</type>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.sap.prd.mobile.ios.mios</groupId>
+        <artifactId>xcode-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
++-------------
+

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  #%L
+  xcode-maven-plugin
+  %%
+  Copyright (C) 2012 SAP AG
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+
+<faqs id="FAQ" title="Frequently Asked Questions">
+  <part id="General">
+    <faq id="question">
+      <question>What can I do in order to use different certificates/signing profiles in a central build and a local build?</question>
+      <answer>
+        <p>
+          Without any plugin configuration the Xcode build will use the code sign identity that is defined in the 
+          Xcode configuration. However, this can be overridden by using the property <tt>xcode.codeSignIdentity</tt> or
+          the plugin parameter <tt>codeSignIdentity</tt>. 
+        </p>  
+        
+        <p>
+          Additionally you can append a suffix to the appId by using the property <tt>xcode.addIdSuffix</tt> if the central
+          build uses a different Apple account.
+        </p>  
+        
+        <p>
+          You could could adapt your <tt>settings.xml</tt> file on the central build server by adding the following properties:
+          <source>
+&lt;settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  &lt;profiles>
+    &lt;profile>
+      &lt;id>central.build&lt;/id>
+      &lt;properties>
+        &lt;xcode.codeSignIdentity>iPhone Distribution&lt;/xcode.codeSignIdentity>
+        &lt;xcode.appIdSuffix>central&lt;/xcode.appIdSuffix>
+      &lt;/properties>
+    &lt;/profile>
+  &lt;/profiles>
+
+  &lt;activeProfiles>
+    &lt;activeProfile>central.build&lt;/activeProfile>
+  &lt;/activeProfiles>
+
+&lt;/settings>
+          </source>
+        </p>  
+      </answer>
+    </faq>
+  </part>
+</faqs>

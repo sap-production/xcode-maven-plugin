@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<versions xmlns="urn:xml.sap.com:XCodePlugin:VersionInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.2.2" xsi:schemaLocation="urn:xml.sap.com:XCodePlugin:VersionInfo http://nexus.wdf.sap.corp:8081/nexus/content/repositories/deploy.release.ondevice.hosted/com/sap/prd/mobile/ios/mios/versionschema/1.2.2/versionschema-1.2.2.xsd">
+    <coordinates>
+        <groupId>com.sap.ondevice.production.ios.tests</groupId>
+        <artifactId>MyApp</artifactId>
+        <version>1.0.0</version>
+    </coordinates>
+    <scm>
+        <connection>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/</connection>
+        <revision>1234</revision>
+    </scm>
+    <dependencies>
+        <dependency>
+            <coordinates>
+                <groupId>com.sap.ondevice.production.ios.tests</groupId>
+                <artifactId>MyLibA</artifactId>
+                <version>1.0.1</version>
+            </coordinates>
+            <scm>
+                <connection>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/</connection>
+                <revision>4711</revision>
+            </scm>
+            <dependencies>
+                <dependency>
+                    <coordinates>
+                        <groupId>com.sap.ondevice.production.ios.tests</groupId>
+                        <artifactId>MyLibB</artifactId>
+                        <version>1.0.1</version>
+                    </coordinates>
+                    <scm>
+                        <connection>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/</connection>
+                        <revision>0815</revision>
+                    </scm>
+                    <dependencies>
+                        <dependency>
+                            <coordinates>
+<groupId>com.sap.ondevice.production.ios.tests</groupId>
+<artifactId>MyLibC</artifactId>
+<version>1.0.1</version>
+                            </coordinates>
+                            <scm>
+<connection>scm:perforce:MY_PERFORCE_PORT_LIB_C://MY_DEPOT_PATH/LIB_C/</connection>
+<revision>1146</revision>
+                            </scm>
+                        </dependency>
+                    </dependencies>
+                </dependency>
+            </dependencies>
+        </dependency>
+    </dependencies>
+</versions>
