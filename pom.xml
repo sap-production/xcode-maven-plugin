@@ -3,7 +3,7 @@
   
     <groupId>com.sap.prd.mobile.ios.mios</groupId>
     <artifactId>versionschema</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3-SNAPSHOT</version>
     <inceptionYear>2012</inceptionYear>
     <organization>
       <name>SAP AG</name>
