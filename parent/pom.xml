@@ -21,6 +21,42 @@
     </license>
   </licenses>
   
+  <scm>
+    <connection>scm:git:https://github.com/sap-production/XcodeMavenPlugin.git</connection>
+    <developerConnection>scm:git:https://github.com/sap-production/XcodeMavenPlugin.git</developerConnection>
+    <url>https://github.com/sap-production/XcodeMavenPlugin</url>
+  </scm>
+  
+  <mailingLists>
+    <mailingList>
+      <name>User List</name>
+      <subscribe>maven4ios-request@freelists.org?subject=subscribe</subscribe>
+      <unsubscribe>maven4ios-request@freelists.org?subject=unsubscribe</unsubscribe>
+      <post>maven4ios@freelists.org</post>
+      <archive>http://www.freelists.org/archive/maven4ios/</archive>
+    </mailingList>
+  </mailingLists>
+  
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/sap-production/XcodeMavenPlugin/issues</url>
+  </issueManagement>
+  
+  <developers>
+        <developer>
+            <name>Irina Kirilova</name>
+            <email>irina.kirilova@sap.com</email>
+        </developer>
+        <developer>
+            <name>Marcus Holl</name>
+            <email>marcus.holl@sap.com</email>
+        </developer>
+        <developer>
+            <name>Alexander Link</name>
+            <email>alexander.link@sap.com</email>
+        </developer>
+    </developers>
+  
   <dependencyManagement>
     <dependencies>
       <dependency>
