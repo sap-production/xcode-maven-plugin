@@ -21,10 +21,12 @@
     </license>
   </licenses>
   
+  <url>https://github.com/sap-production/xcode-maven-plugin</url>
+  
   <scm>
-    <connection>scm:git:https://github.com/sap-production/XcodeMavenPlugin.git</connection>
-    <developerConnection>scm:git:https://github.com/sap-production/XcodeMavenPlugin.git</developerConnection>
-    <url>https://github.com/sap-production/XcodeMavenPlugin</url>
+    <connection>scm:git:https://github.com/sap-production/xcode-maven-plugin.git</connection>
+    <developerConnection>scm:git:https://github.com/sap-production/xcode-maven-plugin.git</developerConnection>
+    <url>https://github.com/sap-production/xcode-maven-plugin</url>
   </scm>
   
   <mailingLists>
@@ -39,7 +41,7 @@
   
   <issueManagement>
     <system>GitHub Issues</system>
-    <url>https://github.com/sap-production/XcodeMavenPlugin/issues</url>
+    <url>https://github.com/sap-production/xcode-maven-plugin/issues</url>
   </issueManagement>
   
   <developers>
@@ -54,6 +56,10 @@
         <developer>
             <name>Alexander Link</name>
             <email>alexander.link@sap.com</email>
+        </developer>
+        <developer>
+            <name>Joern Gebhardt</name>
+            <email>joern.gebhardt@sap.com</email>
         </developer>
     </developers>
   
