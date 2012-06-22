@@ -13,6 +13,6 @@ The Xcode Maven Plugin can be used to integrate Xcode projects into a Maven buil
 
 The following documentation is available:
 
-* [Project Documentation](http://sap-production.github.com/XcodeMavenPlugin/)
-* The Maven generated [Plugin documentation](http://sap-production.github.com/XcodeMavenPlugin/site/index.html)
-* [Wiki](https://github.com/sap-production/XcodeMavenPlugin/wiki)
+* [Project Documentation](http://sap-production.github.com/xcode-maven-plugin/)
+* The Maven generated [Plugin documentation](http://sap-production.github.com/xcode-maven-plugin/site/index.html)
+* [Wiki](https://github.com/sap-production/xcode-maven-plugin/wiki)
