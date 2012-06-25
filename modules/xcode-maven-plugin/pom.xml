@@ -108,9 +108,10 @@
       <artifactId>maven-core</artifactId>
     </dependency>
   </dependencies>
+  
   <profiles>
     <profile>
-      <id>continous-integration</id>
+      <id>continuous-integration</id>
       <build>
         <plugins>
           <plugin>
@@ -123,6 +124,17 @@
                 <phase>test</phase>
                 <goals>
                   <goal>emma</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
                 </goals>
               </execution>
             </executions>
