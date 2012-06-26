@@ -25,7 +25,11 @@
   <dependencies>
      <dependency>
         <groupId>com.sap.prd.mobile.ios.mios</groupId>
-        <artifactId>xcode-project-reader</artifactId>
+        <artifactId>xcode-project-java-api</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.sap.prd.mobile.ios.mios</groupId>
+        <artifactId>xcode-maven-plugin</artifactId>
     </dependency>
   	<dependency>
   		<groupId>junit</groupId>
@@ -39,9 +43,5 @@
   		<groupId>plexus</groupId>
   		<artifactId>plexus-archiver</artifactId>
   	</dependency>
-    <dependency>
-        <groupId>com.sap.prd.mobile.ios.mios</groupId>
-        <artifactId>xcode-maven-plugin</artifactId>
-    </dependency>
   </dependencies>
 </project>
