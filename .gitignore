@@ -9,3 +9,6 @@
 /modules/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/target/
 project.xcworkspace/
 xcuserdata/
+/target/
+*~
+#*#
