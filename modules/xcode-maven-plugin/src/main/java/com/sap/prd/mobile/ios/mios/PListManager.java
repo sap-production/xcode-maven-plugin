@@ -84,12 +84,16 @@ class PlistManager
 
     final File xcodeProjectFile = getXCodeProjectFile();
     
-    final String plistFile = buildConfig.getBuildSettings().getDict().getString("INFOPLIST_FILE");
+    final String plistFileName = buildConfig.getBuildSettings().getDict().getString("INFOPLIST_FILE");
 
-    if (plistFile == null || plistFile.isEmpty())
+    if (plistFileName == null || plistFileName.isEmpty())
       throw new MojoExecutionException("No PList file extracted from xcode project file '" + xcodeProjectFile + "'.");
 
-    return new File(projectDir, plistFile);
+    File plistFile = new File(projectDir, plistFileName);
+    if (!plistFile.isFile())
+      throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFileName
+            + "' that does not exist.");
+    return plistFile;
   }
 
   String getValueFromPlist(File plistFile, BundleKey key)
