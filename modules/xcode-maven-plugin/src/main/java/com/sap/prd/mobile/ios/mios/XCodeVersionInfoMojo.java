@@ -41,12 +41,14 @@ import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.xml.sax.SAXException;
 
+import com.sap.prd.mobile.ios.mios.CodeSignManager.ExecResult;
+import com.sap.prd.mobile.ios.mios.CodeSignManager.ExecutionResultVerificationException;
 import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
 
 /**
- * Generates a &lt;artifact-id&gt;-&lt;version&gt;-version.xml for reproducibility reasons. This versions.xml
- * contains information about the scm location and revision of the built project and all its
- * dependencies. Expects a sync.info file in the root folder of the project as input.
+ * Generates a &lt;artifact-id&gt;-&lt;version&gt;-version.xml for reproducibility reasons. This
+ * versions.xml contains information about the scm location and revision of the built project and
+ * all its dependencies. Expects a sync.info file in the root folder of the project as input.
  * 
  * 
  * The sync.info file is a property file and must contain the following entries: <code>
@@ -60,8 +62,8 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
  * 
  * 
  * PORT entry is the SCM server where the project is located. <br>
- * DEPOT_PATH is the path to the project
- * on the SCM server. For Perforce projects, DEPOT_PATH has the following format //DEPOT_PATH/... <br>
+ * DEPOT_PATH is the path to the project on the SCM server. For Perforce projects, DEPOT_PATH has
+ * the following format //DEPOT_PATH/... <br>
  * CHANGELIST is the revision synced.
  * 
  * 
@@ -114,12 +116,11 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
 
   /**
    * If <code>true</code> the build fails if it does not find a sync.info file in the root directory
-   *  
+   * 
    * @parameter expression="${xcode.failOnMissingSyncInfo}" default-value="false"
    */
-  private boolean failOnMissingSyncInfo;  
-  
-  
+  private boolean failOnMissingSyncInfo;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -130,12 +131,12 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
 
       if (failOnMissingSyncInfo)
       {
-        throw new MojoExecutionException("Sync info file '"  + syncInfoFile.getAbsolutePath()
-                    + "' not found. Please configure your SCM plugin accordingly.");
+        throw new MojoExecutionException("Sync info file '" + syncInfoFile.getAbsolutePath()
+              + "' not found. Please configure your SCM plugin accordingly.");
       }
-      
+
       getLog().info("The optional sync info file '" + syncInfoFile.getAbsolutePath()
-              + "' not found. Cannot attach versions.xml to build results.");
+            + "' not found. Cannot attach versions.xml to build results.");
       return;
     }
 
@@ -164,25 +165,27 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
     finally {
       IOUtils.closeQuietly(os);
     }
-    
+
     if (getPackagingType() == PackagingType.APP)
     {
       try
       {
         copyVersionsXmlAndSign();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
+        throw new MojoExecutionException(e.getMessage(), e);
+      }
+      catch (ExecutionResultVerificationException e) {
         throw new MojoExecutionException(e.getMessage(), e);
       }
     }
-    
+
     projectHelper.attachArtifact(project, "xml", "versions", versionsFile);
 
     getLog().info("versions.xml '" + versionsFile + " attached as additional artifact.");
   }
 
-  private void copyVersionsXmlAndSign() throws IOException
+  private void copyVersionsXmlAndSign() throws IOException, ExecutionResultVerificationException
   {
     for (final String configuration : getConfigurations())
     {
@@ -195,27 +198,35 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
           String productName = getBuildEnvironmentProperties(configuration, platform).getProperty("PRODUCT_NAME");
           File appFolder = new File(rootDir, productName + ".app");
           File versionsXmlInApp = new File(appFolder, "versions.xml");
-          
+
           CodeSignManager.verify(appFolder);
+          final ExecResult originalCodesignEntitlementsInfo = CodeSignManager
+            .getCodesignEntitlementsInformation(appFolder);
+          final ExecResult originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
+
           FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);
+
           sign(rootDir, configuration, platform);
+
+          final ExecResult resignedCodesignEntitlementsInfo = CodeSignManager
+            .getCodesignEntitlementsInformation(appFolder);
+          final ExecResult resignedSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
           CodeSignManager.verify(appFolder);
+          CodeSignManager.verify(originalCodesignEntitlementsInfo, resignedCodesignEntitlementsInfo);
+          CodeSignManager.verify(originalSecurityCMSMessageInfo, resignedSecurityCMSMessageInfo);
         }
       }
     }
   }
-  
+
   private void sign(File rootDir, String configuration, String platform) throws IOException
   {
     Properties properties = getBuildEnvironmentProperties(configuration, platform);
-    File infoPlist = new File(rootDir, properties.getProperty("INFOPLIST_PATH"));
     String csi = properties.getProperty("CODE_SIGN_IDENTITY");
-    PListAccessor accessor = new PListAccessor(infoPlist);
-    String appId = accessor.getStringValue("CFBundleIdentifier");
     File appFolder = new File(properties.getProperty("CODESIGNING_FOLDER_PATH"));
-    CodeSignManager.sign(csi, appId, appFolder, true);
+    CodeSignManager.sign(csi, appFolder, true);
   }
-  
+
   private List<Dependency> getDependencies() throws JAXBException, SAXException, IOException
   {
 
