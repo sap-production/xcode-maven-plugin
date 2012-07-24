@@ -19,8 +19,10 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,29 +31,150 @@ public class CodeSignManager
 {
   public static void verify(File appFolder) throws IOException
   {
-    exec(new String[] { "/usr/bin/codesign", "--verify -v", "\"" + appFolder.getAbsolutePath() + "\"" });
+    ExecResult exec = exec(new String[] { "/usr/bin/codesign", "--verify -v", "\"" + appFolder.getAbsolutePath() + "\"" });
+    checkExitValue(exec);
   }
 
-  public static void sign(String codeSignIdentity, String appId, File appFolder, boolean force) throws IOException
+  public static void sign(String codeSignIdentity, File appFolder, boolean force) throws IOException
   {
-    String[] cmd = new String[] { "/usr/bin/codesign", "-s", "\"" + codeSignIdentity + "\"", "-i", "\"" + appId + "\"",
+    String[] cmd = new String[] { "/usr/bin/codesign", "--preserve-metadata", "-s", "\"" + codeSignIdentity + "\"",
         "\"" + appFolder.getAbsolutePath() + "\"" };
     if (force)
     {
       cmd = (String[]) ArrayUtils.add(cmd, "-f");
     }
-    exec(cmd);
+    ExecResult exec = exec(cmd);
+    checkExitValue(exec);
   }
 
-  private static void exec(String[] cmd) throws IOException
+  public static ExecResult getCodesignEntitlementsInformation(File appFolder) throws IOException
+  {
+    ExecResult result = exec(new String[] { "/usr/bin/codesign", "-d --entitlements -",
+        "\"" + appFolder.getAbsolutePath() + "\"" });
+    checkExitValue(result);
+    return result;
+  }
+
+  public static ExecResult getSecurityCMSInformation(File appFolder) throws IOException
+  {
+    ExecResult result = exec(new String[] { "/usr/bin/security", "cms", "-D -i",
+        "\"" + appFolder.getAbsolutePath() + "/embedded.mobileprovision\"" });
+    checkExitValue(result);
+    return result;
+  }
+
+  public static void verify(ExecResult result1, ExecResult result2) throws ExecutionResultVerificationException
+  {
+    if (!result2.equals(result1)) {
+      throw new ExecutionResultVerificationException(result1, result2);
+    }
+  }
+
+  private static ExecResult exec(String[] cmd) throws IOException
   {
     String cmdStr = StringUtils.join(cmd, " ");
     System.out.println("Invoking " + cmdStr);
-    int exitValue = Forker.forkProcess(System.out, null, "bash", "-c", cmdStr);
-    if (exitValue != 0)
-    {
-      throw new IllegalStateException(cmd[0] + " command failed (exit code = " + exitValue + ", command = "
-            + cmdStr + " check log for details");
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream ps = new PrintStream(baos);
+    try {
+      int exitValue = Forker.forkProcess(ps, null, "bash", "-c", cmdStr);
+      return new ExecResult(cmdStr, baos.toString("UTF-8"), exitValue);
+    }
+    finally {
+      ps.close();
     }
   }
+
+  private static void checkExitValue(ExecResult exec)
+  {
+    if (exec.exitCode != 0)
+    {
+      throw new IllegalStateException("Command failed, check log for details (" +
+            "exit code = " + exec.exitCode +
+            ", command = '" + exec.command +
+            "', result = '" + exec.result + "')");
+    }
+  }
+
+  static class ExecResult
+  {
+    public ExecResult(String command, String result, int exitCode)
+    {
+      this.command = command;
+      this.result = result;
+      this.exitCode = exitCode;
+    }
+
+    public final String command;
+    public final String result;
+    public final int exitCode;
+
+    @Override
+    public String toString()
+    {
+      return "ExecResult [command=" + command + ", result=" + result
+            + ", exitCode=" + exitCode + "]";
+    }
+
+    @Override
+    public int hashCode()
+    {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((command == null) ? 0 : command.hashCode());
+      result = prime * result + exitCode;
+      result = prime * result
+            + ((this.result == null) ? 0 : this.result.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      ExecResult other = (ExecResult) obj;
+      if (command == null) {
+        if (other.command != null)
+          return false;
+      }
+      else if (!command.equals(other.command))
+        return false;
+      if (exitCode != other.exitCode)
+        return false;
+      if (result == null) {
+        if (other.result != null)
+          return false;
+      }
+      else if (!result.equals(other.result))
+        return false;
+      return true;
+    }
+  }
+
+  static class ExecutionResultVerificationException extends Exception
+  {
+    private static final long serialVersionUID = 1L;
+    private final ExecResult result1;
+    private final ExecResult result2;
+
+    public ExecutionResultVerificationException(ExecResult result1, ExecResult result2)
+    {
+      super();
+      this.result1 = result1;
+      this.result2 = result2;
+    }
+
+    @Override
+    public String getMessage()
+    {
+      return String.format("Verification failed, results differ. Result 1: '%s', Result 2: '%s'", result1, result2);
+    }
+  }
+
 }
