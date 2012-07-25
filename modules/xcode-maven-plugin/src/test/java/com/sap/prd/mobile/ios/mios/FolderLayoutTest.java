@@ -22,15 +22,14 @@ package com.sap.prd.mobile.ios.mios;
 import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.apache.maven.model.Build;
 import org.apache.maven.project.MavenProject;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import com.sap.prd.mobile.ios.mios.MavenTargetFolderLayout;
-
-public class MavenTargetFolderLayoutTest
+public class FolderLayoutTest
 {
 
   @Test
@@ -39,7 +38,7 @@ public class MavenTargetFolderLayoutTest
 
     final File f = new File(".").getAbsoluteFile();
     assertEquals(new File(f, "libs/Release-iphoneos/groupId/artifactId"),
-          (MavenTargetFolderLayout.getFolderForExtractedLibsWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId")));
+          (FolderLayout.getFolderForExtractedLibsWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId")));
   }
 
   @Test
@@ -48,7 +47,36 @@ public class MavenTargetFolderLayoutTest
 
     final File f = new File(".").getAbsoluteFile();
     assertEquals(new File(f, "headers/Release-iphoneos/groupId/artifactId"),
-          MavenTargetFolderLayout.getFolderForExtractedHeadersWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId"));
+          FolderLayout.getFolderForExtractedHeadersWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId"));
+  }
+
+  @Test
+  public void testDefaultSourceFolder()
+  {
+    final File f = new File(".").getAbsoluteFile();
+    final MavenProject project = EasyMock.createMock(MavenProject.class);
+
+    Properties props = new Properties();
+    EasyMock.expect(project.getProperties()).andReturn(props);
+    EasyMock.expect(project.getBasedir()).andReturn(f);
+    EasyMock.replay(project);
+
+    assertEquals(new File(f, "src/xcode"), FolderLayout.getSourceFolder(project));
+  }
+
+  @Test
+  public void testModifiedSourceFolder()
+  {
+    final File f = new File(".").getAbsoluteFile();
+    final MavenProject project = EasyMock.createMock(MavenProject.class);
+
+    Properties props = new Properties();
+    props.setProperty(XCodeDefaultConfigurationMojo.XCODE_SOURCE_DIRECTORY, "src/myxcode");
+    EasyMock.expect(project.getProperties()).andReturn(props);
+    EasyMock.expect(project.getBasedir()).andReturn(f);
+    EasyMock.replay(project);
+
+    assertEquals(new File(f, "src/myxcode"), FolderLayout.getSourceFolder(project));
   }
 
   private static MavenProject getProject(final File f)

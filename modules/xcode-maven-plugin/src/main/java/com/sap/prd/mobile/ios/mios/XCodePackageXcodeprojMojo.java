@@ -45,6 +45,8 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
 {
 
 
+  public static final String XCODEPROJ_WITH_DEPS_CLASSIFIER = "xcodeproj-with-deps";
+
   /**
    * @component
    */
@@ -55,19 +57,25 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
-    String xprojZipFileName = project.getArtifactId() + ".xcodeproj.zip";
+    String xprojZipFileName = project.getArtifactId() + "-" + XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip";
+
     try {
       // we have to do this via zip command line call in order to be able to package symbolic links
       ArrayList<String> zipCmdCall = new ArrayList<String>();
-      Collections.addAll(zipCmdCall, "zip", "-r", "-y", "-q", xprojZipFileName);
+      File targetFolder = new File(project.getBuild().getDirectory());
+      if (!targetFolder.isDirectory()) {
+        targetFolder.mkdirs();
+      }
       String relativeTargetDirName = FileUtils.getRelativePath(project.getBuild().getDirectory(), project.getBasedir()
         .getAbsolutePath(), "/");
-      String relativeSrcDirName = FileUtils.getRelativePath(project.getBuild().getSourceDirectory(), project
-        .getBasedir().getAbsolutePath(), "/");
+      String relativeSrcDirName = FileUtils.getRelativePath(FolderLayout.getSourceFolder(project).getAbsolutePath(),
+            project.getBasedir().getAbsolutePath(), "/");
+
+      Collections.addAll(zipCmdCall, "zip", "-r", "-y", "-q", relativeTargetDirName + "/" + xprojZipFileName);
 
       zipCmdCall.add(relativeSrcDirName); // src/xcode folder
       zipCmdCall.add("pom.xml");
-      zipCmdCall.add("info.sync");
+      zipCmdCall.add("sync.info");
       zipCmdCall.add(relativeTargetDirName + "/bundles");
       zipCmdCall.add(relativeTargetDirName + "/headers");
       zipCmdCall.add(relativeTargetDirName + "/libs");
@@ -83,7 +91,8 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
       throw new MojoExecutionException("Could not package the Xcode project with all its dependencies into a zip file.");
     }
     
-    projectHelper.attachArtifact(project, "zip", "xcodeproj", new File(project.getBasedir(), xprojZipFileName));
+    projectHelper.attachArtifact(project, "zip", XCODEPROJ_WITH_DEPS_CLASSIFIER, new File(project.getBuild()
+      .getDirectory(), xprojZipFileName));
     
 
   }

@@ -37,12 +37,12 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
 {
 
   private static final String DEFAULT_MAVEN_SOURCE_DIRECTORY = "src/main/java";
-  private static final String DEFAULT_XCODE_SOURCE_DIRECTORY = "src/xcode";
+  static final String DEFAULT_XCODE_SOURCE_DIRECTORY = "src/xcode";
   private static final String DEFAULT_FOLDER_NAME_CHECKOUT_DIRECTORY = "checkout";
 
   private static final String XCODE_CHECKOUT_DIR = "xcode.checkoutDirectory";
   private static final String XCODE_COMPILE_DIR = "xcode.compileDirectory";
-  private static final String XCODE_SOURCE_DIRECTORY = "xcode.sourceDirectory";
+  static final String XCODE_SOURCE_DIRECTORY = "xcode.sourceDirectory";
 
   /**
    * @parameter expression="${project}"

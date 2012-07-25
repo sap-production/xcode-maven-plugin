@@ -129,7 +129,7 @@ class XCodePrepareBuildManager
     if (artifact != null) {
       final File source = artifact.getFile();
 
-      final File target = new File(MavenTargetFolderLayout.getFolderForExtractedBundlesWithGA(project,
+      final File target = new File(FolderLayout.getFolderForExtractedBundlesWithGA(project,
             primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), bundleArtifact.getClassifier().replaceAll(
             "~", File.separator)
             + ".bundle");
@@ -146,7 +146,7 @@ class XCodePrepareBuildManager
   private List<String> readBundleInformation(MavenProject project, Artifact primaryArtifact) throws IOException
   {
 
-    final File mainArtifactExtracted = MavenTargetFolderLayout.getFolderForExtractedPrimaryArtifact(project,
+    final File mainArtifactExtracted = FolderLayout.getFolderForExtractedPrimaryArtifact(project,
           primaryArtifact);
 
     if (!mainArtifactExtracted.mkdirs())
@@ -175,7 +175,7 @@ class XCodePrepareBuildManager
     final File source = downloadManager.resolveSideArtifact(primaryArtifact, xcodeConfiguration + "-" + sdk,
           TYPE_ARCHIVE).getFile();
 
-    final File target = new File(MavenTargetFolderLayout.getFolderForExtractedLibsWithGA(project, xcodeConfiguration,
+    final File target = new File(FolderLayout.getFolderForExtractedLibsWithGA(project, xcodeConfiguration,
           sdk,
           primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
 
@@ -197,7 +197,7 @@ class XCodePrepareBuildManager
 
     if (headersArtifact != null) {
 
-      final File headersDirectory = MavenTargetFolderLayout.getFolderForExtractedHeadersWithGA(project,
+      final File headersDirectory = FolderLayout.getFolderForExtractedHeadersWithGA(project,
             xcodeConfiguration, sdk,
             primaryArtifact.getGroupId(), primaryArtifact.getArtifactId());
 
@@ -213,7 +213,7 @@ class XCodePrepareBuildManager
     if (primaryArtifact != null) {
       final File source = primaryArtifact.getFile();
 
-      final File target = MavenTargetFolderLayout.getFolderForExtractedFrameworkswithGA(project,
+      final File target = FolderLayout.getFolderForExtractedFrameworkswithGA(project,
             primaryArtifact.getGroupId(), primaryArtifact.getArtifactId());
 
       createDirectory(target);

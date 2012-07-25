@@ -126,7 +126,7 @@ class XCodePackageManager
 
   private File createMainArtifactFile(final MavenProject project) throws IOException
   {
-    File mainArtifact = MavenTargetFolderLayout.getFolderForExtractedMainArtifact(project);
+    File mainArtifact = FolderLayout.getFolderForExtractedMainArtifact(project);
 
     if (mainArtifact.exists())
       FileUtils.deleteDirectory(mainArtifact);

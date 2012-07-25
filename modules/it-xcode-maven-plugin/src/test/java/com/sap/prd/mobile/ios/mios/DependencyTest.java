@@ -64,13 +64,15 @@ public class DependencyTest extends XCodeTest
     // check if the zipped xcodeproj can be built after unzipping
     final String myLibAVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyLibraryA/" + Constants.LIB_VERSION;
     final String myLibAArtifactFilePrefix = myLibAVersionRepoDir + "/MyLibraryA-" + Constants.LIB_VERSION;
-    File xcodeprojLibAZip = new File(remoteRepositoryDirectory, myLibAArtifactFilePrefix + "-xcodeproj.zip");
+    File xcodeprojLibAZip = new File(remoteRepositoryDirectory, myLibAArtifactFilePrefix + "-"
+          + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");
     assertTrue(xcodeprojLibAZip.exists());
     assertUnpackAndCompile(xcodeprojLibAZip);
 
     final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION;
     final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + Constants.APP_VERSION;
-    File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-xcodeproj.zip");
+    File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-"
+          + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");
     assertTrue(xcodeprojAppZip.exists());
     assertUnpackAndCompile(xcodeprojAppZip);
   }
