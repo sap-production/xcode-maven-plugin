@@ -19,6 +19,8 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,5 +56,12 @@ public class XCodeFrameworkTest extends XCodeTest
     Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/frameworks/"
           + Constants.GROUP_ID
           + "/MyFramework/MyFramework.framework").exists());
+
+    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION;
+    final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + Constants.APP_VERSION;
+    File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-xcodeproj.zip");
+    assertTrue(xcodeprojAppZip.exists());
+    assertUnpackAndCompile(xcodeprojAppZip);
+
   }
 }
