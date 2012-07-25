@@ -19,6 +19,9 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,9 +41,14 @@ import java.util.Properties;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.FileUtils;
 import org.apache.maven.it.util.IOUtil;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 public abstract class XCodeTest
 {
+
+  @Rule
+  public TemporaryFolder tmpFolder = new TemporaryFolder();
 
   protected final static Map<String, String> THE_EMPTY_MAP = new HashMap<String, String>();
   protected final static List<String> THE_EMPTY_LIST = new ArrayList<String>();
@@ -258,5 +266,30 @@ public abstract class XCodeTest
   private static File getTargetDirectory() throws IOException
   {
     return new File(new File(".").getCanonicalFile(), "target");
+  }
+
+  /**
+   * Unpacks the zipped xcodeproj and checks if it can be compiled with a direct xcodebuild command
+   * in order to verify if all dependencies are present. Code sogning is disabled for these test
+   * builds
+   */
+  protected void assertUnpackAndCompile(File xcodeprojZip) throws IOException
+  {
+    File tmpXcodeProjDir = tmpFolder.newFolder(xcodeprojZip.getName());
+    extractFileWithShellScript(xcodeprojZip, tmpXcodeProjDir);
+    assertFalse("checkout dir should not be packaged", new File(tmpXcodeProjDir, "target/checkout").isDirectory());
+    int exitcode = Forker.forkProcess(System.out, new File(tmpXcodeProjDir, "src/xcode/"), "xcodebuild", "clean",
+          "build", "CODE_SIGN_IDENTITY=", "CODE_SIGNING_REQUIRED=NO");
+
+    assertEquals("Building the unpacked project failed", 0, exitcode);
+  }
+
+  protected void extractFileWithShellScript(File sourceFile, File destinationFolder)
+        throws IOException
+  {
+    File workingDirectory = tmpFolder.newFolder("scriptWorkingDir");
+    workingDirectory.deleteOnExit();
+    ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/unzip.sh", workingDirectory,
+          sourceFile.getCanonicalPath(), destinationFolder.getCanonicalPath());
   }
 }

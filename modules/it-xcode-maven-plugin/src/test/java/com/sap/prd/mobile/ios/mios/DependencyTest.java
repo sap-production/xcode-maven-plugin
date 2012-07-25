@@ -28,6 +28,7 @@ import org.junit.Test;
 public class DependencyTest extends XCodeTest
 {
 
+
   @Test
   public void testTransitiveDependency() throws Exception
   {
@@ -45,7 +46,7 @@ public class DependencyTest extends XCodeTest
           "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory);
 
     test(testName, new File(getTestRootDirectory(), "dependencies/MyApp"), "pom.xml",
-          "initialize", THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory);
+          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory);
 
     final String configuration = "Release";
 
@@ -59,5 +60,20 @@ public class DependencyTest extends XCodeTest
           + "/MyLibraryA").exists());
     assertTrue(new File(testExecutionDirectory, "target/libs/" + configuration + "-iphoneos/" + Constants.GROUP_ID
           + "/MyLibraryB").exists());
+
+    // check if the zipped xcodeproj can be built after unzipping
+    final String myLibAVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyLibraryA/" + Constants.LIB_VERSION;
+    final String myLibAArtifactFilePrefix = myLibAVersionRepoDir + "/MyLibraryA-" + Constants.LIB_VERSION;
+    File xcodeprojLibAZip = new File(remoteRepositoryDirectory, myLibAArtifactFilePrefix + "-xcodeproj.zip");
+    assertTrue(xcodeprojLibAZip.exists());
+    assertUnpackAndCompile(xcodeprojLibAZip);
+
+    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION;
+    final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + Constants.APP_VERSION;
+    File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-xcodeproj.zip");
+    assertTrue(xcodeprojAppZip.exists());
+    assertUnpackAndCompile(xcodeprojAppZip);
   }
+
+
 }

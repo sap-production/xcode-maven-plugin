@@ -41,14 +41,10 @@ import junit.framework.Assert;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.IOUtil;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 public class XCodeLifecycleTest extends XCodeTest
 {
-  @Rule
-  public TemporaryFolder tmpFolder = new TemporaryFolder();
 
   @Test
   public void testLifecycle() throws Exception
@@ -88,6 +84,10 @@ public class XCodeLifecycleTest extends XCodeTest
     additionalSystemProperties.put("xcode.app.defaultConfigurations", "Release");
     additionalSystemProperties.put("xcode.app.defaultSdks", "iphoneos");
 
+
+    // ------------------------------------------------------------------------------------------
+    // --- Now build the app
+    // ------------------------------------------------------------------------------------------
     Verifier appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml",
           "deploy",
           THE_EMPTY_LIST,
@@ -177,13 +177,6 @@ public class XCodeLifecycleTest extends XCodeTest
       }
     }
     return null;
-  }
-
-  private void extractFileWithShellScript(File sourceFile, File destinationFolder) throws IOException
-  {
-    File workingDirectory = tmpFolder.newFolder("scriptWorkingDir");
-    workingDirectory.deleteOnExit();
-    ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/unzip.sh", workingDirectory, sourceFile.getCanonicalPath(), destinationFolder.getCanonicalPath());    
   }
 
   
