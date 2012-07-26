@@ -74,7 +74,15 @@ public class DependencyTest extends XCodeTest
     File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-"
           + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");
     assertTrue(xcodeprojAppZip.exists());
-    assertUnpackAndCompile(xcodeprojAppZip);
+    File unpackDir = assertUnpackAndCompile(xcodeprojAppZip);
+    assertTrue(new File(unpackDir, "pom.xml").exists());
+    assertTrue(new File(unpackDir, "sync.info").exists());
+    assertTrue(new File(unpackDir, "src/xcode").exists());
+    assertTrue(new File(unpackDir, "target/libs").exists());
+    assertTrue(new File(unpackDir, "target/headers").exists());
+    // provided via additionalSourcePaths plugin configuration:
+    assertTrue(new File(unpackDir, "src/docs/readme.txt").exists());
+    assertTrue(new File(unpackDir, "target/versions.xml").exists());
   }
 
 

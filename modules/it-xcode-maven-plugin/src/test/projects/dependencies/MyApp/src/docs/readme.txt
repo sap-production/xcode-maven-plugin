@@ -1,0 +1,1 @@
+This file exists in order to test if the xcode:package-xcodeproj goal adds the defined additional source paths to the zip
