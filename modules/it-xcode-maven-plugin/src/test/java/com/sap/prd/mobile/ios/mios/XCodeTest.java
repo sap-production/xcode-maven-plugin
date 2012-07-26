@@ -272,8 +272,10 @@ public abstract class XCodeTest
    * Unpacks the zipped xcodeproj and checks if it can be compiled with a direct xcodebuild command
    * in order to verify if all dependencies are present. Code sogning is disabled for these test
    * builds
+   * 
+   * @return the directory where the zip file has bee extracted to
    */
-  protected void assertUnpackAndCompile(File xcodeprojZip) throws IOException
+  protected File assertUnpackAndCompile(File xcodeprojZip) throws IOException
   {
     File tmpXcodeProjDir = tmpFolder.newFolder(xcodeprojZip.getName());
     extractFileWithShellScript(xcodeprojZip, tmpXcodeProjDir);
@@ -282,6 +284,7 @@ public abstract class XCodeTest
           "build", "CODE_SIGN_IDENTITY=", "CODE_SIGNING_REQUIRED=NO");
 
     assertEquals("Building the unpacked project failed", 0, exitcode);
+    return tmpXcodeProjDir;
   }
 
   protected void extractFileWithShellScript(File sourceFile, File destinationFolder)

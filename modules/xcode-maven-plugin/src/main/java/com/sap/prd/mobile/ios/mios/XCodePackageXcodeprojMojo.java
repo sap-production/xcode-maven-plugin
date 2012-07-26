@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProjectHelper;
@@ -46,6 +48,39 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
 
 
   public static final String XCODEPROJ_WITH_DEPS_CLASSIFIER = "xcodeproj-with-deps";
+
+  /**
+   * You can use this parameter to define additional paths that shall be packaged into the source
+   * archive. If the path denotes a folder the folder content with all subfolders will be added. If
+   * the path points to a file only the file will be added.
+   * 
+   * Plugin configuration example:
+   * 
+   * <pre>
+   *   &lt;build>
+   *     &lt;plugins>
+   *       &lt;plugin>
+   *         &lt;groupId>com.sap.prd.mobile.ios.mios&lt;/groupId>
+   *         &lt;artifactId>xcode-maven-plugin&lt;/artifactId>
+   *         &lt;extensions>true&lt;/extensions>
+   *         &lt;configuration>
+   *           &lt;additionalArchivePaths>
+   *             &lt;param>src/docs&lt;/param>
+   *             &lt;param>src/uml&lt;/param>
+   *             ...
+   *           &lt;/additionalArchivePaths>
+   *          &lt;/configuration>  
+   *        &lt;/plugin>
+   *        ...
+   *       &lt;/plugins>
+   *     &lt;/build>
+   *   &lt;/build>
+   * </pre>
+   * 
+   * @parameter
+   * @since 1.3.2
+   */
+  private List<String> additionalArchivePaths;
 
   /**
    * @component
@@ -80,7 +115,11 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
       zipCmdCall.add(relativeTargetDirName + "/headers");
       zipCmdCall.add(relativeTargetDirName + "/libs");
       zipCmdCall.add(relativeTargetDirName + "/xcode-deps");
+      if (additionalArchivePaths != null) {
+        zipCmdCall.addAll(additionalArchivePaths);
+      }
       getLog().info("Packaging the Xcode project with all its dependencies into the zip file " + xprojZipFileName);
+      getLog().info("Executing: " + StringUtils.join(zipCmdCall, ' '));
       int exitCode = Forker.forkProcess(System.out, project.getBasedir(), zipCmdCall.toArray(new String[] {}));
       if (exitCode != 0) {
         throw new MojoExecutionException(

@@ -33,6 +33,12 @@
                 <artifactId>xcode-maven-plugin</artifactId>
                 <version>${xcode.maven.plugin.version}</version>
                 <extensions>true</extensions>
+                <configuration>
+                  <additionalArchivePaths>
+                    <param>src/docs</param>
+                    <param>target/versions.xml</param>
+                  </additionalArchivePaths>
+                </configuration>
                 <executions>
                   <execution>
                     <id>package-xcode-project</id>
