@@ -38,24 +38,35 @@ class XCodeProjectLayoutValidator
    * @throws XCodeException
    *           is the folder is not a valid xcode project folder
    */
-  static void verifyXcodeFolder(final File xcodeFolder, final String projectName) throws XCodeException
+  static void verifyXcodeFolder(final File xcodeFolder, final String projectName) throws XCodeValidationException
   {
 
-    if (!xcodeFolder.exists())
-      throw new XCodeException(xcodeFolder + " does not exist.");
+    if (!xcodeFolder.exists()) {
+      throw new XCodeRootFolderDoesNotExistException("The folder \"" + xcodeFolder
+            + "\" that is the root folder of the xcode project \"" + projectName + "\" does not exist.");
+    }
 
+    final String xcodeProjectFolderName = projectName + XCodeConstants.XCODE_PROJECT_EXTENTION;
+    
     final Collection<File> xcodeProjectFolders = Arrays.asList(xcodeFolder.listFiles(new FileFilter() {
 
       @Override
       public boolean accept(File f)
       {
-        return f.isDirectory() && f.getName().equals(projectName + XCodeConstants.XCODE_PROJECT_EXTENTION);
+        return f.isDirectory() && f.getName().equals(xcodeProjectFolderName);
       }
     }));
 
     if (xcodeProjectFolders.size() == 0)
-      throw new XCodeException("No xcode projects found.");
-
+    {
+      throw new XCodeProjectNotFoundException(
+            "Inside folder \""
+                  + xcodeFolder
+                  + "\" there exists no folder named \""
+                  + xcodeProjectFolderName
+                  + "\". This folder is expected to hold the xcode project configuration. The xcode project is expected to have the same name than the maven artifactId.");
+    }
+    
     for (final File xcodeProjectFolder : xcodeProjectFolders)
 
       if (xcodeProjectFolder.listFiles(new FileFilter() {
@@ -66,8 +77,8 @@ class XCodeProjectLayoutValidator
           return f.getName().equals(XCodeConstants.XCODE_CONFIGURATION_FILE_NAME);
         }
       }).length != 1)
-        throw new XCodeException("Xcode project folder " + xcodeFolder + " does not contain "
-              + XCodeConstants.XCODE_CONFIGURATION_FILE_NAME);
+        throw new XCodeProjectFileDoesNotExistException("Folder \"" + xcodeProjectFolders + "\" is expected to contain the file \""
+              + XCodeConstants.XCODE_CONFIGURATION_FILE_NAME + "\" but that file does not exist.");
   }
 
 }

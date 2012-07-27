@@ -20,7 +20,9 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,4 +54,33 @@ public class XCodeProjectLayoutValidatorTest extends XCodeTest
     XCodeProjectLayoutValidator.verifyXcodeFolder(new File(new File(projectDirectory, "MyLibrary"), "src/xcode"),
           "MyLibrary");
   }
+
+  @Test(expected=XCodeRootFolderDoesNotExistException.class)
+  public void xCodeRootFolderDoesNotExist() throws XCodeException, IOException
+  {
+    final File projectDirectoryMyLibrary = new File(new File(projectDirectory, "MyLibrary"), "src/xcode");
+    FileUtils.deleteDirectory(projectDirectoryMyLibrary);
+    XCodeProjectLayoutValidator.verifyXcodeFolder(projectDirectoryMyLibrary, "MyLibrary");
+  }
+
+  
+  @Test(expected=XCodeProjectNotFoundException.class)
+  public void xCodeFolderDoesNotExist() throws XCodeException, IOException
+  {
+    final File projectDirectoryMyLibrary = new File(new File(projectDirectory, "MyLibrary"), "src/xcode");
+    FileUtils.deleteDirectory(new File(projectDirectoryMyLibrary, "MyLibrary.xcodeproj"));
+    XCodeProjectLayoutValidator.verifyXcodeFolder(projectDirectoryMyLibrary, "MyLibrary");
+  }
+  
+  @Test(expected=XCodeProjectFileDoesNotExistException.class)
+  public void xCodeProjectFileDoesNotExist() throws XCodeException, IOException
+  {
+    final File projectDirectoryMyLibrary = new File(new File(projectDirectory, "MyLibrary"), "src/xcode");
+    final File pbxprojFile = new File(new File(projectDirectoryMyLibrary, "MyLibrary.xcodeproj"), "project.pbxproj");
+    if(!pbxprojFile.delete())
+      throw new IllegalStateException("Could not delete "  + pbxprojFile);
+    XCodeProjectLayoutValidator.verifyXcodeFolder(projectDirectoryMyLibrary, "MyLibrary");
+  }  
+  
+  
 }
