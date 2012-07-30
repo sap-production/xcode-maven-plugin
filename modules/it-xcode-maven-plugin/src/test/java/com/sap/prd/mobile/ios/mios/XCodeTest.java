@@ -39,7 +39,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.maven.it.Verifier;
-import org.apache.maven.it.util.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.util.IOUtil;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -229,7 +229,7 @@ public abstract class XCodeTest
         final File testExecutionFolder) throws IOException
   {
     FileUtils.deleteDirectory(testExecutionFolder);
-    FileUtils.copyDirectoryStructure(source, testExecutionFolder);
+    FileUtils.copyDirectory(source, testExecutionFolder);
   }
 
   protected static File getTestRootDirectory() throws IOException
