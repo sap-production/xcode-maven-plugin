@@ -40,7 +40,7 @@ import java.util.Properties;
 
 import org.apache.maven.it.Verifier;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.it.util.IOUtil;
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
@@ -175,7 +175,7 @@ public abstract class XCodeTest
     }
     finally {
       if (log != null)
-        IOUtil.close(log);
+        IOUtils.closeQuietly(log);
     }
   }
 
@@ -183,7 +183,7 @@ public abstract class XCodeTest
         throws IOException
   {
 
-    String pom = IOUtil.toString(new FileInputStream(pomFile));
+    String pom = IOUtils.toString(new FileInputStream(pomFile));
 
     pom = pom.replaceAll("\\$\\{deployrepo.directory\\}",
           remoteRepository.getAbsolutePath());
@@ -199,7 +199,7 @@ public abstract class XCodeTest
       w.write(pom);
     }
     finally {
-      IOUtil.close(w);
+      IOUtils.closeQuietly(w);
     }
   }
 
