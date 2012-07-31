@@ -32,7 +32,23 @@ import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * Packages the Xcode project with all its resolved binary dependencies. I.e. this archive can be
- * unzipped and directly opened in Xcode.
+ * unzipped and directly opened in Xcode. It uses the <code>zip</code> command for packaging. The
+ * zip command is called with the <code>-y</code> options to preserver symbolic links and the
+ * <code>-r</code> option to follow the paths recursively. The following files and folders get
+ * packaged:
+ * <ul>
+ * <li>
+ * <code>src/xcode/</code> (or the directory specified by the Maven parameter xcode.sourceDirectory
+ * in you changed the default Xcode project location)</li>
+ * <li><code>pom.xml</code></li>
+ * <li><code>sync.info</code></li>
+ * <li><code>target/bundles/</code></li>
+ * <li><code>target/headers/</code></li>
+ * <li><code>target/libs/</code></li>
+ * <li><code>target/xcode-deps/</code></li>
+ * </ul>
+ * 
+ * You can use the {@link #additionalArchivePaths} and the {@link #excludes}
  * 
  * If called from command line you have to call <code>mvn initialize</code> before in order to make
  * sure that all binary dependencies have been retrieved from the command line.
@@ -83,6 +99,38 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
   private List<String> additionalArchivePaths;
 
   /**
+   * Specify files or file patterns to be excluded from the archive.
+   * 
+   * Configuration example:
+   * 
+   * <pre>
+   *   &lt;build>
+   *     &lt;plugins>
+   *       &lt;plugin>
+   *         &lt;groupId>com.sap.prd.mobile.ios.mios&lt;/groupId>
+   *         &lt;artifactId>xcode-maven-plugin&lt;/artifactId>
+   *         &lt;extensions>true&lt;/extensions>
+   *         &lt;configuration>
+   *           &lt;excludes>
+   *             &lt;param>*.tmp&lt;/param>
+   *             &lt;param>*&#47;tmp/*&lt;/param>
+   *             ...
+   *           &lt;/excludes>
+   *          &lt;/configuration>  
+   *        &lt;/plugin>
+   *        ...
+   *       &lt;/plugins>
+   *     &lt;/build>
+   *   &lt;/build>
+   * </pre>
+   * 
+   * @parameter
+   * @since 1.3.3
+   */
+  private List<String> excludes;
+
+
+  /**
    * @component
    */
   private MavenProjectHelper projectHelper;
@@ -118,6 +166,12 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
       if (additionalArchivePaths != null) {
         zipCmdCall.addAll(additionalArchivePaths);
       }
+
+      if (excludes != null && !excludes.isEmpty()) {
+        zipCmdCall.add("-x");
+        zipCmdCall.addAll(excludes);
+      }
+
       getLog().info("Packaging the Xcode project with all its dependencies into the zip file " + xprojZipFileName);
       getLog().info("Executing: " + StringUtils.join(zipCmdCall, ' '));
       int exitCode = Forker.forkProcess(System.out, project.getBasedir(), zipCmdCall.toArray(new String[] {}));
