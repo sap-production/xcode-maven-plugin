@@ -19,6 +19,7 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -83,7 +84,17 @@ public class DependencyTest extends XCodeTest
     // provided via additionalSourcePaths plugin configuration:
     assertTrue(new File(unpackDir, "src/docs/readme.txt").exists());
     assertTrue(new File(unpackDir, "target/versions.xml").exists());
+    // excludes tests ecpedted dirs and files
+    assertTrue(new File(unpackDir, "src/xcode/packageExcludeTest").exists());
+    assertTrue(new File(unpackDir, "src/xcode/packageExcludeTest/keep.txt").exists());
+    assertTrue(new File(unpackDir, "src/xcode/packageExcludeTest/keep/keep.txt").exists());
+    // exclude test files and dirs not to be packaged
+    assertFalse(new File(unpackDir, "src/xcode/packageExcludeTest/doNotPackage.txt").exists());
+    assertFalse(new File(unpackDir, "src/xcode/packageExcludeTest/file.tmp").exists());
+    assertFalse(new File(unpackDir, "src/xcode/packageExcludeTest/excludeDir").exists());
+    assertFalse(new File(unpackDir, "src/xcode/packageExcludeTest/tmp").exists());
   }
 
 
 }
+

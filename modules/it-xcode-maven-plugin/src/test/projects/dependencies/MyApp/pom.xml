@@ -38,6 +38,12 @@
                     <param>src/docs</param>
                     <param>target/versions.xml</param>
                   </additionalArchivePaths>
+                  <excludes>
+                    <param>*.tmp</param>
+                    <param>*/tmp/*</param>
+                    <param>src/xcode/packageExcludeTest/excludeDir/*</param>
+                    <param>src/xcode/packageExcludeTest/doNotPackage.txt</param>
+                  </excludes>
                 </configuration>
                 <executions>
                   <execution>
