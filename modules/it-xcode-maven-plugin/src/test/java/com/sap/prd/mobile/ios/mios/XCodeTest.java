@@ -26,9 +26,13 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,9 +42,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.maven.it.Verifier;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.it.Verifier;
+import org.apache.maven.settings.Mirror;
+import org.apache.maven.settings.Settings;
+import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
+import org.apache.maven.settings.io.xpp3.SettingsXpp3Writer;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
@@ -50,6 +60,65 @@ public abstract class XCodeTest
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
+  @BeforeClass
+  public static void setup() throws IOException, XmlPullParserException {
+    prepareTestExecutionSettingsFile();
+  }
+  
+  public static void prepareTestExecutionSettingsFile() throws IOException, XmlPullParserException {
+
+    // TODO: We expect that the settings file from the default location is used.
+    // Does anybody know how we can obtain the maven cli in order to check
+    // which settings file is in fact used???
+    
+    final File userSettingsFile = new File(new File(System.getProperty("user.home")), ".m2/settings.xml");
+    final File testExecutionSettingsFile = getTestExectutionSettingsFile();
+        
+    if(testExecutionSettingsFile.exists())
+      return;
+    
+    if(!testExecutionSettingsFile.getParentFile().exists() && !testExecutionSettingsFile.getParentFile().mkdirs())
+        throw new IOException("Cannot create " + testExecutionSettingsFile.getParentFile());
+      
+    final Reader r = new InputStreamReader(new FileInputStream(userSettingsFile), "UTF-8");
+    final Writer w = new OutputStreamWriter(new FileOutputStream(testExecutionSettingsFile), "UTF-8");
+    
+    try {
+      
+        Settings settings = new SettingsXpp3Reader().read(r);
+        List<Mirror> mirrors = settings.getMirrors();  
+        
+        for(Mirror m : mirrors) {
+
+          StringBuilder newMirrorOf = new StringBuilder(256);
+
+          for(String mirror : m.getMirrorOf().split(",")) {
+            
+            if(newMirrorOf.length() > 0)
+              newMirrorOf.append(",");
+            
+            if("*".equals(mirror))
+              newMirrorOf.append("external:").append(mirror);
+            else
+              newMirrorOf.append(mirror);
+          }
+          
+          m.setMirrorOf(newMirrorOf.toString());
+        }
+        
+        new SettingsXpp3Writer().write(w, settings);
+        
+        
+    } finally {
+      IOUtils.closeQuietly(r);
+      IOUtils.closeQuietly(w);
+    }
+  }
+ 
+  private static File getTestExectutionSettingsFile() throws IOException {
+    return new File(getTestsExecutionDirectory(), "settings.xml").getCanonicalFile();
+  }
+  
   protected final static Map<String, String> THE_EMPTY_MAP = new HashMap<String, String>();
   protected final static List<String> THE_EMPTY_LIST = new ArrayList<String>();
 
@@ -57,7 +126,6 @@ public abstract class XCodeTest
         final String target, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, final File remoteRepositoryDirectory, final File frameworkRepositoryDirectory) throws Exception
   {
-
     return test(null, testName, projectDirectory, pomFileName, target, additionalCommandLineOptions,
           additionalSystemProperties, remoteRepositoryDirectory, frameworkRepositoryDirectory);
   }
@@ -112,7 +180,7 @@ public abstract class XCodeTest
               + testSystemProperties);
 
       final List<String> commandLineOptions = new ArrayList<String>(
-            Arrays.asList("-f", pomFileName));
+            Arrays.asList("-f", pomFileName, "-s", getTestExectutionSettingsFile().getAbsolutePath()));
 
       if (additionalCommandLineOptions != null)
         commandLineOptions.addAll(additionalCommandLineOptions);
@@ -122,7 +190,7 @@ public abstract class XCodeTest
       verifier.setSystemProperties(testSystemProperties);
 
       verifier.deleteArtifacts("com.sap.production.ios.tests");
-
+      
       verifier.executeGoal(target);
       verifier.verifyErrorFreeLog();
       verifier.resetStreams();
@@ -142,11 +210,15 @@ public abstract class XCodeTest
     return verifier;
   }
 
-  protected File getTestExecutionDirectory(final String testName, final String projectName)
+  protected static File getTestsExecutionDirectory() throws IOException {
+    return new File(new File(".").getAbsoluteFile(), "target/tests/");
+  }
+  
+  protected File getTestExecutionDirectory(final String testName, final String projectName) throws IOException
   {
     return new File(
-          new File(".").getAbsolutePath(), "target/tests/"
-                + getClass().getName() + "/" + testName + "/" + projectName);
+          getTestsExecutionDirectory(),
+                getClass().getName() + "/" + testName + "/" + projectName);
   }
 
   private void showLog(final String projectName, final File logFile)
