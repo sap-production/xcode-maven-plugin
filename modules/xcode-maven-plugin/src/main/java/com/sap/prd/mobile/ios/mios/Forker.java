@@ -100,5 +100,7 @@ class Forker
       if (out.checkError())
         throw new IOException("Cannot handle log output from xcodebuild. Underlying PrintStream indicates problems.");
     }
+    
+    out.flush();
   }
 }
