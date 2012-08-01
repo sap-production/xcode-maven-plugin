@@ -43,6 +43,8 @@ import org.apache.maven.project.MavenProjectHelper;
 public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
 {
 
+  final static String OTA_CLASSIFIER_APPENDIX = "-ota";
+  final static String OTA_HTML_FILE_APPENDIX = "htm";
   /**
    * @parameter expression="${mios.ota-service.url}"
    */
@@ -154,13 +156,13 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
    */
   static String getOtaHtmlClassifier(String configuration, String sdk)
   {
-    return configuration + "-" + sdk + "-ota";
+    return configuration + "-" + sdk + OTA_CLASSIFIER_APPENDIX;
   }
 
   private void prepareOtaHtmlFileForDeployment(final MavenProject mavenProject, final String classifier,
         final File otaHtmlFile)
   {
-    projectHelper.attachArtifact(mavenProject, "htm", classifier, otaHtmlFile);
+    projectHelper.attachArtifact(mavenProject, OTA_HTML_FILE_APPENDIX, classifier, otaHtmlFile);
   }
 
 }

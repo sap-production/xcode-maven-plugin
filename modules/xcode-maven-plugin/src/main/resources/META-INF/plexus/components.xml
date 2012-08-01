@@ -75,6 +75,12 @@
               <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
             </phases>
           </lifecycle>
+          <lifecycle>
+            <id>clean</id>
+            <phases>
+              <clean>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:clean-plugin,org.apache.maven.plugins:maven-clean-plugin:clean</clean>
+            </phases>
+          </lifecycle>          
         </lifecycles>
       </configuration>
     </component>
@@ -92,7 +98,13 @@
               <compile>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild</compile>
               <package>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:attach-version-info, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-application, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-dsym, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-ipa, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:generate-ota-html, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-metadata</package>
               <install>org.apache.maven.plugins:maven-install-plugin:install</install>
-              <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+              <deploy>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+            </phases>
+          </lifecycle>
+          <lifecycle>
+            <id>clean</id>
+            <phases>
+              <clean>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:clean,org.apache.maven.plugins:maven-clean-plugin:clean</clean>
             </phases>
           </lifecycle>
         </lifecycles>
