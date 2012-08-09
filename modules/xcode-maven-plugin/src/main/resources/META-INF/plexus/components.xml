@@ -78,7 +78,7 @@
           <lifecycle>
             <id>clean</id>
             <phases>
-              <clean>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:clean-plugin,org.apache.maven.plugins:maven-clean-plugin:clean</clean>
+              <clean>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:clean,org.apache.maven.plugins:maven-clean-plugin:clean</clean>
             </phases>
           </lifecycle>          
         </lifecycles>
