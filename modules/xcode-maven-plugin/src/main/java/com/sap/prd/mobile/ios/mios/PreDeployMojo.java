@@ -1,9 +1,8 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -169,7 +168,7 @@ public class PreDeployMojo extends AbstractXCodeMojo
 
     private void writeIpaHtmlFile(final File archiveFolder, final String url, final String html)
     {
-      Writer w = null;
+      FileOutputStream fos = null;
 
       try {
 
@@ -179,15 +178,15 @@ public class PreDeployMojo extends AbstractXCodeMojo
         if (!f.exists() && !f.mkdirs())
           throw new IOException("Cannot create folder '" + f + "'.");
 
-        w = new FileWriter(new File(f, getIpaPointerFileName(url)));
+        fos = new FileOutputStream(new File(f, getIpaPointerFileName(url)));
 
-        IOUtils.write(html, w);
+        IOUtils.write(html, fos, "UTF-8");
       }
       catch (IOException ex) {
         throw new RuntimeException(ex);
       }
       finally {
-        IOUtils.closeQuietly(w);
+        IOUtils.closeQuietly(fos);
       }
     }
 
