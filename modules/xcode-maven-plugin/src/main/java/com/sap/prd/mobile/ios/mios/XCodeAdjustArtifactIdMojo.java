@@ -32,7 +32,7 @@ public class XCodeAdjustArtifactIdMojo extends AbstractXCodeMojo
 {
 
   /**
-   * If not empty the artifactId gets appended by '~&lt;artifactIdSuffix>'
+   * If not empty the artifactId gets appended by '_&lt;artifactIdSuffix&gt;'
    * 
    * @parameter expression="${xcode.artifactIdSuffix}"
    * @since 1.2.0
@@ -47,7 +47,7 @@ public class XCodeAdjustArtifactIdMojo extends AbstractXCodeMojo
 
     if (artifactIdSuffix != null && !"".equals(artifactIdSuffix.trim())) {
       final String originalArtifactId = project.getArtifactId();
-      project.getArtifact().setArtifactId(originalArtifactId + "~" + artifactIdSuffix);
+      project.getArtifact().setArtifactId(originalArtifactId + "_" + artifactIdSuffix);
       getLog().info(
             "ArtifactId has been updated from '" + originalArtifactId + "' to '"
                   + project.getArtifact().getArtifactId() + "'.");
