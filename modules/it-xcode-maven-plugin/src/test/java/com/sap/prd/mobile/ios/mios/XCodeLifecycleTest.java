@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.IOUtil;
@@ -83,7 +84,7 @@ public class XCodeLifecycleTest extends XCodeTest
     additionalSystemProperties.put("mios.ota-service.url", "http://apple-ota.wdf.sap.corp:8080/ota-service/HTML");
     additionalSystemProperties.put("xcode.app.defaultConfigurations", "Release");
     additionalSystemProperties.put("xcode.app.defaultSdks", "iphoneos");
-
+    additionalSystemProperties.put("archive.dir", "archive");
 
     // ------------------------------------------------------------------------------------------
     // --- Now build the app
@@ -141,9 +142,21 @@ public class XCodeLifecycleTest extends XCodeTest
 
     final String otaFileNameSuffix = appIdSuffix == null ? "-iphoneos-ota.htm" : "-" + appIdSuffix
           + "-iphoneos-ota.htm";
-
     compareFileContent(new File("src/test/resources/MyApp-Release-" + Constants.APP_VERSION + otaFileNameSuffix),
           otaHtmlFileActualRelease);
+    
+    File otaArchiveDir = new File(appVerifier.getBasedir(), "archive/ota/com.sap.ondevice.production.ios.tests/MyApp");
+    assertTrue("OTA archive dir does not exist", otaArchiveDir.isDirectory());
+    File otaArchiveHtmlFile = new File(otaArchiveDir, "Release-iphoneos-ota.htm");
+    assertTrue("OTA archive HTML file does not exist", otaArchiveHtmlFile.isFile());
+    FileInputStream fis = new FileInputStream(otaArchiveHtmlFile);
+    try {
+      String otaArchiveHtmlContent = IOUtils.toString(fis, "UTF-8");
+      assertFalse("${LOCATION} has not been replaced in OTA archive HTML file", otaArchiveHtmlContent.contains("${LOCATION}"));
+      assertTrue("OTA HTML location has not been written into OTA archive HTML file", otaArchiveHtmlContent.contains("target/remoteRepo/com.sap.prd.mobile.ios.mios.XCodeLifecycleTest/com/sap/ondevice/production/ios/tests/MyApp/1.0.0/MyApp-1.0.0-Release-iphoneos-ota.htm"));
+    } finally {
+      IOUtils.closeQuietly(fis);
+    }    
 
     assertTrue(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-AppStoreMetadata.zip").exists());
 
@@ -163,18 +176,23 @@ public class XCodeLifecycleTest extends XCodeTest
     assertEquals(projectName, properties.getProperty("PRODUCT_NAME"));
   }
 
+  @SuppressWarnings("resource")
   private String extractAppIdSuffixFromLogFile(File logFile) throws IOException
   {
     BufferedReader reader = new BufferedReader(new FileReader(logFile));
-    String line;
-    Pattern p = Pattern.compile("appIdSuffix=(\\w+)");
-    while ((line = reader.readLine()) != null)
-    {
-      Matcher matcher = p.matcher(line);
-      if (matcher.find())
+    try {
+      String line;
+      Pattern p = Pattern.compile("appIdSuffix=(\\w+)");
+      while ((line = reader.readLine()) != null)
       {
-        return matcher.group(1);
+        Matcher matcher = p.matcher(line);
+        if (matcher.find())
+        {
+          return matcher.group(1);
+        }
       }
+    } finally {
+      IOUtils.closeQuietly(reader);
     }
     return null;
   }
