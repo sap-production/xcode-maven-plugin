@@ -83,6 +83,7 @@ public class XCodeLifecycleTest extends XCodeTest
     additionalSystemProperties.put("mios.ota-service.url", "http://apple-ota.wdf.sap.corp:8080/ota-service/HTML");
     additionalSystemProperties.put("xcode.app.defaultConfigurations", "Release");
     additionalSystemProperties.put("xcode.app.defaultSdks", "iphoneos");
+    additionalSystemProperties.put("archive.dir", "archive");
 
 
     // ------------------------------------------------------------------------------------------

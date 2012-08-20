@@ -40,116 +40,13 @@ public class PreDeployMojo extends AbstractXCodeMojo
    */
   protected RepositorySystemSession repoSession;
 
-  private final static String HTML_TEMPLATE = "<html><head><script type=\"text/javascript\">function redirect() {window.location.href=\"$LOCATION\"}</script></head><body onload=\"redirect()\">You will be redirected within the next few seconds.<br />In case this does not work click <a href=\"$LOCATION\">here</a></body></html>";
+  private final static String HTML_TEMPLATE = "<html><head><meta http-equiv=\"refresh\" content=\"0; URL=$LOCATION\">" +
+        "<body>You will be redirected within the next few seconds.<br />" +
+        "In case this does not work click <a href=\"$LOCATION\">here</a></body></html>";
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    class PrepareIpaPointerFileTransferListener implements TransferListener
-    {
-      private TransferListener forward;
-
-      PrepareIpaPointerFileTransferListener(TransferListener forward)
-      {
-        this.forward = forward;
-      }
-
-      @Override
-      public void transferSucceeded(TransferEvent event)
-      {
-        if (forward != null)
-          forward.transferSucceeded(event);
-
-        if (!event
-          .getResource()
-          .getResourceName()
-          .endsWith(
-                XCodeOtaHtmlGeneratorMojo.OTA_CLASSIFIER_APPENDIX + "."
-                      + XCodeOtaHtmlGeneratorMojo.OTA_HTML_FILE_APPENDIX))
-        {
-          return;
-        }
-
-        try {
-
-          final String url = event.getResource().getRepositoryUrl() + event.getResource().getResourceName();
-          final String html = HTML_TEMPLATE.replaceAll("\\$LOCATION", url);
-
-          writeIpaHtmlFile(archiveFolder, url, html);
-
-        }
-        catch (RuntimeException ex) {
-
-          getLog().error("Could not create IPA pointer file for '" + event.getResource().getResourceName(), ex);
-        }
-      }
-
-      @Override
-      public void transferStarted(TransferEvent event) throws TransferCancelledException
-      {
-        if (forward != null)
-          forward.transferStarted(event);
-      }
-
-      @Override
-      public void transferProgressed(TransferEvent event) throws TransferCancelledException
-      {
-        if (forward != null)
-          forward.transferProgressed(event);
-      }
-
-      @Override
-      public void transferInitiated(TransferEvent event) throws TransferCancelledException
-      {
-        if (forward != null)
-          forward.transferInitiated(event);
-      }
-
-      @Override
-      public void transferFailed(TransferEvent event)
-      {
-        if (forward != null)
-          forward.transferFailed(event);
-      }
-
-      @Override
-      public void transferCorrupted(TransferEvent event) throws TransferCancelledException
-      {
-        if (forward != null)
-          forward.transferCorrupted(event);
-      }
-
-      private void writeIpaHtmlFile(final File archiveFolder, final String url, final String html)
-      {
-        Writer w = null;
-
-        try {
-
-          final File f = new File(new File(new File(archiveFolder, "ota"), project.getGroupId()),
-                project.getArtifactId());
-
-          if (!f.exists() && !f.mkdirs())
-            throw new IOException("Cannot create folder '" + f + "'.");
-
-          w = new FileWriter(new File(f, getIpaPointerFileName(url)));
-
-          IOUtils.write(html, w);
-        }
-        catch (IOException ex) {
-          throw new RuntimeException(ex);
-        }
-        finally {
-          IOUtils.closeQuietly(w);
-        }
-      }
-
-      private String getIpaPointerFileName(final String url)
-      {
-        String[] parts = url.substring(url.lastIndexOf("/")).split("-");
-        return parts[parts.length - 3] + "-" + parts[parts.length - 2] + "-" + parts[parts.length - 1];
-      }
-    }
-
     try {
       archiveFolder = archiveFolder.getCanonicalFile();
     }
@@ -157,7 +54,7 @@ public class PreDeployMojo extends AbstractXCodeMojo
       throw new MojoExecutionException(ex.getMessage(), ex);
     }
 
-    sanityChecks(archiveFolder);
+    createArchiveFolder(archiveFolder);
 
     getLog().info("Using archive directory: '" + archiveFolder + "'.");
 
@@ -190,12 +87,115 @@ public class PreDeployMojo extends AbstractXCodeMojo
     }
   }
 
-  private static void sanityChecks(File archiveFolder) throws MojoExecutionException
+  private static void createArchiveFolder(File archiveFolder) throws MojoExecutionException
   {
-    if (archiveFolder.exists() && archiveFolder.isFile())
+    if (archiveFolder.isFile())
       throw new MojoExecutionException("Archive folder '" + archiveFolder + "' is a file rather than a directory.");
 
     if (!archiveFolder.exists() && !archiveFolder.mkdirs())
       throw new MojoExecutionException("Cannot create archive folder '" + archiveFolder + "'.");
   }
+
+  class PrepareIpaPointerFileTransferListener implements TransferListener
+  {
+    private TransferListener forward;
+
+    PrepareIpaPointerFileTransferListener(TransferListener forward)
+    {
+      this.forward = forward;
+    }
+
+    @Override
+    public void transferSucceeded(TransferEvent event)
+    {
+      if (forward != null)
+        forward.transferSucceeded(event);
+
+      if (!event.getResource().getResourceName().endsWith(
+            XCodeOtaHtmlGeneratorMojo.OTA_CLASSIFIER_APPENDIX + "."
+                  + XCodeOtaHtmlGeneratorMojo.OTA_HTML_FILE_APPENDIX))
+      {
+        return;
+      }
+
+      try {
+
+        final String url = event.getResource().getRepositoryUrl() + event.getResource().getResourceName();
+        final String html = HTML_TEMPLATE.replaceAll("\\$LOCATION", url);
+
+        writeIpaHtmlFile(archiveFolder, url, html);
+
+      }
+      catch (RuntimeException ex) {
+
+        getLog().error("Could not create IPA pointer file for '" + event.getResource().getResourceName(), ex);
+      }
+    }
+
+    @Override
+    public void transferStarted(TransferEvent event) throws TransferCancelledException
+    {
+      if (forward != null)
+        forward.transferStarted(event);
+    }
+
+    @Override
+    public void transferProgressed(TransferEvent event) throws TransferCancelledException
+    {
+      if (forward != null)
+        forward.transferProgressed(event);
+    }
+
+    @Override
+    public void transferInitiated(TransferEvent event) throws TransferCancelledException
+    {
+      if (forward != null)
+        forward.transferInitiated(event);
+    }
+
+    @Override
+    public void transferFailed(TransferEvent event)
+    {
+      if (forward != null)
+        forward.transferFailed(event);
+    }
+
+    @Override
+    public void transferCorrupted(TransferEvent event) throws TransferCancelledException
+    {
+      if (forward != null)
+        forward.transferCorrupted(event);
+    }
+
+    private void writeIpaHtmlFile(final File archiveFolder, final String url, final String html)
+    {
+      Writer w = null;
+
+      try {
+
+        final File f = new File(new File(new File(archiveFolder, "ota"), project.getGroupId()),
+              project.getArtifactId());
+
+        if (!f.exists() && !f.mkdirs())
+          throw new IOException("Cannot create folder '" + f + "'.");
+
+        w = new FileWriter(new File(f, getIpaPointerFileName(url)));
+
+        IOUtils.write(html, w);
+      }
+      catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+      finally {
+        IOUtils.closeQuietly(w);
+      }
+    }
+
+    private String getIpaPointerFileName(final String url)
+    {
+      String[] parts = url.substring(url.lastIndexOf("/")).split("-");
+      return parts[parts.length - 3] + "-" + parts[parts.length - 2] + "-" + parts[parts.length - 1];
+    }
+  }
+
 }
