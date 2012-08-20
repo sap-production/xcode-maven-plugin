@@ -262,12 +262,12 @@ public class XCodeLifecycleTest extends XCodeTest
     final String configuration = "Release";
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp~release/" + Constants.APP_VERSION + "/MyApp~release-"
+          Constants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + Constants.APP_VERSION + "/MyApp_release-"
                 + Constants.APP_VERSION + "-"
                 + configuration + "-iphoneos.ipa").exists());
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp~release/" + Constants.APP_VERSION + "/MyApp~release-"
+          Constants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + Constants.APP_VERSION + "/MyApp_release-"
                 + Constants.APP_VERSION + "-AppStoreMetadata.zip")
       .exists());
   }
