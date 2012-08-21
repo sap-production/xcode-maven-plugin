@@ -145,9 +145,9 @@ public class XCodeLifecycleTest extends XCodeTest
     compareFileContent(new File("src/test/resources/MyApp-Release-" + Constants.APP_VERSION + otaFileNameSuffix),
           otaHtmlFileActualRelease);
     
-    File otaArchiveDir = new File(appVerifier.getBasedir(), "archive/ota/com.sap.ondevice.production.ios.tests/MyApp");
-    assertTrue("OTA archive dir does not exist", otaArchiveDir.isDirectory());
-    File otaArchiveHtmlFile = new File(otaArchiveDir, "Release-iphoneos-ota.htm");
+    File archiveArtifactsDir = new File(appVerifier.getBasedir(), "archive/artifacts/com.sap.ondevice.production.ios.tests/MyApp");
+    assertTrue("Archive artifacts dir does not exist", archiveArtifactsDir.isDirectory());
+    File otaArchiveHtmlFile = new File(archiveArtifactsDir, "MyApp-Release-iphoneos-ota.htm");
     assertTrue("OTA archive HTML file does not exist", otaArchiveHtmlFile.isFile());
     FileInputStream fis = new FileInputStream(otaArchiveHtmlFile);
     try {
@@ -157,7 +157,14 @@ public class XCodeLifecycleTest extends XCodeTest
     } finally {
       IOUtils.closeQuietly(fis);
     }    
-
+    assertTrue("File does not exist MyApp-AppStoreMetaData.zip.htm", new File(archiveArtifactsDir, "MyApp-AppStoreMetaData.zip.htm").isFile());
+    assertTrue("File does not exist MyApp-Release-iphoneos-ota.htm", new File(archiveArtifactsDir, "MyApp-Release-iphoneos-ota.htm").isFile());
+    assertTrue("File does not exist MyApp-Release-iphoneos-app.dSYM.zip.htm", new File(archiveArtifactsDir, "MyApp-Release-iphoneos-app.dSYM.zip.htm").isFile());
+    assertTrue("File does not exist MyApp-Release-iphoneos-app.zip.htm", new File(archiveArtifactsDir, "MyApp-Release-iphoneos-app.zip.htm").isFile());
+    assertTrue("File does not exist MyApp-Release-iphoneos.ipa.htm", new File(archiveArtifactsDir, "MyApp-Release-iphoneos.ipa.htm").isFile());
+    assertTrue("File does not exist MyApp-versions.xml.htm", new File(archiveArtifactsDir, "MyApp-versions.xml.htm").isFile());
+    assertTrue("File does not exist MyApp.pom.htm", new File(archiveArtifactsDir, "MyApp.pom.htm").isFile());
+    
     assertTrue(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-AppStoreMetadata.zip").exists());
 
     File versionFileApp = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-versions.xml");
