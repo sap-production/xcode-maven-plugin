@@ -82,7 +82,7 @@ public class PreDeployMojo extends AbstractXCodeMojo
     }
     catch (Exception e) {
       throw new MojoExecutionException(
-            "Cannot set transfer listener for creating ipa pointer files: " + e.getMessage(), e);
+            "Cannot set transfer listener for creating artifact redirect HTML files: " + e.getMessage(), e);
     }
   }
 
@@ -110,24 +110,19 @@ public class PreDeployMojo extends AbstractXCodeMojo
       if (forward != null)
         forward.transferSucceeded(event);
 
-      if (!event.getResource().getResourceName().endsWith(
-            XCodeOtaHtmlGeneratorMojo.OTA_CLASSIFIER_APPENDIX + "."
-                  + XCodeOtaHtmlGeneratorMojo.OTA_HTML_FILE_APPENDIX))
-      {
-        return;
-      }
-
       try {
 
         final String url = event.getResource().getRepositoryUrl() + event.getResource().getResourceName();
         final String html = HTML_TEMPLATE.replaceAll("\\$LOCATION", url);
 
-        writeIpaHtmlFile(archiveFolder, url, html);
+        File artifactFolder = new File(new File(new File(archiveFolder, "artifacts"), project.getGroupId()),
+              project.getArtifactId());
+        writeArtifactRedirectHtmlFile(artifactFolder, url, html);
 
       }
       catch (RuntimeException ex) {
 
-        getLog().error("Could not create IPA pointer file for '" + event.getResource().getResourceName(), ex);
+        getLog().error("Could not create artifact redirect HTML file for '" + event.getResource().getResourceName(), ex);
       }
     }
 
@@ -166,19 +161,16 @@ public class PreDeployMojo extends AbstractXCodeMojo
         forward.transferCorrupted(event);
     }
 
-    private void writeIpaHtmlFile(final File archiveFolder, final String url, final String html)
+    private void writeArtifactRedirectHtmlFile(final File artifactFolder, final String url, final String html)
     {
       FileOutputStream fos = null;
 
       try {
 
-        final File f = new File(new File(new File(archiveFolder, "ota"), project.getGroupId()),
-              project.getArtifactId());
+        if (!artifactFolder.exists() && !artifactFolder.mkdirs())
+          throw new IOException("Cannot create folder '" + artifactFolder + "'.");
 
-        if (!f.exists() && !f.mkdirs())
-          throw new IOException("Cannot create folder '" + f + "'.");
-
-        fos = new FileOutputStream(new File(f, getIpaPointerFileName(url)));
+        fos = new FileOutputStream(new File(artifactFolder, getArtifactRedirectHtmlFileName(url)));
 
         IOUtils.write(html, fos, "UTF-8");
       }
@@ -190,11 +182,62 @@ public class PreDeployMojo extends AbstractXCodeMojo
       }
     }
 
-    private String getIpaPointerFileName(final String url)
+    private String getArtifactRedirectHtmlFileName(final String url)
     {
-      String[] parts = url.substring(url.lastIndexOf("/")).split("-");
-      return parts[parts.length - 3] + "-" + parts[parts.length - 2] + "-" + parts[parts.length - 1];
+      //E.g. MyApp-1.0.0-20120821.132955-1-Release-iphoneos-ota.htm 
+      String artifactFileName = url.substring(url.lastIndexOf("/")+1);
+      return getRedirectHtmlFilename(artifactFileName, project.getArtifactId());
     }
+
+  }
+
+  static String getRedirectHtmlFilename(String artifactFileName, String artifactId)
+  {
+    String search = "-";
+    int nthElement = 0;
+    if (artifactFileName.endsWith(XCodeOtaHtmlGeneratorMojo.OTA_CLASSIFIER_APPENDIX + "." + XCodeOtaHtmlGeneratorMojo.OTA_HTML_FILE_APPENDIX)) {
+      nthElement = 3;
+    }
+    else if (artifactFileName.endsWith("-AppStoreMetaData.zip")) {
+      nthElement = 1;
+    }
+    else if (artifactFileName.endsWith("-app.dSYM.zip")) {
+      nthElement = 3;
+    }
+    else if (artifactFileName.endsWith("-app.zip")) {
+      nthElement = 3;
+    }
+    else if (artifactFileName.endsWith(".ipa")) {
+      nthElement = 2;
+    }
+    else if (artifactFileName.endsWith("versions.xml")) {
+      nthElement = 1;
+    }
+    else if (artifactFileName.endsWith(".pom")) {
+      nthElement = 1;
+      search = ".";
+    }
+
+    int idx = getNthIndexFromBack(artifactFileName, search, nthElement);
+    if (idx >= 0) {
+      String name = artifactId + artifactFileName.substring(idx);
+      if (!name.endsWith(".htm")) name = name + ".htm";
+      return name;
+    }
+    else {
+      return artifactId + "-" + artifactFileName + ".htm";
+    }
+  }
+
+  static int getNthIndexFromBack(String string, String searchString, int countFromBack)
+  {
+    if (countFromBack <= 0) return -1;
+    int idx = string.length();
+    for (int i = 0; i < countFromBack; i++) {
+      idx = string.substring(0, idx).lastIndexOf(searchString);
+      if (idx <= 0) return idx;
+    }
+    return idx;
   }
 
 }
