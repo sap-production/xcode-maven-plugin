@@ -110,19 +110,30 @@ public class PreDeployMojo extends AbstractXCodeMojo
       if (forward != null)
         forward.transferSucceeded(event);
 
+      
+      if(event.getResource().getResourceName().endsWith("maven-metadata.xml")) {
+        
+        getLog().debug("No redirect html file will be created for '" + event.getResource().getResourceName() + "'.");
+        return;
+      }
+      
       try {
 
         final String url = event.getResource().getRepositoryUrl() + event.getResource().getResourceName();
         final String html = HTML_TEMPLATE.replaceAll("\\$LOCATION", url);
 
-        File artifactFolder = new File(new File(new File(archiveFolder, "artifacts"), project.getGroupId()),
-              project.getArtifactId());
-        writeArtifactRedirectHtmlFile(artifactFolder, url, html);
+        final File redirect = new File(new File(new File(new File(archiveFolder, "artifacts"), project.getGroupId()),
+              project.getArtifactId()), getArtifactRedirectHtmlFileName(url));
+
+        writeArtifactRedirectHtmlFile(redirect, url, html);
+        
+        getLog().info("Redirect file '" + redirect + "' written for '" + url + "'.");
 
       }
       catch (RuntimeException ex) {
 
-        getLog().error("Could not create artifact redirect HTML file for '" + event.getResource().getResourceName(), ex);
+        getLog()
+          .error("Could not create artifact redirect HTML file for '" + event.getResource().getResourceName(), ex);
       }
     }
 
@@ -161,16 +172,16 @@ public class PreDeployMojo extends AbstractXCodeMojo
         forward.transferCorrupted(event);
     }
 
-    private void writeArtifactRedirectHtmlFile(final File artifactFolder, final String url, final String html)
+    private void writeArtifactRedirectHtmlFile(final File redirect, final String url, final String html)
     {
       FileOutputStream fos = null;
 
       try {
 
-        if (!artifactFolder.exists() && !artifactFolder.mkdirs())
-          throw new IOException("Cannot create folder '" + artifactFolder + "'.");
+        if (!redirect.getParentFile().exists() && !redirect.getParentFile().mkdirs())
+          throw new IOException("Cannot create folder '" + redirect.getParentFile() + "'.");
 
-        fos = new FileOutputStream(new File(artifactFolder, getArtifactRedirectHtmlFileName(url)));
+        fos = new FileOutputStream(redirect);
 
         IOUtils.write(html, fos, "UTF-8");
       }
@@ -185,7 +196,7 @@ public class PreDeployMojo extends AbstractXCodeMojo
     private String getArtifactRedirectHtmlFileName(final String url)
     {
       //E.g. MyApp-1.0.0-20120821.132955-1-Release-iphoneos-ota.htm 
-      String artifactFileName = url.substring(url.lastIndexOf("/")+1);
+      String artifactFileName = url.substring(url.lastIndexOf("/") + 1);
       return getRedirectHtmlFilename(artifactFileName, project.getArtifactId());
     }
 
@@ -195,7 +206,8 @@ public class PreDeployMojo extends AbstractXCodeMojo
   {
     String search = "-";
     int nthElement = 0;
-    if (artifactFileName.endsWith(XCodeOtaHtmlGeneratorMojo.OTA_CLASSIFIER_APPENDIX + "." + XCodeOtaHtmlGeneratorMojo.OTA_HTML_FILE_APPENDIX)) {
+    if (artifactFileName.endsWith(XCodeOtaHtmlGeneratorMojo.OTA_CLASSIFIER_APPENDIX + "."
+          + XCodeOtaHtmlGeneratorMojo.OTA_HTML_FILE_APPENDIX)) {
       nthElement = 3;
     }
     else if (artifactFileName.endsWith("-AppStoreMetaData.zip")) {
