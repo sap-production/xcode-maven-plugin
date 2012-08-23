@@ -120,11 +120,4 @@ public class PreDeployMojoTest
   public void testGetRedirectHtmlFilenameForFinalArtifact_Pom() {
     assertEquals("MyApp.pom.htm", getRedirectHtmlFilename("MyApp-1.0.0.pom", "MyApp"));
   }
-
-  
-  @Test
-  public void testGetRedirectHtmlFilename_mavenMetadata() {
-    assertEquals("MyApp-maven-metadata.xml.htm", getRedirectHtmlFilename("maven-metadata.xml", "MyApp"));
-  }
-
 }
