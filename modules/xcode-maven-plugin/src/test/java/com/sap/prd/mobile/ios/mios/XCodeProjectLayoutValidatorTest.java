@@ -73,7 +73,7 @@ public class XCodeProjectLayoutValidatorTest extends XCodeTest
   }
   
   @Test(expected=XCodeProjectFileDoesNotExistException.class)
-  public void xCodeProjectFileDoesNotExist() throws XCodeException, IOException
+  public void xCodeProjectFileDoesNotExist() throws XCodeException
   {
     final File projectDirectoryMyLibrary = new File(new File(projectDirectory, "MyLibrary"), "src/xcode");
     final File pbxprojFile = new File(new File(projectDirectoryMyLibrary, "MyLibrary.xcodeproj"), "project.pbxproj");
