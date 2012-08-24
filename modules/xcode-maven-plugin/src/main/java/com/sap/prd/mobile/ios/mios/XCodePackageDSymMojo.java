@@ -85,7 +85,7 @@ public class XCodePackageDSymMojo extends AbstractXCodeMojo
   }
 
   private void packageAndAttachDSym(String sdk, String config) throws IOException, NoSuchArchiverException,
-        ArchiverException, MojoExecutionException
+        ArchiverException
   {
 
     final String productName;
@@ -106,7 +106,7 @@ public class XCodePackageDSymMojo extends AbstractXCodeMojo
 
     final String fixedProductName = getFixedProductName(productName);
 
-    String generateDSym = getTargetBuildConfiguration(config).getBuildSettings().getDict().getString("GCC_GENERATE_DEBUGGING_SYMBOLS");
+    String generateDSym = new EffectiveBuildSettings(this, config, sdk).getBuildSetting(EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
     if (generateDSym == null || generateDSym.equalsIgnoreCase("YES")) {
 

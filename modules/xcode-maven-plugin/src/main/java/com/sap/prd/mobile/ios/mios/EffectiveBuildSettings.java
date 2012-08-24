@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 public class EffectiveBuildSettings
 {
   public static final String PRODUCT_NAME = "PRODUCT_NAME";
+  public static final String GCC_GENERATE_DEBUGGING_SYMBOLS = "GCC_GENERATE_DEBUGGING_SYMBOLS";
   
   private Properties properties;
   

@@ -37,9 +37,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.sap.prd.mobile.ios.mios.XCodeContext;
-import com.sap.prd.mobile.ios.mios.XCodeManager;
-
 public class XCodeManagerTest extends XCodeTest
 {
 
