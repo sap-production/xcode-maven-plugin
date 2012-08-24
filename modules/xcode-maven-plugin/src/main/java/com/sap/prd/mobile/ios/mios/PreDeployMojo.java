@@ -233,12 +233,12 @@ public class PreDeployMojo extends AbstractXCodeMojo
     int idx = getNthIndexFromBack(artifactFileName, search, nthElement);
     if (idx >= 0) {
       String name = artifactId + artifactFileName.substring(idx);
-      if (!name.endsWith(".htm")) name = name + ".htm";
+      if (!name.endsWith(".htm")) {
+        name = name + ".htm";
+      }
       return name;
     }
-    else {
-      return artifactId + "-" + artifactFileName + ".htm";
-    }
+    return artifactId + "-" + artifactFileName + ".htm";
   }
 
   static int getNthIndexFromBack(String string, String searchString, int countFromBack)

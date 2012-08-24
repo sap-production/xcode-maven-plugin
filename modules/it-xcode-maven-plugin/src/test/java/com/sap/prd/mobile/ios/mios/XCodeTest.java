@@ -210,11 +210,11 @@ public abstract class XCodeTest
     return verifier;
   }
 
-  protected static File getTestsExecutionDirectory() throws IOException {
+  protected static File getTestsExecutionDirectory() {
     return new File(new File(".").getAbsoluteFile(), "target/tests/");
   }
   
-  protected File getTestExecutionDirectory(final String testName, final String projectName) throws IOException
+  protected File getTestExecutionDirectory(final String testName, final String projectName)
   {
     return new File(
           getTestsExecutionDirectory(),

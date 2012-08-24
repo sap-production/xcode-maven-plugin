@@ -48,21 +48,20 @@ public class CodeSignManagerTest
   }
 
   @Test(expected = ExecutionResultVerificationException.class)
-  public void testVerifyCodesignEntitlementsInvalid() throws IOException, ExecutionResultVerificationException
+  public void testVerifyCodesignEntitlementsInvalid() throws ExecutionResultVerificationException
   {
     CodeSignManager.verify(validEntitlements, invalidEntitlements);
 
   }
 
   @Test
-  public void testCodesignEntitlementsContainedInValidResult() throws IOException, ExecutionResultVerificationException
+  public void testCodesignEntitlementsContainedInValidResult()
   {
     assertTrue(validEntitlements.result.contains("<string>973WEN5QX7.com.sap.MyApp</string>"));
   }
 
   @Test
-  public void testCodesignEntitlementsNotContainedInInvalidResult() throws IOException,
-        ExecutionResultVerificationException
+  public void testCodesignEntitlementsNotContainedInInvalidResult()
   {
     assertFalse(invalidEntitlements.result.contains("<string>973WEN5QX7.com.sap.MyApp</string>"));
   }
@@ -76,13 +75,13 @@ public class CodeSignManagerTest
   }
 
   @Test(expected = ExecutionResultVerificationException.class)
-  public void testVerifySecurityCmsInvalid() throws IOException, ExecutionResultVerificationException
+  public void testVerifySecurityCmsInvalid() throws ExecutionResultVerificationException
   {
     CodeSignManager.verify(validSecurityCms, invalidSecurityCms);
   }
 
   @Test
-  public void testSecurityCmsContainedInValidResult() throws IOException, ExecutionResultVerificationException
+  public void testSecurityCmsContainedInValidResult()
   {
     assertTrue(validSecurityCms.result.contains("<string>973WEN5QX7.com.sap.*</string>"));
   }

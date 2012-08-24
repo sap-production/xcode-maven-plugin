@@ -208,7 +208,7 @@ class XCodePrepareBuildManager
   }
 
   private void prepareFramework(MavenProject project, final Artifact primaryArtifact)
-        throws SideArtifactNotFoundException, MojoExecutionException
+        throws MojoExecutionException
   {
     if (primaryArtifact != null) {
       final File source = primaryArtifact.getFile();
