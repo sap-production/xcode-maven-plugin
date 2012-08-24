@@ -238,26 +238,6 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     }
     return targets.get(0).getBuildConfigurationList().getBuildConfigurations().getByName(buildConfigName);
   }
-
-  
-  
-  // TODO REMOVE???
-  /**
-   * @return the build configuration's product name or <code>null</code> if either the build
-   *         configuration doesn't exist or the build configuration does not have a product name.
-   * 
-   * @throws MojoExecutionException
-   *           if the project file cannot be read
-   */
-  protected String getBuildConfigurationProductName(String buildConfigName) throws MojoExecutionException
-  {
-    BuildConfiguration buildConfig = getTargetBuildConfiguration(buildConfigName);
-    if (buildConfig == null) {
-      getLog().warn("The Xcode project does not contain a build configuration with name: " + buildConfigName);
-      return null;
-    }
-    return buildConfig.getBuildSettings().getProductName();
-  }
   
   protected File getXCodeProjectFile()
   {

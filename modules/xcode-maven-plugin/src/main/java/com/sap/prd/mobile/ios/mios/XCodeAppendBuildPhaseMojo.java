@@ -43,7 +43,12 @@ public class XCodeAppendBuildPhaseMojo extends AbstractXCodeMojo
 {
   public static File getBuildEnvironmentFile(AbstractXCodeMojo mojo, String configuration, String platform)
   {
-    return new File(mojo.project.getBuild().getDirectory(), getBuildEnvironmentFileName(configuration, platform));
+    return getBuildEnvironmentFile(mojo.project.getBuild().getDirectory(), configuration, platform);
+  }
+  
+  public static File getBuildEnvironmentFile(String directory, String configuration, String platform)
+  {
+    return new File(directory, getBuildEnvironmentFileName(configuration, platform));
   }
   
   public static String getBuildEnvironmentFileName(String configuration, String platform)

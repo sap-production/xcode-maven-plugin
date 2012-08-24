@@ -217,7 +217,7 @@
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../target/headers/${BUILD_STYLE}-${PLATFORM_NAME}/**";
 				INFOPLIST_FILE = "MyApp-Info.plist";
 				LIBRARY_SEARCH_PATHS = "${PROJECT_DIR}/../../target/libs/${BUILD_STYLE}-${PLATFORM_NAME}/**";
-				PRODUCT_NAME = MyApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -232,7 +232,7 @@
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../target/headers/${BUILD_STYLE}-${PLATFORM_NAME}/**";
 				INFOPLIST_FILE = "MyApp-Info.plist";
 				LIBRARY_SEARCH_PATHS = "${PROJECT_DIR}/../../target/libs/${BUILD_STYLE}-${PLATFORM_NAME}/**";
-				PRODUCT_NAME = MyApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
