@@ -90,8 +90,8 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
           getLog().info("Production name obtained from pom file");
         }
         else {
-          productName = getBuildConfigurationProductName(configuration);
-          getLog().info("Product name obtained from xcode project file");
+          productName = EffectiveBuildSettings.getProductName(this.project, configuration, sdk);
+          getLog().info("Product name obtained from effective build settings file");
         }
 
         final String fixedProductName = getFixedProductName(productName);

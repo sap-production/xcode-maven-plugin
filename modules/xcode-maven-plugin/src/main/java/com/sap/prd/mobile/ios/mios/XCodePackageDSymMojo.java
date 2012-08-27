@@ -85,7 +85,7 @@ public class XCodePackageDSymMojo extends AbstractXCodeMojo
   }
 
   private void packageAndAttachDSym(String sdk, String config) throws IOException, NoSuchArchiverException,
-        ArchiverException, MojoExecutionException
+        ArchiverException
   {
 
     final String productName;
@@ -98,15 +98,15 @@ public class XCodePackageDSymMojo extends AbstractXCodeMojo
 
     }
     else {
-      productName = getBuildConfigurationProductName(config);
+      productName = EffectiveBuildSettings.getProductName(this.project, config, sdk);
 
       if (productName == null || productName.isEmpty())
-        throw new IllegalStateException("Product Name not found in xcode configuration file");
+        throw new IllegalStateException("Product Name not found in effective build settings file");
     }
 
     final String fixedProductName = getFixedProductName(productName);
 
-    String generateDSym = getTargetBuildConfiguration(config).getBuildSettings().getDict().getString("GCC_GENERATE_DEBUGGING_SYMBOLS");
+    String generateDSym = new EffectiveBuildSettings(this.project, config, sdk).getBuildSetting(EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
     if (generateDSym == null || generateDSym.equalsIgnoreCase("YES")) {
 
