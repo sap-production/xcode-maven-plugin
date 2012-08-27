@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.project.MavenProject;
 
 public class EffectiveBuildSettings
 {
@@ -14,9 +15,9 @@ public class EffectiveBuildSettings
   
   private Properties properties;
   
-  public static String getProductName(AbstractXCodeMojo mojo, String configuration, String platform)
+  public static String getProductName(MavenProject project, String configuration, String platform)
   {
-    EffectiveBuildSettings settings = new EffectiveBuildSettings(mojo, configuration, platform);
+    EffectiveBuildSettings settings = new EffectiveBuildSettings(project, configuration, platform);
     return settings.getBuildSetting(PRODUCT_NAME);
   }
   
@@ -26,9 +27,9 @@ public class EffectiveBuildSettings
    * @param platform
    *          e.g. "iphoneos"
    */
-  public EffectiveBuildSettings(AbstractXCodeMojo mojo, String configuration, String platform)
+  public EffectiveBuildSettings(MavenProject project, String configuration, String platform)
   {
-    this(mojo.project.getBuild().getDirectory(), configuration, platform);
+    this(project.getBuild().getDirectory(), configuration, platform);
   }
   
   /**

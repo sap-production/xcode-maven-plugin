@@ -76,7 +76,7 @@ public class XCodeIpaPackageMojo extends AbstractXCodeMojo
           getLog().info("Production name obtained from pom file");
         }
         else {
-          productName = EffectiveBuildSettings.getProductName(this, configuration, sdk);
+          productName = EffectiveBuildSettings.getProductName(this.project, configuration, sdk);
           getLog().info("Product name obtained from effective build settings file");
         }
 

@@ -98,7 +98,7 @@ public class XCodePackageDSymMojo extends AbstractXCodeMojo
 
     }
     else {
-      productName = EffectiveBuildSettings.getProductName(this, config, sdk);
+      productName = EffectiveBuildSettings.getProductName(this.project, config, sdk);
 
       if (productName == null || productName.isEmpty())
         throw new IllegalStateException("Product Name not found in effective build settings file");
@@ -106,7 +106,7 @@ public class XCodePackageDSymMojo extends AbstractXCodeMojo
 
     final String fixedProductName = getFixedProductName(productName);
 
-    String generateDSym = new EffectiveBuildSettings(this, config, sdk).getBuildSetting(EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
+    String generateDSym = new EffectiveBuildSettings(this.project, config, sdk).getBuildSetting(EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
     if (generateDSym == null || generateDSym.equalsIgnoreCase("YES")) {
 

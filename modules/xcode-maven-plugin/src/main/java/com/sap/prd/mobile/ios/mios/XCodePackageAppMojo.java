@@ -69,7 +69,7 @@ public class XCodePackageAppMojo extends AbstractXCodeMojo
 
     }
     else {
-      productName = EffectiveBuildSettings.getProductName(this, config, sdk);
+      productName = EffectiveBuildSettings.getProductName(this.project, config, sdk);
 
       if (productName == null || productName.isEmpty())
         throw new IllegalStateException("Product Name not found in effective build settings file");
