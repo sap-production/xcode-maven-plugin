@@ -54,9 +54,7 @@ public class EffectiveBuildSettings
         throw new IllegalStateException("Could not read build properties file", e);
       }
       finally {
-        if (fis != null) {
-          IOUtils.closeQuietly(fis);
-        }
+        IOUtils.closeQuietly(fis);
       }
   }
   
