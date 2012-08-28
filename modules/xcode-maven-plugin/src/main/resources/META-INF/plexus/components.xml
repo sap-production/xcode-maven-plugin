@@ -68,7 +68,7 @@
             <id>default</id>
             <phases>
               <initialize>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:skip-library-build, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:validate, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build</initialize>
-              <process-sources>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources,com.sap.prd.mobile.ios.mios:xcode-maven-plugin:append-build-phase</process-sources>
+              <process-sources>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings</process-sources>
               <compile>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild</compile>
               <package>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:attach-version-info, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-package</package>
               <install>org.apache.maven.plugins:maven-install-plugin:install</install>
@@ -94,7 +94,7 @@
             <id>default</id>
             <phases>
               <initialize>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-artifact-id, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:validate, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build</initialize>
-              <process-sources>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources,com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-app-id,com.sap.prd.mobile.ios.mios:xcode-maven-plugin:append-build-phase</process-sources>
+              <process-sources>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-app-id</process-sources>
               <compile>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild</compile>
               <package>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:attach-version-info, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-application, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-dsym, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-ipa, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:generate-ota-html, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-metadata</package>
               <install>org.apache.maven.plugins:maven-install-plugin:install</install>

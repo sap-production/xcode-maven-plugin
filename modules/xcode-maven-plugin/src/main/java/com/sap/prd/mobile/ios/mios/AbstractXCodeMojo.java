@@ -20,11 +20,9 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -244,22 +242,6 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return new File(getXCodeCompileDirectory(), project.getArtifactId() + ".xcodeproj/project.pbxproj");
   }
   
-  /**
-   * 
-   * @param configuration
-   *          e.g. "Release"
-   * @param platform
-   *          e.g. "iphoneos"
-   * @return The environment variables set during xcodebuild execution
-   */
-  protected Properties getBuildEnvironmentProperties(String configuration, String platform) throws IOException
-  {
-    Properties properties = new Properties();
-    properties.load(new FileInputStream(XCodeAppendBuildPhaseMojo
-      .getBuildEnvironmentFile(this, configuration, platform)));
-    return properties;
-  }
-
   /**
    * Calls a shell script in order to zip a folder. We have to call a shell script as Java cannot
    * zip symbolic links.

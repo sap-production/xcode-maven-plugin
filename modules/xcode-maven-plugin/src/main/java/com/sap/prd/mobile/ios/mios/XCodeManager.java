@@ -20,7 +20,6 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.apache.maven.plugin.logging.Log;
 
@@ -49,16 +48,9 @@ class XCodeManager
 
     for (String configuration : context.getConfigurations()) {
 
-      for (final String sdk : context.getSdks()) {
+      for (final String sdk : context.getSDKs()) {
 
-        final CommandLineBuilder commandLineBuilder = new CommandLineBuilder();
-
-        commandLineBuilder.setConfiguration(configuration);
-        commandLineBuilder.setProjectName(context.getProjectName());
-        commandLineBuilder.setSdk(sdk);
-        commandLineBuilder.setBuildActions(Arrays.asList(context.getBuildActions()));
-        commandLineBuilder.setCodeSignIdentity(context.getCodeSignIdentity());
-        commandLineBuilder.setProvisioningProfile(context.getProvisioningProfile());
+        final CommandLineBuilder commandLineBuilder = new CommandLineBuilder(configuration, sdk, context);
 
         //
         //TODO The command line printed into the log is not 100% accurate. We have a problem with
@@ -66,9 +58,10 @@ class XCodeManager
         log.info("Executing xcode command: '" + commandLineBuilder.toString() + "'.");
 
         final int returnValue = Forker.forkProcess(context.getOut(), context.getProjectRootDirectory(),
-              commandLineBuilder.createCommandline());
-        if (returnValue != 0)
-          throw new XCodeException("Could not execute xcode build for configuration " + configuration);
+              commandLineBuilder.createBuildCall());
+        if (returnValue != 0) {
+          throw new XCodeException("Could not execute xcodebuild for configuration " + configuration);
+        }
       }
     }
   }
