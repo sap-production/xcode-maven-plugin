@@ -66,9 +66,13 @@ public class XCodeManagerTest extends XCodeTest
   public void straightForwardTestBuildLibWithoutPredecessors() throws Exception
   {
 
-    final XCodeContext context = new XCodeContext("MyLibrary", new HashSet<String>(Arrays.asList("Debug", "Release")),
-          new HashSet<String>(Arrays.asList("iphoneos")), Arrays.asList("clean", "build"), new File(projectDirectory,
-                "MyLibrary/src/xcode"), null, System.out);
+    final XCodeContext context = new XCodeContext();
+    context.setProjectName("MyLibrary");
+    context.setConfigurations(new HashSet<String>(Arrays.asList("Debug", "Release")));
+    context.setSDKs(new HashSet<String>(Arrays.asList("iphoneos")));
+    context.setBuildActions(Arrays.asList("clean", "build"));
+    context.setProjectRootDirectory(new File(projectDirectory, "MyLibrary/src/xcode"));
+    context.setOut(System.out);
 
     Log log = EasyMock.createMock(Log.class);
     MavenProject mavenProject = EasyMock.createMock(MavenProject.class);
@@ -109,10 +113,13 @@ public class XCodeManagerTest extends XCodeTest
 
     EasyMock.replay(build, mavenProject);
 
-    final XCodeContext context = new XCodeContext("MyLibrary", new HashSet<String>(
-          Arrays.asList("NON-EXISTNG_CONFIGURATION")),
-          new HashSet<String>(Arrays.asList("iphoneos")), Arrays.asList("clean", "build"), projectDirectory, null,
-          System.out);
+    final XCodeContext context = new XCodeContext();
+    context.setProjectName("MyLibrary");
+    context.setConfigurations(new HashSet<String>(Arrays.asList("NON-EXISTNG_CONFIGURATION")));
+    context.setSDKs(new HashSet<String>(Arrays.asList("iphoneos")));
+    context.setBuildActions(Arrays.asList("clean", "build"));
+    context.setProjectRootDirectory(projectDirectory);
+    context.setOut(System.out);
 
     new XCodeManager(log).build(context);
 
@@ -133,18 +140,22 @@ public class XCodeManagerTest extends XCodeTest
 
     EasyMock.replay(build, mavenProject);
 
-    final XCodeContext context = new XCodeContext("MyLibrary", new HashSet<String>(Arrays.asList("Debug", "Release")),
-          new HashSet<String>(Arrays.asList("iphoneos")), Arrays.asList("clean", "build"), projectDirectory, null,
-          new PrintStream(
-                new ByteArrayOutputStream()) {
+    
+    final XCodeContext context = new XCodeContext();
+    context.setProjectName("MyLibrary");
+    context.setConfigurations(new HashSet<String>(Arrays.asList("Debug", "Release")));
+    context.setSDKs(new HashSet<String>(Arrays.asList("iphoneos")));
+    context.setBuildActions(Arrays.asList("clean", "build"));
+    context.setProjectRootDirectory(projectDirectory);
+    context.setOut(new PrintStream(
+          new ByteArrayOutputStream()) {
 
-            @Override
-            public void write(byte[] buf, int off, int len)
-            {
-              setError();
-            }
-          });
-
+      @Override
+      public void write(byte[] buf, int off, int len)
+      {
+        setError();
+      }
+    });
     new XCodeManager(log).build(context);
 
   }

@@ -22,7 +22,6 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -42,98 +41,120 @@ class XCodeContext
 {
   private final static String ls = System.getProperty("line.separator");
 
-  private final String projectName;
+  private String projectName;
 
-  private final Set<String> configurations;
+  private Set<String> configurations;
 
-  private final Set<String> sdks;
+  private Set<String> sdks;
 
-  private final List<String> buildActions;
+  private List<String> buildActions;
 
-  private final String codeSignIdentity;
+  private String codeSignIdentity;
 
-  private final File projectRootDirectory;
+  private File projectRootDirectory;
 
-  private final PrintStream out;
+  private PrintStream out;
 
   private String provisioningProfile;
 
-
-  XCodeContext(final String projectName, final Set<String> configurations, final Set<String> sdks,
-        final List<String> buildActions, final File projectRootDirectory, String codeSignIdentity, final PrintStream out)
+  public String getProjectName()
   {
+    return projectName;
+  }
 
+  public void setProjectName(String projectName)
+  {
     raiseExceptionIfNullOrEmpty("projectName", projectName);
     this.projectName = projectName;
+  }
 
+  public Set<String> getConfigurations()
+  {
+    return configurations;
+  }
+
+  public void setConfigurations(Set<String> configurations)
+  {
     raiseExceptionIfInvalid("configuration", configurations);
     this.configurations = configurations;
+  }
 
+  public Set<String> getSDKs()
+  {
+    return sdks;
+  }
+
+  public void setSDKs(Set<String> sdks)
+  {
     this.sdks = sdks;
+  }
 
+  public List<String> getBuildActions()
+  {
+    return buildActions;
+  }
+
+  public void setBuildActions(List<String> buildActions)
+  {
     raiseExceptionIfInvalid("buildActions", buildActions);
-    this.buildActions = Collections.unmodifiableList(buildActions);
+    this.buildActions = buildActions;
+  }
 
-    this.projectRootDirectory = projectRootDirectory;
+  public String getCodeSignIdentity()
+  {
+    return codeSignIdentity;
+  }
 
-    if (out == null)
-      throw new IllegalArgumentException("PrintStream for log handling is not available.");
-    this.out = out;
-
+  public void setCodeSignIdentity(String codeSignIdentity)
+  {
     if (codeSignIdentity != null && codeSignIdentity.trim().isEmpty())
       throw new IllegalArgumentException("CodesignIdentity was empty: '" + codeSignIdentity
             + "'. If you want to use the code" +
             " sign identity defined in the xCode project configuration just do" +
             " not provide the 'codeSignIdentity' in your Maven settings.");
-
     this.codeSignIdentity = codeSignIdentity;
   }
 
-  String getProjectName()
+  public File getProjectRootDirectory()
   {
-    return this.projectName;
+    return projectRootDirectory;
   }
 
-  Set<String> getConfigurations()
+  public void setProjectRootDirectory(File projectRootDirectory)
   {
-    return this.configurations;
+    this.projectRootDirectory = projectRootDirectory;
   }
 
-  String[] getBuildActions()
+  public PrintStream getOut()
   {
-    return buildActions.toArray(new String[buildActions.size()]);
+    return out;
   }
 
-  File getProjectRootDirectory()
+  public void setOut(PrintStream out)
   {
-    return this.projectRootDirectory;
+    if (out == null)
+      throw new IllegalArgumentException("PrintStream for log handling is not available.");
+    this.out = out;
   }
 
-  PrintStream getOut()
-  {
-    return this.out;
-  }
-  
   public String getProvisioningProfile()
   {
     return provisioningProfile;
   }
-  
+
   public void setProvisioningProfile(String provisioningProfile)
   {
     this.provisioningProfile = provisioningProfile;
   }
-  
-  
 
   @Override
   public String toString()
   {
-    final StringBuilder sb = new StringBuilder(128);
-    sb.append("Instance            : ").append(super.toString()).append(ls);
+    final StringBuilder sb = new StringBuilder();
     sb.append("ProjectRootDirectory: ").append(getProjectRootDirectory()).append(ls);
     sb.append("ProjectName         : ").append(getProjectName()).append(ls);
     sb.append("Configuration       : ").append(getConfigurations()).append(ls);
+    sb.append("SDKs                : ").append(getSDKs()).append(ls);
     sb.append("BuildActions        : ").append(buildActions);
     sb.append("CodeSignIdentity    : ").append(codeSignIdentity);
     sb.append("ProvisioningProfile : ").append(provisioningProfile);
@@ -157,27 +178,8 @@ class XCodeContext
       if (buildAction == null || buildAction.length() == 0)
         throw new IllegalArgumentException("Build action array contained a null element or an empty element.");
 
-      //
-      // TODO: According to xcodebuild man page build actions are limited
-      // to build, installsrc, install, clean
-      // Maybe we should check for these 4 values. I'm not shure if these
-      // values are stable enough ...
-      // The main reason here is to avoid build actions with blanks in it.
-      //
       if (!buildAction.matches("[A-Za-z0-9_]+"))
         throw new IllegalArgumentException("Build action array contains an invalid element (" + buildAction + ").");
     }
   }
-
-  Set<String> getSdks()
-  {
-    return this.sdks;
-  }
-
-  String getCodeSignIdentity()
-  {
-    return codeSignIdentity;
-  }
-
-
 }

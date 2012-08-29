@@ -30,84 +30,60 @@ class CommandLineBuilder
   private final static String CONFIGURATION = "configuration";
   private final static String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
   private final static String PROVISIONING_PROFILE = "PROVISIONING_PROFILE";
-  private static String SDK = "sdk";
+  private final static String SDK = "sdk";
 
-  private String projectName;
   private String configuration;
   private String sdk;
-  private String codeSignIdentity;
-  private String provisioningProfile;
-  private List<String> buildActions;
+  private XCodeContext xcodeContext;
   
-  CommandLineBuilder setCodeSignIdentity(String codeSignIdentity)
-  {
-    if (codeSignIdentity != null && codeSignIdentity.trim().isEmpty())
-    {
-      throw new IllegalArgumentException(
-            "CodeSignIdentity must not be an empty String. '"
-                  + codeSignIdentity
-                  + "'.");
-    }
-
-    this.codeSignIdentity = codeSignIdentity;
-    return this;
-  }
-
-
-
-  CommandLineBuilder setProjectName(String projectName)
-  {
-    this.projectName = projectName;
-    return this;
-  }
-
-  CommandLineBuilder setConfiguration(String configuration)
+  public CommandLineBuilder(String configuration, String sdk, XCodeContext ctx)
   {
     this.configuration = configuration;
-    return this;
-  }
-
-  CommandLineBuilder setSdk(String sdk)
-  {
     this.sdk = sdk;
-    return this;
+    this.xcodeContext = ctx;
   }
 
-  CommandLineBuilder setBuildActions(List<String> buildActions)
+  String[] createBuildCall()
   {
-    this.buildActions = buildActions;
-    return this;
-  }
-  
-  CommandLineBuilder setProvisioningProfile(String provisioningProfile)
-  {
-    this.provisioningProfile = provisioningProfile;
-    return this;
-  }
-
-  String[] createCommandline()
-  {
-
-    List<String> result = new ArrayList<String>();
-
-    result.add(XCODEBUILD);
-    appendOption(result, PROJECT_NAME, projectName + XCodeConstants.XCODE_PROJECT_EXTENTION);
-    appendOption(result, CONFIGURATION, configuration);
-    appendOption(result, SDK, sdk);
-
-    if (codeSignIdentity != null && !codeSignIdentity.isEmpty()) {
-      appendEnv(result, CODE_SIGN_IDENTITY, codeSignIdentity);
-    }
     
-    if (provisioningProfile != null) {
-      appendEnv(result, PROVISIONING_PROFILE, provisioningProfile);
-    }
-    
-    for (String buildAction : buildActions) {
-      appendOption(result, buildAction);
+    List<String> result = createBaseCall();
+    for (String buildAction : xcodeContext.getBuildActions()) {
+      appendValue(result, buildAction);
     }
 
     return result.toArray(new String[result.size()]);
+  }
+  
+  String[] createShowBuildSettingsCall()
+  {
+    List<String> result = createBaseCall();
+    appendKey(result, "showBuildSettings");
+    return result.toArray(new String[result.size()]);
+  }
+  
+  private List<String> createBaseCall()
+  {
+    List<String> result = new ArrayList<String>();
+
+    result.add(XCODEBUILD);
+    appendOption(result, PROJECT_NAME, xcodeContext.getProjectName() + XCodeConstants.XCODE_PROJECT_EXTENTION);
+    appendOption(result, CONFIGURATION, configuration);
+    appendOption(result, SDK, sdk);
+
+    if (xcodeContext.getCodeSignIdentity() != null && !xcodeContext.getCodeSignIdentity().isEmpty()) {
+      appendEnv(result, CODE_SIGN_IDENTITY, xcodeContext.getCodeSignIdentity());
+    }
+    
+    if (xcodeContext.getProvisioningProfile() != null) {
+      appendEnv(result, PROVISIONING_PROFILE, xcodeContext.getProvisioningProfile());
+    }
+    
+    // Output directories should be specified (recommended by Apple - http://developer.apple.com/devcenter/download.action?path=/wwdc_2012/wwdc_2012_session_pdfs/session_404__building_from_the_command_line_with_xcode.pdf)
+    appendEnv(result, "DSTROOT", "build");
+    appendEnv(result, "SYMROOT", "build");
+    appendEnv(result, "SHARED_PRECOMPS_DIR", "build");
+    appendEnv(result, "OBJROOT", "build");
+    return result;
   }
 
   private static void appendEnv(List<String> result, String key, String value)
@@ -119,11 +95,17 @@ class CommandLineBuilder
   {
 
     check("option", key);
-    appendOption(result, "-" + key);
-    appendOption(result, value);
+    appendKey(result, key);
+    appendValue(result, value);
   }
 
-  private static void appendOption(List<String> result, String value)
+  private static void appendKey(List<String> result, String key)
+  {
+    check("key", key);
+    result.add("-" + key);
+  }
+  
+  private static void appendValue(List<String> result, String value)
   {
     check("value", value);
     result.add(value);
@@ -144,7 +126,7 @@ class CommandLineBuilder
 
     boolean first = true;
 
-    for (String part : createCommandline()) {
+    for (String part : createBuildCall()) {
 
       if (!first)
         sb.append(" ");

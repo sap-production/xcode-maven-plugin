@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import javax.xml.bind.JAXBException;
 
@@ -189,13 +188,13 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
   {
     for (final String configuration : getConfigurations())
     {
-      for (final String platform : getSDKs())
+      for (final String sdk : getSDKs())
       {
-        if (platform.equals("iphoneos"))
+        if (sdk.startsWith("iphoneos"))
         {
           File versionsXmlInBuild = new File(project.getBuild().getDirectory(), "versions.xml");
-          File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, platform);
-          String productName = getBuildEnvironmentProperties(configuration, platform).getProperty("PRODUCT_NAME");
+          File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, sdk);
+          String productName = EffectiveBuildSettings.getProductName(this.project, configuration, sdk);
           File appFolder = new File(rootDir, productName + ".app");
           File versionsXmlInApp = new File(appFolder, "versions.xml");
 
@@ -206,7 +205,7 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
 
           FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);
 
-          sign(rootDir, configuration, platform);
+          sign(rootDir, configuration, sdk);
 
           final ExecResult resignedCodesignEntitlementsInfo = CodeSignManager
             .getCodesignEntitlementsInformation(appFolder);
@@ -219,11 +218,11 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
     }
   }
 
-  private void sign(File rootDir, String configuration, String platform) throws IOException
+  private void sign(File rootDir, String configuration, String sdk) throws IOException
   {
-    Properties properties = getBuildEnvironmentProperties(configuration, platform);
-    String csi = properties.getProperty("CODE_SIGN_IDENTITY");
-    File appFolder = new File(properties.getProperty("CODESIGNING_FOLDER_PATH"));
+    EffectiveBuildSettings settings = new EffectiveBuildSettings(this.project, configuration, sdk);
+    String csi = settings.getBuildSetting(EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+    File appFolder = new File(settings.getBuildSetting(EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
     CodeSignManager.sign(csi, appFolder, true);
   }
 

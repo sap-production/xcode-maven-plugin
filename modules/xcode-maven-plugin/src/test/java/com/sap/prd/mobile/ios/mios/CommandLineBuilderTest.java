@@ -24,89 +24,85 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class CommandLineBuilderTest
 {
 
+  private XCodeContext context;
+
+  @Before
+  public void before()
+  {
+    context = new XCodeContext();
+    context.setProjectName("MyLib");
+    context.setConfigurations(new HashSet<String>(Arrays.asList("Release")));
+    context.setSDKs(new HashSet<String>(Arrays.asList("mysdk")));
+    context.setBuildActions(Arrays.asList("clean", "build"));
+  }
+  
   @Test
   public void testCommandlineBuilderStraightForward() throws Exception
   {
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder();
-    commandLineBuilder.setProjectName("MyLib").setConfiguration("Release").setSdk("mysdk")
-      .setBuildActions(Arrays.asList("clean", "build"));
-
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
     assertArrayEquals(new String[] { "xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
-        "mysdk", "clean", "build" }, commandLineBuilder.createCommandline());
+        "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build" }, commandLineBuilder.createBuildCall());
   }
 
   @Test
   public void testCodeSignIdentity() throws Exception
   {
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder();
-    commandLineBuilder.setProjectName("MyLib").setConfiguration("Release").setSdk("mysdk")
-      .setBuildActions(Arrays.asList("clean", "build")).setCodeSignIdentity("MyCodeSignIdentity");
-
-    assertTrue(Arrays.asList(commandLineBuilder.createCommandline()).contains("CODE_SIGN_IDENTITY=MyCodeSignIdentity"));
+    context.setCodeSignIdentity("MyCodeSignIdentity");
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
+    assertTrue(Arrays.asList(commandLineBuilder.createBuildCall()).contains("CODE_SIGN_IDENTITY=MyCodeSignIdentity"));
   }
 
   @Test
   public void testCodeSignIdentityIsNull() throws Exception
   {
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder();
-    commandLineBuilder.setProjectName("MyLib").setConfiguration("Release").setSdk("mysdk")
-      .setBuildActions(Arrays.asList("clean", "build")).setCodeSignIdentity(null);
+    context.setCodeSignIdentity(null);
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
 
-    for (String param : commandLineBuilder.createCommandline()) {
+    for (String param : commandLineBuilder.createBuildCall()) {
       assertFalse("The command line must not contain a parameter 'CODE_SIGN_IDENTITY='",
             param.contains("CODE_SIGN_IDENTITY="));
     }
-
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testCodeSignIdentityIsEmpty() throws Exception
   {
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder();
-    commandLineBuilder.setProjectName("MyLib").setConfiguration("Release").setSdk("mysdk")
-      .setBuildActions(Arrays.asList("clean", "build")).setCodeSignIdentity("");
-
+    context.setCodeSignIdentity("");
+    new CommandLineBuilder("Release", "mysdk", context);
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testValueNotSet() throws Exception
+  public void testSDKNotSet() throws Exception
   {
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder();
-    commandLineBuilder.setProjectName("MyLib").setConfiguration("Release")
-      .setBuildActions(Arrays.asList("clean", "build"));
-    commandLineBuilder.createCommandline();
+    context.setSDKs(null);
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", null, context);
+    commandLineBuilder.createBuildCall();
   }
-  
   
   @Test
   public void testProvisioningProfile() throws Exception
   {
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder();
-    commandLineBuilder.setProjectName("MyLib").setConfiguration("Release").setSdk("mysdk")
-      .setBuildActions(Arrays.asList("clean", "build")).setProvisioningProfile("MyProvisioningProfile");
-
-    assertTrue(Arrays.asList(commandLineBuilder.createCommandline()).contains("PROVISIONING_PROFILE=MyProvisioningProfile"));
+    context.setProvisioningProfile("MyProvisioningProfile");
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
+    assertTrue(Arrays.asList(commandLineBuilder.createBuildCall()).contains("PROVISIONING_PROFILE=MyProvisioningProfile"));
   }
 
   @Test
   public void testProvisioningProfileIsNull() throws Exception
   {
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder();
-    commandLineBuilder.setProjectName("MyLib").setConfiguration("Release").setSdk("mysdk")
-       .setBuildActions(Arrays.asList("clean", "build")).setCodeSignIdentity(null);
-
-
-    for (String param : commandLineBuilder.createCommandline()) {
+    context.setProvisioningProfile(null);
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
+    for (String param : commandLineBuilder.createBuildCall()) {
       assertFalse("The command line must not contain a parameter 'PROVISIONING_PROFILE='",
             param.contains("PROVISIONING_PROFILE="));
     }
-
   }
-  
 }
