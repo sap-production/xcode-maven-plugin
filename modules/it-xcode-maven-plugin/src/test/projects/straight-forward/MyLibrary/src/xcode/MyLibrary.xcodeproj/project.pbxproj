@@ -171,6 +171,7 @@
 				INSTALL_PATH = /usr/local/lib;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = MyLibrary;
+				PUBLIC_HEADERS_FOLDER_PATH = MyLibrary/include;
 			};
 			name = Debug;
 		};
@@ -185,6 +186,7 @@
 				GCC_PREFIX_HEADER = MyLibrary_Prefix.pch;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = MyLibrary;
+				PUBLIC_HEADERS_FOLDER_PATH = MyLibrary/include;
 			};
 			name = Release;
 		};
