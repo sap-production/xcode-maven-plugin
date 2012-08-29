@@ -28,10 +28,10 @@ import org.apache.maven.plugin.MojoFailureException;
  * Validates if the given project has a predefined structure. The convention expects that the name
  * of the Xcode project is the same as the artifact-Id.
  * 
- * @goal validate
+ * @goal xcode-project-validate
  * 
  */
-public class XCodeProjectValidatorMojo extends AbstractXCodeMojo
+public class XCodeProjectValidateMojo extends AbstractXCodeMojo
 {
 
   @Override

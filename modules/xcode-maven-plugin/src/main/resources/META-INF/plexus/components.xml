@@ -67,18 +67,41 @@
           <lifecycle>
             <id>default</id>
             <phases>
-              <initialize>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:skip-library-build, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:validate, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build</initialize>
-              <process-sources>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings</process-sources>
-              <compile>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild</compile>
-              <package>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:attach-version-info, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-package</package>
-              <install>org.apache.maven.plugins:maven-install-plugin:install</install>
-              <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+              <validate>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:check-prerequisites
+              </validate>
+              <initialize>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:skip-library-build,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-project-validate,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build
+              </initialize>
+              <process-sources>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings
+              </process-sources>
+              <compile>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild
+              </compile>
+              <package>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:attach-version-info,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-package
+              </package>
+              <install>
+                org.apache.maven.plugins:maven-install-plugin:install
+              </install>
+              <deploy>
+                org.apache.maven.plugins:maven-deploy-plugin:deploy
+              </deploy>
             </phases>
           </lifecycle>
           <lifecycle>
             <id>clean</id>
             <phases>
-              <clean>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:clean,org.apache.maven.plugins:maven-clean-plugin:clean</clean>
+              <clean>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:clean,
+                org.apache.maven.plugins:maven-clean-plugin:clean
+              </clean>
             </phases>
           </lifecycle>          
         </lifecycles>
@@ -93,18 +116,47 @@
           <lifecycle>
             <id>default</id>
             <phases>
-              <initialize>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-artifact-id, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:validate, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build</initialize>
-              <process-sources>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-app-id</process-sources>
-              <compile>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild</compile>
-              <package>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:attach-version-info, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-application, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-dsym, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-ipa, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:generate-ota-html, com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-metadata</package>
-              <install>org.apache.maven.plugins:maven-install-plugin:install</install>
-              <deploy>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+              <validate>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:check-prerequisites
+              </validate>
+              <initialize>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-artifact-id,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-project-validate,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build
+              </initialize>
+              <process-sources>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-app-id
+              </process-sources>
+              <compile>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild
+              </compile>
+              <package>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:attach-version-info,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-application,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-dsym,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-ipa,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:generate-ota-html,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-metadata
+              </package>
+              <install>
+                org.apache.maven.plugins:maven-install-plugin:install
+              </install>
+              <deploy>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,
+                org.apache.maven.plugins:maven-deploy-plugin:deploy
+              </deploy>
             </phases>
           </lifecycle>
           <lifecycle>
             <id>clean</id>
             <phases>
-              <clean>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:clean,org.apache.maven.plugins:maven-clean-plugin:clean</clean>
+              <clean>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:clean,
+                org.apache.maven.plugins:maven-clean-plugin:clean
+              </clean>
             </phases>
           </lifecycle>
         </lifecycles>
