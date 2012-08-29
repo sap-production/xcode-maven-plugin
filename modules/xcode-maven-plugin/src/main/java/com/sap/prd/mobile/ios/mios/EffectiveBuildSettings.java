@@ -14,6 +14,7 @@ public class EffectiveBuildSettings
   public static final String GCC_GENERATE_DEBUGGING_SYMBOLS = "GCC_GENERATE_DEBUGGING_SYMBOLS";
   public static final String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
   public static final String CODESIGNING_FOLDER_PATH = "CODESIGNING_FOLDER_PATH";
+  public static final String INFOPLIST_FILE = "INFOPLIST_FILE";
   
   private Properties properties;
   
@@ -22,6 +23,22 @@ public class EffectiveBuildSettings
     EffectiveBuildSettings settings = new EffectiveBuildSettings(project, configuration, sdk);
     return settings.getBuildSetting(PRODUCT_NAME);
   }
+  
+  public static File getBuildSettingsFile(MavenProject project, String configuration, String sdk)
+  {
+    return getBuildSettingsFile(project.getBuild().getDirectory(), configuration, sdk);
+  }
+
+  public static File getBuildSettingsFile(String directory, String configuration, String sdk)
+  {
+    return new File(directory, getBuildSettingsFileName(configuration, sdk));
+  }
+
+  public static String getBuildSettingsFileName(String configuration, String sdk)
+  {
+    return "build-settings" + "-" + configuration + "-" + sdk + ".properties";
+  }
+
   
   /**
    * @param configuration
@@ -44,7 +61,7 @@ public class EffectiveBuildSettings
    */
   public EffectiveBuildSettings(String directory, String configuration, String sdk)
   {
-      File file = XCodeSaveBuildSettingsMojo.getBuildEnvironmentFile(directory, configuration, sdk);
+      File file = getBuildSettingsFile(directory, configuration, sdk);
       Properties p = new Properties();
       FileInputStream fis = null;
       try {
@@ -53,7 +70,7 @@ public class EffectiveBuildSettings
         properties = p;
       }
       catch (IOException e) {
-        throw new IllegalStateException("Could not read build properties file", e);
+        throw new IllegalStateException("Could not read build properties file " + file, e);
       }
       finally {
         IOUtils.closeQuietly(fis);

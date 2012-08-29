@@ -29,18 +29,26 @@ import org.apache.commons.lang.StringUtils;
 
 public class PListAccessor
 {
-  private File plist;
+  public static final String KEY_BUNDLE_IDENTIFIER = "CFBundleIdentifier";
+  public static final String KEY_BUNDLE_VERSION = "CFBundleVersion";
+  
+  private final File plist;
 
   public PListAccessor(File file)
   {
     plist = file;
   }
 
+  public File getPlistFile()
+  {
+    return plist;
+  }
+
   public String getStringValue(String key) throws IOException
   {
     if (!plist.exists())
     {
-      throw new FileNotFoundException();
+      throw new FileNotFoundException("The Plist " + plist.getAbsolutePath() + " does not exist.");
     }
 
     try

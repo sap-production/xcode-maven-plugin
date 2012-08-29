@@ -40,7 +40,6 @@ import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 public class XCodePackageAppStoreMetaDataMojo extends AbstractXCodeMojo
 {
 
-  private static final String BUNDLE_IDENTIFIER = "CFBundleIdentifier";
 
   /**
    * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
@@ -115,13 +114,9 @@ public class XCodePackageAppStoreMetaDataMojo extends AbstractXCodeMojo
   {
     String bundleIdentifier = null;
     for (String configuration : getConfigurations()) {
-      File pListFile = null;
       try {
-        pListFile = new PlistManager(getLog(), new File(project.getBuild().getSourceDirectory()),
-              project.getArtifactId()).getPListFile(getTargetBuildConfiguration(configuration));
-
-        PListAccessor plist = new PListAccessor(pListFile);
-        String _bundleIdentifier = plist.getStringValue(BUNDLE_IDENTIFIER);
+        PListAccessor plistAccessor = getInfoPListAccessor(configuration, "iphoneos");
+        String _bundleIdentifier = plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
 
         if (bundleIdentifier == null)
           bundleIdentifier = _bundleIdentifier;

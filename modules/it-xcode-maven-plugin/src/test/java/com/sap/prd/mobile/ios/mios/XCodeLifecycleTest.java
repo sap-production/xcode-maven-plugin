@@ -176,7 +176,7 @@ public class XCodeLifecycleTest extends XCodeTest
         FileNotFoundException
   {
     File buildEnvironmentDump = new File(new File(getTestExecutionDirectory(testName, projectName), "target"),
-          XCodeSaveBuildSettingsMojo.getBuildEnvironmentFileName("Release", "iphoneos"));
+          EffectiveBuildSettings.getBuildSettingsFileName("Release", "iphoneos"));
     assertTrue(buildEnvironmentDump.exists());
     Properties properties = new Properties();
     properties.load(new FileInputStream(buildEnvironmentDump));

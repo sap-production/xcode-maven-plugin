@@ -20,7 +20,6 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,13 +27,6 @@ import java.util.Set;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.BuildConfiguration;
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.Plist;
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.ProjectFile;
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.ReferenceArray;
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.Target;
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.jaxb.JAXBPlistParser;
 
 /**
  * Base class for Xcode specific mojos
@@ -182,6 +174,9 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return checkoutDirectory;
   }
 
+  /**
+   * The xcode directory of the copied sources below the checkout directory.
+   */
   protected File getXCodeCompileDirectory()
   {
     return xcodeCompileDirectory;
@@ -192,54 +187,20 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return productName.trim().replaceAll(" ", "");
   }
 
-  
-  /**
-   * Transforms the Xcode project.pbxproj file in the compile directory (see {
-   * {@link #getXCodeCompileDirectory()} into XML format and returns the Java Xcode project model.
-   * 
-   * Please note that modifications to the model do not get persisted until
-   * {@link JAXBPlistParser#save(com.sap.prd.mobile.ios.mios.xcodeprojreader.Plist, String)} gets
-   * called.
-   * 
-   * @return the Java representation of the Xcode project file.
-   * @throws IOException if the Xcode project file cannot be converted into XML or parsed
-   * 
-   */
-  protected ProjectFile getXcodeProject() throws MojoExecutionException
-  {
-    File xcodeProjFile = getXCodeProjectFile();
-    try {
-      JAXBPlistParser plistParser = new JAXBPlistParser();
-      plistParser.convert(xcodeProjFile, xcodeProjFile);
-      Plist plist = plistParser.load(xcodeProjFile.getCanonicalPath());
-      ProjectFile projectFile = new ProjectFile(plist);
-      return projectFile;
-    } catch (Exception ex) {
-      getLog().error("Could not parse the Xcode project file " + xcodeProjFile, ex);
-      throw new MojoExecutionException("Could not parse the Xcode project file " + xcodeProjFile, ex);
-    } 
-  }
-  
-  
-  /**
-   * @return the Xcode build configuration of the first build target by the provided name or
-   *         <code>null</code> if no such configuration exists.
-   * @throws MojoExecutionException
-   *           if the Xcode project file cannot be read.
-   */
-  protected BuildConfiguration getTargetBuildConfiguration(String buildConfigName) throws MojoExecutionException
-  {
-    ReferenceArray<Target> targets = getXcodeProject().getProject().getTargets();
-    if (targets.size() == 0) {
-      getLog().warn("The Xcode project does not contain any build target");
-      return null;
-    }
-    return targets.get(0).getBuildConfigurationList().getBuildConfigurations().getByName(buildConfigName);
-  }
-  
   protected File getXCodeProjectFile()
   {
     return new File(getXCodeCompileDirectory(), project.getArtifactId() + ".xcodeproj/project.pbxproj");
+  }
+  
+  protected PListAccessor getInfoPListAccessor(String configuration, String sdk) throws MojoExecutionException
+  {
+    String plistFileName = new EffectiveBuildSettings(project, configuration, sdk).getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
+    File plistFile = new File(getXCodeCompileDirectory(), plistFileName);
+    if (!plistFile.isFile()) {
+      throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFileName
+            + "' that does not exist.");
+    }
+    return new PListAccessor(plistFile);
   }
   
   /**

@@ -31,7 +31,6 @@ import org.junit.Test;
 
 public class PListAccessorTest extends XCodeTest
 {
-  private static final String BUNDLE_IDENTIFIER_KEY = "CFBundleIdentifier";
 
   private PListAccessor plist;
 
@@ -67,7 +66,7 @@ public class PListAccessorTest extends XCodeTest
   @Test
   public void readString() throws IOException
   {
-    String appId = plist.getStringValue(BUNDLE_IDENTIFIER_KEY);
+    String appId = plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
     assertEquals("com.sap.myapp", appId);
   }
 
@@ -85,12 +84,12 @@ public class PListAccessorTest extends XCodeTest
 
   private void testWrite(String expectedAppId) throws IOException
   {
-    plist.setStringValue(BUNDLE_IDENTIFIER_KEY, expectedAppId);
-    String appId = plist.getStringValue(BUNDLE_IDENTIFIER_KEY);
+    plist.setStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, expectedAppId);
+    String appId = plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
     assertEquals(expectedAppId, appId);
 
     loadPList();
-    appId = plist.getStringValue(BUNDLE_IDENTIFIER_KEY);
+    appId = plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
     assertEquals(expectedAppId, appId);
   }
 
@@ -98,14 +97,14 @@ public class PListAccessorTest extends XCodeTest
   public void readStringFromNonExistingPList() throws IOException
   {
     PListAccessor plist = new PListAccessor(new File("/foo"));
-    plist.getStringValue(BUNDLE_IDENTIFIER_KEY);
+    plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
   }
 
   @Test(expected = FileNotFoundException.class)
   public void writeStringToNonExistingPList() throws IOException
   {
     PListAccessor plist = new PListAccessor(new File("/foo"));
-    plist.setStringValue(BUNDLE_IDENTIFIER_KEY, "foo");
+    plist.setStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, "foo");
   }
 
   @Test(expected = IllegalStateException.class)

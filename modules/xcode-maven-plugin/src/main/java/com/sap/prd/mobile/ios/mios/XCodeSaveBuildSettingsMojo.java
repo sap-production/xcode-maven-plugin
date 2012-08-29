@@ -19,13 +19,11 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import java.io.File;
 import java.io.PrintStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 
 /**
  * Appends a build phase to the project that dumps the all environment variables to a file.
@@ -35,21 +33,6 @@ import org.apache.maven.project.MavenProject;
  */
 public class XCodeSaveBuildSettingsMojo extends AbstractXCodeBuildMojo
 {
-  public static File getBuildEnvironmentFile(MavenProject project, String configuration, String sdk)
-  {
-    return getBuildEnvironmentFile(project.getBuild().getDirectory(), configuration, sdk);
-  }
-
-  public static File getBuildEnvironmentFile(String directory, String configuration, String sdk)
-  {
-    return new File(directory, getBuildEnvironmentFileName(configuration, sdk));
-  }
-
-  public static String getBuildEnvironmentFileName(String configuration, String sdk)
-  {
-    return "build-environment" + "-" + configuration + "-" + sdk + ".properties";
-  }
-
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -60,7 +43,7 @@ public class XCodeSaveBuildSettingsMojo extends AbstractXCodeBuildMojo
           CommandLineBuilder cmdLineBuilder = new CommandLineBuilder(configuration, sdk, ctx);
           PrintStream out = null;
           try {
-            out = new PrintStream(getBuildEnvironmentFile(this.project, configuration, sdk));
+            out = new PrintStream(EffectiveBuildSettings.getBuildSettingsFile(this.project, configuration, sdk));
             final int returnValue = Forker.forkProcess(out, ctx.getProjectRootDirectory(), cmdLineBuilder.createShowBuildSettingsCall());
             if (returnValue != 0) {
               throw new XCodeException("Could not execute xcodebuild -showBuildSettings command for configuration " + configuration);

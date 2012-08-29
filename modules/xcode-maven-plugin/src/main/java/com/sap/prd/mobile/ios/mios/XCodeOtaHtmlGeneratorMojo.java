@@ -107,11 +107,10 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
         final String ipaClassifier = getIpaClassifier(configuration, sdk);
 
         try {
-          PlistManager plistMan = new PlistManager(getLog(), getXCodeCompileDirectory(), project.getArtifactId());
-          File pListFile = plistMan.getPListFile(getTargetBuildConfiguration(configuration));
+          PListAccessor plistAccessor = getInfoPListAccessor(configuration, sdk);
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
-                plistMan.getValueFromPlist(pListFile, PlistManager.BundleKey.CFBundleIdentifier),
-                plistMan.getValueFromPlist(pListFile, PlistManager.BundleKey.CFBundleVersion), ipaClassifier,
+                plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
+                plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION), ipaClassifier,
                 otaClassifier);
 
           if (otaManager.generateOtaHTML()) {

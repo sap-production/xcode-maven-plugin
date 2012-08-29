@@ -20,31 +20,15 @@
 package com.sap.prd.mobile.ios.mios;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.BuildConfiguration;
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.Plist;
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.ProjectFile;
-import com.sap.prd.mobile.ios.mios.xcodeprojreader.jaxb.JAXBPlistParser;
 
 public class AppIDUpdateTest extends XCodeTest
 {
@@ -80,55 +64,13 @@ public class AppIDUpdateTest extends XCodeTest
 
     EasyMock.replay(log);
 
-    File projectDirectoryApplication = new File(projectDirectory, "MyApp");
+    File infoPlistFile = new File(projectDirectory, "MyApp/src/xcode/MyApp-Info.plist");
 
-    PlistManager plistMgr = new PlistManager(log, new File(projectDirectoryApplication, "src/xcode"), "MyApp");
-    BuildConfiguration buildConfig = getBuildConfig(plistMgr.getXCodeProjectFile(), "Release");
-    plistMgr.changeAppId("internal", new HashSet<File>(), buildConfig);
+    PListAccessor plistAccessor = new PListAccessor(infoPlistFile);   
+    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal", log);
 
-    PListAccessor plist = new PListAccessor(new File(new File(projectDirectoryApplication, "src/xcode"),
-          "MyApp-Info.plist"));
-
+    PListAccessor plist = new PListAccessor(infoPlistFile);
     assertEquals("com.sap.tip.production.inhouse.epdist.internal",
-          plist.getStringValue("CFBundleIdentifier"));
-  }
-
-  /**
-   * The Xcode project configuration refers to a plist file that does not exist. It is assured, that
-   * a correct exception is raised.
-   */
-  @Test
-  public void testMissingPlist() throws Exception
-  {
-    final Log log = EasyMock.createNiceMock(Log.class);
-
-    EasyMock.replay(log);
-
-    File projectDirectoryApplication = new File(projectDirectory, "MissingPlistApp");
-    PlistManager plistMgr = new PlistManager(log, new File(projectDirectoryApplication, "src/xcode"), "MyApp");
-    BuildConfiguration buildConfig = getBuildConfig(plistMgr.getXCodeProjectFile(), "Release");
-    try {
-      plistMgr.changeAppId("internal", new HashSet<File>(), buildConfig);
-      fail("Expected a MojoExecutionException");
-    }
-    catch (MojoExecutionException ex) {
-      String msgPattern = "The Xcode project refers to the Info\\.plist file .* that does not exist.";
-      Pattern pattern = Pattern.compile(msgPattern, Pattern.CASE_INSENSITIVE);
-      Matcher matcher = pattern.matcher(ex.getMessage());
-      assertTrue(
-            "Wrong exception message. Expected the pattern '" + msgPattern + "' but was " + ex.getMessage(),
-            matcher.find());
-    }
-  }
-
-  private BuildConfiguration getBuildConfig(File xCodeProjectFile, String buildConfigName) throws IOException,
-        SAXException, ParserConfigurationException, JAXBException
-  {
-    JAXBPlistParser parser = new JAXBPlistParser();
-    parser.convert(xCodeProjectFile, xCodeProjectFile);
-    Plist plist = parser.load(xCodeProjectFile.getCanonicalPath());
-    ProjectFile projFile = new ProjectFile(plist);
-    return projFile.getProject().getTargets().get(0).getBuildConfigurationList().getBuildConfigurations().getByName(buildConfigName);
-
+          plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
   }
 }

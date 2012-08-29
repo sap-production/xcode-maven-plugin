@@ -62,10 +62,6 @@
   <dependencies>
     <dependency>
       <groupId>com.sap.prd.mobile.ios.mios</groupId>
-      <artifactId>xcode-project-java-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.sap.prd.mobile.ios.mios</groupId>
       <artifactId>versionschema</artifactId>
     </dependency>
     <dependency>
