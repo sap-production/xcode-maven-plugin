@@ -40,6 +40,11 @@ class MacFileUtil
       throw new IllegalStateException(dir + " is not a directory.");
 
     process("rm", "-rf", dir.getAbsolutePath());
+
+    if (dir.exists()) {
+      throw new IllegalStateException("The removal of the dir " + dir.getAbsolutePath()
+            + " failed. The dir still exists.");
+    }
   }
 
   final static void setWritableRecursive(final boolean writable, final File root) throws Exception

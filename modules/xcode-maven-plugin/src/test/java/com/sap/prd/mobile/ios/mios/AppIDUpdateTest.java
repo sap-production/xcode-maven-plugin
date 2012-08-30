@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -34,6 +35,7 @@ public class AppIDUpdateTest extends XCodeTest
 {
 
   private static File projectDirectory;
+  private static final Log log = new SystemStreamLog();
 
   @BeforeClass
   public static void setupProjectDirectory()
@@ -46,14 +48,15 @@ public class AppIDUpdateTest extends XCodeTest
   @Before
   public void ensureCleanProjectDirectoryAndFilterPom() throws Exception
   {
+    log.info("Cleaning directory: " + projectDirectory);
     ensureCleanProjectDirectoryAndFilterPom(projectDirectory);
   }
 
   @After
   public void cleanupProjectDirectory() throws Exception
   {
-    MacFileUtil.setWritableRecursive(true, projectDirectory);
-    MacFileUtil.deleteDirectory(projectDirectory);
+    // MacFileUtil.setWritableRecursive(true, projectDirectory);
+    // MacFileUtil.deleteDirectory(projectDirectory);
   }
 
   @Test
@@ -67,6 +70,10 @@ public class AppIDUpdateTest extends XCodeTest
     File infoPlistFile = new File(projectDirectory, "MyApp/src/xcode/MyApp-Info.plist");
 
     PListAccessor plistAccessor = new PListAccessor(infoPlistFile);   
+
+    assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.tip.production.inhouse.epdist",
+          plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
+
     XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal", log);
 
     PListAccessor plist = new PListAccessor(infoPlistFile);
