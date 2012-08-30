@@ -181,6 +181,15 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   {
     return xcodeCompileDirectory;
   }
+  
+  /**
+   * 
+   * @return the <code>src/xcode</code> directory
+   */
+  protected File getXCodeSourceDirectory()
+  {
+    return new File(project.getBuild().getSourceDirectory());
+  }
 
   protected String getFixedProductName(final String productName)
   {
@@ -192,10 +201,19 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return new File(getXCodeCompileDirectory(), project.getArtifactId() + ".xcodeproj/project.pbxproj");
   }
   
-  protected PListAccessor getInfoPListAccessor(String configuration, String sdk) throws MojoExecutionException
+  /**
+   * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor to it.
+   * 
+   * @param xcodeProjectDirectory
+   *          the directory where the Xcode project is located. If you want to access the unmodified
+   *          Plist (i.e. AppID not appended) use the {@link #getXCodeSourceDirectory()} method, if
+   *          you want to access the modified plist, use the {@link #getXCodeCompileDirectory()}
+   *          method.
+   */
+  protected PListAccessor getInfoPListAccessor(File xcodeProjectDirectory, String configuration, String sdk) throws MojoExecutionException
   {
     String plistFileName = new EffectiveBuildSettings(project, configuration, sdk).getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
-    File plistFile = new File(getXCodeCompileDirectory(), plistFileName);
+    File plistFile = new File(xcodeProjectDirectory, plistFileName);
     if (!plistFile.isFile()) {
       throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFileName
             + "' that does not exist.");
