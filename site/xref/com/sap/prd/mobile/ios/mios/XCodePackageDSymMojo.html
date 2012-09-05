@@ -95,7 +95,7 @@
 <a class="jxr_linenumber" name="85" href="#85">85</a>    }
 <a class="jxr_linenumber" name="86" href="#86">86</a>  
 <a class="jxr_linenumber" name="87" href="#87">87</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> packageAndAttachDSym(String sdk, String config) <strong class="jxr_keyword">throws</strong> IOException, NoSuchArchiverException,
-<a class="jxr_linenumber" name="88" href="#88">88</a>          ArchiverException, MojoExecutionException
+<a class="jxr_linenumber" name="88" href="#88">88</a>          ArchiverException
 <a class="jxr_linenumber" name="89" href="#89">89</a>    {
 <a class="jxr_linenumber" name="90" href="#90">90</a>  
 <a class="jxr_linenumber" name="91" href="#91">91</a>      <strong class="jxr_keyword">final</strong> String productName;
@@ -108,15 +108,15 @@
 <a class="jxr_linenumber" name="98" href="#98">98</a>  
 <a class="jxr_linenumber" name="99" href="#99">99</a>      }
 <a class="jxr_linenumber" name="100" href="#100">100</a>     <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="101" href="#101">101</a>       productName = getBuildConfigurationProductName(config);
+<a class="jxr_linenumber" name="101" href="#101">101</a>       productName = EffectiveBuildSettings.getProductName(<strong class="jxr_keyword">this</strong>.project, config, sdk);
 <a class="jxr_linenumber" name="102" href="#102">102</a> 
 <a class="jxr_linenumber" name="103" href="#103">103</a>       <strong class="jxr_keyword">if</strong> (productName == <strong class="jxr_keyword">null</strong> || productName.isEmpty())
-<a class="jxr_linenumber" name="104" href="#104">104</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Product Name not found in xcode configuration file"</span>);
+<a class="jxr_linenumber" name="104" href="#104">104</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Product Name not found in effective build settings file"</span>);
 <a class="jxr_linenumber" name="105" href="#105">105</a>     }
 <a class="jxr_linenumber" name="106" href="#106">106</a> 
 <a class="jxr_linenumber" name="107" href="#107">107</a>     <strong class="jxr_keyword">final</strong> String fixedProductName = getFixedProductName(productName);
 <a class="jxr_linenumber" name="108" href="#108">108</a> 
-<a class="jxr_linenumber" name="109" href="#109">109</a>     String generateDSym = getTargetBuildConfiguration(config).getBuildSettings().getDict().getString(<span class="jxr_string">"GCC_GENERATE_DEBUGGING_SYMBOLS"</span>);
+<a class="jxr_linenumber" name="109" href="#109">109</a>     String generateDSym = <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/EffectiveBuildSettings.html">EffectiveBuildSettings</a>(<strong class="jxr_keyword">this</strong>.project, config, sdk).getBuildSetting(EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 <a class="jxr_linenumber" name="110" href="#110">110</a> 
 <a class="jxr_linenumber" name="111" href="#111">111</a>     <strong class="jxr_keyword">if</strong> (generateDSym == <strong class="jxr_keyword">null</strong> || generateDSym.equalsIgnoreCase(<span class="jxr_string">"YES"</span>)) {
 <a class="jxr_linenumber" name="112" href="#112">112</a> 
