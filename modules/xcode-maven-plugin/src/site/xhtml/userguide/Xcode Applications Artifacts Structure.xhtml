@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Xcode Applications Artifacts Structure</title>
+</head>
+
+<body>
+
+
+	<h1>Introduction</h1>
+
+	<p>This page descibes all the artifacts, produced out of Xcode
+		application project build with the maven-xcode-plugin.</p>
+
+	<h1>Mandatory Artifacts</h1>
+
+	<h3>Pom File</h3>
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;.pom</p>
+	</blockquote>
+
+	<p>
+		The project pom file as defined in the project. More information in <a
+			href="Project Pom.html" title="Project Pom">Project Pom</a>.
+	</p>
+
+	<h3>Versions Information</h3>
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;versions.xml</p>
+	</blockquote>
+
+	<p>
+		The file containing the reproducibility information of the project
+		built and its (transitive) dependencies. More information in <a
+			href="Version information.html" title="Version information">Version
+			information</a>.
+	</p>
+
+
+	<h3>iPhone Application Archive</h3>
+
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;classifier&gt;.ipa</p>
+	</blockquote>
+
+	<p>The iPhone application archive file which contains the
+		application as built by Xcode.</p>
+
+	<p>
+		The
+		<tt>classifier</tt>
+		for this artifact is
+		<tt>Configuration</tt>
+		&#45;
+		<tt>sdk</tt>
+		.
+	</p>
+
+	<p>
+		The default built configurations and sdks for application projects are
+		Release and iphoneos, i.e. by default you see the following artifact:<br />
+		<tt>&lt;artifact-id&gt;-&lt;version&gt;-Release-iphoneos.ipa</tt>
+	</p>
+
+
+	<h3>Xcode Application File</h3>
+
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;classifier&gt;.zip</p>
+	</blockquote>
+
+	<p>The application as built by Xcode.</p>
+
+	<p>
+		The
+		<tt>classifier</tt>
+		for this artifacts is
+		<tt>Configuration</tt>
+		&#45;
+		<tt>sdk</tt>
+		&#45;
+		<tt>app</tt>
+		.
+	</p>
+
+	<p>
+		The default built configurations and sdks for application projects are
+		Release and iphoneos, i.e. by default you see the following artifact:<br />
+		<tt>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Release-iphoneos-app.zip</tt>
+	</p>
+
+	<h1>Additional Artifacts</h1>
+
+	<h3>Over the Air Deployment File</h3>
+
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;classifier&gt;.htm</p>
+	</blockquote>
+
+	<p>
+		The over the air htm file. More information in <a
+			href="https://wiki.wdf.sap.corp/display/ProductionIntPro/OTA+Service"
+			title="OTA Service">OTA Service</a>
+	</p>
+
+
+	<p>
+		The
+		<tt>classifier</tt>
+		for this artifact is
+		<tt>Configuration</tt>
+		&#45;
+		<tt>sdk</tt>
+		&#45;
+		<tt>ota</tt>
+		.
+	</p>
+
+	<p>
+		The default built configurations and sdks for application projects are
+		Release and iphoneos, i.e. by default you see the following artifact:<br />
+		<tt>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Release&#45;iphoneos&#45;ota.htm</tt>
+		.
+	</p>
+
+
+	<h3>Debug Symbols</h3>
+
+	<p>The debug symbols generated during the Xcode build if the
+		"Generate Debug Symbols" option is activated.</p>
+
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;classifier&gt;.zip</p>
+	</blockquote>
+
+	<p>
+		The
+		<tt>classifier</tt>
+		for this artifact is
+		<tt>Configuration&#45;sdk&#45;app.dSYM</tt>
+		.
+	</p>
+
+	<p>
+		The default built configurations and sdks for application projects are
+		Release and iphoneos, i.e. by default you see the following artifact:<br />
+		<tt>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Release&#45;iphoneos&#45;app.dSYM.zip</tt>
+		.
+	</p>
+
+</body>
+</html>

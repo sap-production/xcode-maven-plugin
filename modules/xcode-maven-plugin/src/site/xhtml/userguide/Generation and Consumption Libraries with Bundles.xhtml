@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Generation and Consumption Libraries with Bundles</title>
+</head>
+
+<body>
+
+	<p>This page gives you an overview how to produce bundles from
+		XCode Projects for Libraries and how to consume them out of a XCode
+		Application. This feature is available starting with version 1.1.0 of
+		the Maven Xcode Plugin.</p>
+
+	<h2>Exposing Bundle Resources</h2>
+
+		<pre>
+      |-- project-root
+        |-- src
+        |  |-- xcode                              The <span>"xcode"</span> folder contains the whole XCode project. Copy your project here.
+        |     |-- &lt;sources&gt;, ...
+        |     |-- MyNewProject.xcodeproj
+        |     |-- MyNewProject.bundle             This folder contains the <span>default</span> bundle to be packaged <span>for</span> the library. Optional.
+        |     |-- &lt;AdditionalBundle1.bundle&gt;      Additional bundles could be defined in parallel folders or in sub-folders
+        |     |-- Resources
+                 |-- &lt;AdditionalBundle2.bundle&gt;
+        |     |-- MyNewProjectTests
+        |        |-- &lt;sources&gt;, ...
+        |      .....
+        |
+        |-- pom.xml                               The pom.xml has to be created on the same level as the <span>"src"</span> folder
+</pre>
+
+
+	<h3>Default Bundle</h3>
+
+	<p>
+		The bundle, located parallel to the
+		<tt>MyNewProject.xcodeproj</tt>
+		and called
+		<tt>MyNewProject.bundle</tt>
+		will be packaged automatically during the library build from the Maven
+		Xcode Plugin. No configuration steps needed.
+	</p>
+
+	<h3>Additional Bundles</h3>
+
+	<p>
+		A Library project could expose arbitrary number of bundles. In this
+		case they must be explicitly declared in your
+		<tt>pom</tt>
+		file.
+	</p>
+
+	<p>Example snippet:</p>
+	<div>
+		<div>
+			<b>pom.xml</b>
+		</div>
+		<div>
+			<pre>
+....
+      <span>&lt;build&gt;</span>
+          <span>&lt;plugins&gt;</span>
+              <span>&lt;plugin&gt;</span>
+                  <span>&lt;groupId&gt;</span>com.sap.prd.mobile.ios.mios<span>&lt;/groupId&gt;</span>
+                  <span>&lt;artifactId&gt;</span>xcode-maven-plugin<span>&lt;/artifactId&gt;</span>
+                  <span>&lt;extensions&gt;</span>true<span>&lt;/extensions&gt;</span>
+                  <span>&lt;configuration&gt;</span>
+                    <span>&lt;bundles&gt;</span>
+                      <span>&lt;bundle&gt;</span>AdditionalBundle1<span>&lt;/bundle&gt;</span>
+                      <span>&lt;bundle&gt;</span>Resources/AdditionalBundle2<span>&lt;/bundle&gt;</span>
+                    <span>&lt;/bundles&gt;</span>
+                  <span>&lt;/configuration&gt;</span>
+              <span>&lt;/plugin&gt;</span>
+               ....
+          <span>&lt;/plugins&gt;</span>
+      <span>&lt;/build&gt;</span>
+</pre>
+		</div>
+	</div>
+
+	<h2>Using Bundle Resources</h2>
+
+	<h3>
+		Prerequisites
+	</h3>
+
+	<p>
+		The dependent project is already specified in the
+		<tt>dependencies</tt>
+		section of the pom.xml.
+	</p>
+
+	<h3>Maven initialize</h3>
+
+	<ul>
+		<li>Open a Terminal and go to the folder containing the pom.xml.</li>
+		<li>Run the following command:<br /> <tt>mvn initialize</tt></li>
+		<li>After this execution a "target" folder is created in your
+			project folder, where all bundles additionally to all archives and
+			headers from the dependent projects are downloaded.<br /><img
+					src="images/bundles.jpg"
+					style="border: 1px solid black" />
+		</li>
+	</ul>
+
+
+	<h3>Bundles in XCode</h3>
+
+	<p>In the XCode IDE, just drag and drop the bundles you need into
+		your project.</p>
+	<br />
+
+</body>
+</html>

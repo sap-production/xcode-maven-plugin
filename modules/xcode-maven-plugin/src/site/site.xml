@@ -1,51 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  #%L
-  xcode-maven-plugin
-  %%
-  Copyright (C) 2012 SAP AG
-  %%
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-  
-       http://www.apache.org/licenses/LICENSE-2.0
-  
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  #L%
-  -->
+<!-- #%L xcode-maven-plugin %% Copyright (C) 2012 SAP AG %% Licensed under 
+	the Apache License, Version 2.0 (the "License"); you may not use this file 
+	except in compliance with the License. You may obtain a copy of the License 
+	at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable 
+	law or agreed to in writing, software distributed under the License is distributed 
+	on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+	express or implied. See the License for the specific language governing permissions 
+	and limitations under the License. #L% -->
 
 <project>
 
-<!--   <skin> -->
-<!--     <groupId>org.apache.maven.skins</groupId> -->
-<!--     <artifactId>maven-fluido-skin</artifactId> -->
-<!--     <version>1.2.1</version> -->
-<!--   </skin> -->
-<!--   <custom> -->
-<!--     <fluidoSkin> -->
-<!--       <sideBarEnabled>true</sideBarEnabled> -->
-<!--     </fluidoSkin> -->
-<!--   </custom> -->
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-fluido-skin</artifactId>
+		<version>1.3.0</version>
+	</skin>
+	<custom>
+		<fluidoSkin>
+			<sideBarEnabled>true</sideBarEnabled>
+			<topBarEnabled>false</topBarEnabled>
+			<leftColumnClass>span2</leftColumnClass>
+            <bodyColumnClass>span10</bodyColumnClass>
+            <facebookLike />
+            <googlePlusOne />
+		</fluidoSkin>
+	</custom>
 
-  <body>
-    <menu name="Overview">
-      <item name="Introduction" href="index.html" />
-      <item name="Goals" href="plugin-info.html" />
-      <item name="Usage" href="usage.html" />
-      <item name="FAQ" href="faq.html" />
-    </menu>
+	<body>
+		<menu name="Overview">
+			<item name="Introduction" href="index.html" />
+			<item name="Goals" href="plugin-info.html" />
+			<item name="Usage" href="usage.html" />
+			<item name="FAQ" href="faq.html" />
+		</menu>
 
-    <menu name="Examples">
-      <item name="Building an iOS Library" href="examples/LibBuildExample.html" />
-      <item name="Building an iOS App" href="examples/AppBuildExample.html" />
-    </menu>
+		<menu name="User Guide">
+			<item name="Project Structure" href="userguide/Project Structure.html" />
+			<item name="Advance Project Structure - Modules" href="userguide/Advanced Project Structure - Modules.html" />
+			<item name="Project Pom" href="userguide/Project Pom.html" />
+			<item name="Version information" href="userguide/Version information.html" />
 
-    <menu ref="reports" />
+			<item name="Apps" href="examples/AppBuildExample.html">
+				<item name="Packaging the Xcode project with its resolved dependencies"
+					href="userguide/Packaging the Xcode project with its resolved dependencies.html" />
+				<item name="Xcode Applications Artifacts Structure"
+					href="userguide/Xcode Applications Artifacts Structure.html" />
+			</item>
+			
+			<item name="Libraries" href="examples/LibBuildExample.html">
+				<item name="Generate Fat Binaries" href="userguide/Generate Fat Binaries.html" />
+				<item name="Generation and Consumption Libraries with Bundles"
+					href="userguide/Generation and Consumption Libraries with Bundles.html" />
+				<item name="Generation of API Docs with Doxygen" href="userguide/Generation of API Docs with Doxygen.html" />
+				<item name="Xcode Libraries Artifacts Structure" href="userguide/Xcode Libraries Artifacts Structure.html" />
+			</item>
+			
+			<item name="Dependency Management" href="userguide/Dependencies.html" >
+				<item name="Consumption of Libraries" href="userguide/Consumption of Libraries.html" target="_self"/>
+				<item name="Consumption of Frameworks" href="userguide/Consumption of Frameworks.html" />
+				<item name="Develop Multiple Dependent Xcode Projects" href="userguide/Workspace.html" />
+			</item>
+		</menu>
 
-  </body>
+		<menu ref="reports" />
+
+	</body>
 </project>

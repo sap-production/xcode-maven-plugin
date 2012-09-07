@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Project Pom</title>
+</head>
+
+<body>
+	<h2>
+		The Project POM<br />
+	</h2>
+
+	<p>
+		The POM (Project Object Model) is the fundamental unit of work in
+		Maven. It is an XML file that contains information about the project
+		and configuration details used by Maven to build the project. For more
+		information, visit the <a
+			href="http://maven.apache.org/guides/introduction/introduction-to-the-pom.html">Introduction
+			to the POM</a> on the official Maven Documentation.
+	</p>
+
+	<p>To prepare your project to be built within the MiOS, do this two
+		steps:</p>
+
+	<ul>
+		<li>Create a pom.xml file, placed into your project-root folder as shown below.</li>
+		<li>Adjust the <b>groupId</b> and the <b>artifactId</b>
+			in the pom.xml as suitable for your project. The
+			artifactId must be the same as your XCode project name.
+		</li>
+		<li>If your project has dependencies to other projects, they
+			should be added to the <tt>dependencies</tt> section. More
+			information on <a href="Dependencies.html"
+			title="Dependency management">Dependency management</a>.
+		</li>
+	</ul>
+</body>
+</html>

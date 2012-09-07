@@ -1,0 +1,61 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Develop Multiple Dependent Xcode Projects</title>
+</head>
+
+<body>
+
+	<p>This page gives you an overview how to develop multiple
+		dependent Xcode projects at once.</p>
+
+	<h3>Local Development Environment</h3>
+
+	<ul>
+		<li>Open the first project in Xcode.</li>
+		<li>Save it as a new workspace (<span>File</span> -> <span>Save
+				as Workspace...</span>)
+		</li>
+		<li>Drag and Drop the second project into the workspace.</li>
+	</ul>
+<br />
+	<img src="images/drag_and_drop.png" style="border: 1px solid black" />
+
+<br />
+<i>Make sure that the second project is added to the workspace and
+		not to the first project!</i>
+<br />
+	Right:
+	<br />
+	<img src="images/workspace_right.png" style="border: 1px solid black" />
+	<br />
+	<br /> 
+	Wrong:
+	<br />
+	<img src="images/workspace_wrong.png" style="border: 1px solid black" />
+<br />
+<br />
+Ensure that <span>Find Implicit Dependencies</span> is checked (<span>Product</span>
+		-> <span>Edit Scheme...</span> -> <span>Build</span>). 
+		<br /><img
+			src="images/implicit_deps.png" style="border: 1px solid black" />
+
+<br />
+		Xcode resolves dependencies automatically between your projects and
+		rebuilds them if needed.
+
+	<h3>Maven Build Environment</h3>
+
+	<p>
+		Currently, it is not possible to build a workspace with the MiOS
+		infrastructure. The projects must be built independently and deployed
+		to Nexus. Therefore the explicit settings, required for the maven
+		build must still be configured. When used together with the workspace, the
+		explicit project settings are overwritten by the workspace handling.
+		Therefore for local development scenario, using a workspace, the
+		project resolution is done by the workspace settings and the maven
+		builds using the settings, configured for the projects.
+	</p>
+</body>
+</html>

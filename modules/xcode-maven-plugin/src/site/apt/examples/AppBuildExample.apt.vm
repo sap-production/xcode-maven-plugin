@@ -5,7 +5,7 @@
  2012-05-21
  ------
  
-Building an iOS App Example
+Building an iOS App 
 
   This example demonstrates how you can build an iOS app depending on another library using the Xcode plugin.
   Due to the <<<xcode-app>>> packaging all Xcode specific tasks get automatically attached to the Maven lifecycle.

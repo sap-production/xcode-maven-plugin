@@ -5,7 +5,7 @@
  2012-05-21
  ------
  
-Building an iOS Library Example
+Building an iOS Library 
 
   This example demonstrates how you can build an iOS library depending on another library using the Xcode plugin.
   Due to the <<<xcode-lib>>> packaging all Xcode specific tasks get automatically attached to the Maven lifecycle.

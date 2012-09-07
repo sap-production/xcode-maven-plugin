@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Consumption of Frameworks</title>
+</head>
+
+<body>
+
+	<p>This page gives you an overview how to consume Frameworks out of
+		a XCode Application. This feature is available starting with version
+		1.3.0 of the Maven Xcode Plugin.</p>
+
+	<h2>Using Frameworks</h2>
+
+	<h3>Prerequisites</h3>
+
+	<p>1. The used framework is already deployed in an available Maven
+		Repository.</p>
+
+	<p>
+		2. Your project specifies a dependency to the framework to use in the
+		<tt>dependencies</tt>
+		section of the pom.xml.
+	</p>
+
+	<pre>
+&lt;dependency&gt;
+	&lt;groupId&gt;com.sap.tip.production.prototype.xcodeprojects&lt;/groupId&gt;
+	&lt;artifactId&gt;MyFramework&lt;/artifactId&gt;
+	&lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
+	&lt;type&gt;xcode-framework&lt;/type&gt; 
+&lt;/dependency&gt; 
+    </pre>
+
+	<h3>Downloading and Using Frameworks</h3>
+
+	<p>1. Maven initialize</p>
+
+	<ul>
+		<li>Open a Terminal and go to the folder containing the pom.xml.</li>
+		<li>Run the following command:<br /> <tt>mvn initialize</tt></li>
+	</ul>
+
+
+	<ul>
+		<li>After this execution a "target/xcode-deps/frameworks" folder
+			is created in your project folder, where all frameworks are
+			downloaded and ready to use in Xcode.</li>
+	</ul>
+
+
+	<p>
+		<img src="images/target-frameworks.png"
+			style="border: 1px solid black" />
+	</p>
+
+	<h3>Use Frameworks in XCode</h3>
+
+	<p>1. In the XCode IDE, drag and drop the framework you need into
+		your project.</p>
+
+	<p>
+		<img src="images/add-framework.png" style="border: 1px solid black" />
+	</p>
+
+	<p>After adding the reference to the framework, you will see the
+		framework in your project and automatically linked into Build Phases
+		&gt; Link Binary with Libraries section.</p>
+	<br />
+	<p>
+		<img src="images/added_framework.png" style="border: 1px solid black" />
+	</p>
+
+	<p>2. Or, if you prefer, you could go the other way round:</p>
+
+	<p>Go to Build Phases &gt; Link Binary with Libraries section and
+		click on the "+".</p>
+	<br />
+	<p>
+		<img src="images/added_framework_plus.png"
+			style="border: 1px solid black" />
+	</p>
+
+	<p>Choose the framework to add:</p>
+
+	<p>
+		<img src="images/add_other_framework.png"
+			style="border: 1px solid black" />
+	</p>
+
+	<p>and navigate in the file system to it and click on "Open"</p>
+
+	<p>
+		<img src="images/navigate-to-framework.png"
+			style="border: 1px solid black" />
+	</p>
+
+	<p>As a result, the framework is linked and displayed into your
+		project as referenced</p>
+
+	<p>
+		<img src="images/added-framework.png" style="border: 1px solid black" />
+	</p>
+
+</body>
+</html>

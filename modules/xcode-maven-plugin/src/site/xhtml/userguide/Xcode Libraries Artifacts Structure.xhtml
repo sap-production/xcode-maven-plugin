@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Xcode Libraries Artifacts Structure</title>
+</head>
+
+<body>
+
+
+	<h1>Introduction</h1>
+
+	<p>This page describes all the artifacts, produced out of a build
+		of Xcode library project with the maven-xcode-plugin.</p>
+
+	<h1>Mandatory Artifacts</h1>
+
+	<h3>Pom File</h3>
+	<blockquote>
+		<p>&lt;artifact-id&gt;-&lt;version&gt;.pom</p>
+	</blockquote>
+
+	<p>
+		The project pom file as defined in the project. More information in <a
+			href="Project Pom.html" title="Project Pom">Project Pom</a>.
+	</p>
+
+	<h3>Versions Information</h3>
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;versions.xml</p>
+	</blockquote>
+
+	<p>
+		The file containing the reproducibility information of the project
+		built and its (transitive) dependencies. More information in <a
+			href="Version information.html" title="Version information">Version
+			information</a>.
+	</p>
+
+	<h3>
+		Main Artifact
+		<blockquote>
+			<p>&lt;artifact-id&gt;-&lt;version&gt;.tar</p>
+		</blockquote>
+	</h3>
+
+	<p>
+		The main artifact is a tar file, which may contain additonal
+		information about the deployed artifacts.<br /> By default the main
+		artifact contains only a
+		<tt>README.txt</tt>
+		.
+	</p>
+
+	<p>In case the built library exposes additional bundle resources,
+		the main artifact must contain a "bundles.txt" file. The bundles.txt
+		file must contain for each exposed bundle resource the following
+		information:</p>
+	<blockquote>
+		<p>
+			&lt;group-id&gt;:&lt;artifact-id&gt;:type:classifier1:&lt;version&gt;<br />
+			&lt;group-id&gt;:&lt;artifact-id&gt;:type:classifier2:&lt;version&gt;<br />
+			...
+		</p>
+	</blockquote>
+
+	<h3>
+		Library Archive(s)
+		<blockquote>
+			<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;classifier&gt;.a</p>
+		</blockquote>
+	</h3>
+
+	<p>The library archive(s) as built from Xcode.</p>
+
+	<p>The default built configurations and sdks/platforms for library
+		projects are Release/Debug and iphoneos/iphonesimulator, i.e. by
+		default you see the following artifacts:</p>
+	<blockquote>
+		<p>
+			&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Release-iphoneos.a<br />
+			&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Debug-iphoneos.a
+		</p>
+
+		<p>
+			&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Release&#45;iphonesimulator.a<br />
+			&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Debug&#45;iphonesimulator.a
+		</p>
+	</blockquote>
+
+	<h1>Additional Artifacts</h1>
+
+	<h3>Public Headers</h3>
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;classifier&gt;.headers.tar</p>
+	</blockquote>
+
+	<p>The header files exposed as public headers into Copy Headers
+		&gt; Public Build Phase into Xcode.</p>
+
+	<p>The default built configurations and sdks/platforms for library
+		projects are Release/Debug and iphoneos/iphonesimulator, i.e. if the
+		library exposes public headers, by default you see the following
+		artifacts:</p>
+	<blockquote>
+		<p>
+			&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Release&#45;iphoneos.headers.tar<br />
+			&lt;artifact-id&gt;&#45;&lt;version&gt;-Debug-iphoneos.headers.tar
+		</p>
+
+		<p>
+			&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Release&#45;iphonesimulator.headers.tar<br />
+			&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Debug&#45;iphonesimulator.headers.tar
+		</p>
+	</blockquote>
+
+
+	<h3>Fat Binaries</h3>
+
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;classifier&gt;-&lt;type&gt;.a</p>
+	</blockquote>
+
+	<p>
+		Fat binaries (combined iphoneos and iphonesimulator binaries) built
+		with the
+		<tt>lipo</tt>
+		tool.
+	</p>
+
+	<p>
+		The
+		<tt>&lt;type&gt;</tt>
+		for these artifacts is set to
+		<tt>fat-binary</tt>
+		<br /> The default built configurations and sdks/platforms for
+		library projects are Release/Debug and iphoneos/iphonesimulator, i.e.
+		if the building of fat binaries is enabled for the project, you see
+		the following artifacts:
+	</p>
+	<blockquote>
+		<p>
+			&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Debug&#45;fat&#45;binary.a<br />
+			&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;Release&#45;fat&#45;binary.a
+		</p>
+	</blockquote>
+
+	<p>
+		More information how to enable fat binary generation in <a
+			href="Generate Fat Binaries.html" title="Generate Fat Binaries">Generate
+			Fat Binaries</a>
+	</p>
+
+	<h3>Doxygen Documentation</h3>
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;type&gt;.zip</p>
+	</blockquote>
+
+	<p>The zipped output of the generation of Doxygen documentation.</p>
+
+	<p>
+		The
+		<tt>&lt;type&gt;</tt>
+		is set to
+		<tt>DoxygenApiDoc</tt>
+		.
+	</p>
+
+	<p>
+		More information how to enable generation of Doxygen Documentation in
+		<a href="Generation of API Docs with Doxygen.html"
+			title="Generation of API Docs with Doxygen">Generation of API
+			Docs with Doxygen</a>.
+	</p>
+
+	<h3>Bundle Resources</h3>
+
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;classifier&gt;.xcode-bundle-zip</p>
+	</blockquote>
+
+	<p>
+		The zipped exposed bundle resources out of a library project as
+		defined into the "Copy Bundle resources" Build Phase into Xcode.<br />
+		The classifier is the escaped bundle name (the bundle name where the
+		file separators are replaced with &#126;).
+	</p>
+
+	<p>
+		If a library project defines a bundle resource with the same name as
+		the library itself, this bundle is treated as "default bundle".<br />
+		In this case the classifier has the same name as the
+		<tt>artifact-id</tt>
+		.
+	</p>
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;&lt;artifact-id&gt;.xcode-bundle-zip</p>
+	</blockquote>
+
+	<p>
+		More information about generation and consume of bundles in <a
+			href="Generation and Consumption Libraries with Bundles.html"
+			title="Generation and Consumption Libraries with Bundles">Generation
+			and Consumption Libraries with Bundles</a>
+	</p>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Advanced Project Structure - Modules</title>
+</head>
+
+<body>
+
+	<h2>Advanced Project Structure - Modules</h2>
+
+	<p>It is not possible to have multiple XCode projects in one
+		"src/xcode" folder, however module builds are allowed. In this case
+		the project structure has to be the following:</p>
+	<pre>
+ |-- project-root
+      |-- pom.xml                               The project pom xml.
+      |
+      |-- &lt;MavenModule1Root&gt;
+      |  |-- src
+      |     |-- xcode                           The <span>"xcode"</span> folder contains the whole XCode project. Copy your project there.
+      |        |-- MyNewProject
+      |           |-- &lt;sources&gt;, ...
+      |        |-- MyNewProject.xcodeproj
+      |        |-- MyNewProjectTests
+      |           |-- &lt;sources&gt;, ...
+      |  |-- pom.xml                            The module pom.
+      |
+      |-- &lt;MavenModule2Root&gt;
+      |  |-- src
+      |     |-- xcode                           The <span>"xcode"</span> folder contains the whole XCode project. Copy your project there.
+      |        |-- MyNewProject2
+      |           |-- &lt;sources&gt;, ...
+      |        |-- MyNewProject2.xcodeproj
+      |        |-- MyNewProjectTests2
+      |           |-- &lt;sources&gt;, ...
+      |  |-- pom.xml                            The module pom.
+      |
+      |.....
+</pre>
+
+	<p>The project pom then must contain the references to its module
+		projects.</p>
+	<pre>
+&lt;modules&gt;
+  &lt;module&gt;XCodeProject1Name/pom.xml&lt;/module&gt;
+  &lt;module&gt;XCodeProject2Name/pom.xml&lt;/module&gt;
+  ......
+&lt;/modules&gt;
+
+</pre>
+
+
+	<h2>Limitations</h2>
+	<p>
+		In case of a module containing applications, the module pom itself
+		must not be deployed. To skip the deployment of the module pom, the
+		property
+		<tt>maven.deploy.skip</tt>
+		must be set to
+		<tt>true</tt>
+		:
+	</p>
+	<pre>...
+&lt;properties&gt;
+  &lt;maven.deploy.skip&gt;true&lt;/maven.deploy.skip&gt;
+&lt;/properties&gt;
+...
+</pre>
+
+
+	<p>Since the module pom is not deployed, it is not possible to use
+		the module pom as parent pom. It is not possible to use a parent pom
+		file that is part of the module build.</p>
+
+</body>
+</html>

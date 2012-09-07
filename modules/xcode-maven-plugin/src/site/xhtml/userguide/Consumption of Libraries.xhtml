@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Usage of Library into XCode</title>
+</head>
+
+<body>
+
+	<h1>Consumption of Libraries</h1>
+
+	<p>This is a step-by-step guide, describing the needed steps to
+		reuse a library built with the Xcode Maven Plugin</p>
+
+	<h3>Prerequisites</h3>
+
+	<p>The used library is already deployed in an available Maven
+		Repository.</p>
+	<h3>1. Dependency Declaration</h3>
+	<p>
+		Your project specifies a dependency to the dependent library to use in
+		the
+		<tt>dependencies</tt>
+		section of the pom.xml.
+	</p>
+	<pre>
+&lt;dependency&gt;
+	&lt;groupId&gt;com.sap.tip.production.prototype.xcodeprojects&lt;/groupId&gt;
+	&lt;artifactId&gt;MyLib&lt;/artifactId&gt;
+	&lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
+	&lt;type&gt;xcode-lib&lt;/type&gt; 
+&lt;/dependency&gt; 
+    </pre>
+
+	<h3>2. Maven initialize</h3>
+
+	<ul>
+		<li>Open a Terminal and go to the folder containing the pom.xml.</li>
+		<li>Run the following command:<br /> <tt>mvn initialize</tt></li>
+		<li>After this execution a "target" folder is created in your
+			project folder, where all archives and headers from the dependent
+			projects are downloaded.<br /> <img src="images/headers.jpg"
+			style="border: 1px solid black" /> <br /> <img
+			src="images/libraries.jpg" style="border: 1px solid black" /> <br />
+		</li>
+	</ul>
+
+
+
+	<h3>3. Define the Header and the Library Search Paths in XCode to
+		point to those locations.</h3>
+
+	<ul>
+		<li>Open XCode and navigate to Build Settings tab. <br /> <br />
+			<img src="images/XCode build settings.png"
+			style="border: 1px solid black" /></li>
+		<li>Set the header search path (HEADER_SEARCH_PATHS) to:
+			"${PROJECT_DIR}/../../target/headers/${BUILD_STYLE}-${PLATFORM_NAME}/**"
+			<br /> <br /> <img src="images/headerSearchpath.png"
+			style="border: 1px solid black" /> <br /> <br />
+		</li>
+		<li>Set the library search path (LIBRARY_SEARCH_PATHS) to:
+			"${PROJECT_DIR}/../../target/libs/${BUILD_STYLE}-${PLATFORM_NAME}/**"
+			<br /> <br /> <img src="images/librarySearchPath.png"
+			style="border: 1px solid black" /> <br /> <br />
+		</li>
+	</ul>
+
+
+	<h3>4. Link the library in XCode</h3>
+
+	<p>Additionally you have to link the library in your XCode project
+		as usual:</p>
+	<ul>
+		<li>Go to your default target &gt; Build Phases &gt; Link Binary
+			with Libraries &gt; click <b>+</b> <br /> <br /> <img
+			src="images/linkLibrary1.png" style="border: 1px solid black" /> <br />
+			<br />
+		</li>
+		<li>Click "Add Other..." <br /> <br /> <img
+			src="images/linkLibrary2.png" style="border: 1px solid black" /> <br />
+			<br /></li>
+		<li>Select one of the libraries from the path as already
+			mentioned above. Only the file name is relevant - according to the
+			library search path the relevant file with this name is searched. <br />
+			<br /> <img src="images/libraries.jpg"
+			style="border: 1px solid black" />
+		</li>
+	</ul>
+
+
+	<h3>5. Set Linker flag</h3>
+
+	<p>
+		Objective-C does not define linker symbols for each function (or
+		method, in Objective-C) - instead, linker symbols are only generated
+		for each class. If you extend a pre existing class with categories,
+		the linker does not know to associate the object code of the core
+		class implementation and the category implementation. This prevents
+		objects created in the resulting application from responding to a
+		selector that is defined in the category. Detailed information can be
+		found here: <a
+			href="https://developer.apple.com/library/mac/#qa/qa1490/_index.html">https://developer.apple.com/library/mac/#qa/qa1490/_index.html</a>
+	</p>
+
+	<p>
+		To resolve this issue, the target linking against the static library
+		must pass the <b>&#45;ObjC</b> option to the linker. This flag causes
+		the linker to load every object file in the library that defines an
+		Objective-C class or category.
+	</p>
+
+	<ul type="square">
+		<li>In Xcode, double-click the target's name under "Targets" in
+			the Project window.</li>
+		<li>Choose the Build pane from the ensuing Info window.</li>
+		<li>Scroll down to the Other Linker Flags build setting under the
+			Linking collection and set its value to &#45;ObjC. <br /> <br /> <img
+			src="images/objc.gif" style="border: 1px solid black" />
+		</li>
+	</ul>
+</body>
+</html>

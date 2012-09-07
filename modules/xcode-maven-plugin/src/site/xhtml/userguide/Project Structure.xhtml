@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Project Structure</title>
+</head>
+
+<body>
+
+	<p>This document describes how to prepare your XCode project to be
+		aligned with the project structure defined for MiOS Infrastructure.</p>
+
+	<h2>MiOS Project Structure</h2>
+
+	<p>The folder structure on your local filesystem has to be the
+		following:</p>
+
+	<pre>
+    |-- project-root
+      |-- src
+      |  |-- xcode                              The <span>"xcode"</span> folder contains the whole XCode project. Copy your project here.
+      |     |-- MyNewProject
+      |        |-- &lt;sources&gt;, ...
+      |     |-- MyNewProject.xcodeproj
+      |     |-- MyNewProjectTests
+      |        |-- &lt;sources&gt;, ...
+      |      .....
+      |
+      |-- pom.xml                               The pom.xml has to be created on the same level as the <span>"src"</span> folder
+	</pre>
+	<p>
+		<em>Note:</em> It is not possible to have multiple XCode projects in
+		one "src/xcode" folder.<br /> Module builds are allowed. For more
+		information visit the <a
+			href="Advanced Project Structure - Modules.html"
+			title="Advanced Project Structure - Modules">Advanced Project
+			Structure &#45; Modules</a>
+	</p>
+</body>
+</html>
