@@ -36,7 +36,7 @@
 
 		<menu name="User Guide">
 			<item name="Project Structure" href="userguide/Project Structure.html" />
-			<item name="Advance Project Structure - Modules" href="userguide/Advanced Project Structure - Modules.html" />
+			<item name="Advanced Project Structure - Modules" href="userguide/Advanced Project Structure - Modules.html" />
 			<item name="Project Pom" href="userguide/Project Pom.html" />
 			<item name="Version information" href="userguide/Version information.html" />
 

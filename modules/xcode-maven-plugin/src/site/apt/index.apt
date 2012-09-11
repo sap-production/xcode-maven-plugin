@@ -25,7 +25,7 @@
  ------
 
 
-Maven Xcode Plugin
+Xcode Maven Plugin
 
   The Xcode Maven Plugin can be used in order to run Xcode builds embedded in a Maven lifecycle. Currently it supports
   two build types:
@@ -56,7 +56,7 @@ Maven Xcode Plugin
      
     * <<Maven >= 3.0.2>> Maven 3 has to be installed an configured correctly so that is has access to central repositories
      
-    * <<Xcode>> Xcode has to be installed as the plugin performs Xcode command line calls.
+    * <<Xcode>> Xcode 4.4 or higher has to be installed as the plugin performs Xcode command line calls.
 
 
 * Goals Overview
@@ -78,6 +78,18 @@ Maven Xcode Plugin
 ~~  free to contact the {{{mail-lists.html}user mailing list}}. The posts to the mailing list are archived and could
 ~~  already contain the answer to your question as part of an older thread. Hence, it is also worth browsing/searching
 ~~  the {{{mail-lists.html}mail archive}}.
+
+
+* User Guide
+  
+  The "User Guide" section of the navigation bar on the left hand side contains a couple of interesting topics like
+     
+     * {{{./userguide/Consumption of Libraries.html}Consumption of Libraries}}
+     
+     * {{{./userguide/Consumption of Frameworks.html}Consumption of Frameworks}}
+     
+     * A description of the build artifacts created by an {{{./userguide/Xcode Applications Artifacts Structure.html}App}} build
+       or a {{{./userguide/Xcode Libraries Artifacts Structure.html}Lib}} build
 
 
 * Examples

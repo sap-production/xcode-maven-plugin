@@ -10,7 +10,8 @@ Building an iOS App
   This example demonstrates how you can build an iOS app depending on another library using the Xcode plugin.
   Due to the <<<xcode-app>>> packaging all Xcode specific tasks get automatically attached to the Maven lifecycle.
   I.e. calling <<<mvn clean install>>> will resolve the dependencies, compile the Xcode code, perform the signing,
-  package the app and upload it into the local repository.
+  package the app and upload it into the local repository. Make sure that your plugin configuration contains the
+  line <<< <extensions>true</extensions> >>> which is needed to enable the Maven lifecycle modification.
   
   
 * pom.xml

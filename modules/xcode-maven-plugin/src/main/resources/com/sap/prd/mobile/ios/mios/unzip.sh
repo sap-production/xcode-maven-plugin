@@ -2,7 +2,7 @@
 
 ###
 # #%L
-# maven-xcode-plugin
+# xcode-maven-plugin
 # %%
 # Copyright (C) 2012 SAP AG
 # %%
