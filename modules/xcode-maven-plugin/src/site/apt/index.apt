@@ -30,13 +30,13 @@ Xcode Maven Plugin
   The Xcode Maven Plugin can be used in order to run Xcode builds embedded in a Maven lifecycle. Currently it supports
   two build types:
   
-  * <<iOS Library Builds>>: If you specify <<<xcode-lib>>> as packaging type in the <<<pom.xml>>> a couple of goals will 
-    be added to your Maven lifecycle that take care of resolving dependencies, executing the Xcode build and uploading
-    the build artifacts into your Maven repository.
+    * <<iOS Library Builds>>: If you specify <<<xcode-lib>>> as packaging type in the <<<pom.xml>>> a couple of goals will 
+      be added to your Maven lifecycle that take care of resolving dependencies, executing the Xcode build and uploading
+      the build artifacts into your Maven repository.
     
-  * <<iOS App Builds>>: This build is similar to library build, however, it also performs code signing that is 
-    necessary to upload the app to the AppStore. Apps are identified by a <<<xcode-app>>> packaging specification
-    in your <<<pom.xlm>>>.
+    * <<iOS App Builds>>: This build is similar to library build, however, it also performs code signing that is 
+      necessary to upload the app to the AppStore. Apps are identified by a <<<xcode-app>>> packaging specification
+      in your <<<pom.xml>>>.
 
   If you are developing an app or a library in your Xcode environment there is no real need to run the Xcode build with Maven.
   Nevertheless, you can call <<<mvn initialize>>> in order to retrieve your library dependencies out of a central
@@ -46,15 +46,55 @@ Xcode Maven Plugin
   also your iOS libraries and apps with Maven and use a repository to distribute the binary build results. 
 
 
+* Why Should I Use It?
+
+  This is a really good question to ask and the answer depends on your usage intention.
+  
+  If you are developing iOS apps within Xcode and you are releasing them from the same computer you do the development
+  on, then Xcode already provides all you need and you will never ever even think about adding the Maven complexity to
+  your build system. Chances that you end up on this web site tend to zero. If you came across the site, nevertheless,
+  than you might belong to the second group of people: The Maven Evangelists.
+  
+  If you are a Maven evangelist, you love Maven and want to do everything with Maven, you will be thrilled to see that
+  Maven now has even entered the Apple empire. Now it won't take long until Maven obtains world domination...
+  
+  Finally, you might be working for a company that already has created a Maven infrastructure by having a central binary
+  repository, a central build system, etc. Now you want to reuse this infrastructure to build your iOS libs and apps
+  in order to gain one or more of the following benefits:
+  
+  * <<Binary Repository>>: You want to store all your build artifacts in a central binary repository so that you can
+    access and reuse them at any point in time. All your lib and app releases are preserved in one location.
+
+  * <<Dependency Management>>: Maven manages the binary dependencies for you. If your app depends on some other libs
+    you can clearly define which version of the lib you are interested in and even the transitive dependencies 
+    will be correctly resolved. As Xcode does not offer a mechanism to manage binary dependencies this is a big advantage
+    of using Maven in a modularized environment. 
+
+  * <<Minimal Overhead for Local Developers>>: In the local development environment Maven is only used to retrieve the
+    binary dependencies from the repository. All you have to do is calling <<<mvn initialize>>> and afterwards you keep
+    on working in your Xcode IDE.
+
+  * <<Build System Injected Versioning>>: Your central build system can inject the version of your lib or app as we are 
+    using the {{{https://github.com/sap-production/resolve-pom-maven-plugin#resolve-pom-maven-plugin}resolve-pom-maven-plugin}}
+    in the build lifecycle. 
+  
+  * <<Central Build Configuration>>: You can override the provisioning profile, code sign identity and AppId through
+    Maven settings. This allows for building your app with an enterprise account for internal distributions and test 
+    in parallel to building it for the App Store. You do not have to modify your Xcode project settings, but the 
+    xcode-maven-plugin will override the settings and adapt the AppId.
+ 
+
+
+
 * Prerequisites
 
-  The following prerequisites have to be fulfilled in order to use the Xcode plugin:
+  The following prerequisites have to be fulfilled in order to use the Xcode Maven plugin:
 
-    * <<Mac OS X>> The build has to run on a Mac computer 
+    * <<Mac OS X>> The build has to run on a Mac computer.
     
     * <<JRE 6>> The Java runtime environment has to be installed on the computer.
      
-    * <<Maven >= 3.0.2>> Maven 3 has to be installed an configured correctly so that is has access to central repositories
+    * <<Maven >= 3.0.2>> Maven 3 has to be installed and configured correctly so that is has access to central repositories.
      
     * <<Xcode>> Xcode 4.4 or higher has to be installed as the plugin performs Xcode command line calls.
 
@@ -72,7 +112,7 @@ Xcode Maven Plugin
   General instructions on how to use the Xcode Plugin can be found on the {{{./usage.html}usage page}}. Some more
   specific use cases are described in the examples given below.
   
-  Additionally there exists a {{{./faq.html}FAQ}} section.
+  Additionally a {{{./faq.html}FAQ}} section exists.
 
 ~~  In case you still have questions regarding the plugin's usage, please have a look at the {{{./faq.html}FAQ}} and feel
 ~~  free to contact the {{{mail-lists.html}user mailing list}}. The posts to the mailing list are archived and could
@@ -94,7 +134,7 @@ Xcode Maven Plugin
 
 * Examples
 
-  To provide you with better understanding of some usages of the Plugin Name,
+  To provide you with better understanding of some usages of the Xcode Maven Plugin,
   you can take a look into the following examples:
 
   * {{{./examples/LibBuildExample.html}Example of a Library build}}
