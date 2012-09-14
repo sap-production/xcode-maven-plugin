@@ -57,21 +57,69 @@ import org.junit.rules.TemporaryFolder;
 public abstract class XCodeTest
 {
 
+  private static File localRepo;
+  
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
   @BeforeClass
   public static void setup() throws IOException, XmlPullParserException {
     prepareTestExecutionSettingsFile();
+    setupLocalRepo();
   }
   
-  public static void prepareTestExecutionSettingsFile() throws IOException, XmlPullParserException {
-
-    // TODO: We expect that the settings file from the default location is used.
-    // Does anybody know how we can obtain the maven cli in order to check
-    // which settings file is in fact used???
+  private static void setupLocalRepo()
+  {
+    //
+    // The local repo used during the integration tests must be the same than the local repo used for
+    // building the xcode-maven-plugin previously in the build. Otherwise the binary version of the plugin
+    // cannot be found or a wrong version will be found.
+    // Since the base directory for building the xcode-maven-plugin and the base directory used for the
+    // integration tests differs the corresponding path must be absolute.
+    //
     
-    final File userSettingsFile = new File(new File(System.getProperty("user.home")), ".m2/settings.xml");
+    String localRepoFilePath = System.getProperty("com.sap.maven.integration-tests.local-repo");
+    
+    if(localRepoFilePath == null || localRepoFilePath.isEmpty()) {
+      
+      localRepoFilePath = System.getProperty("user.home") + "/.m2/repository";
+      
+      System.out.println("[WARNING] Local Repository has not been provided. Please provide the local repo with \"-Dmaven.repo.local=\". " +
+      		"Defaulting to '" + localRepoFilePath + "'.");
+    }
+    
+    localRepo = new File(localRepoFilePath);
+    
+    if(!localRepo.isAbsolute())
+      throw new RuntimeException("The path to the local repository '" + localRepoFilePath +"' is not absolute. " +
+      		"Integration tests will only work reliably if that path is absolute.");
+    
+    System.out.println("Using local repository '" + localRepo + "'.");
+  }
+
+  private static void prepareTestExecutionSettingsFile() throws IOException, XmlPullParserException {
+
+    //
+    // The settings file used for integration tests must be the same than the settings file used for the previously performed
+    // build of the xcode-maven-plugin. Since the base directory for building the xcode-maven-plugin and the base directory for the
+    // integration tests differs the corresponding path must be absolute.
+    // For more details see the comment inside the configuration of the surefire plugin in the pom file of the integration tests.
+    //
+    
+    final String userSettingsFilePath = System.getProperty("com.sap.maven.integration-tests.user-settings");
+    
+    if(userSettingsFilePath == null || userSettingsFilePath.isEmpty())
+      throw new RuntimeException("No settings file has been provided. Please provide the user settings file used " +
+      		"for integration tests with \"-Dcom.sap.maven.integration-tests.user-settings=\" ");
+    
+    final File userSettingsFile = new File(userSettingsFilePath);
+    
+    if(!userSettingsFile.isAbsolute())
+      throw new RuntimeException("The path to the user settings file '" + userSettingsFilePath + "' is not absolute. " +
+      		"Integration tests will only work reliably if that path is absolute.");
+    
+    System.out.println("Using settings file '" + userSettingsFile + "' for integration tests");
+    
     final File testExecutionSettingsFile = getTestExectutionSettingsFile();
         
     if(testExecutionSettingsFile.exists())
@@ -107,6 +155,7 @@ public abstract class XCodeTest
         }
         
         new SettingsXpp3Writer().write(w, settings);
+        System.out.println("User settings file written to '" + testExecutionSettingsFile + "'.");
         
         
     } finally {
@@ -178,9 +227,9 @@ public abstract class XCodeTest
       System.out
         .println("SystemProperties used during integration test for '" + testName + "/" + projectName + "': \n"
               + testSystemProperties);
-
+      
       final List<String> commandLineOptions = new ArrayList<String>(
-            Arrays.asList("-f", pomFileName, "-s", getTestExectutionSettingsFile().getAbsolutePath()));
+            Arrays.asList("-f", pomFileName, "-s", getTestExectutionSettingsFile().getAbsolutePath(), "-Dmaven.repo.local=" + localRepo.getAbsolutePath()));
 
       if (additionalCommandLineOptions != null)
         commandLineOptions.addAll(additionalCommandLineOptions);
