@@ -58,6 +58,13 @@ public abstract class AbstractXCodeBuildMojo extends AbstractXCodeMojo
    * @since 1.2.1
    */
   protected String provisioningProfile;
+  
+  /**
+   * The Xcode target to be built. If not specified, the default target (the first target) will be built.
+   * @parameter expression="${xcode.target}"
+   * @since 1.4.1
+   */
+  protected String target;
 
   protected XCodeContext getXCodeContext()
   {
@@ -73,6 +80,7 @@ public abstract class AbstractXCodeBuildMojo extends AbstractXCodeMojo
     context.setCodeSignIdentity(codeSignIdentity);
     context.setOut(System.out);
     context.setProvisioningProfile(provisioningProfile);
+    context.setTarget(target);
 
     return context;
   }

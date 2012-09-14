@@ -28,6 +28,7 @@ class CommandLineBuilder
   private final static String XCODEBUILD = "xcodebuild";
   private final static String PROJECT_NAME = "project";
   private final static String CONFIGURATION = "configuration";
+  private final static String TARGET = "target";
   private final static String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
   private final static String PROVISIONING_PROFILE = "PROVISIONING_PROFILE";
   private final static String SDK = "sdk";
@@ -76,6 +77,10 @@ class CommandLineBuilder
     
     if (xcodeContext.getProvisioningProfile() != null) {
       appendEnv(result, PROVISIONING_PROFILE, xcodeContext.getProvisioningProfile());
+    }
+    
+    if (xcodeContext.getTarget() != null && !xcodeContext.getTarget().isEmpty()) {
+      appendOption(result, TARGET, xcodeContext.getTarget());
     }
     
     // Output directories should be specified (recommended by Apple - http://developer.apple.com/devcenter/download.action?path=/wwdc_2012/wwdc_2012_session_pdfs/session_404__building_from_the_command_line_with_xcode.pdf)

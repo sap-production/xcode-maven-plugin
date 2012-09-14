@@ -56,6 +56,8 @@ class XCodeContext
   private PrintStream out;
 
   private String provisioningProfile;
+  
+  private String target;
 
   public String getProjectName()
   {
@@ -146,6 +148,16 @@ class XCodeContext
   {
     this.provisioningProfile = provisioningProfile;
   }
+  
+  public String getTarget()
+  {
+    return target;
+  }
+
+  public void setTarget(String target)
+  {
+    this.target = target;
+  }
 
   @Override
   public String toString()
@@ -158,6 +170,7 @@ class XCodeContext
     sb.append("BuildActions        : ").append(buildActions);
     sb.append("CodeSignIdentity    : ").append(codeSignIdentity);
     sb.append("ProvisioningProfile : ").append(provisioningProfile);
+    sb.append("Target              : ").append(target);
     return sb.toString();
   }
 
