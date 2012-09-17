@@ -35,7 +35,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +106,7 @@ public abstract class XCodeTest
       throw new RuntimeException("The path to the local repository '" + localRepoFilePath +"' is not absolute. " +
       		"Integration tests will only work reliably if that path is absolute.");
     
-    System.out.println("Using local repository '" + localRepo + "'.");
+    System.out.println("[INFO] Using local repository '" + localRepo + "'.");
   }
 
   private static void prepareTestExecutionSettingsFile() throws IOException, XmlPullParserException {
@@ -119,19 +118,23 @@ public abstract class XCodeTest
     // For more details see the comment inside the configuration of the surefire plugin in the pom file of the integration tests.
     //
     
-    final String userSettingsFilePath = System.getProperty("com.sap.maven.integration-tests.user-settings");
+    String userSettingsFilePath = System.getProperty("com.sap.maven.integration-tests.user-settings");
     
     if(userSettingsFilePath == null || userSettingsFilePath.isEmpty())
-      throw new RuntimeException("No settings file has been provided. Please provide the user settings file used " +
-      		"for integration tests with \"-Dcom.sap.maven.integration-tests.user-settings=\" ");
-    
+    {
+      userSettingsFilePath = System.getProperty("user.home") + "/.m2/settings.xml";
+      
+      System.out.println("[WARNING] No settings file has been provided. Please provide the user settings file used " +
+      		"for integration tests with \"-Dcom.sap.maven.integration-tests.user-settings=\"." +
+      		"Defaulting to user settings file located at '" + userSettingsFilePath + "'");
+    }
     final File userSettingsFile = new File(userSettingsFilePath);
     
     if(!userSettingsFile.isAbsolute())
       throw new RuntimeException("The path to the user settings file '" + userSettingsFilePath + "' is not absolute. " +
       		"Integration tests will only work reliably if that path is absolute.");
     
-    System.out.println("Using settings file '" + userSettingsFile + "' for integration tests");
+    System.out.println("[INFO] Using settings file '" + userSettingsFile + "' for integration tests");
     
     final File testExecutionSettingsFile = getTestExectutionSettingsFile();
         
@@ -168,7 +171,7 @@ public abstract class XCodeTest
         }
         
         new SettingsXpp3Writer().write(w, settings);
-        System.out.println("User settings file written to '" + testExecutionSettingsFile + "'.");
+        System.out.println("[INFO] User settings file written to '" + testExecutionSettingsFile + "'.");
         
         
     } finally {
