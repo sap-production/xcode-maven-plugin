@@ -57,7 +57,8 @@ import org.junit.rules.TemporaryFolder;
 public abstract class XCodeTest
 {
 
-  private static File localRepo;
+  private static File localRepo = null;
+  private static String activeProfiles = null;
   
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
@@ -65,9 +66,21 @@ public abstract class XCodeTest
   @BeforeClass
   public static void setup() throws IOException, XmlPullParserException {
     prepareTestExecutionSettingsFile();
+    prepareTestExecutionActiveProfiles();
     setupLocalRepo();
   }
   
+  private static void prepareTestExecutionActiveProfiles()
+  {
+    String _activeProfiles = System.getProperty("com.sap.maven.integration-tests.active-profiles");
+    
+    if(_activeProfiles != null && !_activeProfiles.trim().isEmpty())
+    {
+      activeProfiles = _activeProfiles.trim();
+      System.out.println("[INFO] Using active profiles: " + activeProfiles);
+    }
+  }
+
   private static void setupLocalRepo()
   {
     //
@@ -228,9 +241,32 @@ public abstract class XCodeTest
         .println("SystemProperties used during integration test for '" + testName + "/" + projectName + "': \n"
               + testSystemProperties);
       
-      final List<String> commandLineOptions = new ArrayList<String>(
-            Arrays.asList("-f", pomFileName, "-s", getTestExectutionSettingsFile().getAbsolutePath(), "-Dmaven.repo.local=" + localRepo.getAbsolutePath()));
+      final List<String> commandLineOptions = new ArrayList<String>();
+      
+      if(pomFileName != null) 
+      {
+        commandLineOptions.add("-f");
+        commandLineOptions.add(pomFileName);
+      }
 
+      if(getTestExectutionSettingsFile() != null)
+      {
+        commandLineOptions.add("-s");
+        commandLineOptions.add(getTestExectutionSettingsFile().getAbsolutePath());
+      }
+      
+      if(localRepo != null)
+      {
+        commandLineOptions.add("-Dmaven.repo.local=" + localRepo.getAbsolutePath());
+      }
+      
+      if(activeProfiles != null && !activeProfiles.trim().isEmpty())
+      {
+        commandLineOptions.add("-P");
+        commandLineOptions.add(activeProfiles);
+        
+      }
+        
       if (additionalCommandLineOptions != null)
         commandLineOptions.addAll(additionalCommandLineOptions);
 

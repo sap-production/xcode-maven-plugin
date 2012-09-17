@@ -42,11 +42,16 @@
                   "org.apache.maven.user-settings". With that setting it would be not required to duplicate the path to the user settings file.
                   With maven 3 that property has been removed. In case that property revive in future releases we should switch to that property or
                   its successor.
+
+                 Property "com.sap.maven.integration-tests.active-profiles" must be provided to the call for the surrounding maven session.
+                 The value must be the same than the value provided to maven with the "-P" property. The property here does only propagate the
+                 profiles provided this way, other profiles activated by other activators are not propagated.
            -->
           <configuration>
             <systemPropertyVariables>
               <com.sap.maven.integration-tests.local-repo>${maven.repo.local}</com.sap.maven.integration-tests.local-repo>
               <com.sap.maven.integration-tests.user-settings>${com.sap.maven.integration-tests.user-settings}</com.sap.maven.integration-tests.user-settings>
+              <com.sap.maven.integration-tests.active-profiles>${com.sap.maven.integration-tests.active-profiles}</com.sap.maven.integration-tests.active-profiles>
             </systemPropertyVariables>
           </configuration>
         </plugin>
