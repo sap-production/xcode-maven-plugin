@@ -35,7 +35,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,21 +56,86 @@ import org.junit.rules.TemporaryFolder;
 public abstract class XCodeTest
 {
 
+  private static File localRepo = null;
+  private static String activeProfiles = null;
+  
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
   @BeforeClass
   public static void setup() throws IOException, XmlPullParserException {
     prepareTestExecutionSettingsFile();
+    prepareTestExecutionActiveProfiles();
+    setupLocalRepo();
   }
   
-  public static void prepareTestExecutionSettingsFile() throws IOException, XmlPullParserException {
-
-    // TODO: We expect that the settings file from the default location is used.
-    // Does anybody know how we can obtain the maven cli in order to check
-    // which settings file is in fact used???
+  private static void prepareTestExecutionActiveProfiles()
+  {
+    String _activeProfiles = System.getProperty("com.sap.maven.integration-tests.active-profiles");
     
-    final File userSettingsFile = new File(new File(System.getProperty("user.home")), ".m2/settings.xml");
+    if(_activeProfiles != null && !_activeProfiles.trim().isEmpty())
+    {
+      activeProfiles = _activeProfiles.trim();
+      System.out.println("[INFO] Using active profiles: " + activeProfiles);
+    }
+  }
+
+  private static void setupLocalRepo()
+  {
+    //
+    // The local repo used during the integration tests must be the same than the local repo used for
+    // building the xcode-maven-plugin previously in the build. Otherwise the binary version of the plugin
+    // cannot be found or a wrong version will be found.
+    // Since the base directory for building the xcode-maven-plugin and the base directory used for the
+    // integration tests differs the corresponding path must be absolute.
+    //
+    
+    String localRepoFilePath = System.getProperty("com.sap.maven.integration-tests.local-repo");
+    
+    if(localRepoFilePath == null || localRepoFilePath.isEmpty()) {
+      
+      localRepoFilePath = System.getProperty("user.home") + "/.m2/repository";
+      
+      System.out.println("[WARNING] Local Repository has not been provided. Please provide the local repo with \"-Dmaven.repo.local=\". " +
+      		"Defaulting to '" + localRepoFilePath + "'.");
+    }
+    
+    localRepo = new File(localRepoFilePath);
+    
+    if(!localRepo.isAbsolute())
+      throw new RuntimeException("The path to the local repository '" + localRepoFilePath +"' is not absolute. " +
+      		"Integration tests will only work reliably if that path is absolute.");
+    
+    System.out.println("[INFO] Using local repository '" + localRepo + "'.");
+  }
+
+  private static void prepareTestExecutionSettingsFile() throws IOException, XmlPullParserException {
+
+    //
+    // The settings file used for integration tests must be the same than the settings file used for the previously performed
+    // build of the xcode-maven-plugin. Since the base directory for building the xcode-maven-plugin and the base directory for the
+    // integration tests differs the corresponding path must be absolute.
+    // For more details see the comment inside the configuration of the surefire plugin in the pom file of the integration tests.
+    //
+    
+    String userSettingsFilePath = System.getProperty("com.sap.maven.integration-tests.user-settings");
+    
+    if(userSettingsFilePath == null || userSettingsFilePath.isEmpty())
+    {
+      userSettingsFilePath = System.getProperty("user.home") + "/.m2/settings.xml";
+      
+      System.out.println("[WARNING] No settings file has been provided. Please provide the user settings file used " +
+      		"for integration tests with \"-Dcom.sap.maven.integration-tests.user-settings=\"." +
+      		"Defaulting to user settings file located at '" + userSettingsFilePath + "'");
+    }
+    final File userSettingsFile = new File(userSettingsFilePath);
+    
+    if(!userSettingsFile.isAbsolute())
+      throw new RuntimeException("The path to the user settings file '" + userSettingsFilePath + "' is not absolute. " +
+      		"Integration tests will only work reliably if that path is absolute.");
+    
+    System.out.println("[INFO] Using settings file '" + userSettingsFile + "' for integration tests");
+    
     final File testExecutionSettingsFile = getTestExectutionSettingsFile();
         
     if(testExecutionSettingsFile.exists())
@@ -107,6 +171,7 @@ public abstract class XCodeTest
         }
         
         new SettingsXpp3Writer().write(w, settings);
+        System.out.println("[INFO] User settings file written to '" + testExecutionSettingsFile + "'.");
         
         
     } finally {
@@ -178,10 +243,33 @@ public abstract class XCodeTest
       System.out
         .println("SystemProperties used during integration test for '" + testName + "/" + projectName + "': \n"
               + testSystemProperties);
+      
+      final List<String> commandLineOptions = new ArrayList<String>();
+      
+      if(pomFileName != null) 
+      {
+        commandLineOptions.add("-f");
+        commandLineOptions.add(pomFileName);
+      }
 
-      final List<String> commandLineOptions = new ArrayList<String>(
-            Arrays.asList("-f", pomFileName, "-s", getTestExectutionSettingsFile().getAbsolutePath()));
-
+      if(getTestExectutionSettingsFile() != null)
+      {
+        commandLineOptions.add("-s");
+        commandLineOptions.add(getTestExectutionSettingsFile().getAbsolutePath());
+      }
+      
+      if(localRepo != null)
+      {
+        commandLineOptions.add("-Dmaven.repo.local=" + localRepo.getAbsolutePath());
+      }
+      
+      if(activeProfiles != null && !activeProfiles.trim().isEmpty())
+      {
+        commandLineOptions.add("-P");
+        commandLineOptions.add(activeProfiles);
+        
+      }
+        
       if (additionalCommandLineOptions != null)
         commandLineOptions.addAll(additionalCommandLineOptions);
 

@@ -21,6 +21,41 @@
         </includes>
       </resource>
     </resources>
+    <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <!-- Q: What is the reason for that configuration here?
+               A: The JUnit tests controlled by surefire runs in a forked VM.
+                  In the JUnit tests in turn we fork a new VM executing maven projects
+                  via the maven verifier. The properties listed below needs to be the same
+                  in the mvn session surrounding the JUnit integration tests and in the
+                  fork controlled by JUnit.
+                  With the configuration below the properties are passed into the VM executing
+                  the JUnit tests.
+                  Since the base directory of the surrounding maven session and of the maven session
+                  triggered by the JUnit tests are different both file pathes needs to be absolute.
+                  Both properties are evaluated by class "XCodeTest".
+                  
+                  Property "com.sap.maven.integration-tests.user-settings" must be provided to the call for the surrounding maven session.
+                  The value must be the same than the value provided to maven with the -s/-settings property. In maven 2 we had property
+                  "org.apache.maven.user-settings". With that setting it would be not required to duplicate the path to the user settings file.
+                  With maven 3 that property has been removed. In case that property revive in future releases we should switch to that property or
+                  its successor.
+
+                 Property "com.sap.maven.integration-tests.active-profiles" must be provided to the call for the surrounding maven session.
+                 The value must be the same than the value provided to maven with the "-P" property. The property here does only propagate the
+                 profiles provided this way, other profiles activated by other activators are not propagated.
+           -->
+          <configuration>
+            <systemPropertyVariables>
+              <com.sap.maven.integration-tests.local-repo>${maven.repo.local}</com.sap.maven.integration-tests.local-repo>
+              <com.sap.maven.integration-tests.user-settings>${com.sap.maven.integration-tests.user-settings}</com.sap.maven.integration-tests.user-settings>
+              <com.sap.maven.integration-tests.active-profiles>${com.sap.maven.integration-tests.active-profiles}</com.sap.maven.integration-tests.active-profiles>
+            </systemPropertyVariables>
+          </configuration>
+        </plugin>
+    </plugins>
   </build>
   <dependencies>
      <dependency>
