@@ -36,8 +36,10 @@ public abstract class AbstractXCodeBuildMojo extends AbstractXCodeMojo
         "build"));
 
   /**
+   * The Xcode build action to to execute (e.g. clean, build, install). By default
+   * <code>clean</code> and <code>build</code> are executed.
+   * 
    * @parameter
-   * @readonly
    */
   protected List<String> buildActions;
 

@@ -42,8 +42,8 @@
   </mailingLists>
   
   <issueManagement>
-    <system>GitHub Issues</system>
-    <url>https://github.com/sap-production/xcode-maven-plugin/issues</url>
+    <system>GitHub</system>
+    <url>https://github.com/sap-production/xcode-maven-plugin/issues/</url>
   </issueManagement>
   
   <developers>

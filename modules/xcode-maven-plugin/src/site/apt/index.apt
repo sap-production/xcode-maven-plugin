@@ -90,13 +90,13 @@ Xcode Maven Plugin
 
   The following prerequisites have to be fulfilled in order to use the Xcode Maven plugin:
 
-    * <<Mac OS X>> The build has to run on a Mac computer.
+    * <<Mac OS X >= 10.7 (Lion)>> The build has to run on a Mac computer.
     
     * <<JRE 6>> The Java runtime environment has to be installed on the computer.
      
     * <<Maven >= 3.0.2>> Maven 3 has to be installed and configured correctly so that is has access to central repositories.
      
-    * <<Xcode>> Xcode 4.4 or higher has to be installed as the plugin performs Xcode command line calls.
+    * <<Xcode >= 4.4>> Xcode 4.4 or higher has to be installed as the plugin performs Xcode command line calls.
 
 
 * Goals Overview

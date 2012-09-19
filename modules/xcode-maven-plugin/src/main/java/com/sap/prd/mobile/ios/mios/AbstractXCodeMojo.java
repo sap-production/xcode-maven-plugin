@@ -36,7 +36,12 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
 {
   
   /**
-   * The checkout directory below the target directory where the sources are copied.
+   * The original Xcode sources located in the <code>src/xcode</code> directory stay untouched
+   * during the whole Maven build. However, as we might have to modify the info.plist or the project
+   * itself we copy the whole Xcode source directory during the build into another "checkout"
+   * directory that by default named <code>checkout</code> and located below the Maven build (
+   * <code>target</code>) directory.
+   * 
    * @parameter expression="${xcode.checkoutDirectory}";
    */
   private File checkoutDirectory;
@@ -56,6 +61,11 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
 
   /**
    * The Xcode configurations that shall be built (e.g. Debug and Release).
+   * 
+   * If no configuration is provided in the plugin's <code>configuration</code> section of the
+   * <code>pom.xml</code> it defaults to the values provided in the
+   * <code>defaultAppConfigurations</code> or <code>defaultLibConfigurations</code> parameters
+   * 
    * @parameter
    */
   private Set<String> configurations;
@@ -68,8 +78,13 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   protected String packaging;
 
   /**
+   * Explicit lists of sdks (iphoneos,iphonesimulator) the Xcode project shall be built for.
+   * 
+   * If no configuration is provided in the plugin's <code>configuration</code> section of the
+   * <code>pom.xml</code> it defaults to the values provided in the <code>defaultAppSdks</code> or
+   * <code>defaultLibSdks</code> parameters
+   * 
    * @parameter
-   * @readonly
    */
   private Set<String> sdks;
 
