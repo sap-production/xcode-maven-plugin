@@ -84,7 +84,7 @@ public class PListAccessorTest extends XCodeTest
 
   private void testWrite(String expectedAppId) throws IOException
   {
-    plist.setStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, expectedAppId);
+    plist.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, expectedAppId);
     String appId = plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
     assertEquals(expectedAppId, appId);
 
@@ -104,7 +104,7 @@ public class PListAccessorTest extends XCodeTest
   public void writeStringToNonExistingPList() throws IOException
   {
     PListAccessor plist = new PListAccessor(new File("/foo"));
-    plist.setStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, "foo");
+    plist.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, "foo");
   }
 
   @Test(expected = IllegalStateException.class)
@@ -113,10 +113,10 @@ public class PListAccessorTest extends XCodeTest
     plist.getStringValue("foo");
   }
 
-  @Test
+  @Test(expected=IllegalStateException.class)
   public void writeStringToNonExistingKey() throws IOException
   {
-    plist.setStringValue("foo", "com.sap.myapp.internal");
+    plist.updateStringValue("foo", "com.sap.myapp.internal");
     String appId = plist.getStringValue("foo");
     assertEquals("com.sap.myapp.internal", appId);
 

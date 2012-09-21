@@ -97,7 +97,7 @@ public class XCodeChangeAppIDMojo extends AbstractXCodeMojo
   private static void appendAppIdSuffix(PListAccessor infoPlistAccessor, String appIdSuffix, Log log) throws IOException
   {
     String newAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER) + "." + appIdSuffix;
-    infoPlistAccessor.setStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, newAppId);
+    infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, newAppId);
     log.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set AppId to '" + newAppId + "'.");
   }
 
