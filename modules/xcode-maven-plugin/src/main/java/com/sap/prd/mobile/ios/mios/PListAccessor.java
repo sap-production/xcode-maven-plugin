@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 public class PListAccessor
@@ -53,8 +52,10 @@ public class PListAccessor
 
     try
     {
-      String infoPList = FilenameUtils.removeExtension(plist.getAbsolutePath());
-      String command = "/usr/bin/defaults read \"" + infoPList + "\" \"" + key +"\"";
+      String command = "/usr/libexec/PlistBuddy -c \"Print :" + key + "\" \"" + plist.getAbsolutePath() + "\"";
+      
+      System.out.println("[INFO] PlistBuddy Print command is: '" + command + "'.");
+      
       String[] args = new String[] { "bash", "-c", command };
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
@@ -71,23 +72,30 @@ public class PListAccessor
     }    
   }
 
-  public void setStringValue(String key, String value) throws IOException
+  public void updateStringValue(String key, String value) throws IOException
   {
     if (!plist.exists())
     {
       throw new FileNotFoundException();
     }
 
+    String command = "<not set>";
     try
     {
-      String infoPList = FilenameUtils.removeExtension(plist.getAbsolutePath());
-      String command = "/usr/bin/defaults write \"" + infoPList + "\" \"" + key + "\" \"" + value + "\"";
+      command = "/usr/libexec/PlistBuddy -x -c \"Set :" + key + " " + value + "\" \"" + plist.getAbsolutePath() + "\"";
+      System.out.println("[INFO] PlistBuddy Set command is: '" + command + "'.");
       String[] args = new String[] { "bash", "-c", command };
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
       if (p.exitValue() != 0)
       {
-        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed");
+        String errorMessage = "n/a";
+        try {
+          errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+        } catch(Exception ex) {
+          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
+        }
+        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed: " + errorMessage);
       }
     }
     catch (InterruptedException e)
