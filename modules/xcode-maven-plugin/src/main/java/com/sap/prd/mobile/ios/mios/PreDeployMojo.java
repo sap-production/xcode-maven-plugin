@@ -3,7 +3,6 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.regex.Matcher;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -121,7 +120,7 @@ public class PreDeployMojo extends AbstractXCodeMojo
       try {
 
         final String url = event.getResource().getRepositoryUrl() + event.getResource().getResourceName();
-        final String html = HTML_TEMPLATE.replaceAll("\\$LOCATION", Matcher.quoteReplacement(url));
+        final String html = HTML_TEMPLATE.replaceAll("\\$LOCATION", url);
 
         final File redirect = new File(new File(new File(new File(archiveFolder, "artifacts"), project.getGroupId()),
               project.getArtifactId()), getArtifactRedirectHtmlFileName(url));

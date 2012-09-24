@@ -74,8 +74,7 @@
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:skip-library-build,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-project-validate,
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build,
-                com.sap.prd.mobile.ios.maven.plugins:resolve-pom-maven-plugin:resolve-pom-props
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build
               </initialize>
               <process-sources>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources,
@@ -125,8 +124,7 @@
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-artifact-id,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-project-validate,
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build,
-                com.sap.prd.mobile.ios.maven.plugins:resolve-pom-maven-plugin:resolve-pom-props
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build
               </initialize>
               <process-sources>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources,
