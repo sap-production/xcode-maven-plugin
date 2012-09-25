@@ -24,7 +24,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.HashSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +38,6 @@ public class CommandLineBuilderTest
   {
     context = new XCodeContext();
     context.setProjectName("MyLib");
-    context.setConfigurations(new HashSet<String>(Arrays.asList("Release")));
-    context.setSDKs(new HashSet<String>(Arrays.asList("mysdk")));
     context.setBuildActions(Arrays.asList("clean", "build"));
   }
   
@@ -79,13 +76,6 @@ public class CommandLineBuilderTest
     new CommandLineBuilder("Release", "mysdk", context);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void testSDKNotSet() throws Exception
-  {
-    context.setSDKs(null);
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", null, context);
-    commandLineBuilder.createBuildCall();
-  }
   
   @Test
   public void testProvisioningProfile() throws Exception

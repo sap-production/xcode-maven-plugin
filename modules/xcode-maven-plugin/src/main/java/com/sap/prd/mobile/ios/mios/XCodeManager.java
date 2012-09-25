@@ -40,29 +40,20 @@ class XCodeManager
    * @throws IOException
    * @throws {@link XCodeException}
    */
-  void build(final XCodeContext context) throws IOException, XCodeException
+  void callXcodeBuild(XCodeContext ctx, String configuration, final String sdk) throws IOException,
+        XCodeException
   {
+    final CommandLineBuilder commandLineBuilder = new CommandLineBuilder(configuration, sdk, ctx);
 
-    if (context == null)
-      throw new IllegalArgumentException("No XCodeContext available.");
+    //
+    //TODO The command line printed into the log is not 100% accurate. We have a problem with
+    // quotation marks.
+    log.info("Executing xcode command: '" + commandLineBuilder.toString() + "'.");
 
-    for (String configuration : context.getConfigurations()) {
-
-      for (final String sdk : context.getSDKs()) {
-
-        final CommandLineBuilder commandLineBuilder = new CommandLineBuilder(configuration, sdk, context);
-
-        //
-        //TODO The command line printed into the log is not 100% accurate. We have a problem with
-        // quotation marks.
-        log.info("Executing xcode command: '" + commandLineBuilder.toString() + "'.");
-
-        final int returnValue = Forker.forkProcess(context.getOut(), context.getProjectRootDirectory(),
-              commandLineBuilder.createBuildCall());
-        if (returnValue != 0) {
-          throw new XCodeException("Could not execute xcodebuild for configuration " + configuration);
-        }
-      }
+    final int returnValue = Forker.forkProcess(ctx.getOut(), ctx.getProjectRootDirectory(),
+          commandLineBuilder.createBuildCall());
+    if (returnValue != 0) {
+      throw new XCodeException("Could not execute xcodebuild for configuration " + configuration);
     }
   }
 }

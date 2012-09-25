@@ -68,8 +68,6 @@ public class XCodeManagerTest extends XCodeTest
 
     final XCodeContext context = new XCodeContext();
     context.setProjectName("MyLibrary");
-    context.setConfigurations(new HashSet<String>(Arrays.asList("Debug", "Release")));
-    context.setSDKs(new HashSet<String>(Arrays.asList("iphoneos")));
     context.setBuildActions(Arrays.asList("clean", "build"));
     context.setProjectRootDirectory(new File(projectDirectory, "MyLibrary/src/xcode"));
     context.setOut(System.out);
@@ -89,7 +87,7 @@ public class XCodeManagerTest extends XCodeTest
     // dependency resolution. We build here a project without any
     // predecessor.
 
-    new XCodeManager(log).build(context);
+    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos");
   }
 
   //
@@ -115,13 +113,11 @@ public class XCodeManagerTest extends XCodeTest
 
     final XCodeContext context = new XCodeContext();
     context.setProjectName("MyLibrary");
-    context.setConfigurations(new HashSet<String>(Arrays.asList("NON-EXISTNG_CONFIGURATION")));
-    context.setSDKs(new HashSet<String>(Arrays.asList("iphoneos")));
     context.setBuildActions(Arrays.asList("clean", "build"));
     context.setProjectRootDirectory(projectDirectory);
     context.setOut(System.out);
 
-    new XCodeManager(log).build(context);
+    new XCodeManager(log). callXcodeBuild(context, "NON-EXISTNG_CONFIGURATION", "iphoneos");
 
   }
 
@@ -143,8 +139,6 @@ public class XCodeManagerTest extends XCodeTest
     
     final XCodeContext context = new XCodeContext();
     context.setProjectName("MyLibrary");
-    context.setConfigurations(new HashSet<String>(Arrays.asList("Debug", "Release")));
-    context.setSDKs(new HashSet<String>(Arrays.asList("iphoneos")));
     context.setBuildActions(Arrays.asList("clean", "build"));
     context.setProjectRootDirectory(projectDirectory);
     context.setOut(new PrintStream(
@@ -156,7 +150,7 @@ public class XCodeManagerTest extends XCodeTest
         setError();
       }
     });
-    new XCodeManager(log).build(context);
+    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos");
 
   }
 }

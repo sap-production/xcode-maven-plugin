@@ -69,8 +69,9 @@ class CommandLineBuilder
     result.add(XCODEBUILD);
     appendOption(result, PROJECT_NAME, xcodeContext.getProjectName() + XCodeConstants.XCODE_PROJECT_EXTENTION);
     appendOption(result, CONFIGURATION, configuration);
-    appendOption(result, SDK, sdk);
-
+    if (sdk != null && !sdk.trim().isEmpty()) {
+      appendOption(result, SDK, sdk);
+    }
     if (xcodeContext.getCodeSignIdentity() != null && !xcodeContext.getCodeSignIdentity().isEmpty()) {
       appendEnv(result, CODE_SIGN_IDENTITY, xcodeContext.getCodeSignIdentity());
     }

@@ -24,7 +24,6 @@ import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 /**
  * Context object for Xcode build to hold relevant data:
@@ -42,10 +41,6 @@ class XCodeContext
   private final static String ls = System.getProperty("line.separator");
 
   private String projectName;
-
-  private Set<String> configurations;
-
-  private Set<String> sdks;
 
   private List<String> buildActions;
 
@@ -68,27 +63,6 @@ class XCodeContext
   {
     raiseExceptionIfNullOrEmpty("projectName", projectName);
     this.projectName = projectName;
-  }
-
-  public Set<String> getConfigurations()
-  {
-    return configurations;
-  }
-
-  public void setConfigurations(Set<String> configurations)
-  {
-    raiseExceptionIfInvalid("configuration", configurations);
-    this.configurations = configurations;
-  }
-
-  public Set<String> getSDKs()
-  {
-    return sdks;
-  }
-
-  public void setSDKs(Set<String> sdks)
-  {
-    this.sdks = sdks;
   }
 
   public List<String> getBuildActions()
@@ -165,8 +139,6 @@ class XCodeContext
     final StringBuilder sb = new StringBuilder();
     sb.append("ProjectRootDirectory: ").append(getProjectRootDirectory()).append(ls);
     sb.append("ProjectName         : ").append(getProjectName()).append(ls);
-    sb.append("Configuration       : ").append(getConfigurations()).append(ls);
-    sb.append("SDKs                : ").append(getSDKs()).append(ls);
     sb.append("BuildActions        : ").append(buildActions);
     sb.append("CodeSignIdentity    : ").append(codeSignIdentity);
     sb.append("ProvisioningProfile : ").append(provisioningProfile);

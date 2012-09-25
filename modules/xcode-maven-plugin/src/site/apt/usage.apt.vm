@@ -143,6 +143,10 @@ Usage
   Here is an example how to build a library: {{{./examples/LibBuildExample.html}Example of a Library build}}
 
 
+* Building a Framework
+
+  Here is an example how to build a framework: {{{./examples/FmwkBuildExample.html}Example of a Framework build}}
+
 
 * Building an App
 

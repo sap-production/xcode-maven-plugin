@@ -45,7 +45,7 @@ public class XCodeFatLibraryMojo extends AbstractXCodeMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    if (!project.getPackaging().equals("xcode-lib"))
+    if (!project.getPackaging().equals(PackagingType.LIB.getMavenPackaging()))
       return;
 
     for (String config : getConfigurations()) {

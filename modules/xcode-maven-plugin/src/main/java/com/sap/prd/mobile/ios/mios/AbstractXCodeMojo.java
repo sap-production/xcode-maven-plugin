@@ -30,11 +30,11 @@ import org.apache.maven.project.MavenProject;
 
 /**
  * Base class for Xcode specific mojos
- *
+ * 
  */
 public abstract class AbstractXCodeMojo extends AbstractMojo
 {
-  
+
   /**
    * The original Xcode sources located in the <code>src/xcode</code> directory stay untouched
    * during the whole Maven build. However, as we might have to modify the info.plist or the project
@@ -48,6 +48,7 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
 
   /**
    * The xcode directory of the copied sources below the checkout directory.
+   * 
    * @parameter expression="${xcode.compileDirectory}"
    */
   private File xcodeCompileDirectory;
@@ -130,6 +131,15 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    */
   private String defaultLibSdks;
 
+  /**
+   * Frameworks are only built for one configuration. The defined configuration must also be listed
+   * in the configurations parameter.
+   * 
+   * @parameter expression="${xcode.primaryFmwkConfiguration}" default-value="Release"
+   * @since 1.4.2
+   */
+  private String primaryFmwkConfiguration;
+
   protected Set<String> getSDKs()
   {
     if (sdks == null || sdks.isEmpty()) {
@@ -196,7 +206,7 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   {
     return xcodeCompileDirectory;
   }
-  
+
   /**
    * 
    * @return the <code>src/xcode</code> directory
@@ -215,9 +225,10 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   {
     return new File(getXCodeCompileDirectory(), project.getArtifactId() + ".xcodeproj/project.pbxproj");
   }
-  
+
   /**
-   * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor to it.
+   * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
+   * to it.
    * 
    * @param xcodeProjectDirectory
    *          the directory where the Xcode project is located. If you want to access the unmodified
@@ -225,9 +236,11 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    *          you want to access the modified plist, use the {@link #getXCodeCompileDirectory()}
    *          method.
    */
-  protected PListAccessor getInfoPListAccessor(File xcodeProjectDirectory, String configuration, String sdk) throws MojoExecutionException
+  protected PListAccessor getInfoPListAccessor(File xcodeProjectDirectory, String configuration, String sdk)
+        throws MojoExecutionException
   {
-    String plistFileName = new EffectiveBuildSettings(project, configuration, sdk).getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
+    String plistFileName = new EffectiveBuildSettings(project, configuration, sdk)
+      .getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
     File plistFile = new File(xcodeProjectDirectory, plistFileName);
     if (!plistFile.isFile()) {
       throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFileName
@@ -235,7 +248,7 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     }
     return new PListAccessor(plistFile);
   }
-  
+
   /**
    * Calls a shell script in order to zip a folder. We have to call a shell script as Java cannot
    * zip symbolic links.
@@ -256,19 +269,21 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
         throws MojoExecutionException
   {
     int resultCode = 0;
-    
+
     try {
-      
+
       File scriptDirectory = new File(project.getBuild().getDirectory(), "scripts").getCanonicalFile();
       scriptDirectory.deleteOnExit();
-      
+
       if (archiveFolder != null)
       {
-        resultCode = ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/zip-subfolder.sh", scriptDirectory, rootDir.getCanonicalPath(), zipSubFolder, zipFileName, archiveFolder);
-      } 
+        resultCode = ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/zip-subfolder.sh",
+              scriptDirectory, rootDir.getCanonicalPath(), zipSubFolder, zipFileName, archiveFolder);
+      }
       else
       {
-        resultCode = ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/zip-subfolder.sh", scriptDirectory, rootDir.getCanonicalPath(), zipSubFolder, zipFileName);
+        resultCode = ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/zip-subfolder.sh",
+              scriptDirectory, rootDir.getCanonicalPath(), zipSubFolder, zipFileName);
       }
     }
     catch (Exception ex) {
@@ -280,9 +295,18 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     getLog().info("Zip file '" + zipFileName + "' created.");
     return new File(rootDir, zipFileName);
   }
-  
+
   protected PackagingType getPackagingType()
   {
     return PackagingType.getByMavenType(packaging);
+  }
+
+  protected String getPrimaryFmwkConfiguration() throws MojoExecutionException
+  {
+    if (getConfigurations().contains(primaryFmwkConfiguration)) {
+      return primaryFmwkConfiguration;
+    }
+    throw new MojoExecutionException("The primaryFmwkConfiguration '" + primaryFmwkConfiguration
+          + "' is not part of the configurations '" + getConfigurations() + "' defined in the POM for this project");
   }
 }

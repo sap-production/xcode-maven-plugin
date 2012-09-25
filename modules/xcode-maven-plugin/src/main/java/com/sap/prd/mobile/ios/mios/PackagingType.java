@@ -22,7 +22,8 @@ package com.sap.prd.mobile.ios.mios;
 public enum PackagingType
 {
   APP("xcode-app"),
-  LIB("xcode-lib");
+  LIB("xcode-lib"),
+  FRAMEWORK("xcode-framework");
 
   private final String packagingName;
 
