@@ -224,6 +224,7 @@
 				LIBRARY_SEARCH_PATHS = "${PROJECT_DIR}/../../target/libs/${BUILD_STYLE}-${PLATFORM_NAME}/**";
 				PRODUCT_NAME = MyApp;
 				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "armv7 i386";
 			};
 			name = Debug;
 		};
@@ -244,6 +245,7 @@
 				LIBRARY_SEARCH_PATHS = "${PROJECT_DIR}/../../target/libs/${BUILD_STYLE}-${PLATFORM_NAME}/**";
 				PRODUCT_NAME = MyApp;
 				VALIDATE_PRODUCT = YES;
+				VALID_ARCHS = "armv7 i386";
 			};
 			name = Release;
 		};
