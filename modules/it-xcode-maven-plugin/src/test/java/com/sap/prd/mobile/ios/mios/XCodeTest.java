@@ -41,13 +41,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
 import org.apache.maven.settings.io.xpp3.SettingsXpp3Writer;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -389,7 +389,7 @@ public abstract class XCodeTest
         final File testExecutionFolder) throws IOException
   {
     FileUtils.deleteDirectory(testExecutionFolder);
-    FileUtils.copyDirectory(source, testExecutionFolder);
+    org.apache.commons.io.FileUtils.copyDirectory(source, testExecutionFolder);
   }
 
   protected static File getTestRootDirectory() throws IOException
