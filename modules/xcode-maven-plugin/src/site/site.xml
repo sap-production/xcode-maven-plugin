@@ -54,7 +54,8 @@
 				<item name="Generation of API Docs with Doxygen" href="userguide/Generation of API Docs with Doxygen.html" />
 				<item name="Xcode Libraries Artifacts Structure" href="userguide/Xcode Libraries Artifacts Structure.html" />
 			</item>
-			
+			<item name="Static Xcode Frameworks" href="examples/FmwkBuildExample.html"/>
+            
 			<item name="Dependency Management" href="userguide/Dependencies.html" >
 				<item name="Consumption of Libraries" href="userguide/Consumption of Libraries.html" target="_self"/>
 				<item name="Consumption of Frameworks" href="userguide/Consumption of Frameworks.html" />

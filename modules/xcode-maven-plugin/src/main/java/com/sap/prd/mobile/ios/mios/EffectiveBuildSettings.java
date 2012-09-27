@@ -16,6 +16,8 @@ public class EffectiveBuildSettings
   public static final String CODESIGNING_FOLDER_PATH = "CODESIGNING_FOLDER_PATH";
   public static final String INFOPLIST_FILE = "INFOPLIST_FILE";
   public static final String PUBLIC_HEADERS_FOLDER_PATH = "PUBLIC_HEADERS_FOLDER_PATH";
+  public static final String BUILT_PRODUCTS_DIR = "BUILT_PRODUCTS_DIR";
+  
   
   private Properties properties;
   

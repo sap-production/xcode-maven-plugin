@@ -75,8 +75,6 @@ public abstract class AbstractXCodeBuildMojo extends AbstractXCodeMojo
 
     final XCodeContext context = new XCodeContext();
     context.setProjectName(projectName);
-    context.setConfigurations(getConfigurations());
-    context.setSDKs(getSDKs());
     context.setBuildActions(getBuildActions());
     context.setProjectRootDirectory(projectDirectory);
     context.setCodeSignIdentity(codeSignIdentity);

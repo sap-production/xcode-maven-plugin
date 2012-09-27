@@ -22,7 +22,7 @@
 		6131464212E824690071D815 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		AA747D9E0F9514B9006C5449 /* MyLibrary_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyLibrary_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		D2AAC07E0554694100DB518D /* libMyLibraryA.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMyLibraryA.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2AAC07E0554694100DB518D /* libMyLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMyLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,7 +42,7 @@
 		034768DFFF38A50411DB9C8B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D2AAC07E0554694100DB518D /* libMyLibraryA.a */,
+				D2AAC07E0554694100DB518D /* libMyLibrary.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -114,7 +114,7 @@
 			);
 			name = MyLibrary;
 			productName = MyLibrary;
-			productReference = D2AAC07E0554694100DB518D /* libMyLibraryA.a */;
+			productReference = D2AAC07E0554694100DB518D /* libMyLibrary.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -122,7 +122,7 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "MyLibraryA" */;
+			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "MyLibrary" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -169,7 +169,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MyLibrary_Prefix.pch;
 				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = MyLibraryA;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = MyLibrary;
+				PUBLIC_HEADERS_FOLDER_PATH = MyLibrary/include;
 			};
 			name = Debug;
 		};
@@ -183,7 +185,8 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MyLibrary_Prefix.pch;
 				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = MyLibraryA;
+				PRODUCT_NAME = MyLibrary;
+				PUBLIC_HEADERS_FOLDER_PATH = MyLibrary/include;
 			};
 			name = Release;
 		};
@@ -224,16 +227,16 @@
 				1DEB922008733DC00010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
-		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "MyLibraryA" */ = {
+		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "MyLibrary" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB922308733DC00010E9CD /* Debug */,
 				1DEB922408733DC00010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};

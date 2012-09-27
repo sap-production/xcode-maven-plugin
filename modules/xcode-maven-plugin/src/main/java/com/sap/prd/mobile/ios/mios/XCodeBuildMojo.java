@@ -37,10 +37,23 @@ public class XCodeBuildMojo extends AbstractXCodeBuildMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
+    
     try {
+      XCodeManager xcodeMgr = new XCodeManager(getLog());
       XCodeContext ctx = getXCodeContext();
       getLog().info(ctx.toString());
-      new XCodeManager(getLog()).build(ctx);
+
+      if (getPackagingType() == PackagingType.FRAMEWORK) {
+        // we do not provide a sdk for frameworks as the target should assure that all required sdks are built
+        xcodeMgr.callXcodeBuild(ctx, getPrimaryFmwkConfiguration(), null);
+      }
+      else { 
+        for (String configuration : getConfigurations()) {
+          for (final String sdk : getSDKs()) {
+            xcodeMgr.callXcodeBuild(ctx, configuration, sdk);
+          }
+        }
+      }
     }
     catch (IOException ex) {
       throw new MojoExecutionException("XCodeBuild failed due to " + ex.getMessage(), ex);

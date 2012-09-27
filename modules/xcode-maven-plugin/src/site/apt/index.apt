@@ -28,15 +28,19 @@
 Xcode Maven Plugin
 
   The Xcode Maven Plugin can be used in order to run Xcode builds embedded in a Maven lifecycle. Currently it supports
-  two build types:
+  these build types:
   
     * <<iOS Library Builds>>: If you specify <<<xcode-lib>>> as packaging type in the <<<pom.xml>>> a couple of goals will 
       be added to your Maven lifecycle that take care of resolving dependencies, executing the Xcode build and uploading
-      the build artifacts into your Maven repository.
+      the build artifacts into your Maven repository. {{{./examples/LibBuildExample.html}More...}}
+
+    * <<iOS Framework Builds>>: If you specify <<<xcode-framework>>> as packaging type in the <<<pom.xml>>> a couple of 
+      goals will be added to your Maven lifecycle that take care of resolving dependencies, executing the Xcode build 
+      and uploading the build artifacts into your Maven repository. {{{./examples/FmwkBuildExample.html}More...}}
     
     * <<iOS App Builds>>: This build is similar to library build, however, it also performs code signing that is 
       necessary to upload the app to the AppStore. Apps are identified by a <<<xcode-app>>> packaging specification
-      in your <<<pom.xml>>>.
+      in your <<<pom.xml>>>. {{{./examples/AppBuildExample.html}More...}}
 
   If you are developing an app or a library in your Xcode environment there is no real need to run the Xcode build with Maven.
   Nevertheless, you can call <<<mvn initialize>>> in order to retrieve your library dependencies out of a central
@@ -138,5 +142,7 @@ Xcode Maven Plugin
   you can take a look into the following examples:
 
   * {{{./examples/LibBuildExample.html}Example of a Library build}}
+
+  * {{{./examples/FmwkBuildExample.html}Example of a Framework build}}
 
   * {{{./examples/AppBuildExample.html}Example of an App build}}

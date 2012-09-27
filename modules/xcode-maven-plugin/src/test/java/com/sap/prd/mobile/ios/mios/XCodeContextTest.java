@@ -38,8 +38,6 @@ public class XCodeContextTest
 
   private static File projectDirectory;
 
-  private final static Set<String> configurations = new HashSet<String>(Arrays.asList("Release"));
-  private final static Set<String> sdks = new HashSet<String>(Arrays.asList("iphoneos"));
 
   @BeforeClass
   public static void setup()
@@ -52,12 +50,9 @@ public class XCodeContextTest
   {
 
     final String projectName = "MyLibrary";
-    final Set<String> sdks = new HashSet<String>(Arrays.asList(new String[] {}));
 
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName(projectName);
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList("clean",
           "build"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
@@ -65,7 +60,6 @@ public class XCodeContextTest
     xCodeContext.setOut(System.out);
     xCodeContext.setProvisioningProfile("MyProvisioningProfile");
 
-    assertEquals(configurations, xCodeContext.getConfigurations());
     assertEquals(projectName, xCodeContext.getProjectName());
     assertArrayEquals(new String[] { "clean", "build" }, xCodeContext.getBuildActions().toArray());
     assertEquals("MyCodeSignIdentity", xCodeContext.getCodeSignIdentity());
@@ -77,8 +71,6 @@ public class XCodeContextTest
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(new HashSet<String>(Arrays.asList(new String[] { "Release" })));
-    xCodeContext.setSDKs(new HashSet<String>(Arrays.asList("iphoneos")));
     xCodeContext.setBuildActions(new ArrayList<String>());
     xCodeContext.setProjectRootDirectory(projectDirectory);
     xCodeContext.setCodeSignIdentity(null);
@@ -90,8 +82,6 @@ public class XCodeContextTest
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList("clean", "", "build"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
     xCodeContext.setCodeSignIdentity(null);
@@ -103,8 +93,6 @@ public class XCodeContextTest
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList("clean", "build foo"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
     xCodeContext.setCodeSignIdentity(null);
@@ -116,8 +104,6 @@ public class XCodeContextTest
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList(
           "clean", null, "build"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
@@ -130,8 +116,6 @@ public class XCodeContextTest
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName("");
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
     xCodeContext.setCodeSignIdentity(null);
@@ -143,47 +127,18 @@ public class XCodeContextTest
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName(null);
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
     xCodeContext.setCodeSignIdentity(null);
     xCodeContext.setOut(System.out);
    }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testXCodeContextWithEmptyConfiguration()
-  {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(new HashSet<String>(Arrays.asList(new String[] {})));
-    xCodeContext.setSDKs(sdks);
-    xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(System.out);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testXCodeContextWithoutConfiguration()
-  {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(null);
-    xCodeContext.setSDKs(sdks);
-    xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(System.out);
-  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testXCodeContextWithoutPrintStream()
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
     xCodeContext.setCodeSignIdentity(null);
@@ -195,8 +150,6 @@ public class XCodeContextTest
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
     xCodeContext.setCodeSignIdentity(null);
@@ -210,8 +163,6 @@ public class XCodeContextTest
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
     xCodeContext.setCodeSignIdentity("");
@@ -223,8 +174,6 @@ public class XCodeContextTest
   {
     final XCodeContext xCodeContext = new XCodeContext();
     xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setConfigurations(configurations);
-    xCodeContext.setSDKs(sdks);
     xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
     xCodeContext.setProjectRootDirectory(projectDirectory);
     xCodeContext.setProvisioningProfile(null);

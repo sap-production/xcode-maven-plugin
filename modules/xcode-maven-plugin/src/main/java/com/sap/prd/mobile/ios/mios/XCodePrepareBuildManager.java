@@ -64,7 +64,7 @@ class XCodePrepareBuildManager
 
       final Artifact mainArtifact = (Artifact) it.next();
 
-      if ("xcode-lib".equals(mainArtifact.getType())) {
+      if (PackagingType.LIB.getMavenPackaging().equals(mainArtifact.getType())) {
 
         for (final String xcodeConfiguration : configurations) {
 
