@@ -195,9 +195,25 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.12.3</version>
         </plugin>
-      </plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>1.4</version>
+          <executions>
+            <execution>
+              <id>gpg</id>
+              <goals>
+                <goal>sign</goal>
+              </goals>
+              <phase>verify</phase>
+              <configuration>
+                <defaultKeyring>false</defaultKeyring>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+       </plugins>
     </pluginManagement>
-
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -211,4 +227,18 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>gpg</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
