@@ -20,6 +20,7 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
@@ -36,40 +37,69 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
-  {
-
-    final File checkoutDirectory = getCheckoutDirectory();
-
+  {    
     final File baseDirectory = project.getBasedir();
-    final File buildDirectory = checkoutDirectory;
-
+    final File checkoutDirectory = getCheckoutDirectory();
+    final String buildDirPath = getProjectBuildDirectory();
+    
     getLog().info("Base directory: " + baseDirectory);
     getLog().info("Checkout directory: " + checkoutDirectory);
+    getLog().info("BuildDirPath: " + buildDirPath);
+    
+    
+    final File originalLibDir = new File(project.getBuild().getDirectory(), FolderLayout.LIBS_DIR_NAME);
+    final File copyOfLibDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.LIBS_DIR_NAME);
+    
+    final File originalHeadersDir = new File(project.getBuild().getDirectory(), FolderLayout.HEADERS_DIR_NAME);
+    final File copyOfHeadersDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.HEADERS_DIR_NAME);
 
     try {
 
       if (checkoutDirectory.exists())
         FileUtils.deleteDirectory(checkoutDirectory);
 
-      copy(baseDirectory, checkoutDirectory, buildDirectory);
+      copy(baseDirectory, checkoutDirectory, new FileFilter() {
 
+        @Override
+        public boolean accept(File pathname)
+        {
+          return ! (checkoutDirectory.getAbsoluteFile().equals(pathname.getAbsoluteFile()) || 
+                    originalLibDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
+                    originalHeadersDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()));
+        }
+        
+      });
+
+      if(originalLibDir.exists())
+        com.sap.prd.mobile.ios.mios.FileUtils.createSybolicLink(originalLibDir, copyOfLibDir);
+      
+      if(originalHeadersDir.exists())
+        com.sap.prd.mobile.ios.mios.FileUtils.createSybolicLink(originalHeadersDir, copyOfHeadersDir);
     }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
   }
 
-  private void copy(final File source, final File targetDirectory, final File buildDirectory) throws IOException
+  /**
+  // Return the part of the path between project base directory and project build directory.
+  // Assumption is: project build directory is located below project base directory. 
+  **/
+  private String getProjectBuildDirectory() {
+    return com.sap.prd.mobile.ios.mios.FileUtils.getDelta(project.getBasedir(), new File(project.getBuild().getDirectory()));
+  }
+  private void copy(final File source, final File targetDirectory, final FileFilter excludes) throws IOException
   {
 
     for (final File sourceFile : source.listFiles()) {
       final File destFile = new File(targetDirectory, sourceFile.getName());
       if (sourceFile.isDirectory()) {
-        if (!sourceFile.equals(buildDirectory)) {
-          copy(sourceFile, destFile, buildDirectory);
+        
+        if (excludes.accept(sourceFile)) {
+          copy(sourceFile, destFile, excludes);
         }
         else {
-          getLog().info("BuildDirectory '" + buildDirectory + "' ommited.");
+          getLog().info("File '" + sourceFile + "' ommited.");
         }
       }
       else {

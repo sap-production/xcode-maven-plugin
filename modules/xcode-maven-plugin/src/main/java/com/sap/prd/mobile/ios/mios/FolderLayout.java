@@ -31,16 +31,18 @@ import org.apache.maven.project.MavenProject;
  */
 class FolderLayout
 {
+  public final static String LIBS_DIR_NAME = "libs";
+  public final static String HEADERS_DIR_NAME = "headers";
   private static String XCODE_DEPS_TARGET_FOLDER = "xcode-deps";
 
   private static File getFolderForExtractedHeaders(MavenProject project, final String configuration, final String sdk)
   {
-    return new File(new File(new File(project.getBuild().getDirectory()), "headers"), configuration + "-" + sdk);
+    return new File(new File(new File(project.getBuild().getDirectory()), HEADERS_DIR_NAME), configuration + "-" + sdk);
   }
 
   private static File getFolderForExtractedLibs(MavenProject project, final String configuration, final String sdk)
   {
-    return new File(new File(new File(project.getBuild().getDirectory()), "libs"), configuration + "-" + sdk);
+    return new File(new File(new File(project.getBuild().getDirectory()), LIBS_DIR_NAME), configuration + "-" + sdk);
   }
 
   private static File getFolderForExtractedBundles(MavenProject project)

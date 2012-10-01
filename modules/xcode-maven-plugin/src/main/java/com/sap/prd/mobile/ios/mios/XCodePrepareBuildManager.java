@@ -180,12 +180,11 @@ class XCodePrepareBuildManager
           primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
 
     try {
-      FileUtils.copyFile(source, target);
-      log.info("Library copied from " + source + " to " + target);
+      com.sap.prd.mobile.ios.mios.FileUtils.createSybolicLink(source, target);
     }
-    catch (IOException ex) {
-      throw new MojoExecutionException("", ex);
-    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }    
   }
 
   private void prepareHeaders(MavenProject project, String xcodeConfiguration,

@@ -20,6 +20,7 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -192,5 +193,13 @@ public class FileUtils
       super(msg);
     }
   }
-
+  
+  public static void createSybolicLink(final File source, final File target) throws IOException {
+    System.out.println("[INFO] Creating symbolic link. Source:" + source.getAbsolutePath() + ", target: " + target.getAbsolutePath() + ".");
+    target.getParentFile().mkdirs();
+    int returnValue = Forker.forkProcess(System.out, null, "ln", "-sf", source.getAbsolutePath(), target.getAbsolutePath());
+    if (returnValue != 0) {
+      throw new RuntimeException("Cannot create symbolic link from '" + source + "' to '"  +target + "'. Return value:" + returnValue);
+    }
+  }
 }

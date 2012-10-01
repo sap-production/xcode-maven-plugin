@@ -19,17 +19,22 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 
 import junit.framework.Assert;
 
+import org.junit.Rule;
 import org.junit.Test;
-
-import com.sap.prd.mobile.ios.mios.FileUtils;
+import org.junit.rules.TemporaryFolder;
 
 public class FileUtilsTest
 {
 
+  @Rule
+  public TemporaryFolder tmpFolder = new TemporaryFolder();
+  
   @Test
   public void testStraightForward() throws Exception
   {
@@ -42,5 +47,23 @@ public class FileUtilsTest
   public void testNoCommonPath() throws Exception
   {
     FileUtils.getDelta(new File("/home/abc"), new File("/home/def"));
+  }
+  
+
+  @Test
+  public void testCreateSymbolicLink() throws Exception
+  {
+    File source = tmpFolder.newFile("source");
+    File target = tmpFolder.newFile("target");
+    org.apache.commons.io.FileUtils.writeStringToFile(source, "abc");
+    FileUtils.createSybolicLink(source, target);
+    
+    ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
+    PrintStream stream = new PrintStream(byteOs);
+    
+    Forker.forkProcess(stream, null, "ls", "-l", target.getAbsolutePath());
+
+    stream.flush();
+    Assert.assertTrue(byteOs.toString().startsWith("l"));   
   }
 }
