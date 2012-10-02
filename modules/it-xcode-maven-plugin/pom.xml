@@ -5,10 +5,11 @@
   <parent>
     <groupId>com.sap.prd.mobile.ios.mios</groupId>
     <artifactId>parent</artifactId>
-    <version>1.4.2-SNAPSHOT</version>
+    <version>1.5.0</version>
     <relativePath>../../parent</relativePath>
   </parent>
   <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
     <license.roots>src/main,src/test/java,src/test/projects</license.roots> <!--  skip src/test/resources as these files are used for file comparison and must not be changed-->
   </properties>
   <build>
