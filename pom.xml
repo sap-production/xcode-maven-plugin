@@ -5,6 +5,10 @@
   <version>1.4.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
   <scm>
     <connection>scm:git:.git</connection>
   </scm>

@@ -9,6 +9,7 @@
     <relativePath>../../parent</relativePath>
   </parent>
   <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
     <license.roots>src/main,src/test/java,src/test/projects</license.roots> <!--  skip src/test/resources as these files are used for file comparison and must not be changed-->
   </properties>
   <build>
