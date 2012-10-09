@@ -56,7 +56,7 @@ public class FileUtilsTest
     File source = tmpFolder.newFile("source");
     File target = tmpFolder.newFile("target");
     org.apache.commons.io.FileUtils.writeStringToFile(source, "abc");
-    FileUtils.createSybolicLink(source, target);
+    FileUtils.createSymbolicLink(source, target);
     
     ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
     PrintStream stream = new PrintStream(byteOs);

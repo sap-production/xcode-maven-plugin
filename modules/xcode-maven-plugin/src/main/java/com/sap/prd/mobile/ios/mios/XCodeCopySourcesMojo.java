@@ -71,10 +71,10 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       });
 
       if(originalLibDir.exists())
-        com.sap.prd.mobile.ios.mios.FileUtils.createSybolicLink(originalLibDir, copyOfLibDir);
+        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalLibDir, copyOfLibDir);
       
       if(originalHeadersDir.exists())
-        com.sap.prd.mobile.ios.mios.FileUtils.createSybolicLink(originalHeadersDir, copyOfHeadersDir);
+        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir, copyOfHeadersDir);
     }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);

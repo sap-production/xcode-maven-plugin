@@ -194,7 +194,7 @@ public class FileUtils
     }
   }
   
-  public static void createSybolicLink(final File source, final File target) throws IOException {
+  public static void createSymbolicLink(final File source, final File target) throws IOException {
     System.out.println("[INFO] Creating symbolic link. Source:" + source.getAbsolutePath() + ", target: " + target.getAbsolutePath() + ".");
     target.getParentFile().mkdirs();
     int returnValue = Forker.forkProcess(System.out, null, "ln", "-sf", source.getAbsolutePath(), target.getAbsolutePath());

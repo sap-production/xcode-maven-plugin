@@ -180,7 +180,7 @@ class XCodePrepareBuildManager
           primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
 
     try {
-      com.sap.prd.mobile.ios.mios.FileUtils.createSybolicLink(source, target);
+      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
     }
     catch (IOException e) {
       throw new RuntimeException(e);
