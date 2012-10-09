@@ -19,6 +19,7 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -170,6 +171,25 @@ public class XCodeLifecycleTest extends XCodeTest
     File versionFileApp = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-versions.xml");
     assertTrue(versionFileApp.exists());
     compareFileContent(versionsTestFile, versionFileApp);
+  }
+  
+  @Test
+  public void testStraightForwardWithSnapshotDependency() throws Exception
+  {
+    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
+    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName() + "-" + testName);
+
+    prepareRemoteRepository(remoteRepositoryDirectory);
+
+    test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyLibrary"), "pom.xml", "deploy",
+          THE_EMPTY_LIST,
+          THE_EMPTY_MAP, remoteRepositoryDirectory);
+
+    test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyApp"), "pom.xml", "deploy",
+          THE_EMPTY_LIST,
+          THE_EMPTY_MAP, remoteRepositoryDirectory);
+
   }
 
   private void assertBuildEnvironmentPropertiesFile(String testName, String projectName) throws IOException,
