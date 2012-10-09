@@ -19,18 +19,19 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -168,13 +169,16 @@ public class XCodeLifecycleTest extends XCodeTest
     
     assertTrue(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-AppStoreMetadata.zip").exists());
 
+    assertTrue(isSymbolicLink(new File(appVerifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
+
+    
     File versionFileApp = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-versions.xml");
     assertTrue(versionFileApp.exists());
     compareFileContent(versionsTestFile, versionFileApp);
   }
   
   @Test
-  public void testStraightForwardWithSnapshotDependency() throws Exception
+  public void testLifecycleWithSnapshotDependency() throws Exception
   {
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
@@ -186,10 +190,33 @@ public class XCodeLifecycleTest extends XCodeTest
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, remoteRepositoryDirectory);
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyApp"), "pom.xml", "deploy",
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyApp"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, remoteRepositoryDirectory);
+    
+    assertFalse(isSymbolicLink(new File(verifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
+  }
 
+  private static boolean isSymbolicLink(File file) throws IOException
+  {
+    if (file == null || !file.exists())
+      return false;
+
+    ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
+    PrintStream ps = new PrintStream(byteOs);
+
+    try {
+      int exitCode = Forker.forkProcess(ps, null, "ls", "-l", file.getAbsolutePath());
+
+      if (exitCode != 0)
+        throw new RuntimeException("Cannot check for symbolic link for file '" + file + "'. Exit code: " + exitCode);
+
+      ps.flush();
+      return byteOs.toString().startsWith("l");
+    }
+    finally {
+      ps.close();
+    }
   }
 
   private void assertBuildEnvironmentPropertiesFile(String testName, String projectName) throws IOException,
