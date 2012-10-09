@@ -24,6 +24,10 @@
   </licenses>
   
   <url>https://github.com/sap-production/xcode-maven-plugin</url>
+
+  <properties>
+    <project.build.sourceEncoding>MacRoman</project.build.sourceEncoding>
+  </properties>
   
   <scm>
     <connection>scm:git:https://github.com/sap-production/xcode-maven-plugin.git</connection>
