@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 public class FileUtils
 {
@@ -198,10 +199,13 @@ public class FileUtils
   
   public static boolean isSymbolicLink(File file) throws IOException
   {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream printStream = new PrintStream(baos);
-    int result = Forker.forkProcess(printStream, file.getParentFile(), "test", "-L", file.getName());
-    return result == 0;
+    PrintStream printStream = new PrintStream(new ByteArrayOutputStream());
+    try {
+      int result = Forker.forkProcess(printStream, file.getParentFile(), "test", "-L", file.getName());
+      return result == 0;
+    } finally {
+      IOUtils.closeQuietly(printStream);
+    }
   }
   
   
