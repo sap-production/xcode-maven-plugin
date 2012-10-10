@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -180,12 +181,20 @@ class XCodePrepareBuildManager
           primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
 
     try {
-      FileUtils.copyFile(source, target);
-      log.info("Library copied from " + source + " to " + target);
+      
+      if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion()))
+      {
+        FileUtils.copyFile(source, target);
+      }
+      else
+      {
+        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
+      }
+
     }
-    catch (IOException ex) {
-      throw new MojoExecutionException("", ex);
-    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }    
   }
 
   private void prepareHeaders(MavenProject project, String xcodeConfiguration,

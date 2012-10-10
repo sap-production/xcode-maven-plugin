@@ -19,13 +19,17 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 public class FileUtils
 {
@@ -192,5 +196,28 @@ public class FileUtils
       super(msg);
     }
   }
-
+  
+  public static boolean isSymbolicLink(File file) throws IOException
+  {
+    if(file == null || !file.exists())
+      return false;
+    
+    PrintStream printStream = new PrintStream(new ByteArrayOutputStream());
+    try {
+      int result = Forker.forkProcess(printStream, file.getParentFile(), "test", "-L", file.getName());
+      return result == 0;
+    } finally {
+      IOUtils.closeQuietly(printStream);
+    }
+  }
+  
+  
+  public static void createSymbolicLink(final File source, final File target) throws IOException {
+    System.out.println("[INFO] Creating symbolic link. Source:" + source.getAbsolutePath() + ", target: " + target.getAbsolutePath() + ".");
+    target.getParentFile().mkdirs();
+    int returnValue = Forker.forkProcess(System.out, null, "ln", "-sf", source.getAbsolutePath(), target.getAbsolutePath());
+    if (returnValue != 0) {
+      throw new RuntimeException("Cannot create symbolic link from '" + source + "' to '"  +target + "'. Return value:" + returnValue);
+    }
+  }
 }

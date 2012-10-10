@@ -167,9 +167,32 @@ public class XCodeLifecycleTest extends XCodeTest
     
     assertTrue(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-AppStoreMetadata.zip").exists());
 
+    assertTrue(FileUtils.isSymbolicLink(new File(appVerifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
+
+    
     File versionFileApp = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-versions.xml");
     assertTrue(versionFileApp.exists());
     compareFileContent(versionsTestFile, versionFileApp);
+  }
+  
+  @Test
+  public void testLifecycleWithSnapshotDependency() throws Exception
+  {
+    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
+    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName() + "-" + testName);
+
+    prepareRemoteRepository(remoteRepositoryDirectory);
+
+    test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyLibrary"), "pom.xml", "deploy",
+          THE_EMPTY_LIST,
+          THE_EMPTY_MAP, remoteRepositoryDirectory);
+
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyApp"), "pom.xml", "deploy",
+          THE_EMPTY_LIST,
+          THE_EMPTY_MAP, remoteRepositoryDirectory);
+    
+    assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
   }
 
   private void assertBuildEnvironmentPropertiesFile(String testName, String projectName) throws IOException,
