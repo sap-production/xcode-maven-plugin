@@ -199,6 +199,9 @@ public class FileUtils
   
   public static boolean isSymbolicLink(File file) throws IOException
   {
+    if(file == null || !file.exists())
+      return false;
+    
     PrintStream printStream = new PrintStream(new ByteArrayOutputStream());
     try {
       int result = Forker.forkProcess(printStream, file.getParentFile(), "test", "-L", file.getName());
