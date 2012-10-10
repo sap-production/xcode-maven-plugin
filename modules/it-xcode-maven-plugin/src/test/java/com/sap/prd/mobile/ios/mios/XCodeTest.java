@@ -35,6 +35,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -184,8 +185,8 @@ public abstract class XCodeTest
     return new File(getTestsExecutionDirectory(), "settings.xml").getCanonicalFile();
   }
   
-  protected final static Map<String, String> THE_EMPTY_MAP = new HashMap<String, String>();
-  protected final static List<String> THE_EMPTY_LIST = new ArrayList<String>();
+  protected final static Map<String, String> THE_EMPTY_MAP = Collections.emptyMap();
+  protected final static List<String> THE_EMPTY_LIST = Collections.emptyList();
 
   protected Verifier test(final String testName, final File projectDirectory, final String pomFileName,
         final String target, List<String> additionalCommandLineOptions,
