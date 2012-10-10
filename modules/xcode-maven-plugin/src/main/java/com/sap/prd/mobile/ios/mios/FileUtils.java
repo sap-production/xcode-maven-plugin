@@ -19,8 +19,10 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -193,6 +195,15 @@ public class FileUtils
       super(msg);
     }
   }
+  
+  public static boolean isSymbolicLink(File file) throws IOException
+  {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(baos);
+    int result = Forker.forkProcess(printStream, file.getParentFile(), "test", "-L", file.getName());
+    return result == 0;
+  }
+  
   
   public static void createSymbolicLink(final File source, final File target) throws IOException {
     System.out.println("[INFO] Creating symbolic link. Source:" + source.getAbsolutePath() + ", target: " + target.getAbsolutePath() + ".");

@@ -23,10 +23,8 @@ package com.sap.prd.mobile.ios.mios;
  * #L%
  */
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +93,7 @@ public class FrameworkStructureValidator
     File fromLink = new File(fmwkDir, from);
     File toFile = new File(fmwkDir, to);
     try {
-      if (!isSymbolicLink(fromLink)) {
+      if (!FileUtils.isSymbolicLink(fromLink)) {
         errorMsgs.add("Expected inside the framework a symbolic link from '" + from + "' to '" + to + "'");
       }
       else if (!fromLink.getCanonicalPath().equals(toFile.getCanonicalPath())) {
@@ -109,20 +107,6 @@ public class FrameworkStructureValidator
 
   }
 
-  private boolean isSymbolicLink(File file)
-  {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream printStream = new PrintStream(baos);
-    try {
-      int result = Forker.forkProcess(printStream, file.getParentFile(), "test", "-L", file.getName());
-      return result == 0;
-    }
-    catch (IOException e) {
-      errorMsgs.add("Could not fork process to check for symbolic link '" + file.getAbsolutePath() + "': " + e);
-      return false;
-    }
-
-  }
 
 
 }
