@@ -19,6 +19,8 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import java.io.File;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -35,7 +37,9 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
   {
 
     try {
-      new CopySourcesTask().setCheckoutDirectory(getCheckoutDirectory()).setLog(getLog()).setProject(project).execute();
+      new CopySourcesTask().setCheckoutDirectory(getCheckoutDirectory()).setLog(getLog())
+        .setBaseDirectory(project.getBasedir()).setBuildDirectory(new File(project.getBuild().getDirectory()))
+        .execute();
     }
     catch (XCodeException e1) {
       throw new MojoExecutionException(e1.getMessage(), e1);
