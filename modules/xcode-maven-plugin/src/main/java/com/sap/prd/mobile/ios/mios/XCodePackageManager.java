@@ -167,7 +167,7 @@ class XCodePackageManager
         Log log) throws IOException
   {
 
-    final File headerDir = XCodeBuildLayout.getPublicHeadersDirectory(project.getBuild().getDirectory(), buildDir, configuration, sdk);
+    final File headerDir = XCodeBuildLayout.getPublicHeadersDirectory(new File(project.getBuild().getDirectory()), buildDir, configuration, sdk);
 
     if (!headerDir.canRead())
       return;

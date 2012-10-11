@@ -74,7 +74,7 @@ public class AppIDUpdateTest extends XCodeTest
     assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.tip.production.inhouse.epdist",
           plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
 
-    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal", log);
+    ChangeAppIdTask.changeAppId(plistAccessor, "internal", log);
 
     PListAccessor plist = new PListAccessor(infoPlistFile);
     assertEquals("com.sap.tip.production.inhouse.epdist.internal",

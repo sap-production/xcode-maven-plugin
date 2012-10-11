@@ -20,13 +20,11 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 
 /**
  * Appends a suffix to the appId. No actions are taken if the suffix is not specified or the suffix
@@ -50,55 +48,20 @@ public class XCodeChangeAppIDMojo extends AbstractXCodeMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    if (appIdSuffix == null || "".equals(appIdSuffix.trim())) {
-      return;
-    }
-
-    getLog().info("appIdSuffix=" + appIdSuffix);
-
     final Collection<File> alreadyUpdatedPlists = new HashSet<File>();
 
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
-        PListAccessor infoPlistAccessor = getInfoPListAccessor(getXCodeCompileDirectory(), configuration, sdk);
-        File infoPlistFile = infoPlistAccessor.getPlistFile();
-        if (alreadyUpdatedPlists.contains(infoPlistFile)) {
-          getLog().debug("PList file '" + infoPlistFile.getName()
-                + "' was already updated for another configuration. This file will be skipped.");
-        } else {
-          changeAppId(infoPlistAccessor, appIdSuffix, getLog());
-          alreadyUpdatedPlists.add(infoPlistFile);
+
+        try {
+          new ChangeAppIdTask().setAlreadyUpdatedPlists(alreadyUpdatedPlists).setAppIdSuffix(appIdSuffix)
+            .setBuildDirectory(new File(project.getBuild().getDirectory())).setConfiguration(configuration)
+            .setLog(getLog()).setSdk(sdk).setxCodeCompileDirectory(getXCodeCompileDirectory()).execute();
+        }
+        catch (XCodeException e) {
+          throw new MojoExecutionException(e.toString(), e);
         }
       }
     }
   }
-
-  static void changeAppId(PListAccessor infoPlistAccessor, String appIdSuffix, Log log) throws MojoExecutionException
-  {
-    ensurePListFileIsWritable(infoPlistAccessor.getPlistFile(), log);
-    try {
-      appendAppIdSuffix(infoPlistAccessor, appIdSuffix, log);
-    }
-    catch (IOException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
-  }
-
-  private static void ensurePListFileIsWritable(File pListFile, Log log) throws MojoExecutionException
-  {
-    if (!pListFile.canWrite()) {
-      if (!pListFile.setWritable(true, true))
-        throw new MojoExecutionException("Could not make plist file '" + pListFile + "' writable.");
-
-      log.info("Made PList file '" + pListFile + "' writable.");
-    }
-  }
-
-  private static void appendAppIdSuffix(PListAccessor infoPlistAccessor, String appIdSuffix, Log log) throws IOException
-  {
-    String newAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER) + "." + appIdSuffix;
-    infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, newAppId);
-    log.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set AppId to '" + newAppId + "'.");
-  }
-
 }

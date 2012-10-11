@@ -71,7 +71,7 @@ public class EffectiveBuildSettings
    */
   public EffectiveBuildSettings(MavenProject project, String configuration, String sdk)
   {
-    this(project.getBuild().getDirectory(), configuration, sdk);
+    this(new File(project.getBuild().getDirectory()), configuration, sdk);
   }
   
   /**
@@ -82,9 +82,9 @@ public class EffectiveBuildSettings
    * @param sdk
    *          e.g. "iphoneos"
    */
-  public EffectiveBuildSettings(String directory, String configuration, String sdk)
+  public EffectiveBuildSettings(File directory, String configuration, String sdk)
   {
-      File file = getBuildSettingsFile(directory, configuration, sdk);
+      File file = getBuildSettingsFile(directory.getAbsolutePath(), configuration, sdk);
       Properties p = new Properties();
       FileInputStream fis = null;
       try {
