@@ -38,7 +38,7 @@ public class FolderLayoutTest
 
     final File f = new File(".").getAbsoluteFile();
     assertEquals(new File(f, "libs/Release-iphoneos/groupId/artifactId"),
-          (FolderLayout.getFolderForExtractedLibsWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId")));
+          (MavenBuildFolderLayout.getFolderForExtractedLibsWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId")));
   }
 
   @Test
@@ -47,7 +47,7 @@ public class FolderLayoutTest
 
     final File f = new File(".").getAbsoluteFile();
     assertEquals(new File(f, "headers/Release-iphoneos/groupId/artifactId"),
-          FolderLayout.getFolderForExtractedHeadersWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId"));
+          MavenBuildFolderLayout.getFolderForExtractedHeadersWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId"));
   }
 
   @Test
@@ -61,7 +61,7 @@ public class FolderLayoutTest
     EasyMock.expect(project.getBasedir()).andReturn(f);
     EasyMock.replay(project);
 
-    assertEquals(new File(f, "src/xcode"), FolderLayout.getSourceFolder(project));
+    assertEquals(new File(f, "src/xcode"), MavenBuildFolderLayout.getSourceFolder(project));
   }
 
   @Test
@@ -76,7 +76,7 @@ public class FolderLayoutTest
     EasyMock.expect(project.getBasedir()).andReturn(f);
     EasyMock.replay(project);
 
-    assertEquals(new File(f, "src/myxcode"), FolderLayout.getSourceFolder(project));
+    assertEquals(new File(f, "src/myxcode"), MavenBuildFolderLayout.getSourceFolder(project));
   }
 
   private static MavenProject getProject(final File f)

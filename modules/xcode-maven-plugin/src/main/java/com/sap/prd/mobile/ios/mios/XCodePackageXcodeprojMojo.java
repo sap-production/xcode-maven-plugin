@@ -151,7 +151,7 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
       }
       String relativeTargetDirName = FileUtils.getRelativePath(project.getBuild().getDirectory(), project.getBasedir()
         .getAbsolutePath(), "/");
-      String relativeSrcDirName = FileUtils.getRelativePath(FolderLayout.getSourceFolder(project).getAbsolutePath(),
+      String relativeSrcDirName = FileUtils.getRelativePath(MavenBuildFolderLayout.getSourceFolder(project).getAbsolutePath(),
             project.getBasedir().getAbsolutePath(), "/");
 
       Collections.addAll(zipCmdCall, "zip", "-r", "-y", "-q", relativeTargetDirName + "/" + xprojZipFileName);

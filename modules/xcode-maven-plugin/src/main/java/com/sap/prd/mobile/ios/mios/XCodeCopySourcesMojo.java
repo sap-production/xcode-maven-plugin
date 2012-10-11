@@ -47,11 +47,11 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
     getLog().info("BuildDirPath: " + buildDirPath);
     
     
-    final File originalLibDir = new File(project.getBuild().getDirectory(), FolderLayout.LIBS_DIR_NAME);
-    final File copyOfLibDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.LIBS_DIR_NAME);
+    final File originalLibDir = new File(project.getBuild().getDirectory(), MavenBuildFolderLayout.LIBS_DIR_NAME);
+    final File copyOfLibDir = new File(checkoutDirectory, buildDirPath + "/" + MavenBuildFolderLayout.LIBS_DIR_NAME);
     
-    final File originalHeadersDir = new File(project.getBuild().getDirectory(), FolderLayout.HEADERS_DIR_NAME);
-    final File copyOfHeadersDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.HEADERS_DIR_NAME);
+    final File originalHeadersDir = new File(project.getBuild().getDirectory(), MavenBuildFolderLayout.HEADERS_DIR_NAME);
+    final File copyOfHeadersDir = new File(checkoutDirectory, buildDirPath + "/" + MavenBuildFolderLayout.HEADERS_DIR_NAME);
 
     try {
 
