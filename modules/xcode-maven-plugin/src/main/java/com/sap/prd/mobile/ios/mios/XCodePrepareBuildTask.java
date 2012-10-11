@@ -185,8 +185,8 @@ class XCodePrepareBuildTask
     final File mainArtifactExtracted = MavenBuildFolderLayout.getFolderForExtractedPrimaryArtifact(project,
           primaryArtifact);
 
-    if (!mainArtifactExtracted.mkdirs())
-      throw new XCodeException("Cannot create directory for expanded mainartefact of " + primaryArtifact.getGroupId()
+    if (! mainArtifactExtracted.exists() && !mainArtifactExtracted.mkdirs())
+      throw new XCodeException("Cannot create directory for expanded mainartifact of " + primaryArtifact.getGroupId()
             + ":" + primaryArtifact.getArtifactId() + " (" + mainArtifactExtracted + ").");
 
     unarchive("tar", primaryArtifact.getFile(), mainArtifactExtracted);
@@ -294,15 +294,17 @@ class XCodePrepareBuildTask
   private static void createDirectory(final File directory) throws XCodeException
   {
 
-    try {
-      FileUtils.deleteDirectory(directory);
-    }
-    catch (IOException ex) {
-      throw new XCodeException("", ex);
-    }
+      try {
+        if (0 != Forker.forkProcess(System.out,null, "rm", "-rf", directory.getAbsolutePath())) {
+          throw new XCodeException("Cannot delete directory '" + directory + "'.");
+        }
+      }
+      catch (IOException ex) {
+        throw new XCodeException("Cannot delete directory '" + directory + "'.", ex);
+      }
 
     if (!directory.mkdirs())
-      throw new XCodeException("Cannot create directory (" + directory + ")");
+      throw new XCodeException("Cannot create directory '" + directory + "'.");
   }
 
   private void unarchive(final String archiverType, final File source, final File destinationDirectory)
