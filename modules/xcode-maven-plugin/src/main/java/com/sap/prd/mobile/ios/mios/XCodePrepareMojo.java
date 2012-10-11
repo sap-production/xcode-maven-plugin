@@ -19,8 +19,8 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -80,14 +80,19 @@ public class XCodePrepareMojo extends AbstractXCodeMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
+    Set<String> configurations = getConfigurations();
+    Set<String> sdks = getSDKs();
     try {
-      new XCodePrepareBuildManager(getLog(), archiverManager, repoSession, repoSystem, projectRepos).prepareBuild(
-            project, getConfigurations(), getSDKs());
+      for (String configuration : configurations) {
+        for (String sdk : sdks) {
+          new XCodePrepareBuildTask().setLog(getLog()).setArchiverManager(archiverManager)
+            .setRepositorySystem(repoSystem)
+            .setRepositorySystemSession(repoSession).setProjectRepos(projectRepos).setMavenProject(project)
+            .setConfiguration(configuration).setSdk(sdk).execute();
+        }
+      }
     }
     catch (XCodeException ex) {
-      throw new MojoExecutionException("Cannot prepare build environment", ex);
-    }
-    catch (IOException ex) {
       throw new MojoExecutionException("Cannot prepare build environment", ex);
     }
   }

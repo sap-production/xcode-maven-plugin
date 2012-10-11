@@ -39,27 +39,68 @@ import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.RemoteRepository;
 
-class XCodePrepareBuildManager
+class XCodePrepareBuildTask
 {
 
   private final static String TYPE_HEADERS = "headers.tar", TYPE_ARCHIVE = "a";
 
-  private final Log log;
-  private final ArchiverManager archiverManager;
-  private final XCodeDownloadManager downloadManager;
+  private Log log;
+  private ArchiverManager archiverManager;
+  private RepositorySystem repoSystem;
+  private RepositorySystemSession repoSystemSession;
+  private List<RemoteRepository> projectRepos;
+  
+  private MavenProject project;
+  private String configuration, sdk;
+  
+  private XCodeDownloadManager downloadManager;
 
-  XCodePrepareBuildManager(final Log log, final ArchiverManager archiverManager,
-        final RepositorySystemSession repoSystemSession, final RepositorySystem repoSystem,
-        final List<RemoteRepository> projectRepos)
-  {
-    this.log = log;
-    this.archiverManager = archiverManager;
-    this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
+  XCodePrepareBuildTask setConfiguration(String configuration) {
+    this.configuration = configuration;
+    return this;
   }
-
-  void prepareBuild(final MavenProject project, Set<String> configurations,
-        final Set<String> sdks) throws MojoExecutionException, XCodeException, IOException
+  
+  XCodePrepareBuildTask setSdk(String sdk) {
+    this.sdk = sdk;
+    return this;
+  }
+  
+  XCodePrepareBuildTask setLog(Log log) {
+    this.log = log;
+    return this;
+  }
+  
+  XCodePrepareBuildTask setMavenProject(MavenProject project) {
+    this.project = project;
+    return this;
+  }
+  
+  XCodePrepareBuildTask setProjectRepos(List<RemoteRepository> projectRepos) {
+    this.projectRepos = projectRepos;
+    return this;
+  }
+  
+  XCodePrepareBuildTask setRepositorySystemSession(RepositorySystemSession repoSystemSession) {
+    this.repoSystemSession = repoSystemSession;
+    return this;
+  }
+  
+  XCodePrepareBuildTask setRepositorySystem(RepositorySystem repoSystem) {
+    this.repoSystem = repoSystem;
+    return this;
+  }
+  
+  
+  XCodePrepareBuildTask setArchiverManager(ArchiverManager archiverManager) {
+    this.archiverManager = archiverManager;
+    return this;
+  }
+  
+  void execute() throws XCodeException
   {
+    
+    this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
+    
     for (@SuppressWarnings("rawtypes")
     final Iterator it = project.getCompileArtifacts().iterator(); it.hasNext();) {
 
@@ -67,12 +108,8 @@ class XCodePrepareBuildManager
 
       if (PackagingType.LIB.getMavenPackaging().equals(mainArtifact.getType())) {
 
-        for (final String xcodeConfiguration : configurations) {
-
-          for (final String sdk : sdks) {
-
             try {
-              prepareHeaders(project, xcodeConfiguration, sdk, mainArtifact);
+              prepareHeaders(project, configuration, sdk, mainArtifact);
             }
             catch (SideArtifactNotFoundException e) {
               log.info("Headers not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId()
@@ -81,15 +118,14 @@ class XCodePrepareBuildManager
             }
 
             try {
-              prepareLibrary(project, xcodeConfiguration, sdk, mainArtifact);
+              prepareLibrary(project, configuration, sdk, mainArtifact);
             }
             catch (SideArtifactNotFoundException e) {
               throw new XCodeException("Library not found for: " + mainArtifact.getGroupId() + ":"
                     + mainArtifact.getArtifactId() + ":" + mainArtifact.getVersion() + ":"
                     + mainArtifact.getClassifier()
                     + ":" + mainArtifact.getType(), e);
-            }
-          }
+
         }
 
         try {
@@ -108,8 +144,7 @@ class XCodePrepareBuildManager
     }
   }
 
-  private void prepareBundles(MavenProject project, final Artifact primaryArtifact) throws MojoExecutionException,
-        SideArtifactNotFoundException, IOException
+  private void prepareBundles(MavenProject project, final Artifact primaryArtifact) throws XCodeException
   {
     List<String> bundles = readBundleInformation(project, primaryArtifact);
     if (bundles == null)
@@ -121,7 +156,7 @@ class XCodePrepareBuildManager
   }
 
   private void prepareBundle(MavenProject project, final Artifact primaryArtifact, String coords)
-        throws SideArtifactNotFoundException, MojoExecutionException
+        throws SideArtifactNotFoundException, XCodeException
   {
     Artifact bundleArtifact = GAVUtil.getArtifact(coords);
 
@@ -144,14 +179,14 @@ class XCodePrepareBuildManager
   }
 
   @SuppressWarnings("unchecked")
-  private List<String> readBundleInformation(MavenProject project, Artifact primaryArtifact) throws IOException
+  private List<String> readBundleInformation(MavenProject project, Artifact primaryArtifact) throws XCodeException
   {
 
     final File mainArtifactExtracted = MavenBuildFolderLayout.getFolderForExtractedPrimaryArtifact(project,
           primaryArtifact);
 
     if (!mainArtifactExtracted.mkdirs())
-      throw new IOException("Cannot create directory for expanded mainartefact of " + primaryArtifact.getGroupId()
+      throw new XCodeException("Cannot create directory for expanded mainartefact of " + primaryArtifact.getGroupId()
             + ":" + primaryArtifact.getArtifactId() + " (" + mainArtifactExtracted + ").");
 
     unarchive("tar", primaryArtifact.getFile(), mainArtifactExtracted);
@@ -170,7 +205,7 @@ class XCodePrepareBuildManager
   }
 
   private void prepareLibrary(MavenProject project, final String xcodeConfiguration,
-        final String sdk, final Artifact primaryArtifact) throws MojoExecutionException, SideArtifactNotFoundException
+        final String sdk, final Artifact primaryArtifact) throws SideArtifactNotFoundException
   {
 
     final File source = downloadManager.resolveSideArtifact(primaryArtifact, xcodeConfiguration + "-" + sdk,
@@ -198,7 +233,7 @@ class XCodePrepareBuildManager
   }
 
   private void prepareHeaders(MavenProject project, String xcodeConfiguration,
-        final String sdk, final Artifact primaryArtifact) throws MojoExecutionException, SideArtifactNotFoundException
+        final String sdk, final Artifact primaryArtifact) throws SideArtifactNotFoundException, XCodeException
   {
 
     final org.sonatype.aether.artifact.Artifact headersArtifact = downloadManager.resolveSideArtifact(primaryArtifact,
@@ -216,8 +251,7 @@ class XCodePrepareBuildManager
     }
   }
 
-  private void prepareFramework(MavenProject project, final Artifact primaryArtifact)
-        throws MojoExecutionException
+  private void prepareFramework(MavenProject project, final Artifact primaryArtifact) throws XCodeException
   {
     if (primaryArtifact != null) {
       final File source = primaryArtifact.getFile();
@@ -232,7 +266,7 @@ class XCodePrepareBuildManager
         extractFileWithShellScript(source, target, new File(project.getBuild().getDirectory()));
       }
       catch (IOException ioe) {
-        throw new MojoExecutionException("Cannot unarchive framework from " + source + " to " + target);
+        throw new XCodeException("Cannot unarchive framework from " + source + " to " + target);
       }
 
       log.info("Framework unarchived from " + source + " to " + target);
@@ -254,20 +288,21 @@ class XCodePrepareBuildManager
    * Creates a directory. If the directory already exists the directory is deleted beforehand.
    * 
    * @param directory
+   * @throws XCodeException 
    * @throws MojoExecutionException
    */
-  private static void createDirectory(final File directory) throws MojoExecutionException
+  private static void createDirectory(final File directory) throws XCodeException
   {
 
     try {
       FileUtils.deleteDirectory(directory);
     }
     catch (IOException ex) {
-      throw new MojoExecutionException("", ex);
+      throw new XCodeException("", ex);
     }
 
     if (!directory.mkdirs())
-      throw new MojoExecutionException("Cannot create directory (" + directory + ")");
+      throw new XCodeException("Cannot create directory (" + directory + ")");
   }
 
   private void unarchive(final String archiverType, final File source, final File destinationDirectory)
