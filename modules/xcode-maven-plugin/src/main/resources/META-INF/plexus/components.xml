@@ -74,11 +74,11 @@
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:skip-library-build,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-project-validate,
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build <!-- task -->
               </initialize>
               <process-sources>
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources,
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources, <!-- task -->
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings <!-- task -->
               </process-sources>
               <compile>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild
@@ -179,7 +179,7 @@
               <process-sources>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings,
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-app-id
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-app-id <!-- task  -->
               </process-sources>
               <compile>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild

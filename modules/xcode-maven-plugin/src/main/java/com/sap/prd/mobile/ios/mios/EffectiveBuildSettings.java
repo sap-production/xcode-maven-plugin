@@ -54,8 +54,14 @@ public class EffectiveBuildSettings
 
   public static File getBuildSettingsFile(String directory, String configuration, String sdk)
   {
+    return getBuildSettingsFile(new File(directory), configuration, sdk);
+  }
+  
+  public static File getBuildSettingsFile(File directory, String configuration, String sdk)
+  {
     return new File(directory, getBuildSettingsFileName(configuration, sdk));
   }
+
 
   public static String getBuildSettingsFileName(String configuration, String sdk)
   {

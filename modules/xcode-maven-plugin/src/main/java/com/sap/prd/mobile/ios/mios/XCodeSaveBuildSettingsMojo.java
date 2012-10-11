@@ -19,9 +19,8 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import java.io.PrintStream;
+import java.io.File;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -36,27 +35,19 @@ public class XCodeSaveBuildSettingsMojo extends AbstractXCodeBuildMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    try {
-      for (String configuration : getConfigurations()) {
-        for (String sdk : getSDKs()) {
-          XCodeContext ctx = getXCodeContext();
-          CommandLineBuilder cmdLineBuilder = new CommandLineBuilder(configuration, sdk, ctx);
-          PrintStream out = null;
-          try {
-            out = new PrintStream(EffectiveBuildSettings.getBuildSettingsFile(this.project, configuration, sdk));
-            final int returnValue = Forker.forkProcess(out, ctx.getProjectRootDirectory(), cmdLineBuilder.createShowBuildSettingsCall());
-            if (returnValue != 0) {
-              throw new XCodeException("Could not execute xcodebuild -showBuildSettings command for configuration " + configuration);
-            }
-          }
-          finally {
-            IOUtils.closeQuietly(out);
-          }
+    for (String configuration : getConfigurations()) {
+      for (String sdk : getSDKs()) {
+
+        try {
+          new ExtractBuildSettingsTask().setBuildDirectory(new File(project.getBuild().getDirectory()))
+            .setConfiguration(configuration)
+            .setSdk(sdk).setCtx(getXCodeContext()).execute();
         }
+        catch (XCodeException e) {
+          throw new MojoExecutionException(e.getMessage(), e);
+        }
+
       }
-    }
-    catch (Exception e) {
-      throw new MojoExecutionException("Could not save build settings", e);
     }
   }
 }
