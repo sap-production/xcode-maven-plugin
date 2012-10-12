@@ -37,7 +37,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -71,7 +70,7 @@ public class VersionInfoManager
 
   void createVersionInfoFile(final String groupId, final String artifactId, final String version,
         final File syncInfoFile, List<Dependency> dependencies, OutputStream versionInfoStream)
-        throws MojoExecutionException
+        throws XCodeException
   {
 
     try {
@@ -84,16 +83,16 @@ public class VersionInfoManager
 
     }
     catch (IOException e) {
-      throw new MojoExecutionException("Could not load sync info from file '" + syncInfoFile + "'.", e);
+      throw new XCodeException("Could not load sync info from file '" + syncInfoFile + "'.", e);
     }
     catch (JAXBException e) {
-      throw new MojoExecutionException("Could not load sync info from file '" + syncInfoFile + "'.", e);
+      throw new XCodeException("Could not load sync info from file '" + syncInfoFile + "'.", e);
     }
   }
 
   private void createVersionInfoFile(final String groupId, final String artifactId, final String version,
         Properties versionInfo, List<Dependency> dependencies, OutputStream os)
-        throws MojoExecutionException, JAXBException
+        throws XCodeException, JAXBException
   {
     try {
 
@@ -139,13 +138,13 @@ public class VersionInfoManager
       IOUtils.write(b, os);
     }
     catch (ParserConfigurationException e) {
-      throw new MojoExecutionException("Cannot create versions.xml.", e);
+      throw new XCodeException("Cannot create versions.xml.", e);
     }
     catch (IOException e) {
-      throw new MojoExecutionException("Cannot create versions.xml.", e);
+      throw new XCodeException("Cannot create versions.xml.", e);
     }
     catch (SAXException e) {
-      throw new MojoExecutionException("Cannot create versions.xml.", e);
+      throw new XCodeException("Cannot create versions.xml.", e);
     }
   }
 
