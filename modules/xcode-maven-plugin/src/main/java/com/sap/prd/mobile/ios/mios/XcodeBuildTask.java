@@ -23,25 +23,42 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.logging.Log;
 
-class XCodeManager
+class XcodeBuildTask
 {
 
-  private final Log log;
+  private Log log;
+  private XCodeContext ctx;
+  private String configuration;
+  private String sdk;
 
-  public XCodeManager(Log log)
+  public XcodeBuildTask setLog(Log log)
   {
     this.log = log;
+    return this;
+  }
+
+  public XcodeBuildTask setCtx(XCodeContext ctx)
+  {
+    this.ctx = ctx;
+    return this;
+  }
+
+  public XcodeBuildTask setConfiguration(String configuration)
+  {
+    this.configuration = configuration;
+    return this;
+  }
+
+  public XcodeBuildTask setSdk(String sdk)
+  {
+    this.sdk = sdk;
+    return this;
   }
 
   /**
-   * Trigger xcodebuild. The configuration is provided by <code>context</code>
-   * 
-   * @param context
-   * @throws IOException
-   * @throws {@link XCodeException}
+   * Perform the xcodebuild call
    */
-  void callXcodeBuild(XCodeContext ctx, String configuration, final String sdk) throws IOException,
-        XCodeException
+  public void execute() throws XCodeException
   {
     final CommandLineBuilder commandLineBuilder = new CommandLineBuilder(configuration, sdk, ctx);
 
@@ -50,10 +67,17 @@ class XCodeManager
     // quotation marks.
     log.info("Executing xcode command: '" + commandLineBuilder.toString() + "'.");
 
-    final int returnValue = Forker.forkProcess(ctx.getOut(), ctx.getProjectRootDirectory(),
-          commandLineBuilder.createBuildCall());
-    if (returnValue != 0) {
-      throw new XCodeException("Could not execute xcodebuild for configuration " + configuration);
+    try {
+      final int returnValue = Forker.forkProcess(ctx.getOut(), ctx.getProjectRootDirectory(),
+            commandLineBuilder.createBuildCall());
+      if (returnValue != 0) {
+        throw new XCodeException("Could not execute xcodebuild for configuration " + configuration);
+      }
+    }
+    catch (IOException ex) {
+      log.error("Could not call the xcodebuild command: " + ex.getMessage(), ex);
+      throw new XCodeException("Could not call the xcodebuild command: " + ex.getMessage(), ex);
     }
   }
+
 }

@@ -84,7 +84,7 @@ public class XCodeTest
   private static String getMavenXcodePluginVersion() throws IOException
   {
     Properties properties = new Properties();
-    properties.load(XCodeManagerTest.class.getResourceAsStream("/misc/project.properties"));
+    properties.load(XCodeTest.class.getResourceAsStream("/misc/project.properties"));
     final String xcodePluginVersion = properties.getProperty("xcode-plugin-version");
 
     if (xcodePluginVersion.equals("${project.version}"))

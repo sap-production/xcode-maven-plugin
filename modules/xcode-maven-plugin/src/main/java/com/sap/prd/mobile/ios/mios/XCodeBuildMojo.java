@@ -19,8 +19,6 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import java.io.IOException;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -39,24 +37,24 @@ public class XCodeBuildMojo extends AbstractXCodeBuildMojo
   {
     
     try {
-      XCodeManager xcodeMgr = new XCodeManager(getLog());
       XCodeContext ctx = getXCodeContext();
       getLog().info(ctx.toString());
 
       if (getPackagingType() == PackagingType.FRAMEWORK) {
         // we do not provide a sdk for frameworks as the target should assure that all required sdks are built
-        xcodeMgr.callXcodeBuild(ctx, getPrimaryFmwkConfiguration(), null);
+        XcodeBuildTask buildTask = new XcodeBuildTask().setLog(getLog()).setCtx(ctx)
+          .setConfiguration(getPrimaryFmwkConfiguration()).setSdk(null);
+        buildTask.execute();
       }
       else { 
         for (String configuration : getConfigurations()) {
           for (final String sdk : getSDKs()) {
-            xcodeMgr.callXcodeBuild(ctx, configuration, sdk);
+            XcodeBuildTask buildTask = new XcodeBuildTask().setLog(getLog()).setCtx(ctx)
+              .setConfiguration(configuration).setSdk(sdk);
+            buildTask.execute();
           }
         }
       }
-    }
-    catch (IOException ex) {
-      throw new MojoExecutionException("XCodeBuild failed due to " + ex.getMessage(), ex);
     }
     catch (XCodeException ex) {
       throw new MojoExecutionException("XCodeBuild failed due to " + ex.getMessage(), ex);

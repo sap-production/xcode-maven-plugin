@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.HashSet;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Build;
@@ -37,7 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class XCodeManagerTest extends XCodeTest
+public class XcodeBuildTaskTest extends XCodeTest
 {
 
   private static File projectDirectory;
@@ -47,7 +46,7 @@ public class XCodeManagerTest extends XCodeTest
   {
 
     projectDirectory = new File(new File(".").getAbsoluteFile(), "target/tests/"
-          + XCodeManagerTest.class.getName());
+          + XcodeBuildTaskTest.class.getName());
   }
 
   @Before
@@ -87,7 +86,7 @@ public class XCodeManagerTest extends XCodeTest
     // dependency resolution. We build here a project without any
     // predecessor.
 
-    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos");
+    new XcodeBuildTask().setLog(log).setCtx(context).setConfiguration("Release").setSdk("iphoneos").execute();
   }
 
   //
@@ -117,12 +116,13 @@ public class XCodeManagerTest extends XCodeTest
     context.setProjectRootDirectory(projectDirectory);
     context.setOut(System.out);
 
-    new XCodeManager(log). callXcodeBuild(context, "NON-EXISTNG_CONFIGURATION", "iphoneos");
+    new XcodeBuildTask().setLog(log).setCtx(context).setConfiguration("NON-EXISTNG_CONFIGURATION").setSdk("iphoneos")
+      .execute();
 
   }
 
   @Test(expected = IOException.class)
-  public void damagedPrintStreamProvidedTest() throws Exception
+  public void damagedPrintStreamProvidedTest() throws Throwable
   {
 
     Log log = EasyMock.createMock(Log.class);
@@ -150,7 +150,11 @@ public class XCodeManagerTest extends XCodeTest
         setError();
       }
     });
-    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos");
-
+    try {
+      new XcodeBuildTask().setLog(log).setCtx(context).setConfiguration("Release").setSdk("iphoneos").execute();
+    }
+    catch (XCodeException ex) {
+      throw ex.getCause();
+    }
   }
 }
