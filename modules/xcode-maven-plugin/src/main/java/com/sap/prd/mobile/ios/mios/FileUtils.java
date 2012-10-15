@@ -34,6 +34,10 @@ import org.apache.commons.io.IOUtils;
 public class FileUtils
 {
 
+  public static void deleteDirectory(final File directory) throws IOException {
+    org.codehaus.plexus.util.FileUtils.deleteDirectory(directory);  
+  }
+  
   /**
    * 
    * @param parent

@@ -260,7 +260,7 @@ class XCodePrepareBuildManager
   {
 
     try {
-      FileUtils.deleteDirectory(directory);
+      com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(directory);
     }
     catch (IOException ex) {
       throw new MojoExecutionException("", ex);

@@ -129,7 +129,7 @@ class XCodePackageManager
     File mainArtifact = FolderLayout.getFolderForExtractedMainArtifact(project);
 
     if (mainArtifact.exists())
-      FileUtils.deleteDirectory(mainArtifact);
+      com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(mainArtifact);
 
     if (!mainArtifact.mkdirs())
       throw new IOException("Could not create directory '" + mainArtifact + "'.");

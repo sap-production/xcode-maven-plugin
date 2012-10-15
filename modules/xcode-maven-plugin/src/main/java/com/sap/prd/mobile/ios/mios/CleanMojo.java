@@ -23,7 +23,6 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -85,5 +84,4 @@ public class CleanMojo extends AbstractMojo
       throw new MojoFailureException(e.getMessage(), e);
     }
   }
-
 }
