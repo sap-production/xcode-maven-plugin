@@ -19,7 +19,7 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +29,8 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 
 /**
- * Packages all the artifacts for Xcode libraries and prepares the generated artifacts for deployment.
+ * Packages all the artifacts for Xcode libraries and prepares the generated artifacts for
+ * deployment.
  * 
  * @goal xcode-package
  * 
@@ -57,19 +58,39 @@ public class XCodePackageMojo extends AbstractXCodeMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
-    if (bundles == null)
-      bundles = new HashSet<String>();
-
-    bundles.add(project.getArtifactId());
-
     try {
 
-      new XCodePackageManager(getLog(), archiverManager, projectHelper).packageArtifacts(getXCodeCompileDirectory(),
-            getConfigurations(),
-            getSDKs(), project, bundles);
+      for (String configuration : getConfigurations()) {
+        for (String sdk : getSDKs()) {
+          PackageHeadersTask packageHeadersTask = new PackageHeadersTask();
+          packageHeadersTask.setMavenProject(project).setArchiverManager(archiverManager)
+            .setCompileDir(getXCodeCompileDirectory()).setLog(getLog()).setProjectHelper(projectHelper)
+            .setConfiguration(configuration).setSdk(sdk);
+          packageHeadersTask.execute();
+
+          File xcodeBuildDir = XCodeBuildLayout.getBuildDir(getXCodeCompileDirectory());
+          AttachLibArtifactTask attachLibTask = new AttachLibArtifactTask();
+          attachLibTask.setLog(getLog()).setMavenProject(project).setProjectHelper(projectHelper)
+            .setXcodeBuildDir(xcodeBuildDir).setConfiguration(configuration).setSdk(sdk);
+          attachLibTask.execute();
+        }
+      }
+
+      if (bundles == null) {
+        bundles = new HashSet<String>();
+      }
+      bundles.add(project.getArtifactId());
+      PackageBundlesTask packageBundlesTask = new PackageBundlesTask();
+      packageBundlesTask.setMavenProject(project).setArchiverManager(archiverManager).setBundleNames(bundles)
+        .setCompileDir(getXCodeCompileDirectory()).setLog(getLog()).setProjectHelper(projectHelper);
+      packageBundlesTask.execute();
+
+      PackageLibMainArtifactTask packageLibMainArtifactTask = new PackageLibMainArtifactTask().setLog(getLog()).setArchiverManager(archiverManager)
+        .setMavenProject(project);
+      packageLibMainArtifactTask.execute();
     }
-    catch (IOException ex) {
-      throw new MojoExecutionException("", ex);
+    catch (XCodeException ex) {
+      throw new MojoExecutionException("Failed to package the library with headers and bundles", ex);
     }
   }
 }
