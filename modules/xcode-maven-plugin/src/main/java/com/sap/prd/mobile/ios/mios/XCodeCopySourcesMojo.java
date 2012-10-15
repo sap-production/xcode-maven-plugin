@@ -56,7 +56,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
     try {
 
       if (checkoutDirectory.exists())
-        FileUtils.deleteDirectory(checkoutDirectory);
+        com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(checkoutDirectory);
 
       copy(baseDirectory, checkoutDirectory, new FileFilter() {
 
