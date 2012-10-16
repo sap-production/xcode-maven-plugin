@@ -37,6 +37,9 @@ import org.apache.maven.project.MavenProjectHelper;
  */
 public class XCodeFatLibraryMojo extends AbstractXCodeMojo
 {
+
+  public static String FAT_LIBRARY_CLASSIFIER_SUFFIX = "-fat-binary";
+
   /**
    * @component
    */
@@ -91,7 +94,7 @@ public class XCodeFatLibraryMojo extends AbstractXCodeMojo
         final File fatLibrary)
   {
 
-    projectHelper.attachArtifact(mavenProject, "a", configuration + "-fat-binary", fatLibrary);
+    projectHelper.attachArtifact(mavenProject, "a", configuration + FAT_LIBRARY_CLASSIFIER_SUFFIX, fatLibrary);
     getLog().info(
           "Fat binary '" + fatLibrary + "' attached as additional artifact with classifier '" + configuration + ".");
   }

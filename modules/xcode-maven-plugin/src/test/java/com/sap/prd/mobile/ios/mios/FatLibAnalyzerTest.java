@@ -1,0 +1,59 @@
+/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.Set;
+
+import org.junit.Test;
+
+public class FatLibAnalyzerTest
+{
+
+  @Test
+  public void testRetrieveArchitectures() throws Exception
+  {
+    Set<String> architectures = createFatLibAnalyzer().getArchitectures();
+    
+    assertTrue(architectures.size() == 2);
+    assertTrue(architectures.contains("armv7"));
+    assertTrue(architectures.contains("i386"));
+  }
+
+  
+  @Test
+  public void testContainsI386() throws Exception
+  {
+    assertTrue(createFatLibAnalyzer().containsI386());
+  }
+
+  @Test
+  public void testContainsArmv() throws Exception
+  {
+    assertTrue(createFatLibAnalyzer().containsArmv());
+  }
+  
+  private static FatLibAnalyzer createFatLibAnalyzer()
+  {
+    return new FatLibAnalyzer(new File(".", "src/test/resources/libMyLibrary.a"));
+  }
+}

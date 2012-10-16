@@ -59,6 +59,7 @@ public abstract class XCodeTest
 
   static final String PROP_NAME_DEPLOY_REPO_DIR = "deployrepo.directory";
   static final String PROP_NAME_FRWK_REPO_DIR = "frwkrepo.directory";
+  static final String DYNAMIC_VERSION = "dynamicVersion";
 
   private static File localRepo = null;
   private static String activeProfiles = null;

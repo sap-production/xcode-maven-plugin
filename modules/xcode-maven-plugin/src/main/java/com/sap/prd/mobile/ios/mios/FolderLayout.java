@@ -55,10 +55,22 @@ class FolderLayout
     return new File(new File(new File(project.getBuild().getDirectory()), XCODE_DEPS_TARGET_FOLDER), "frameworks");
   }
 
+  private static File getFolderForExtractedFatLibs(MavenProject project, final String configuration)
+  {
+    return new File(project.getBuild().getDirectory() + "/" + XCODE_DEPS_TARGET_FOLDER + "/" + LIBS_DIR_NAME + "/"
+          + configuration);
+  }
+
   static File getFolderForExtractedHeadersWithGA(MavenProject project, final String configuration, final String sdk,
         final String groupId, final String artifactId)
   {
     return new File(new File(getFolderForExtractedHeaders(project, configuration, sdk), groupId), artifactId);
+  }
+
+  static File getFolderForExtractedFatLibsWithGA(MavenProject project, final String configuration,
+        final String groupId, final String artifactId)
+  {
+    return new File(new File(getFolderForExtractedFatLibs(project, configuration), groupId), artifactId);
   }
 
   static File getFolderForExtractedLibsWithGA(MavenProject project, final String configuration, final String sdk,
