@@ -81,7 +81,9 @@ public class ChangeAppIdTask
     if (appIdSuffix == null || "".equals(appIdSuffix.trim())) {
       return;
     }
-   
+    // log is needed in an integration test to determine the appId suffix settings of the machine the test is running on
+    log.info("appIdSuffix=" + appIdSuffix);
+
     PListAccessor infoPlistAccessor = getInfoPListAccessor(xCodeCompileDirectory, configuration, sdk);
     
     File infoPlistFile = infoPlistAccessor.getPlistFile();
