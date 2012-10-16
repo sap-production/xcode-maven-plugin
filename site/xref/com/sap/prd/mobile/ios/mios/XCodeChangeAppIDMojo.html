@@ -107,7 +107,7 @@
 <a class="jxr_linenumber" name="97" href="#97">97</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> appendAppIdSuffix(<a href="../../../../../../com/sap/prd/mobile/ios/mios/PListAccessor.html">PListAccessor</a> infoPlistAccessor, String appIdSuffix, Log log) <strong class="jxr_keyword">throws</strong> IOException
 <a class="jxr_linenumber" name="98" href="#98">98</a>    {
 <a class="jxr_linenumber" name="99" href="#99">99</a>      String newAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER) + <span class="jxr_string">"."</span> + appIdSuffix;
-<a class="jxr_linenumber" name="100" href="#100">100</a>     infoPlistAccessor.setStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, newAppId);
+<a class="jxr_linenumber" name="100" href="#100">100</a>     infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, newAppId);
 <a class="jxr_linenumber" name="101" href="#101">101</a>     log.info(<span class="jxr_string">"PList file '"</span> + infoPlistAccessor.getPlistFile() + <span class="jxr_string">"' updated: Set AppId to '"</span> + newAppId + <span class="jxr_string">"'."</span>);
 <a class="jxr_linenumber" name="102" href="#102">102</a>   }
 <a class="jxr_linenumber" name="103" href="#103">103</a> 

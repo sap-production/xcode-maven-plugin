@@ -139,7 +139,7 @@
 <a class="jxr_linenumber" name="129" href="#129">129</a>     File mainArtifact = FolderLayout.getFolderForExtractedMainArtifact(project);
 <a class="jxr_linenumber" name="130" href="#130">130</a> 
 <a class="jxr_linenumber" name="131" href="#131">131</a>     <strong class="jxr_keyword">if</strong> (mainArtifact.exists())
-<a class="jxr_linenumber" name="132" href="#132">132</a>       FileUtils.deleteDirectory(mainArtifact);
+<a class="jxr_linenumber" name="132" href="#132">132</a>       com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(mainArtifact);
 <a class="jxr_linenumber" name="133" href="#133">133</a> 
 <a class="jxr_linenumber" name="134" href="#134">134</a>     <strong class="jxr_keyword">if</strong> (!mainArtifact.mkdirs())
 <a class="jxr_linenumber" name="135" href="#135">135</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Could not create directory '"</span> + mainArtifact + <span class="jxr_string">"'."</span>);
