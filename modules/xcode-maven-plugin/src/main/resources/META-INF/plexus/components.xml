@@ -85,7 +85,8 @@
               </compile>
               <package>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:attach-version-info,
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-package
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-package,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-fat-lib
               </package>
               <install>
                 org.apache.maven.plugins:maven-install-plugin:install

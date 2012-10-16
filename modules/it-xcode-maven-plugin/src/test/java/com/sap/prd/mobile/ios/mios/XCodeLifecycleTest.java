@@ -77,6 +77,9 @@ public class XCodeLifecycleTest extends XCodeTest
     assertTrue(new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-MyLibrary.raw.xcode-bundle-zip").exists());
     assertTrue(new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-Resources~Another.xcode-bundle-zip").exists());
 
+    assertTrue(new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-Release-fat-binary.a").exists());
+    assertTrue(new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-Debug-fat-binary.a").exists());
+
     File versionFileLib = new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-versions.xml");
     assertTrue(versionFileLib.exists());
     compareFileContent(new File("src/test/resources/MyLibrary-1.0.0-versions.xml"), versionFileLib);
