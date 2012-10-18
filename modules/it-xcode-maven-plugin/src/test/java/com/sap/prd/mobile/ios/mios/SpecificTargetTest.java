@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -48,8 +49,13 @@ public class SpecificTargetTest extends XCodeTest
     additionalSystemProperties.put("xcode.app.defaultSdks", "iphoneos");
     additionalSystemProperties.put("xcode.target", "Target2");
     
+
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
+    
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "multiple-targets/MultipleTargets"), "pom.xml", "compile", THE_EMPTY_LIST, additionalSystemProperties,
-          remoteRepositoryDirectory);
+          pomReplacements);
     assertCorrectTargetBuild(new File(verifier.getBasedir(),
           verifier.getLogFileName()));
   }

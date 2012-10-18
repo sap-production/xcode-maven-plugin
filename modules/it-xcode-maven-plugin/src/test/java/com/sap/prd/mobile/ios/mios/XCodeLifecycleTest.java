@@ -56,9 +56,11 @@ public class XCodeLifecycleTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy",
-          THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     assertBuildEnvironmentPropertiesFile(testName, "MyLibrary");
     
@@ -92,7 +94,7 @@ public class XCodeLifecycleTest extends XCodeTest
     Verifier appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml",
           "deploy",
           THE_EMPTY_LIST,
-          additionalSystemProperties, remoteRepositoryDirectory);
+          additionalSystemProperties, pomReplacements);
 
     final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION;
     final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + Constants.APP_VERSION;
@@ -184,13 +186,16 @@ public class XCodeLifecycleTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyLibrary"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_MAP, pomReplacements);
 
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyApp"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_MAP, pomReplacements);
     
     assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
   }
@@ -262,9 +267,12 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     try {
       test(verifier, testName, projectDirectory, "pom.xml", "deploy", THE_EMPTY_LIST, additionalSystemProperties,
-            remoteRepositoryDirectory, null);
+            pomReplacements);
 
       Assert.fail("Library was build instead of a failure.");
     }
@@ -295,9 +303,12 @@ public class XCodeLifecycleTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_MAP, pomReplacements);
 
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("xcode.artifactIdSuffix", "release");
@@ -305,7 +316,7 @@ public class XCodeLifecycleTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
-          additionalSystemProperties, remoteRepositoryDirectory);
+          additionalSystemProperties, pomReplacements);
 
     final String configuration = "Release";
 
@@ -329,13 +340,16 @@ public class XCodeLifecycleTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyLibrary"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_MAP, pomReplacements);
 
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyApp"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_MAP, pomReplacements);
 
     // Below we use internal knowledge from the pom: when running in
     // production profile the configuration is also "Production".
@@ -355,11 +369,14 @@ public class XCodeLifecycleTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyLibrary"), "pom.xml", "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyApp"), "pom.xml", "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     final String configuration = "Release";
 
@@ -377,6 +394,9 @@ public class XCodeLifecycleTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("mios.ota-service.url", "");
 
@@ -384,8 +404,7 @@ public class XCodeLifecycleTest extends XCodeTest
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
     try {
       verifier = test(verifier, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml",
-            "deploy", THE_EMPTY_LIST,
-            additionalSystemProperties, remoteRepositoryDirectory, null);
+            "deploy", THE_EMPTY_LIST, additionalSystemProperties, pomReplacements);
 
     }
     catch (VerificationException e) {
@@ -408,6 +427,9 @@ public class XCodeLifecycleTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     String otaWrongURL = "htp://apple-ota.wdf.sap.corp:8080/ota-service/HTML";
     additionalSystemProperties.put("mios.ota-service.url", otaWrongURL);
@@ -419,7 +441,7 @@ public class XCodeLifecycleTest extends XCodeTest
     try {
       test(verifier, testName, projectDirectory, "pom.xml", "deploy",
             THE_EMPTY_LIST,
-            additionalSystemProperties, remoteRepositoryDirectory, null);
+            additionalSystemProperties, pomReplacements);
     }
     catch (VerificationException ex) {
       //

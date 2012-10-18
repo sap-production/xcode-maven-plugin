@@ -22,6 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.junit.Test;
 
@@ -39,13 +40,17 @@ public class XCodeDSymTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
+    
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"),
           "pom.xml", "deploy", THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_MAP, pomReplacements);
 
     test(testName, new File(
           getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml",
-          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory);
+          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     // Below we use internal knowledge from the pom: when running in
     // production profile the configuration is also "Production".

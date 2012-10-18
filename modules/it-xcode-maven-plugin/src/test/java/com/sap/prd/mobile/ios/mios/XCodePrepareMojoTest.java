@@ -22,6 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -40,9 +41,12 @@ public class XCodePrepareMojoTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     new XCodeLifecycleTest().test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml",
           "deploy", null,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_MAP, pomReplacements);
 
     final Map<String, String> additionalSystemParameters = new HashMap<String, String>();
     additionalSystemParameters.put("configuration", "Release");
@@ -51,7 +55,7 @@ public class XCodePrepareMojoTest extends XCodeTest
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml",
           "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:" + getMavenXcodePluginVersion() + ":prepare-xcode-build",
           THE_EMPTY_LIST,
-          additionalSystemParameters, remoteRepositoryDirectory);
+          additionalSystemParameters, pomReplacements);
 
     final String configuration = "Release";
 

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.junit.Test;
 
@@ -39,15 +40,18 @@ public class DependencyTest extends XCodeTest
       .getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
-
+    
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    
     test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryB"), "pom.xml",
-          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory);
+          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryA"), "pom.xml",
-          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory);
+          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     test(testName, new File(getTestRootDirectory(), "dependencies/MyApp"), "pom.xml",
-          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory);
+          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     final String configuration = "Release";
 

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -53,15 +54,19 @@ public class XCodeFrameworkTest extends XCodeTest
 
   @Test
   public void buildLibAsFramework() throws Exception
-  {
+  {    
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
     File projectDirectory = new File(getTestRootDirectory(), "framework/MyLibrary");
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
+
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());    
+    
     try {
       test(verifier, testName, projectDirectory, "pom.xml", "deploy",
-            THE_EMPTY_LIST, THE_EMPTY_MAP, remoteRepositoryDirectory, null);
+            THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
       fail("Expected the Maven call to fail due to missing framework build result.");
     }
     catch (VerificationException ex) {
@@ -74,9 +79,10 @@ public class XCodeFrameworkTest extends XCodeTest
   {
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     test(testName, new File(getTestRootDirectory(), "framework/" + fmwkName), "pom.xml", "deploy",
-          THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/1.0.0/" + fmwkName
           + "-1.0.0";
@@ -110,10 +116,14 @@ public class XCodeFrameworkTest extends XCodeTest
     additionalSystemParameters.put("configuration", "Release");
     additionalSystemParameters.put("sdk", "iphoneos");
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_FRWK_REPO_DIR, frameworkRepository.getAbsolutePath());
+
     test(testName, new File(getTestRootDirectory(), "framework/MyApp"), "pom.xml",
           "deploy",
           THE_EMPTY_LIST,
-          additionalSystemParameters, remoteRepositoryDirectory, frameworkRepository);
+          additionalSystemParameters, pomReplacements);
 
     Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/frameworks/"
           + Constants.GROUP_ID
