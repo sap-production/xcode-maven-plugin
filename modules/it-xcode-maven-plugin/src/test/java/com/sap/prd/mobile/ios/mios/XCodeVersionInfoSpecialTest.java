@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -48,11 +49,14 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
 // this copy of MyLibrary doesn't create versions.xml
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "versions-info/MyLibrary"), "pom.xml",
           "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_MAP, pomReplacements);
 
     File libraryVersionsInfo = new File(remoteRepositoryDirectory,
           Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + "1.0.100" + "/MyLibrary-" + "1.0.100"
@@ -63,7 +67,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "versions-info/MyApp"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, remoteRepositoryDirectory);
+          THE_EMPTY_MAP, pomReplacements);
 
     File versionFileAppExpected = new File("src/test/resources/MyApp-1.0.0-without-dependent-info-versions.xml")
       .getAbsoluteFile();
@@ -94,6 +98,9 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     // copy lib to intermediate folder and removed the sync.info file
     File intermediateDir = new File(new File(".").getAbsolutePath(), "target/tests/"
           + getClass().getName() + "/" + testName + "/intermediate/MyLib");
@@ -107,7 +114,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
       Map<String, String> additionalSystemProperties = new HashMap<String, String>();
       additionalSystemProperties.put("xcode.failOnMissingSyncInfo", "true");
       test(testName, intermediateDir, "pom.xml", "install", THE_EMPTY_LIST, additionalSystemProperties,
-            remoteRepositoryDirectory);
+            pomReplacements);
       fail("Expected the Maven call to fail due to a missing info.sync file.");
     }
     catch (VerificationException ex) {

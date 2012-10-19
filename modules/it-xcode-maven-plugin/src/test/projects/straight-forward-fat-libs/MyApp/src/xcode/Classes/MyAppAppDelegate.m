@@ -19,17 +19,34 @@
  */
 
 
+#import "MyAppAppDelegate.h"
+#import "MyAppViewController.h"
 #import "PrintOutObject.h"
 
+@implementation MyAppAppDelegate
 
-@implementation PrintOutObject
+@synthesize window;
+@synthesize viewController;
 
-+(void)printout:(NSString*)theValue{
-	NSLog(@"%@", theValue);
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
+    
+    // Override point for customization after app launch    
+    [window addSubview:viewController.view];
+    [window makeKeyAndVisible];
+	
+
+	[PrintOutObject printout:@"Some Value is printed ..."];
+		
+	return YES;
 }
 
-+(void)printout:(NSString*)theValue Label:(UILabel*)theLabel{
-	[theLabel setText:theValue];
-	NSLog(@"In Label is shown:%@", theValue);
+
+- (void)dealloc {
+    [viewController release];
+    [window release];
+    [super dealloc];
 }
+
+
 @end

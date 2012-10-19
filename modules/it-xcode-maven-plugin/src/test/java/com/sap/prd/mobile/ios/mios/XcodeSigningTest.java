@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.util.FileUtils;
@@ -51,6 +52,9 @@ public class XcodeSigningTest extends XCodeTest
       .getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
 
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+
     // copy the simple app project and modify the pbxproj file by adding an invalid provisioning profile
     File intermediateAppDir = new File(new File(".").getAbsolutePath(), "target/tests/"
           + getClass().getName() + "/" + testName + "/intermediate/MyApp");
@@ -73,7 +77,7 @@ public class XcodeSigningTest extends XCodeTest
     // This test should fail due to an invalid provisioning profile
     try {
       test(testName, intermediateAppDir, "pom.xml", "compile", THE_EMPTY_LIST, THE_EMPTY_MAP,
-            remoteRepositoryDirectory);
+            pomReplacements);
       fail("Expected the Maven call to fail due to an invalid provisioning profile.");
     }
     catch (VerificationException ex) {
@@ -84,7 +88,7 @@ public class XcodeSigningTest extends XCodeTest
     additionalSystemProperties.put("xcode.provisioningProfile", "");
     additionalSystemProperties.put("xcode.app.defaultConfigurations", "Release"); // skip Debug build
     test(testName, intermediateAppDir, "pom.xml", "compile", THE_EMPTY_LIST, additionalSystemProperties,
-          remoteRepositoryDirectory);
+          pomReplacements);
 
   }
 }

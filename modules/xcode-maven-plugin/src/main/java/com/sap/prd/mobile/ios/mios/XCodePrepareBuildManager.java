@@ -21,8 +21,10 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -48,6 +50,8 @@ class XCodePrepareBuildManager
   private final ArchiverManager archiverManager;
   private final XCodeDownloadManager downloadManager;
 
+  private boolean preferFatLibs;
+
   XCodePrepareBuildManager(final Log log, final ArchiverManager archiverManager,
         final RepositorySystemSession repoSystemSession, final RepositorySystem repoSystem,
         final List<RemoteRepository> projectRepos)
@@ -57,6 +61,12 @@ class XCodePrepareBuildManager
     this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
   }
 
+  public XCodePrepareBuildManager setPreferFalLibs(boolean preferFatLibs)
+  {
+    this.preferFatLibs = preferFatLibs;
+    return this;
+  }
+
   void prepareBuild(final MavenProject project, Set<String> configurations,
         final Set<String> sdks) throws MojoExecutionException, XCodeException, IOException
   {
@@ -64,12 +74,16 @@ class XCodePrepareBuildManager
     final Iterator it = project.getCompileArtifacts().iterator(); it.hasNext();) {
 
       final Artifact mainArtifact = (Artifact) it.next();
-
+            
       if (PackagingType.LIB.getMavenPackaging().equals(mainArtifact.getType())) {
 
         for (final String xcodeConfiguration : configurations) {
 
+          Map<String, File> thinLibs = new HashMap<String, File>();
+
           for (final String sdk : sdks) {
+
+            thinLibs.put(sdk, resolveThinLib(project, xcodeConfiguration, sdk, mainArtifact));
 
             try {
               prepareHeaders(project, xcodeConfiguration, sdk, mainArtifact);
@@ -79,16 +93,25 @@ class XCodePrepareBuildManager
                     + ":"
                     + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
             }
+          }
 
-            try {
-              prepareLibrary(project, xcodeConfiguration, sdk, mainArtifact);
+          File fatLib = resolveFatLib(project, xcodeConfiguration, mainArtifact);
+
+          if (thinLibs.values().contains(null)) {
+
+            if (fatLib != null) {
+              provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
             }
-            catch (SideArtifactNotFoundException e) {
-              throw new XCodeException("Library not found for: " + mainArtifact.getGroupId() + ":"
-                    + mainArtifact.getArtifactId() + ":" + mainArtifact.getVersion() + ":"
-                    + mainArtifact.getClassifier()
-                    + ":" + mainArtifact.getType(), e);
+            else {
+              throw new XCodeException("Neither all thin libs nor fat lib available for " + mainArtifact.getId() + ".");
             }
+          }
+          else {
+
+            if (preferFatLibs && fatLib != null)
+              provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
+            else
+              provideThinLibs(thinLibs, xcodeConfiguration, mainArtifact, project);
           }
         }
 
@@ -105,6 +128,31 @@ class XCodePrepareBuildManager
       }
       else
         continue;
+    }
+  }
+
+  private File resolveThinLib(MavenProject project, final String xcodeConfiguration, final String sdk,
+        final Artifact primaryArtifact)
+  {
+    try {
+      return downloadManager.resolveSideArtifact(primaryArtifact,
+            xcodeConfiguration + "-" + sdk, TYPE_ARCHIVE).getFile();
+    }
+    catch (SideArtifactNotFoundException ex) {
+      log.info("Library not found for: " + primaryArtifact.getGroupId() + ":"
+            + primaryArtifact.getArtifactId() + ":" + primaryArtifact.getVersion() + ":"
+            + primaryArtifact.getClassifier()
+            + ":" + primaryArtifact.getType());
+      return null;
+    }
+  }
+
+
+  void provideThinLibs(Map<String, File> thinLibs, String xcodeConfiguration, Artifact mainArtifact,
+        MavenProject project) throws IOException
+  {
+    for (Map.Entry<String, File> e : thinLibs.entrySet()) {
+      provideThinLib(e.getValue(), project, xcodeConfiguration, e.getKey(), mainArtifact);
     }
   }
 
@@ -169,32 +217,66 @@ class XCodePrepareBuildManager
 
   }
 
-  private void prepareLibrary(MavenProject project, final String xcodeConfiguration,
-        final String sdk, final Artifact primaryArtifact) throws MojoExecutionException, SideArtifactNotFoundException
+  private void provideThinLib(final File source, MavenProject project, final String xcodeConfiguration,
+        final String sdk, final Artifact primaryArtifact) throws IOException
   {
-
-    final File source = downloadManager.resolveSideArtifact(primaryArtifact, xcodeConfiguration + "-" + sdk,
-          TYPE_ARCHIVE).getFile();
 
     final File target = new File(FolderLayout.getFolderForExtractedLibsWithGA(project, xcodeConfiguration,
           sdk,
           primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
 
-    try {
-      
-      if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion()))
-      {
+    if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion())) {
         FileUtils.copyFile(source, target);
       }
-      else
-      {
+    else {
         com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
       }
+  }
 
+  private File resolveFatLib(MavenProject project, final String xcodeConfiguration, final Artifact primaryArtifact)
+  {
+    try {
+      return downloadManager.resolveSideArtifact(primaryArtifact,
+            xcodeConfiguration + XCodeFatLibraryMojo.FAT_LIBRARY_CLASSIFIER_SUFFIX,
+            TYPE_ARCHIVE).getFile();
     }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }    
+    catch (SideArtifactNotFoundException ex) {
+      log.info("There does not exist a fat library for the artifact " + primaryArtifact.getId());
+      return null;
+    }
+  }
+
+  private void provideFatLib(File source, MavenProject project, final String xcodeConfiguration,
+        final Artifact primaryArtifact, Set<String> sdks) throws IOException
+  {
+
+    final File target = new File(FolderLayout.getFolderForExtractedFatLibsWithGA(project, xcodeConfiguration,
+          primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
+
+    if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion())) {
+      FileUtils.copyFile(source, target);
+    }
+    else {
+      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
+    }
+    
+    final FatLibAnalyzer lipoHelper = new FatLibAnalyzer(target);
+
+    //
+    // TODO improve hard coded strings for iphoneos and iphonesimulator below
+    //
+    if (sdks.contains("iphoneos")) {
+      if (!lipoHelper.containsArmv())
+        log.warn("Fat library '" + lipoHelper.getFatLibrary() + "' does not contain a library for armv*.");
+      else
+        log.info("Fat library '" + lipoHelper.getFatLibrary() + "'contains a library for armv*.");
+    }
+    else if (sdks.contains("iphonesimulator")) {
+      if (!lipoHelper.containsI386())
+        log.warn("Fat library '" + lipoHelper.getFatLibrary() + "' does not contain a library for i386.");
+      else
+        log.info("Fat library '" + lipoHelper.getFatLibrary() + "'contains a library for i386.");
+    }
   }
 
   private void prepareHeaders(MavenProject project, String xcodeConfiguration,
@@ -290,7 +372,9 @@ class XCodePrepareBuildManager
   {
     File workingDirectory = new File(tmpFolder, "scriptWorkingDir");
     workingDirectory.deleteOnExit();
-    ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/unzip.sh", workingDirectory, sourceFile.getCanonicalPath(),
+    ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/unzip.sh", workingDirectory,
+          sourceFile.getCanonicalPath(),
           destinationFolder.getCanonicalPath());
   }
+
 }

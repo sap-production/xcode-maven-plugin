@@ -57,6 +57,10 @@ import org.junit.rules.TemporaryFolder;
 public abstract class XCodeTest
 {
 
+  static final String PROP_NAME_DEPLOY_REPO_DIR = "deployrepo.directory";
+  static final String PROP_NAME_FRWK_REPO_DIR = "frwkrepo.directory";
+  static final String DYNAMIC_VERSION = "dynamicVersion";
+
   private static File localRepo = null;
   private static String activeProfiles = null;
   
@@ -187,29 +191,23 @@ public abstract class XCodeTest
   
   protected final static Map<String, String> THE_EMPTY_MAP = Collections.emptyMap();
   protected final static List<String> THE_EMPTY_LIST = Collections.emptyList();
-
-  protected Verifier test(final String testName, final File projectDirectory, final String pomFileName,
-        final String target, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, final File remoteRepositoryDirectory, final File frameworkRepositoryDirectory) throws Exception
-  {
-    return test(null, testName, projectDirectory, pomFileName, target, additionalCommandLineOptions,
-          additionalSystemProperties, remoteRepositoryDirectory, frameworkRepositoryDirectory);
-  }
   
   protected Verifier test(final String testName, final File projectDirectory, final String pomFileName,
         final String target, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, final File remoteRepositoryDirectory) throws Exception
+        Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
 
     return test(null, testName, projectDirectory, pomFileName, target, additionalCommandLineOptions,
-          additionalSystemProperties, remoteRepositoryDirectory, null);
+          additionalSystemProperties, pomReplacements);
   }
+
 
   protected Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         final String pomFileName, final String target, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, final File remoteRepositoryDirectory, final File frameworkRepository) throws Exception
+        Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
 
+    
     if (additionalSystemProperties == null) {
       additionalSystemProperties = new HashMap<String, String>();
     }
@@ -230,9 +228,7 @@ public abstract class XCodeTest
 
     prepareTestExectutionFolder(projectDirectory, testExecutionFolder);
 
-    rewritePom(
-          new File(testExecutionFolder, pomFileName),
-          remoteRepositoryDirectory, frameworkRepository);
+    rewritePom(new File(testExecutionFolder, pomFileName), pomReplacements);
 
     try {
 
@@ -340,18 +336,16 @@ public abstract class XCodeTest
     }
   }
 
-  private void rewritePom(File pomFile, final File remoteRepository, final File frameworkRepository)
+  private void rewritePom(File pomFile, Properties pomReplacements)
         throws IOException
   {
 
     String pom = IOUtils.toString(new FileInputStream(pomFile));
 
-    pom = pom.replaceAll("\\$\\{deployrepo.directory\\}",
-          remoteRepository.getAbsolutePath());
-
-    if (frameworkRepository != null)
-      pom = pom.replaceAll("\\$\\{frwkrepo.directory\\}",
-            frameworkRepository.getAbsolutePath());
+    
+    for (String key : pomReplacements.stringPropertyNames()) {
+      pom = pom.replaceAll("\\$\\{" + key + "\\}", pomReplacements.getProperty(key));
+    }
     
     pom = pom.replaceAll("\\$\\{xcode.maven.plugin.version\\}", getMavenXcodePluginVersion());
 

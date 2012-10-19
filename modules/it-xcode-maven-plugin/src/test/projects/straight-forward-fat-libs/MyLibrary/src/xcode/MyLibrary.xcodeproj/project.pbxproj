@@ -171,6 +171,7 @@
 				INSTALL_PATH = /usr/local/lib;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = MyLibrary;
+				PUBLIC_HEADERS_FOLDER_PATH = MyLibrary/include;
 			};
 			name = Debug;
 		};
@@ -185,6 +186,7 @@
 				GCC_PREFIX_HEADER = MyLibrary_Prefix.pch;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = MyLibrary;
+				PUBLIC_HEADERS_FOLDER_PATH = MyLibrary/include;
 			};
 			name = Release;
 		};
@@ -225,7 +227,7 @@
 				1DEB922008733DC00010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "MyLibrary" */ = {
 			isa = XCConfigurationList;
@@ -234,7 +236,7 @@
 				1DEB922408733DC00010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
