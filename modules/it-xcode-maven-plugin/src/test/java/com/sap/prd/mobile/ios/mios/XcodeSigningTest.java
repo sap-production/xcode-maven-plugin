@@ -54,6 +54,7 @@ public class XcodeSigningTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
 
     // copy the simple app project and modify the pbxproj file by adding an invalid provisioning profile
     File intermediateAppDir = new File(new File(".").getAbsolutePath(), "target/tests/"

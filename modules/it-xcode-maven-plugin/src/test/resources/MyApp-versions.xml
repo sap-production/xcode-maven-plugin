@@ -3,7 +3,7 @@
     <coordinates>
         <groupId>com.sap.ondevice.production.ios.tests</groupId>
         <artifactId>MyApp</artifactId>
-        <version>1.0.0</version>
+        <version>${dynamicVersion}</version>
     </coordinates>
     <scm>
         <connection>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/</connection>
@@ -14,7 +14,7 @@
             <coordinates>
                 <groupId>com.sap.ondevice.production.ios.tests</groupId>
                 <artifactId>MyLibrary</artifactId>
-                <version>1.0.1</version>
+                <version>${dynamicVersion}</version>
             </coordinates>
             <scm>
                 <connection>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/</connection>

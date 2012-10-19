@@ -43,6 +43,7 @@ public class XCodePrepareMojoTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
 
     new XCodeLifecycleTest().test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml",
           "deploy", null,

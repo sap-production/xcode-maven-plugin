@@ -44,13 +44,15 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
   public void testVersionInfoWithoutDependentInformation() throws Exception
   {
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
-
+    final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
+    
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
-
+    
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
 // this copy of MyLibrary doesn't create versions.xml
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "versions-info/MyLibrary"), "pom.xml",
@@ -59,7 +61,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
           THE_EMPTY_MAP, pomReplacements);
 
     File libraryVersionsInfo = new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + "1.0.100" + "/MyLibrary-" + "1.0.100"
+          Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion
                 + "-versions.xml");
     libraryVersionsInfo.delete();
     verifier.deleteArtifacts(Constants.GROUP_ID_WITH_SLASH);
@@ -70,10 +72,10 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
           THE_EMPTY_MAP, pomReplacements);
 
     File versionFileAppExpected = new File("src/test/resources/MyApp-1.0.0-without-dependent-info-versions.xml")
-      .getAbsoluteFile();
-
+      .getAbsoluteFile();    
+    
     File versionFileApp = new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION + "/MyApp-" + Constants.APP_VERSION
+          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion
                 + "-versions.xml");
     assertTrue(versionFileApp.exists());
 
@@ -81,7 +83,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
           versionFileAppExpected);
 
     try {
-      Assert.assertEquals(IOUtil.toString(expectedVersionFileApp, "UTF-8"),
+      Assert.assertEquals(IOUtil.toString(expectedVersionFileApp, "UTF-8").replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion),
             IOUtil.toString(actualVersionFileApp, "UTF-8"));
     }
     finally {
@@ -100,6 +102,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
 
     // copy lib to intermediate folder and removed the sync.info file
     File intermediateDir = new File(new File(".").getAbsolutePath(), "target/tests/"

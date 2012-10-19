@@ -61,7 +61,7 @@ public abstract class XCodeTest
 
   static final String PROP_NAME_DEPLOY_REPO_DIR = "deployrepo.directory";
   static final String PROP_NAME_FRWK_REPO_DIR = "frwkrepo.directory";
-  static final String DYNAMIC_VERSION = "dynamicVersion";
+  static final String PROP_NAME_DYNAMIC_VERSION = "dynamicVersion";
 
   private static File localRepo = null;
   private static String activeProfiles = null;
@@ -368,8 +368,14 @@ public abstract class XCodeTest
         throws IOException
   {
 
+    
+    if(!pomReplacements.keySet().contains(PROP_NAME_DYNAMIC_VERSION))
+      throw new IllegalStateException("Dynamic version not provided on pom replacements.");
+    
     String pom = IOUtils.toString(new FileInputStream(pomFile));
 
+    if(pom.indexOf("${" + PROP_NAME_DYNAMIC_VERSION +"}") == -1)
+      throw new IllegalStateException("Dynamic version is not used in pom file.");
     
     for (String key : pomReplacements.stringPropertyNames()) {
       pom = pom.replaceAll("\\$\\{" + key + "\\}", pomReplacements.getProperty(key));
