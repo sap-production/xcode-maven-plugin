@@ -32,9 +32,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -206,7 +208,15 @@ public abstract class XCodeTest
         final String pomFileName, final String target, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
+    return test(_verifier, testName, projectDirectory, pomFileName, Arrays.asList(new String[] {target}), additionalCommandLineOptions, additionalSystemProperties, pomReplacements);
+  }
+  
+  protected Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
+        final String pomFileName, List<String> targets, List<String> additionalCommandLineOptions,
+        Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
+  {
 
+    final PrintStream originalOut = System.out;
     
     if (additionalSystemProperties == null) {
       additionalSystemProperties = new HashMap<String, String>();
@@ -276,10 +286,28 @@ public abstract class XCodeTest
 
       verifier.deleteArtifacts("com.sap.production.ios.tests");
       
-      verifier.executeGoal(target);
-      verifier.verifyErrorFreeLog();
-      verifier.resetStreams();
+      if(targets.size() > 1) { 
+        verifier.setAutoclean(false);
+        targets = new ArrayList<String>(targets);;
+        targets.add(0, "clean");
+      }
+      
+      for(String target : targets){
 
+        verifier.executeGoal(target);
+
+        verifier.verifyErrorFreeLog();
+
+        final File logFile = new File(testExecutionFolder,
+              verifier.getLogFileName());
+
+        if (!logFile.exists())
+          originalOut.println("Log file '" + logFile
+                + "' does not exist.");
+        else
+          showLog(originalOut, projectName, logFile);
+      }
+      
     }
     finally {
       verifier.resetStreams();
@@ -290,7 +318,7 @@ public abstract class XCodeTest
         System.out.println("Log file '" + logFile
               + "' does not exist.");
       else
-        showLog(projectName, logFile);
+        showLog(System.out, projectName, logFile);
     }
     return verifier;
   }
@@ -306,17 +334,17 @@ public abstract class XCodeTest
                 getClass().getName() + "/" + testName + "/" + projectName);
   }
 
-  private void showLog(final String projectName, final File logFile)
+  private void showLog(PrintStream out, final String projectName, final File logFile)
         throws FileNotFoundException, IOException
   {
 
-    System.out.println();
-    System.out.println();
-    System.out.println();
-    System.out.println("Log output for project \"" + projectName + "\".");
-    System.out.println();
-    System.out.println();
-    System.out.println();
+    out.println();
+    out.println();
+    out.println();
+    out.println("Log output for project \"" + projectName + "\".");
+    out.println();
+    out.println();
+    out.println();
 
     InputStream log = null;
 
@@ -327,7 +355,7 @@ public abstract class XCodeTest
       byte[] buff = new byte[1024];
 
       for (int i; (i = log.read(buff)) != -1;)
-        System.out.write(buff, 0, i);
+        out.write(buff, 0, i);
 
     }
     finally {

@@ -70,11 +70,19 @@ class XCodePrepareBuildManager
   void prepareBuild(final MavenProject project, Set<String> configurations,
         final Set<String> sdks) throws MojoExecutionException, XCodeException, IOException
   {
-    for (@SuppressWarnings("rawtypes")
-    final Iterator it = project.getCompileArtifacts().iterator(); it.hasNext();) {
 
-      final Artifact mainArtifact = (Artifact) it.next();
-            
+    final Iterator compileArtifacts = project.getCompileArtifacts().iterator();
+    
+    if(!compileArtifacts.hasNext()) {
+      log.info("No compile dependencies found.");
+    }
+    
+    while(compileArtifacts.hasNext()) {
+
+      final Artifact mainArtifact = (Artifact) compileArtifacts.next();
+
+      log.info("Preparing dependency: " + mainArtifact.getId());
+
       if (PackagingType.LIB.getMavenPackaging().equals(mainArtifact.getType())) {
 
         for (final String xcodeConfiguration : configurations) {
@@ -198,11 +206,16 @@ class XCodePrepareBuildManager
     final File mainArtifactExtracted = FolderLayout.getFolderForExtractedPrimaryArtifact(project,
           primaryArtifact);
 
+    if(mainArtifactExtracted.exists())
+      com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(mainArtifactExtracted);
+    
     if (!mainArtifactExtracted.mkdirs())
       throw new IOException("Cannot create directory for expanded mainartefact of " + primaryArtifact.getGroupId()
             + ":" + primaryArtifact.getArtifactId() + " (" + mainArtifactExtracted + ").");
 
     unarchive("tar", primaryArtifact.getFile(), mainArtifactExtracted);
+    
+    log.info("Main artifact extracted to '" + mainArtifactExtracted + "'.");
 
     File bundleFile = new File(mainArtifactExtracted, "bundles.txt");
     if (!bundleFile.exists())

@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -457,4 +458,25 @@ public class XCodeLifecycleTest extends XCodeTest
     verifier.verifyTextInLog("Unable to convert '" + otaWrongURL + "' to an URL");
 
   }
+
+  @Test
+  public void testInitializeTwice() throws Exception
+  {
+    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+  
+    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
+  
+    prepareRemoteRepository(remoteRepositoryDirectory);
+
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    
+    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "install",
+          THE_EMPTY_LIST,
+          THE_EMPTY_MAP, pomReplacements);
+    
+    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml", Arrays.asList(new String[] {"initialize", "initialize"}),
+          THE_EMPTY_LIST,
+          THE_EMPTY_MAP, pomReplacements);
+  }    
 }
