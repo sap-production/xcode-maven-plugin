@@ -48,7 +48,7 @@
 			</item>
 			
 			<item name="Libraries" href="examples/LibBuildExample.html">
-				<item name="Generate Fat Binaries" href="userguide/Generate Fat Binaries.html" />
+				<item name="Fat Binaries" href="userguide/Fat Binaries.html" />
 				<item name="Generation and Consumption Libraries with Bundles"
 					href="userguide/Generation and Consumption Libraries with Bundles.html" />
 				<item name="Generation of API Docs with Doxygen" href="userguide/Generation of API Docs with Doxygen.html" />

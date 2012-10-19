@@ -77,8 +77,9 @@ public class XCodePrepareMojo extends AbstractXCodeMojo
   protected List<RemoteRepository> projectRepos;
 
   /**
-   * If set to <code>true</code> the dependency resolution will retrieve the fat libs instead of the
-   * sdk specific once if available.
+   * If set to <code>true</code> the dependency resolution will try to retrieve the fat libs instead of the
+   * sdk specific ones. In all cases the lib resolution will try to fallback to the other library type if the
+   * preferred type is not available.
    * 
    * @parameter expression="${xcode.preferFatLibs}" default-value="false"
    * @since 1.5.2
