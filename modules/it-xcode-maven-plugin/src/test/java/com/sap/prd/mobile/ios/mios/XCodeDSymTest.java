@@ -46,11 +46,11 @@ public class XCodeDSymTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"),
-          "pom.xml", "deploy", THE_EMPTY_LIST,
+          "deploy", THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
 
     test(testName, new File(
-          getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml",
+          getTestRootDirectory(), "straight-forward/MyApp"),
           "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     // Below we use internal knowledge from the pom: when running in

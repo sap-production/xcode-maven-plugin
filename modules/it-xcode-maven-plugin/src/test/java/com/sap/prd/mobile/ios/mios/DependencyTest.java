@@ -47,13 +47,13 @@ public class DependencyTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
-    test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryB"), "pom.xml",
+    test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryB"),
           "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
-    test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryA"), "pom.xml",
+    test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryA"),
           "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
-    test(testName, new File(getTestRootDirectory(), "dependencies/MyApp"), "pom.xml",
+    test(testName, new File(getTestRootDirectory(), "dependencies/MyApp"),
           "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     final String configuration = "Release";

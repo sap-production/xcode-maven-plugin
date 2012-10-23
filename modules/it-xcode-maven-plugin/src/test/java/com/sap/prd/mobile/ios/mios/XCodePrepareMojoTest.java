@@ -45,7 +45,7 @@ public class XCodePrepareMojoTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
 
-    new XCodeLifecycleTest().test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml",
+    new XCodeLifecycleTest().test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"),
           "deploy", null,
           THE_EMPTY_MAP, pomReplacements);
 
@@ -53,7 +53,7 @@ public class XCodePrepareMojoTest extends XCodeTest
     additionalSystemParameters.put("configuration", "Release");
     additionalSystemParameters.put("sdk", "iphoneos");
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml",
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:" + getMavenXcodePluginVersion() + ":prepare-xcode-build",
           THE_EMPTY_LIST,
           additionalSystemParameters, pomReplacements);

@@ -62,7 +62,7 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy",
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     assertBuildEnvironmentPropertiesFile(testName, "MyLibrary");
@@ -97,7 +97,7 @@ public class XCodeLifecycleTest extends XCodeTest
     // ------------------------------------------------------------------------------------------
     // --- Now build the app
     // ------------------------------------------------------------------------------------------
-    Verifier appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml",
+    Verifier appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements);
@@ -203,11 +203,11 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." +  String.valueOf(System.currentTimeMillis()));
     
-    test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyLibrary"), "pom.xml", "deploy",
+    test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
 
-    Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyApp"), "pom.xml", "deploy",
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyApp"), "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
     
@@ -286,7 +286,7 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
     
     try {
-      test(verifier, testName, projectDirectory, "pom.xml", "deploy", THE_EMPTY_LIST, additionalSystemProperties,
+      test(verifier, testName, projectDirectory, "deploy", THE_EMPTY_LIST, additionalSystemProperties,
             pomReplacements);
 
       Assert.fail("Library was build instead of a failure.");
@@ -323,7 +323,7 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy",
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
 
@@ -331,7 +331,7 @@ public class XCodeLifecycleTest extends XCodeTest
     additionalSystemProperties.put("xcode.artifactIdSuffix", "release");
     additionalSystemProperties.put("mios.ota-service.url", "http://apple-ota.wdf.sap.corp:8080/ota-service/HTML");
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml", "deploy",
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "deploy",
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements);
 
@@ -362,11 +362,11 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
-    test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyLibrary"), "pom.xml", "deploy",
+    test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
 
-    test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyApp"), "pom.xml", "deploy",
+    test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyApp"), "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
 
@@ -393,10 +393,10 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
-    test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyLibrary"), "pom.xml", "deploy",
+    test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyLibrary"), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
-    test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyApp"), "pom.xml", "deploy",
+    test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyApp"), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     final String configuration = "Release";
@@ -422,12 +422,12 @@ public class XCodeLifecycleTest extends XCodeTest
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("mios.ota-service.url", "");
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
     
     final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
     try {
-      verifier = test(verifier, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml",
+      verifier = test(verifier, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
             "deploy", THE_EMPTY_LIST, additionalSystemProperties, pomReplacements);
 
     }
@@ -459,14 +459,14 @@ public class XCodeLifecycleTest extends XCodeTest
     String otaWrongURL = "htp://apple-ota.wdf.sap.corp:8080/ota-service/HTML";
     additionalSystemProperties.put("mios.ota-service.url", otaWrongURL);
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
     
     final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
 
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
 
     try {
-      test(verifier, testName, projectDirectory, "pom.xml", "deploy",
+      test(verifier, testName, projectDirectory, "deploy",
             THE_EMPTY_LIST,
             additionalSystemProperties, pomReplacements);
     }
@@ -495,11 +495,11 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
     
-    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "install",
+    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "install",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
     
-    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "pom.xml", Arrays.asList(new String[] {"initialize", "initialize"}),
+    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), Arrays.asList(new String[] {"initialize", "initialize"}),
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
   }    

@@ -53,7 +53,7 @@ public class FatBinaryTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
     
-    test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "pom.xml", "install",
+    test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "install",
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements);
     
@@ -78,7 +78,7 @@ public class FatBinaryTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     
-    test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "pom.xml", "initialize",
+    test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements);
     
@@ -111,7 +111,7 @@ public class FatBinaryTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepo.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
-    test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "pom.xml", "initialize",
+    test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements);
     
@@ -151,7 +151,7 @@ public class FatBinaryTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepo.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
-    test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "pom.xml", "initialize",
+    test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements);
     
@@ -188,7 +188,7 @@ public class FatBinaryTest extends XCodeTest
       if(remoteRepoDir.exists())
         com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(remoteRepoDir);
       
-      test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyLibrary"), "pom.xml", "deploy",
+      test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyLibrary"), "deploy",
             THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
       remoteRepoInitialized = true;
     }

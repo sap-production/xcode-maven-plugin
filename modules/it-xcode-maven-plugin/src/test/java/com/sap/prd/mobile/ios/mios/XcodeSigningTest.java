@@ -77,7 +77,7 @@ public class XcodeSigningTest extends XCodeTest
 
     // This test should fail due to an invalid provisioning profile
     try {
-      test(testName, intermediateAppDir, "pom.xml", "compile", THE_EMPTY_LIST, THE_EMPTY_MAP,
+      test(testName, intermediateAppDir, "compile", THE_EMPTY_LIST, THE_EMPTY_MAP,
             pomReplacements);
       fail("Expected the Maven call to fail due to an invalid provisioning profile.");
     }
@@ -88,7 +88,7 @@ public class XcodeSigningTest extends XCodeTest
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("xcode.provisioningProfile", "");
     additionalSystemProperties.put("xcode.app.defaultConfigurations", "Release"); // skip Debug build
-    test(testName, intermediateAppDir, "pom.xml", "compile", THE_EMPTY_LIST, additionalSystemProperties,
+    test(testName, intermediateAppDir, "compile", THE_EMPTY_LIST, additionalSystemProperties,
           pomReplacements);
 
   }
