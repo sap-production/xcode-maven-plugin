@@ -35,7 +35,7 @@ public class XCodePrepareMojoTest extends XCodeTest
   public void testPrepare() throws Exception
   {
 
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
@@ -45,7 +45,7 @@ public class XCodePrepareMojoTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
 
-    new XCodeLifecycleTest().test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"),
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"),
           "deploy", null,
           THE_EMPTY_MAP, pomReplacements);
 

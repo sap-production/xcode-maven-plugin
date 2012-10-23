@@ -39,7 +39,7 @@ public class SpecificTargetTest extends XCodeTest
   @Test
   public void buildSpecificTarget() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass()
       .getName());
     prepareRemoteRepository(remoteRepositoryDirectory);

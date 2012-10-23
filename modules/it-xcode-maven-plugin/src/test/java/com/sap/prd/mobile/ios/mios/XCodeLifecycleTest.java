@@ -44,6 +44,7 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.IOUtil;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 public class XCodeLifecycleTest extends XCodeTest
 {
@@ -52,7 +53,7 @@ public class XCodeLifecycleTest extends XCodeTest
   public void testLifecycle() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
@@ -193,9 +194,9 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testLifecycleWithSnapshotDependency() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
-    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName() + "-" + testName);
+    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(testName);
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
@@ -266,7 +267,7 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testSkipLibraryBuild() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
@@ -313,7 +314,7 @@ public class XCodeLifecycleTest extends XCodeTest
   public void testChangeArtifactId() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
@@ -351,7 +352,7 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testDeviantSourceDirectory() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
@@ -382,7 +383,7 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testXCodeSourceDirEqualsMavenSourceDirectory() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
@@ -409,7 +410,7 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testOTAUrlIsSetToEmpty() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
@@ -445,7 +446,7 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testOTAUrlIsNotUrl() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
@@ -485,7 +486,7 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testInitializeTwice() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
   
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
   

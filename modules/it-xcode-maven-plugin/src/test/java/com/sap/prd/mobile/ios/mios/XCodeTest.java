@@ -76,6 +76,14 @@ public abstract class XCodeTest
     setupLocalRepo();
   }
   
+  //
+  // Works only when called directly by a junit test method. Otherwise getStrackTrace()[2] below is missleading.
+  //
+  protected String getTestName()
+  {
+    return getClass().getName() + File.separator + Thread.currentThread().getStackTrace()[2].getMethodName();
+  }
+  
   private static void prepareTestExecutionActiveProfiles()
   {
     String _activeProfiles = System.getProperty("com.sap.maven.integration-tests.active-profiles");
@@ -194,24 +202,23 @@ public abstract class XCodeTest
   protected final static Map<String, String> THE_EMPTY_MAP = Collections.emptyMap();
   protected final static List<String> THE_EMPTY_LIST = Collections.emptyList();
   
-  protected Verifier test(final String testName, final File projectDirectory,
+  protected static Verifier test(final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
-
     return test(null, testName, projectDirectory, target, additionalCommandLineOptions,
           additionalSystemProperties, pomReplacements);
   }
 
 
-  protected Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
+  protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
     return test(_verifier, testName, projectDirectory, Arrays.asList(new String[] {target}), additionalCommandLineOptions, additionalSystemProperties, pomReplacements);
   }
   
-  protected Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
+  protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         List<String> targets, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
@@ -320,14 +327,13 @@ public abstract class XCodeTest
     return new File(new File(".").getAbsoluteFile(), "target/tests/");
   }
   
-  protected File getTestExecutionDirectory(final String testName, final String projectName)
+  protected static File getTestExecutionDirectory(final String testName, final String projectName)
   {
     return new File(
-          getTestsExecutionDirectory(),
-                getClass().getName() + "/" + testName + "/" + projectName);
+          getTestsExecutionDirectory(), testName + "/" + projectName);
   }
 
-  private void showLog(PrintStream out, final String projectName, final File logFile)
+  private static void showLog(PrintStream out, final String projectName, final File logFile)
         throws FileNotFoundException, IOException
   {
 
@@ -357,7 +363,7 @@ public abstract class XCodeTest
     }
   }
 
-  private void rewritePom(File pomFile, Properties pomReplacements)
+  private static void rewritePom(File pomFile, Properties pomReplacements)
         throws IOException
   {
 
@@ -433,7 +439,7 @@ public abstract class XCodeTest
             + remoteRepository);
   }
 
-  protected String getMavenXcodePluginVersion() throws IOException
+  protected static String getMavenXcodePluginVersion() throws IOException
   {
     Properties properties = new Properties();
     properties.load(XCodeTest.class.getResourceAsStream("/project.properties"));

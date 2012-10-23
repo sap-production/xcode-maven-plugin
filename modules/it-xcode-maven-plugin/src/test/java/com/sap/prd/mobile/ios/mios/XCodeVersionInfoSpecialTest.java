@@ -43,7 +43,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
   @Test
   public void testVersionInfoWithoutDependentInformation() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
@@ -96,7 +96,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
   @Test
   public void testFailOnMissingSyncInfo() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
 

@@ -41,14 +41,14 @@ public class XCodeFrameworkTest extends XCodeTest
   @Test
   public void createRealFramework() throws Exception
   {
-    String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    String testName = getTestName();
     createAndValidateFmwk(testName, "MyRealFramework");
   }
 
   @Test
   public void createFakeFramework() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();;
     createAndValidateFmwk(testName, "MyFakeFramework");
   }
 
@@ -56,7 +56,7 @@ public class XCodeFrameworkTest extends XCodeTest
   @Test
   public void buildLibAsFramework() throws Exception
   {    
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
     File projectDirectory = new File(getTestRootDirectory(), "framework/MyLibrary");
@@ -113,7 +113,7 @@ public class XCodeFrameworkTest extends XCodeTest
   {
     final String dynamicVersion = "1.0.0";
     
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
 

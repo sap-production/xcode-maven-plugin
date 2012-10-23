@@ -34,7 +34,7 @@ public class XCodeDSymTest extends XCodeTest
   {
 
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass()
       .getName());

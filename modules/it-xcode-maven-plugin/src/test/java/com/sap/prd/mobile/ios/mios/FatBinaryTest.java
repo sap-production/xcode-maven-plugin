@@ -41,7 +41,7 @@ public class FatBinaryTest extends XCodeTest
   @Test
   public void testUsePreferredFatLib() throws Exception
   {   
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     File remoteRepo = prepare();
 
@@ -67,8 +67,8 @@ public class FatBinaryTest extends XCodeTest
   @Test
   public void testUseThinLibs() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
-
+    final String testName = getTestName();
+    
     File remoteRepo = prepare();
 
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
@@ -92,8 +92,8 @@ public class FatBinaryTest extends XCodeTest
   @Test
   public void testPrefereFatLibForNonExistingFatLibs() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
-
+    final String testName = getTestName();
+    
     File remoteRepo = prepare();
 
     final File fatLibReleaseRemoteRepo = new File(remoteRepo, "com/sap/ondevice/production/ios/tests/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion + "-Release-fat-binary.a");
@@ -132,7 +132,7 @@ public class FatBinaryTest extends XCodeTest
   @Test
   public void testFallbackToFatLibs() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     File remoteRepo = prepare();
 
@@ -169,7 +169,6 @@ public class FatBinaryTest extends XCodeTest
     Assert.assertTrue(new File(testRootDir, "target/libs/Debug-iphonesimulator/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a").exists());    
   }
 
-  
   private File prepare() throws Exception
   {
 

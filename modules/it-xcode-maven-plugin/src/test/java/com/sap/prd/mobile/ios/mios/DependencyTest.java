@@ -34,7 +34,7 @@ public class DependencyTest extends XCodeTest
   @Test
   public void testTransitiveDependency() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass()
       .getName());
