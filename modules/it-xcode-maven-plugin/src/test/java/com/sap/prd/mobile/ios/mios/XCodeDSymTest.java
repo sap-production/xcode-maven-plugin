@@ -33,6 +33,7 @@ public class XCodeDSymTest extends XCodeTest
   public void testDSYM() throws Exception
   {
 
+    final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass()
@@ -42,7 +43,7 @@ public class XCodeDSymTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"),
           "pom.xml", "deploy", THE_EMPTY_LIST,
@@ -57,7 +58,7 @@ public class XCodeDSymTest extends XCodeTest
     final String configuration = "Release";
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION + "/MyApp-" + Constants.APP_VERSION + "-"
+          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
                 + configuration + "-iphoneos-app.dSYM.zip").exists());
   }
 }

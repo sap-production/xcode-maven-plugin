@@ -29,6 +29,4 @@ abstract class Constants
 
   final static String GROUP_ID = "com.sap.ondevice.production.ios.tests";
   final static String GROUP_ID_WITH_SLASH = GROUP_ID.replaceAll("\\.", "/");
-  final static String LIB_VERSION = "1.0.1";
-  final static String APP_VERSION = "1.0.0";
 }

@@ -51,6 +51,7 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testLifecycle() throws Exception
   {
+    final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
@@ -59,14 +60,15 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     assertBuildEnvironmentPropertiesFile(testName, "MyLibrary");
     
-    final String myLibArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + Constants.LIB_VERSION
-          + "/MyLibrary-" + Constants.LIB_VERSION;
+    final String myLibArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + dynamicVersion
+          + "/MyLibrary-" + dynamicVersion;
 
     assertTrue(new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-Release-iphoneos.headers.tar").exists());
     assertTrue(new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-Release-iphonesimulator.headers.tar")
@@ -83,7 +85,7 @@ public class XCodeLifecycleTest extends XCodeTest
 
     File versionFileLib = new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-versions.xml");
     assertTrue(versionFileLib.exists());
-    compareFileContent(new File("src/test/resources/MyLibrary-1.0.0-versions.xml"), versionFileLib);
+    compareFilesContainingDynamicVersions(dynamicVersion, new File(".", "src/test/resources/MyLibrary-versions.xml").getAbsoluteFile(), versionFileLib);
 
     //set the OTA URL explicitly, do not expect it from settings.xml
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
@@ -100,8 +102,8 @@ public class XCodeLifecycleTest extends XCodeTest
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements);
 
-    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION;
-    final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + Constants.APP_VERSION;
+    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
+    final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
 
     // we built only the Xcode config Release for iphoneos SDK. All other combinations must not exist:
     assertTrue(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-Release-iphoneos.ipa").exists());
@@ -133,9 +135,9 @@ public class XCodeLifecycleTest extends XCodeTest
     File versionsXmlInAppZip = new File(appstoreFile, "MyApp.app/versions.xml");
     assertTrue(versionsXmlInIpa.exists());
     assertTrue(versionsXmlInAppZip.exists());
-    File versionsTestFile = new File("src/test/resources/MyApp-1.0.0-versions.xml");
-    compareFileContent(versionsTestFile, versionsXmlInIpa);
-    compareFileContent(versionsTestFile, versionsXmlInAppZip);
+    File versionsTestFile = new File("src/test/resources/MyApp-versions.xml");
+
+    compareFilesContainingDynamicVersions(dynamicVersion, versionsTestFile, versionsXmlInAppZip);
     CodeSignManager.verify(new File(extractedIpaFolder, "Payload/MyApp.app"));
     CodeSignManager.verify(new File(appstoreFile, "MyApp.app"));
 
@@ -148,7 +150,7 @@ public class XCodeLifecycleTest extends XCodeTest
 
     final String otaFileNameSuffix = appIdSuffix == null ? "-iphoneos-ota.htm" : "-" + appIdSuffix
           + "-iphoneos-ota.htm";
-    compareFileContent(new File("src/test/resources/MyApp-Release-" + Constants.APP_VERSION + otaFileNameSuffix),
+    compareFileContent(new File("src/test/resources/MyApp-Release-1.0.0" + otaFileNameSuffix),
           otaHtmlFileActualRelease);
     
     File archiveArtifactsDir = new File(appVerifier.getBasedir(), "archive/artifacts/com.sap.ondevice.production.ios.tests/MyApp");
@@ -159,7 +161,7 @@ public class XCodeLifecycleTest extends XCodeTest
     try {
       String otaArchiveHtmlContent = IOUtils.toString(fis, "UTF-8");
       assertFalse("${LOCATION} has not been replaced in OTA archive HTML file", otaArchiveHtmlContent.contains("${LOCATION}"));
-      assertTrue("OTA HTML location has not been written into OTA archive HTML file", otaArchiveHtmlContent.contains("target/remoteRepo/com.sap.prd.mobile.ios.mios.XCodeLifecycleTest/com/sap/ondevice/production/ios/tests/MyApp/1.0.0/MyApp-1.0.0-Release-iphoneos-ota.htm"));
+      assertTrue("OTA HTML location has not been written into OTA archive HTML file", otaArchiveHtmlContent.contains("target/remoteRepo/com.sap.prd.mobile.ios.mios.XCodeLifecycleTest/com/sap/ondevice/production/ios/tests/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-Release-iphoneos-ota.htm"));
     } finally {
       IOUtils.closeQuietly(fis);
     }    
@@ -178,7 +180,14 @@ public class XCodeLifecycleTest extends XCodeTest
     
     File versionFileApp = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-versions.xml");
     assertTrue(versionFileApp.exists());
-    compareFileContent(versionsTestFile, versionFileApp);
+    compareFilesContainingDynamicVersions(dynamicVersion, versionsTestFile, versionFileApp);
+  }
+
+  private void compareFilesContainingDynamicVersions(final String dynamicVersion, File template, File versionFileLib)
+        throws FileNotFoundException, IOException
+  {
+      String toBeTestedAgainst = IOUtils.toString(new FileInputStream(template)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion);
+      Assert.assertEquals(toBeTestedAgainst, IOUtils.toString(new FileInputStream(versionFileLib)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion));
   }
   
   @Test
@@ -192,7 +201,8 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." +  String.valueOf(System.currentTimeMillis()));
+    
     test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyLibrary"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
@@ -273,7 +283,8 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
+    
     try {
       test(verifier, testName, projectDirectory, "pom.xml", "deploy", THE_EMPTY_LIST, additionalSystemProperties,
             pomReplacements);
@@ -301,6 +312,7 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testChangeArtifactId() throws Exception
   {
+    final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
@@ -309,7 +321,8 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
+    
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
@@ -325,13 +338,13 @@ public class XCodeLifecycleTest extends XCodeTest
     final String configuration = "Release";
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + Constants.APP_VERSION + "/MyApp_release-"
-                + Constants.APP_VERSION + "-"
+          Constants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + dynamicVersion + "/MyApp_release-"
+                + dynamicVersion + "-"
                 + configuration + "-iphoneos.ipa").exists());
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + Constants.APP_VERSION + "/MyApp_release-"
-                + Constants.APP_VERSION + "-AppStoreMetadata.zip")
+          Constants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + dynamicVersion + "/MyApp_release-"
+                + dynamicVersion + "-AppStoreMetadata.zip")
       .exists());
   }
 
@@ -339,13 +352,15 @@ public class XCodeLifecycleTest extends XCodeTest
   public void testDeviantSourceDirectory() throws Exception
   {
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
-
+    final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
+    
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyLibrary"), "pom.xml", "deploy",
           THE_EMPTY_LIST,
@@ -360,7 +375,7 @@ public class XCodeLifecycleTest extends XCodeTest
     final String configuration = "Release";
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION + "/MyApp-" + Constants.APP_VERSION + "-"
+          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
                 + configuration + "-iphoneos.ipa").exists());
   }
 
@@ -368,14 +383,16 @@ public class XCodeLifecycleTest extends XCodeTest
   public void testXCodeSourceDirEqualsMavenSourceDirectory() throws Exception
   {
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
-
+    final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
+    
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
+    
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyLibrary"), "pom.xml", "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
@@ -385,7 +402,7 @@ public class XCodeLifecycleTest extends XCodeTest
     final String configuration = "Release";
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION + "/MyApp-" + Constants.APP_VERSION + "-"
+          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
                 + configuration + "-iphoneos.ipa").exists());
   }
 
@@ -399,11 +416,14 @@ public class XCodeLifecycleTest extends XCodeTest
     prepareRemoteRepository(remoteRepositoryDirectory);
 
     Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());  
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0" + String.valueOf(System.currentTimeMillis()));
+    
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("mios.ota-service.url", "");
 
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+    
     final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
     try {
@@ -433,11 +453,14 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
+    
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     String otaWrongURL = "htp://apple-ota.wdf.sap.corp:8080/ota-service/HTML";
     additionalSystemProperties.put("mios.ota-service.url", otaWrongURL);
 
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+    
     final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
 
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
@@ -470,6 +493,7 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
     
     test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "pom.xml", "install",
           THE_EMPTY_LIST,

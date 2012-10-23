@@ -25,7 +25,7 @@
 
   <groupId>com.sap.ondevice.production.ios.tests</groupId>
   <artifactId>MyLibrary</artifactId>
-  <version>1.0.123456789-SNAPSHOT</version>
+  <version>${dynamicVersion}-SNAPSHOT</version>
   <packaging>xcode-lib</packaging>
       <build>
           <plugins>

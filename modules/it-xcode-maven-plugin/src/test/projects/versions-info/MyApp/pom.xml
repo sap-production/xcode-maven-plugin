@@ -24,7 +24,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.sap.ondevice.production.ios.tests</groupId>
   <artifactId>MyApp</artifactId>
-  <version>1.0.0</version>
+  <version>${dynamicVersion}</version>
   <packaging>xcode-app</packaging>
     <build>
         <plugins>
@@ -40,7 +40,7 @@
     <dependency>
       <groupId>com.sap.ondevice.production.ios.tests</groupId>
       <artifactId>MyLibrary</artifactId>
-      <version>1.0.100</version>
+      <version>${dynamicVersion}</version>
       <type>xcode-lib</type>
       <scope>compile</scope>
     </dependency>

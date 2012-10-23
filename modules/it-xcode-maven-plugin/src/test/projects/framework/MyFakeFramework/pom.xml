@@ -24,7 +24,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.sap.ondevice.production.ios.tests</groupId>
   <artifactId>MyFakeFramework</artifactId>
-  <version>1.0.0</version>
+  <version>${dynamicVersion}</version>
   <packaging>xcode-framework</packaging>
   <build>
       <plugins>

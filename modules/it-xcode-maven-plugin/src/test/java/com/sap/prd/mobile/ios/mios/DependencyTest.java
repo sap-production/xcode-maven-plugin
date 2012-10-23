@@ -41,8 +41,11 @@ public class DependencyTest extends XCodeTest
 
     prepareRemoteRepository(remoteRepositoryDirectory);
     
+    final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
+    
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
     test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryB"), "pom.xml",
           "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
@@ -67,15 +70,15 @@ public class DependencyTest extends XCodeTest
           + "/MyLibraryB").exists());
 
     // check if the zipped xcodeproj can be built after unzipping
-    final String myLibAVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyLibraryA/" + Constants.LIB_VERSION;
-    final String myLibAArtifactFilePrefix = myLibAVersionRepoDir + "/MyLibraryA-" + Constants.LIB_VERSION;
+    final String myLibAVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyLibraryA/" + dynamicVersion;
+    final String myLibAArtifactFilePrefix = myLibAVersionRepoDir + "/MyLibraryA-" + dynamicVersion;
     File xcodeprojLibAZip = new File(remoteRepositoryDirectory, myLibAArtifactFilePrefix + "-"
           + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");
     assertTrue(xcodeprojLibAZip.exists());
     assertUnpackAndCompile(xcodeprojLibAZip);
 
-    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION;
-    final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + Constants.APP_VERSION;
+    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
+    final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
     File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-"
           + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");
     assertTrue(xcodeprojAppZip.exists());

@@ -62,7 +62,8 @@ public class XCodeFrameworkTest extends XCodeTest
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
 
     Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());    
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());   
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
     
     try {
       test(verifier, testName, projectDirectory, "pom.xml", "deploy",
@@ -77,15 +78,18 @@ public class XCodeFrameworkTest extends XCodeTest
 
   private void createAndValidateFmwk(String testName, String fmwkName) throws IOException, Exception
   {
+    String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
+    
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     test(testName, new File(getTestRootDirectory(), "framework/" + fmwkName), "pom.xml", "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
-    final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/1.0.0/" + fmwkName
-          + "-1.0.0";
+    final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion + "/" + fmwkName
+          + "-" + dynamicVersion;
     File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + ".xcode-framework-zip");
     assertTrue(repoArtifact.exists());
     File extractedFrameworkFolder = tmpFolder.newFolder("frmw" + fmwkName);
@@ -106,6 +110,8 @@ public class XCodeFrameworkTest extends XCodeTest
   @Test
   public void testUseFramework() throws Exception
   {
+    final String dynamicVersion = "1.0.0";
+    
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -119,6 +125,7 @@ public class XCodeFrameworkTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_FRWK_REPO_DIR, frameworkRepository.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     test(testName, new File(getTestRootDirectory(), "framework/MyApp"), "pom.xml",
           "deploy",
@@ -129,8 +136,8 @@ public class XCodeFrameworkTest extends XCodeTest
           + Constants.GROUP_ID
           + "/MyFramework/MyFramework.framework").exists());
 
-    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + Constants.APP_VERSION;
-    final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + Constants.APP_VERSION;
+    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
+    final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
     File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-"
           + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");
     assertTrue(xcodeprojAppZip.exists());
