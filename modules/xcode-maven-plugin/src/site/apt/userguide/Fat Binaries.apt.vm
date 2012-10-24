@@ -1,0 +1,96 @@
+~~~
+~~ #%L
+~~ xcode-maven-plugin
+~~ %%
+~~ Copyright (C) 2012 SAP AG
+~~ %%
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~ 
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~ 
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~ #L%
+~~~
+ 
+ ------
+ Usage
+ ------
+ ------
+ 2012-10-41
+ ------
+ 
+Fat Binaries
+ 
+   A fat binary (or multiarchitecture binary) is a library which contains code native to multiple instruction sets 
+   which can consequently be run on multiple processor types. In the iOS environment fat binaries contain usually the
+   code for the <<<armv*>>> (iphoneos) and the <<<i386>>> (iphonesimulator) architecture.
+   
+   
+* Creation of Fat Binaries   
+   
+   Since version 1.6.0 the Xcode Maven Plugin produces the fat binaries by default in parallel to the non-fat ones. 
+   When building a lib for the <<<iphoneos>>> and <<<iphonesimulator>>> sdks you will find besides others the following
+   artifacts for the Release build in your binary repository:
+   
+   * <<<myLib-1.0.0-Release-iphoneos.a>>> (non-fat lib)
+   
+   * <<<myLib-1.0.0-Release-iphonesimulator.a>>> (non-fat lib)
+   
+   * <<<myLib-1.0.0-Release-fat-binary.a>>> (fat lib)
+   
+
+* Consumption of Fat Binaries
+
+   For backwards compatibility reasons the non-fat binaries of a <<<xcode-lib>>> dependency get resolved
+   during the <<<initialize>>> phase by default. The non-fat libs can be found in the 
+   <<<target/libs/<configuration>-<sdk>/<groupId>/<artifactId> >>> directory. The fat binaries are only used as fallback
+   if no non-fat ones exist.
+   
+   If you want to use the fat version by default you have to add the <<<preferFatLibs>>> element to your
+   plugin configuration and set it to <<<true>>>. Alternatively, you can just set the Maven property 
+   <<<xcode.preferFatLibs>>> to <<<true>>>. Now the Xcode Maven Plugin will prefer the fat ones and copy these into 
+   the directory <<<target/xcode-deps/libs/<configuration>-<sdk>/<groupId>/<artifactId> >>> during dependency resolution
+   (please note the additional <<<xcode-deps>>> folder in the path). The non-fat ones will only be used as fallback if 
+   no fat ones are found.
+   
+   If fat libs should be used the library search path in Xcode needs to be adjusted. It must contain the
+   <<<\${PROJECT_DIR}/../../target/xcode-deps/libs/\${BUILD_STYLE}/**>>> entry.
+   
+   
+** Fat Lib Usage Configuration Example
+   
+   
++-------------
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0  http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>my.package</groupId>
+  <artifactId>MyLibrary</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>xcode-lib</packaging>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.sap.prd.mobile.ios.mios</groupId>
+        <artifactId>xcode-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <preferFatLibs>true</preferFatLibs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
++-------------
