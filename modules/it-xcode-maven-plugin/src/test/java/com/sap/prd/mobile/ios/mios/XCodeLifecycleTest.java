@@ -167,8 +167,6 @@ public class XCodeLifecycleTest extends XCodeTest
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
 
-    // Below we use internal knowledge from the pom: when running in
-    // production profile the configuration is also "Production".
     final String configuration = "Release";
 
     assertTrue(new File(remoteRepositoryDirectory,
