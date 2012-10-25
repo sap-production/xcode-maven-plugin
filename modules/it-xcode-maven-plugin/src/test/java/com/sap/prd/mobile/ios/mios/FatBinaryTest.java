@@ -30,26 +30,59 @@ import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.Verifier;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class FatBinaryTest extends XCodeTest
 {
   private static String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis()); 
+
+  private static File masterRemoteRepoDir;
+
+  private File remoteRepoDir;
   
-  private static boolean remoteRepoInitialized = false;
+  
+  static {
+    try {
+      masterRemoteRepoDir =  new File(new File(new File(".").getCanonicalFile(), "target"), "remoteRepo/FatBinaryTest");
+    } catch(IOException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+  
+  @BeforeClass
+  public static void __setup() throws Exception {
+    final String testName = "fatLibPreparation";
+    
+    final Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, masterRemoteRepoDir.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
+    
+    if(masterRemoteRepoDir.exists())
+      com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(masterRemoteRepoDir);
+    
+    test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyLibrary"), "deploy",
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+  }
+  
+  @Before
+  public void prepareCopyOfRemoteRepo() throws Exception
+  {
+    remoteRepoDir = new File(masterRemoteRepoDir.getParentFile(), "FatBinaryTest-" + System.currentTimeMillis());
+    FileUtils.copyDirectory(masterRemoteRepoDir, remoteRepoDir);
+  }
 
   @Test
   public void testUsePreferredFatLib() throws Exception
   {   
     final String testName = getTestName();
 
-    File remoteRepo = prepare();
-
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("xcode.preferFatLibs", Boolean.TRUE.toString());
 
     Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepo.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepoDir.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
     
@@ -69,12 +102,10 @@ public class FatBinaryTest extends XCodeTest
   {
     final String testName = getTestName();
     
-    File remoteRepo = prepare();
-
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
 
     Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepo.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepoDir.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     
@@ -94,9 +125,7 @@ public class FatBinaryTest extends XCodeTest
   {
     final String testName = getTestName();
     
-    File remoteRepo = prepare();
-
-    final File fatLibReleaseRemoteRepo = new File(remoteRepo, "com/sap/ondevice/production/ios/tests/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion + "-Release-fat-binary.a");
+    final File fatLibReleaseRemoteRepo = new File(remoteRepoDir, "com/sap/ondevice/production/ios/tests/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion + "-Release-fat-binary.a");
     
     if(!fatLibReleaseRemoteRepo.delete())
       throw new IOException("Cannot delete release fat lib file: " + fatLibReleaseRemoteRepo);
@@ -108,7 +137,7 @@ public class FatBinaryTest extends XCodeTest
     additionalSystemProperties.put("xcode.preferFatLibs", Boolean.TRUE.toString());
 
     Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepo.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepoDir.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
     test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
@@ -134,10 +163,7 @@ public class FatBinaryTest extends XCodeTest
   {
     final String testName = getTestName();
 
-    File remoteRepo = prepare();
-
-    final File thinLibReleaseIPhoneOsRemoteRepo = new File(remoteRepo, "com/sap/ondevice/production/ios/tests/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion + "-Release-iphoneos.a");
-
+    final File thinLibReleaseIPhoneOsRemoteRepo = new File(remoteRepoDir, "com/sap/ondevice/production/ios/tests/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion + "-Release-iphoneos.a");
     
     if(!thinLibReleaseIPhoneOsRemoteRepo.delete())
       throw new IOException("Cannot delete release fat lib file: " + thinLibReleaseIPhoneOsRemoteRepo);
@@ -148,7 +174,7 @@ public class FatBinaryTest extends XCodeTest
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
 
     Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepo.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepoDir.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     
     test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
@@ -167,34 +193,6 @@ public class FatBinaryTest extends XCodeTest
     Assert.assertFalse(new File(testRootDir, "target/xcode-deps/libs/Debug/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a").exists());
     Assert.assertTrue(new File(testRootDir, "target/libs/Debug-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a").exists());    
     Assert.assertTrue(new File(testRootDir, "target/libs/Debug-iphonesimulator/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a").exists());    
-  }
-
-  private File prepare() throws Exception
-  {
-
-    final String testName = "fatLibPreparation";
-
-    File remoteRepoDir = new File(new File(new File(".").getCanonicalFile(), "target"), "remoteRepo/FatBinaryTest");
-    
-    File copyOfRemoteRepoDir = new File(remoteRepoDir.getParentFile(), "FatBinaryTest-" + System.currentTimeMillis());
-    
-    if (!remoteRepoInitialized) {
-
-      Properties pomReplacements = new Properties();
-      pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepoDir.getAbsolutePath());
-      pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-      
-      if(remoteRepoDir.exists())
-        com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(remoteRepoDir);
-      
-      test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyLibrary"), "deploy",
-            THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
-      remoteRepoInitialized = true;
-    }
-
-    FileUtils.copyDirectory(remoteRepoDir, copyOfRemoteRepoDir);
-
-    return copyOfRemoteRepoDir;
   }
 }
 
