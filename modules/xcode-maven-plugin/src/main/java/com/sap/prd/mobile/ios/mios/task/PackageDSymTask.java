@@ -30,10 +30,10 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 
-import com.sap.prd.mobile.ios.mios.AbstractXCodeBuildMojo;
 import com.sap.prd.mobile.ios.mios.EffectiveBuildSettings;
 import com.sap.prd.mobile.ios.mios.XCodeBuildLayout;
 import com.sap.prd.mobile.ios.mios.XCodeException;
+import com.sap.prd.mobile.ios.mios.buddy.ProductNameBuddy;
 
 public class PackageDSymTask
 {
@@ -95,7 +95,6 @@ public class PackageDSymTask
     return this;
   }
 
-
   /**
    * Packages the debug symbols generated during the Xcode build and prepares the generated artifact
    * for deployment. The debug symbols are generated only if the "Generate Debug Symbols" in Xcode
@@ -103,50 +102,37 @@ public class PackageDSymTask
    */
   public void execute() throws XCodeException
   {
-
     try {
-    final String productName;
 
-    if (this.productName != null) {
-      productName = this.productName.trim();
+      String productName = ProductNameBuddy.getProductName(log, this.productName, mavenProject, sdk,
+            configuration);
+      String strippedProductName = ProductNameBuddy.stripProductName(productName);
 
-      if (productName.isEmpty())
-        throw new IllegalStateException("ProductName from pom file was empty.");
+      String generateDSym = new EffectiveBuildSettings(mavenProject, configuration, sdk).getBuildSetting(
+        EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
-    }
-    else {
-      productName = EffectiveBuildSettings.getProductName(mavenProject, configuration, sdk);
+      if (generateDSym == null || generateDSym.equalsIgnoreCase("YES")) {
 
-      if (productName == null || productName.isEmpty())
-        throw new IllegalStateException("Product Name not found in effective build settings file");
-    }
+        final File root = new File(XCodeBuildLayout.getAppFolder(compileDir, configuration, sdk), productName
+              + ".app.dSYM");
 
-    final String fixedProductName = AbstractXCodeBuildMojo.getFixedProductName(productName);
+        Archiver archiver = archiverManager.getArchiver("zip");
 
-    String generateDSym = new EffectiveBuildSettings(mavenProject, configuration, sdk).getBuildSetting(
-      EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
+        File dSymFile = new File(new File(new File(mavenProject.getBuild().getDirectory()), configuration + "-" + sdk),
+              strippedProductName + ".app.dSYM.zip");
 
-    if (generateDSym == null || generateDSym.equalsIgnoreCase("YES")) {
+        archiver.addDirectory(root, new String[] { "**/*" }, null);
+        archiver.setDestFile(dSymFile);
+        archiver.createArchive();
+        log.info("dSYM packaged (" + dSymFile + ")");
 
-      final File root = new File(XCodeBuildLayout.getAppFolder(compileDir, configuration, sdk), productName
-            + ".app.dSYM");
-
-      Archiver archiver = archiverManager.getArchiver("zip");
-
-      File dSymFile = new File(new File(new File(mavenProject.getBuild().getDirectory()), configuration + "-" + sdk),
-            fixedProductName + ".app.dSYM.zip");
-
-      archiver.addDirectory(root, new String[] { "**/*" }, null);
-      archiver.setDestFile(dSymFile);
-      archiver.createArchive();
-      log.info("dSYM packaged (" + dSymFile + ")");
-
-      projectHelper.attachArtifact(mavenProject, "zip", configuration + "-" + sdk + "-app.dSYM", dSymFile);
-    }
-    else {
-      log
-        .info("dSYM packaging skipped.Generate Debug Symbols is not enabled for configuration " + configuration + " .");
-    }
+        projectHelper.attachArtifact(mavenProject, "zip", configuration + "-" + sdk + "-app.dSYM", dSymFile);
+      }
+      else {
+        log
+          .info("dSYM packaging skipped.Generate Debug Symbols is not enabled for configuration " + configuration
+                + " .");
+      }
     }
     catch (ArchiverException ex) {
       throw new XCodeException("Packaging the Debug Symbols failed", ex);

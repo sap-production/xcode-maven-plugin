@@ -19,7 +19,7 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import static com.sap.prd.mobile.ios.mios.XCodeIpaPackageMojo.getIpaClassifier;
+import static com.sap.prd.mobile.ios.mios.task.PackageIpaTask.getIpaClassifier;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,6 +33,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+
+import com.sap.prd.mobile.ios.mios.buddy.ProductNameBuddy;
 
 /**
  * Generates over the air html files and prepares the generated artifacts for deployment.
@@ -67,9 +69,6 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
     final Set<String> sdks = getSDKs();
     final Set<String> configurations = getConfigurations();
 
-    getLog().info("Configurations are:" + configurations);
-    getLog().info("SDKs are: " + sdks);
-
     if (configurations == null || configurations.size() == 0)
       throw new MojoExecutionException("Invalid configuration: \"" + configurations + "\".");
 
@@ -83,25 +82,16 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
         if (configuration == null || configuration.isEmpty())
           throw new IllegalStateException("Invalid configuration: '" + configuration + "'.");
 
-        final String productName;
-
-        if (this.productName != null) {
-          productName = this.productName;
-          getLog().info("Production name obtained from pom file");
-        }
-        else {
-          productName = EffectiveBuildSettings.getProductName(this.project, configuration, sdk);
-          getLog().info("Product name obtained from effective build settings file");
-        }
-
-        final String fixedProductName = getFixedProductName(productName);
+        String productName = ProductNameBuddy.getProductName(getLog(), this.productName, project, sdk,
+              configuration);
+        String strippedProductName = ProductNameBuddy.stripProductName(productName);
 
         getLog().info(
-              "Using product name '" + productName + " (fixed product name '" + fixedProductName + "')"
+              "Using product name '" + productName + " (fixed product name '" + strippedProductName + "')"
                     + "' for configuration '" + configuration + "' and sdk '" + sdk + "'.");
 
         final File otaHtmlFile = new File(XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration,
-              sdk), fixedProductName + ".htm");
+              sdk), strippedProductName + ".htm");
 
         final String otaClassifier = getOtaHtmlClassifier(configuration, sdk);
         final String ipaClassifier = getIpaClassifier(configuration, sdk);

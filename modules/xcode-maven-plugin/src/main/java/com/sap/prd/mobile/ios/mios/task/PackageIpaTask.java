@@ -31,63 +31,64 @@ import com.sap.prd.mobile.ios.mios.XCodeBuildLayout;
 import com.sap.prd.mobile.ios.mios.XCodeException;
 import com.sap.prd.mobile.ios.mios.buddy.ProductNameBuddy;
 
-public class PackageAppTask
+public class PackageIpaTask
 {
 
   private Log log;
   private String productName;
   private MavenProjectHelper projectHelper;
-  private File compileDir;
   private MavenProject mavenProject;
-
+  private File compileDir;
   private String configuration;
-
   private String sdk;
 
-  public PackageAppTask setLog(Log log)
+  public PackageIpaTask setLog(Log log)
   {
     this.log = log;
     return this;
   }
 
-  public PackageAppTask setProductName(String productName)
+  public PackageIpaTask setProductName(String productName)
   {
     this.productName = productName;
     return this;
   }
 
-  public PackageAppTask setMavenProject(MavenProject mavenProject)
+  public PackageIpaTask setMavenProject(MavenProject mavenProject)
   {
     this.mavenProject = mavenProject;
     return this;
   }
 
-  public PackageAppTask setConfiguration(String configuration)
+  public PackageIpaTask setConfiguration(String configuration)
   {
     this.configuration = configuration;
     return this;
   }
 
-  public PackageAppTask setSdk(String sdk)
+  public PackageIpaTask setSdk(String sdk)
   {
     this.sdk = sdk;
     return this;
   }
 
-  public PackageAppTask setProjectHelper(MavenProjectHelper projectHelper)
+  public PackageIpaTask setProjectHelper(MavenProjectHelper projectHelper)
   {
     this.projectHelper = projectHelper;
     return this;
   }
 
-  public PackageAppTask setCompileDir(File compileDir)
+  public PackageIpaTask setCompileDir(File compileDir)
   {
     this.compileDir = compileDir;
     return this;
   }
 
+
   /**
-   * Packages the app into an app.zip file
+   * Packages the debug symbols generated during the Xcode build and prepares the generated artifact
+   * for deployment. The debug symbols are generated only if the "Generate Debug Symbols" in Xcode
+   * is active.
    */
   public void execute() throws XCodeException
   {
@@ -98,19 +99,30 @@ public class PackageAppTask
             configuration);
       String strippedProductName = ProductNameBuddy.stripProductName(productName);
 
-      final File rootDir = XCodeBuildLayout.getAppFolder(compileDir, configuration, sdk);
+      File rootDir = XCodeBuildLayout.getAppFolder(compileDir, configuration, sdk);
 
-      final File appZipFile = ScriptRunner.zipSubfolder(
+      File ipaFile = ScriptRunner.zipSubfolder(
             new File(mavenProject.getBuild().getDirectory(), "scripts").getCanonicalFile(),
-            rootDir, productName + ".app", strippedProductName + ".app.zip", null);
+            rootDir, productName + ".app", strippedProductName + ".ipa", "Payload/");
 
-      log.info("Application file packaged (" + appZipFile + ")");
-
-      projectHelper.attachArtifact(mavenProject, "zip", configuration + "-" + sdk + "-app", appZipFile);
+      projectHelper.attachArtifact(mavenProject, ipaFile, getIpaClassifier(configuration, sdk));
     }
     catch (IOException ex) {
-      throw new XCodeException("Could not package the app: " + ex.getMessage(), ex);
+      throw new XCodeException("Could not create the IPA file: " + ex.getMessage(), ex);
     }
   }
+
+  /**
+   * Generates the classifier used for IPA deployment
+   * 
+   * @param configuration
+   * @param sdk
+   * @return
+   */
+  public static String getIpaClassifier(String configuration, String sdk)
+  {
+    return configuration + "-" + sdk;
+  }
+
 
 }

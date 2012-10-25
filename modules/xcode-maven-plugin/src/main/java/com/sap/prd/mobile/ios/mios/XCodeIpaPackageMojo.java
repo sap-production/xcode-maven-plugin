@@ -19,13 +19,12 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import java.io.File;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+
+import com.sap.prd.mobile.ios.mios.task.PackageIpaTask;
 
 /**
  * Packages the ipa files and prepares the generated artifacts for deployment.
@@ -46,14 +45,14 @@ public class XCodeIpaPackageMojo extends AbstractXCodeMojo
   private String productName;
 
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException
+  public void execute() throws MojoExecutionException
   {
 
     final Set<String> sdks = getSDKs();
     final Set<String> configurations = getConfigurations();
 
-    getLog().info("Configurations are:" + configurations);
-    getLog().info("SDKs are: " + sdks);
+    getLog().debug("Configurations are:" + configurations);
+    getLog().debug("SDKs are: " + sdks);
 
     if (configurations == null || configurations.size() == 0)
       throw new MojoExecutionException("Invalid configuration: \"" + configurations + "\".");
@@ -61,58 +60,20 @@ public class XCodeIpaPackageMojo extends AbstractXCodeMojo
     if (sdks == null || sdks.size() == 0)
       throw new MojoExecutionException("Invalid sdks: \"" + sdks + "\".");
 
+    try {
+      for (final String configuration : configurations) {
+        for (final String sdk : sdks) {
 
-
-    for (final String configuration : configurations) {
-      for (final String sdk : sdks) {
-
-        if (configuration == null || configuration.isEmpty())
-          throw new IllegalStateException("Invalid configuration: '" + configuration + "'.");
-
-        final String productName;
-
-        if (this.productName != null) {
-          productName = this.productName;
-          getLog().info("Production name obtained from pom file");
+          PackageIpaTask task = new PackageIpaTask();
+          task.setLog(getLog()).setCompileDir(getXCodeCompileDirectory()).setMavenProject(project)
+            .setProductName(productName).setProjectHelper(projectHelper).setConfiguration(configuration).setSdk(sdk);
+          task.execute();
         }
-        else {
-          productName = EffectiveBuildSettings.getProductName(this.project, configuration, sdk);
-          getLog().info("Product name obtained from effective build settings file");
-        }
-
-        final String fixedProductName = getFixedProductName(productName);
-
-        getLog().info(
-              "Using product name '" + productName + " (fixed product name '" + fixedProductName + "')"
-                    + "' for configuration '" + configuration + "' and sdk '" + sdk + "'.");
-
-        File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, sdk);
-        final File ipaFile = zipSubfolder(rootDir, productName + ".app", fixedProductName + ".ipa", "Payload/");
-
-        prepareIpaFileForDeployment(project, configuration, sdk, ipaFile);
       }
     }
-
+    catch (XCodeException ex) {
+      throw new MojoExecutionException(ex.getMessage(), ex);
+    }
 
   }
-
-  private void prepareIpaFileForDeployment(final MavenProject mavenProject, final String configuration,
-        final String sdk, final File ipaFile)
-  {
-
-    projectHelper.attachArtifact(mavenProject, ipaFile, getIpaClassifier(configuration, sdk));
-  }
-
-  /**
-   * Generates the classifier used for IPA deployment
-   * 
-   * @param configuration
-   * @param sdk
-   * @return
-   */
-  static String getIpaClassifier(String configuration, String sdk)
-  {
-    return configuration + "-" + sdk;
-  }
-
 }

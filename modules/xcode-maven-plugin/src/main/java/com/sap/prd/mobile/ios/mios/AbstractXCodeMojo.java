@@ -216,11 +216,6 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return new File(project.getBuild().getSourceDirectory());
   }
 
-  public static String getFixedProductName(final String productName)
-  {
-    return productName.trim().replaceAll(" ", "");
-  }
-
   protected File getXCodeProjectFile()
   {
     return new File(getXCodeCompileDirectory(), project.getArtifactId() + ".xcodeproj/project.pbxproj");
