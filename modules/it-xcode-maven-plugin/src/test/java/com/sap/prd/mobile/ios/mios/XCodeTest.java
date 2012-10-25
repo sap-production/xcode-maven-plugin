@@ -67,7 +67,7 @@ public abstract class XCodeTest
   private static String activeProfiles = null;
   
   @Rule
-  public TemporaryFolder tmpFolder = new TemporaryFolder();
+  public static TemporaryFolder tmpFolder = new TemporaryFolder();
 
   @BeforeClass
   public static void setup() throws IOException, XmlPullParserException {
@@ -451,7 +451,7 @@ public abstract class XCodeTest
     return xcodePluginVersion;
   }
 
-  private static File getTargetDirectory() throws IOException
+  protected static File getTargetDirectory() throws IOException
   {
     return new File(new File(".").getCanonicalFile(), "target");
   }
@@ -475,7 +475,7 @@ public abstract class XCodeTest
     return tmpXcodeProjDir;
   }
 
-  protected void extractFileWithShellScript(File sourceFile, File destinationFolder)
+  protected static void extractFileWithShellScript(File sourceFile, File destinationFolder)
         throws IOException
   {
     File workingDirectory = tmpFolder.newFolder("scriptWorkingDir");
