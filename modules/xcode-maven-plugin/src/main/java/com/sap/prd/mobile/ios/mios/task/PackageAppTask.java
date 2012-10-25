@@ -88,12 +88,7 @@ public class PackageAppTask
   }
 
   /**
-   * Packages all the artifacts. The main artifact is set and all side artifacts are attached for
-   * deployment.
-   * 
-   * @param bundles
-   * 
-   * @param buildDir
+   * Packages the app into an app.zip file
    */
   public void execute() throws XCodeException
   {
