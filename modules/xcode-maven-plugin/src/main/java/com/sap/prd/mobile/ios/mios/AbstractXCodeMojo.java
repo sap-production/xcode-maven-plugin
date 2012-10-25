@@ -216,7 +216,7 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return new File(project.getBuild().getSourceDirectory());
   }
 
-  protected String getFixedProductName(final String productName)
+  public static String getFixedProductName(final String productName)
   {
     return productName.trim().replaceAll(" ", "");
   }

@@ -19,11 +19,8 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import java.io.File;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
 /**
@@ -48,49 +45,19 @@ public class XCodePackageAppMojo extends AbstractXCodeMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
-    for (final String sdk : getSDKs()) {
-      for (final String config : getConfigurations()) {
-        packageAndAttachAppFolder(sdk, config);
+    try {
+      for (final String sdk : getSDKs()) {
+        for (final String config : getConfigurations()) {
+          PackageAppTask task = new PackageAppTask();
+          task.setCompileDir(getXCodeCompileDirectory()).setLog(getLog()).setMavenProject(project)
+            .setProductName(productName).setProjectHelper(projectHelper).setConfiguration(config).setSdk(sdk);
+          task.execute();
+        }
       }
     }
-
-  }
-
-  private void packageAndAttachAppFolder(String sdk, String config) throws MojoExecutionException
-  {
-
-    final String productName;
-
-    if (this.productName != null) {
-      productName = this.productName.trim();
-
-      if (productName.isEmpty())
-        throw new IllegalStateException("ProductName from pom file was empty.");
-
+    catch (XCodeException ex) {
+      throw new MojoExecutionException("Cannot package the app", ex);
     }
-    else {
-      productName = EffectiveBuildSettings.getProductName(this.project, config, sdk);
-
-      if (productName == null || productName.isEmpty())
-        throw new IllegalStateException("Product Name not found in effective build settings file");
-    }
-
-    final String fixedProductName = getFixedProductName(productName);
-
-    final File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), config, sdk);
-
-    final File destination = zipSubfolder(rootDir, productName + ".app", fixedProductName + ".app.zip", null);
-
-    getLog().info("Application file packaged (" + destination + ")");
-
-    prepareApplicationFileForDeployment(project, config, sdk, destination);
-  }
-
-  private void prepareApplicationFileForDeployment(final MavenProject mavenProject, final String configuration,
-        final String sdk, final File applicationFile)
-  {
-
-    projectHelper.attachArtifact(mavenProject, "zip", configuration + "-" + sdk + "-app", applicationFile);
   }
 
 }

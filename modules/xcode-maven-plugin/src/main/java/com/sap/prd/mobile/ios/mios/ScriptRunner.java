@@ -28,6 +28,7 @@ import java.io.PrintStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.plugin.MojoExecutionException;
 
 public class ScriptRunner
 {
@@ -42,6 +43,50 @@ public class ScriptRunner
   {
     File scriptFile = copyScript(script, workingDirectory);
     return execute(out, scriptFile, args);
+  }
+
+  /**
+   * Calls a shell script in order to zip a folder. We have to call a shell script as Java cannot
+   * zip symbolic links.
+   * 
+   * @param rootDir
+   *          the directory where the zip command shall be executed
+   * @param zipSubFolder
+   *          the subfolder to be zipped
+   * @param zipFileName
+   *          the name of the zipFile (will be located in the rootDir)
+   * @param archiveFolder
+   *          an optional folder name if the zipSubFolder folder shall be placed inside the zip into
+   *          a parent folder
+   * @return the zip file
+   * @throws MojoExecutionException
+   */
+  public static File zipSubfolder(File tmpZipDir, File rootDir, String zipSubFolder, String zipFileName,
+        String archiveFolder)
+        throws XCodeException
+  {
+    int resultCode = 0;
+
+    try {
+
+      if (archiveFolder != null)
+      {
+        resultCode = ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/zip-subfolder.sh",
+              tmpZipDir, rootDir.getCanonicalPath(), zipSubFolder, zipFileName, archiveFolder);
+      }
+      else
+      {
+        resultCode = ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/zip-subfolder.sh",
+              tmpZipDir, rootDir.getCanonicalPath(), zipSubFolder, zipFileName);
+      }
+    }
+    catch (Exception ex) {
+      throw new XCodeException("Cannot create zip file " + zipFileName + ". Check log for details.", ex);
+    }
+    if (resultCode != 0) {
+      throw new XCodeException("Cannot create zip file " + zipFileName + ". Check log for details.");
+    }
+    return new File(rootDir, zipFileName);
   }
 
   private static File copyScript(String script, File workingDirectory) throws IOException
