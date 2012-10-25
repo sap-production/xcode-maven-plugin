@@ -24,9 +24,10 @@ import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 // Format:  <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>
-class GAVUtil
+public class GAVUtil
 {
-  static String toColonNotation(String groupId, String artifactId, String version, String extension, String classifier)
+  public static String toColonNotation(String groupId, String artifactId, String version, String extension,
+        String classifier)
   {
     // For our use case we expect all parameter to be not null (or empty).
     // Our use case is handling side artifacts with requires a classifier an an extension.
@@ -46,7 +47,7 @@ class GAVUtil
 
   }
 
-  static Artifact getArtifact(String coords)
+  public static Artifact getArtifact(String coords)
   {
     DefaultArtifact aetherArtifact = new DefaultArtifact(coords);
     return new org.apache.maven.artifact.DefaultArtifact(aetherArtifact.getGroupId(), aetherArtifact.getArtifactId(),

@@ -23,6 +23,8 @@ package com.sap.prd.mobile.ios.mios;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
+import com.sap.prd.mobile.ios.mios.task.PackageFrameworkTask;
+
 /**
  * Packages the framework built by Xcode and prepares the generated artifact for deployment.
  * 

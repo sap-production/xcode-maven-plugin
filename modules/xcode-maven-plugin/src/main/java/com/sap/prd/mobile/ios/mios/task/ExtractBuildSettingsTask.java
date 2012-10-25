@@ -1,4 +1,4 @@
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 /*
  * #%L
@@ -25,6 +25,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 import org.apache.commons.io.IOUtils;
+
+import com.sap.prd.mobile.ios.mios.CommandLineBuilder;
+import com.sap.prd.mobile.ios.mios.EffectiveBuildSettings;
+import com.sap.prd.mobile.ios.mios.Forker;
+import com.sap.prd.mobile.ios.mios.XCodeContext;
+import com.sap.prd.mobile.ios.mios.XCodeException;
 
 public class ExtractBuildSettingsTask
 {

@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 import java.io.File;
 
@@ -25,7 +25,10 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
-class AttachLibArtifactTask
+import com.sap.prd.mobile.ios.mios.XCodeBuildLayout;
+import com.sap.prd.mobile.ios.mios.XCodeException;
+
+public class AttachLibArtifactTask
 {
   private Log log;
   private MavenProjectHelper projectHelper;

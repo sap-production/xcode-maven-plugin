@@ -31,14 +31,14 @@ import org.sonatype.aether.resolution.ArtifactResolutionException;
 import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
-class XCodeDownloadManager
+public class XCodeDownloadManager
 {
 
   private final List<RemoteRepository> projectRepos;
   private final RepositorySystem repoSystem;
   private final RepositorySystemSession repoSession;
 
-  XCodeDownloadManager(final List<RemoteRepository> projectRepos,
+  public XCodeDownloadManager(final List<RemoteRepository> projectRepos,
         final RepositorySystem repoSystem, final RepositorySystemSession repoSession)
   {
     this.projectRepos = projectRepos;
@@ -52,7 +52,8 @@ class XCodeDownloadManager
    *         inside the remote repositories
    * @throws SideArtifactNotFoundException
    */
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact mainArtifact, final String classifier,
+  public org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact mainArtifact,
+        final String classifier,
         final String type)
         throws SideArtifactNotFoundException
   {
@@ -84,7 +85,7 @@ class XCodeDownloadManager
    *         inside the remote repositories
    * @throws SideArtifactNotFoundException
    */
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact artifact)
+  public org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact artifact)
         throws SideArtifactNotFoundException
   {
     return resolveSideArtifact(artifact, artifact.getClassifier(), artifact.getType());

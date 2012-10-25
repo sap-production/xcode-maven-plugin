@@ -36,6 +36,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.sap.prd.mobile.ios.mios.task.XcodeBuildTask;
+
 public class XcodeBuildTaskTest extends XCodeTest
 {
 

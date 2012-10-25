@@ -28,6 +28,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 
+import com.sap.prd.mobile.ios.mios.task.AttachLibArtifactTask;
+import com.sap.prd.mobile.ios.mios.task.PackageBundlesTask;
+import com.sap.prd.mobile.ios.mios.task.PackageHeadersTask;
+import com.sap.prd.mobile.ios.mios.task.PackageLibMainArtifactTask;
+
 /**
  * Packages all the artifacts for Xcode libraries and prepares the generated artifacts for
  * deployment.

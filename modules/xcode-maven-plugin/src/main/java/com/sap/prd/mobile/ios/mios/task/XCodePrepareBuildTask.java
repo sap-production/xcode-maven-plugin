@@ -17,13 +17,12 @@
  * limitations under the License.
  * #L%
  */
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
@@ -39,7 +38,16 @@ import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.RemoteRepository;
 
-class XCodePrepareBuildTask
+import com.sap.prd.mobile.ios.mios.Forker;
+import com.sap.prd.mobile.ios.mios.GAVUtil;
+import com.sap.prd.mobile.ios.mios.MavenBuildFolderLayout;
+import com.sap.prd.mobile.ios.mios.PackagingType;
+import com.sap.prd.mobile.ios.mios.ScriptRunner;
+import com.sap.prd.mobile.ios.mios.SideArtifactNotFoundException;
+import com.sap.prd.mobile.ios.mios.XCodeDownloadManager;
+import com.sap.prd.mobile.ios.mios.XCodeException;
+
+public class XCodePrepareBuildTask
 {
 
   private final static String TYPE_HEADERS = "headers.tar", TYPE_ARCHIVE = "a";
@@ -55,48 +63,56 @@ class XCodePrepareBuildTask
   
   private XCodeDownloadManager downloadManager;
 
-  XCodePrepareBuildTask setConfiguration(String configuration) {
+  public XCodePrepareBuildTask setConfiguration(String configuration)
+  {
     this.configuration = configuration;
     return this;
   }
   
-  XCodePrepareBuildTask setSdk(String sdk) {
+  public XCodePrepareBuildTask setSdk(String sdk)
+  {
     this.sdk = sdk;
     return this;
   }
   
-  XCodePrepareBuildTask setLog(Log log) {
+  public XCodePrepareBuildTask setLog(Log log)
+  {
     this.log = log;
     return this;
   }
   
-  XCodePrepareBuildTask setMavenProject(MavenProject project) {
+  public XCodePrepareBuildTask setMavenProject(MavenProject project)
+  {
     this.project = project;
     return this;
   }
   
-  XCodePrepareBuildTask setProjectRepos(List<RemoteRepository> projectRepos) {
+  public XCodePrepareBuildTask setProjectRepos(List<RemoteRepository> projectRepos)
+  {
     this.projectRepos = projectRepos;
     return this;
   }
   
-  XCodePrepareBuildTask setRepositorySystemSession(RepositorySystemSession repoSystemSession) {
+  public XCodePrepareBuildTask setRepositorySystemSession(RepositorySystemSession repoSystemSession)
+  {
     this.repoSystemSession = repoSystemSession;
     return this;
   }
   
-  XCodePrepareBuildTask setRepositorySystem(RepositorySystem repoSystem) {
+  public XCodePrepareBuildTask setRepositorySystem(RepositorySystem repoSystem)
+  {
     this.repoSystem = repoSystem;
     return this;
   }
   
   
-  XCodePrepareBuildTask setArchiverManager(ArchiverManager archiverManager) {
+  public XCodePrepareBuildTask setArchiverManager(ArchiverManager archiverManager)
+  {
     this.archiverManager = archiverManager;
     return this;
   }
   
-  void execute() throws XCodeException
+  public void execute() throws XCodeException
   {
     
     this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);

@@ -29,7 +29,7 @@ import org.apache.maven.project.MavenProject;
  * Helper methods for Xcode build to retrieve certain directories.
  * 
  */
-class MavenBuildFolderLayout
+public class MavenBuildFolderLayout
 {
   public final static String LIBS_DIR_NAME = "libs";
   public final static String HEADERS_DIR_NAME = "headers";
@@ -55,34 +55,38 @@ class MavenBuildFolderLayout
     return new File(new File(new File(project.getBuild().getDirectory()), XCODE_DEPS_TARGET_FOLDER), "frameworks");
   }
 
-  static File getFolderForExtractedHeadersWithGA(MavenProject project, final String configuration, final String sdk,
+  public static File getFolderForExtractedHeadersWithGA(MavenProject project, final String configuration,
+        final String sdk,
         final String groupId, final String artifactId)
   {
     return new File(new File(getFolderForExtractedHeaders(project, configuration, sdk), groupId), artifactId);
   }
 
-  static File getFolderForExtractedLibsWithGA(MavenProject project, final String configuration, final String sdk,
+  public static File getFolderForExtractedLibsWithGA(MavenProject project, final String configuration,
+        final String sdk,
         final String groupId, final String artifactId)
   {
     return new File(new File(getFolderForExtractedLibs(project, configuration, sdk), groupId), artifactId);
   }
 
-  static File getFolderForExtractedBundlesWithGA(MavenProject project, final String groupId, final String artifactId)
+  public static File getFolderForExtractedBundlesWithGA(MavenProject project, final String groupId,
+        final String artifactId)
   {
     return new File(new File(getFolderForExtractedBundles(project), groupId), artifactId);
   }
 
-  static File getFolderForExtractedFrameworkswithGA(MavenProject project, final String groupId, final String artifactId)
+  public static File getFolderForExtractedFrameworkswithGA(MavenProject project, final String groupId,
+        final String artifactId)
   {
     return new File(new File(getFolderForExtractedFrameworks(project), groupId), artifactId);
   }
 
-  static File getFolderForExtractedMainArtifact(MavenProject project)
+  public static File getFolderForExtractedMainArtifact(MavenProject project)
   {
     return new File(new File(project.getBuild().getDirectory()), "main.artifact");
   }
 
-  static File getFolderForExtractedPrimaryArtifact(MavenProject project, Artifact primaryArtifact)
+  public static File getFolderForExtractedPrimaryArtifact(MavenProject project, Artifact primaryArtifact)
   {
     return new File(new File(new File(new File(project.getBuild().getDirectory()), "extractedPrimaryArtifacts"),
           primaryArtifact.getGroupId()), primaryArtifact.getArtifactId());
@@ -92,7 +96,7 @@ class MavenBuildFolderLayout
    * Checks if the source folder location has been explicitly set by the "xcode.sourceDirectory". If
    * not the default "src/xcode" is returned.
    */
-  static File getSourceFolder(MavenProject project)
+  public static File getSourceFolder(MavenProject project)
   {
     final Properties projectProperties = project.getProperties();
 

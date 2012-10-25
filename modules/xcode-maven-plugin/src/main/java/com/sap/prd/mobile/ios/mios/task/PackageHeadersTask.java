@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 import java.io.File;
 
@@ -27,7 +27,10 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 
-class PackageHeadersTask
+import com.sap.prd.mobile.ios.mios.XCodeBuildLayout;
+import com.sap.prd.mobile.ios.mios.XCodeException;
+
+public class PackageHeadersTask
 {
   private Log log;
   private ArchiverManager archiverManager;

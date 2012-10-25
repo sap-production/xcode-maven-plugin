@@ -24,6 +24,8 @@ import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
+import com.sap.prd.mobile.ios.mios.task.CopySourcesTask;
+
 /**
  * Copies sources to the checkout directory below the target directory.
  * 

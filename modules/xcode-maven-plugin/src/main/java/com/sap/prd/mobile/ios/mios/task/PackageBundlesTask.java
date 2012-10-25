@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -33,7 +33,12 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 
-class PackageBundlesTask
+import com.sap.prd.mobile.ios.mios.GAVUtil;
+import com.sap.prd.mobile.ios.mios.MavenBuildFolderLayout;
+import com.sap.prd.mobile.ios.mios.XCodeBuildLayout;
+import com.sap.prd.mobile.ios.mios.XCodeException;
+
+public class PackageBundlesTask
 {
 
   private static final String ZIPPED_BUNDLE_SUFFIX = "xcode-bundle-zip";

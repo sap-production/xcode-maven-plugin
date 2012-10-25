@@ -22,7 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 import java.util.ArrayList;
 import java.util.List;
 
-class CommandLineBuilder
+public class CommandLineBuilder
 {
 
   private final static String XCODEBUILD = "xcodebuild";
@@ -44,7 +44,7 @@ class CommandLineBuilder
     this.xcodeContext = ctx;
   }
 
-  String[] createBuildCall()
+  public String[] createBuildCall()
   {
     
     List<String> result = createBaseCall();
@@ -55,7 +55,7 @@ class CommandLineBuilder
     return result.toArray(new String[result.size()]);
   }
   
-  String[] createShowBuildSettingsCall()
+  public String[] createShowBuildSettingsCall()
   {
     List<String> result = createBaseCall();
     appendKey(result, "showBuildSettings");

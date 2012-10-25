@@ -31,6 +31,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.sap.prd.mobile.ios.mios.task.ChangeAppIdTask;
+
 public class AppIDUpdateTest extends XCodeTest
 {
 

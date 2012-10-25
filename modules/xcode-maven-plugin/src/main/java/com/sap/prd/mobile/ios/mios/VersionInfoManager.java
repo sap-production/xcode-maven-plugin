@@ -68,7 +68,7 @@ public class VersionInfoManager
   private final static String SCHEMA_REPOSITORY = "deploy.release.ondevice.hosted";
   private final static String NEXUS_URL = "http://nexus.wdf.sap.corp:8081/nexus";
 
-  void createVersionInfoFile(final String groupId, final String artifactId, final String version,
+  public void createVersionInfoFile(final String groupId, final String artifactId, final String version,
         final File syncInfoFile, List<Dependency> dependencies, OutputStream versionInfoStream)
         throws XCodeException
   {
@@ -156,7 +156,7 @@ public class VersionInfoManager
     return fullDepotPath;
   }
 
-  static Dependency parseDependency(final File f) throws JAXBException, SAXException, IOException
+  public static Dependency parseDependency(final File f) throws JAXBException, SAXException, IOException
   {
 
     final String schemaVersion = getSchemaVersion(f);

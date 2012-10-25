@@ -22,6 +22,9 @@ package com.sap.prd.mobile.ios.mios;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
+import com.sap.prd.mobile.ios.mios.task.XcodeBuildTask;
+
+
 /**
  * Triggers the Xcode build.
  * 

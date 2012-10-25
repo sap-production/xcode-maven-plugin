@@ -29,6 +29,8 @@ import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.RemoteRepository;
 
+import com.sap.prd.mobile.ios.mios.task.AttachVersionInfoTask;
+
 /**
  * Generates a &lt;artifact-id&gt;-&lt;version&gt;-version.xml for reproducibility reasons. This
  * versions.xml contains information about the scm location and revision of the built project and

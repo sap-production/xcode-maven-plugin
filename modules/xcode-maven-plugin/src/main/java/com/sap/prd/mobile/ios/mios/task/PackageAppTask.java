@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +26,13 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
-class PackageAppTask
+import com.sap.prd.mobile.ios.mios.AbstractXCodeBuildMojo;
+import com.sap.prd.mobile.ios.mios.EffectiveBuildSettings;
+import com.sap.prd.mobile.ios.mios.ScriptRunner;
+import com.sap.prd.mobile.ios.mios.XCodeBuildLayout;
+import com.sap.prd.mobile.ios.mios.XCodeException;
+
+public class PackageAppTask
 {
 
   private Log log;

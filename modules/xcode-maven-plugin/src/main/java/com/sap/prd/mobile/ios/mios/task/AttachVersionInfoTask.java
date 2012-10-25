@@ -1,4 +1,4 @@
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 /*
  * #%L
@@ -42,6 +42,14 @@ import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.xml.sax.SAXException;
 
+import com.sap.prd.mobile.ios.mios.CodeSignManager;
+import com.sap.prd.mobile.ios.mios.EffectiveBuildSettings;
+import com.sap.prd.mobile.ios.mios.PackagingType;
+import com.sap.prd.mobile.ios.mios.SideArtifactNotFoundException;
+import com.sap.prd.mobile.ios.mios.VersionInfoManager;
+import com.sap.prd.mobile.ios.mios.XCodeBuildLayout;
+import com.sap.prd.mobile.ios.mios.XCodeDownloadManager;
+import com.sap.prd.mobile.ios.mios.XCodeException;
 import com.sap.prd.mobile.ios.mios.CodeSignManager.ExecResult;
 import com.sap.prd.mobile.ios.mios.CodeSignManager.ExecutionResultVerificationException;
 import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;

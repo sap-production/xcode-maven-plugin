@@ -97,7 +97,7 @@ public class CodeSignManager
     }
   }
 
-  static class ExecResult
+  public static class ExecResult
   {
     public ExecResult(String command, String result, int exitCode)
     {
@@ -157,7 +157,7 @@ public class CodeSignManager
     }
   }
 
-  static class ExecutionResultVerificationException extends Exception
+  public static class ExecutionResultVerificationException extends Exception
   {
     private static final long serialVersionUID = 1L;
     private final ExecResult result1;

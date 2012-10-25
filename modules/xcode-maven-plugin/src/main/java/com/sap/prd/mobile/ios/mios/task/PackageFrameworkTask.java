@@ -1,4 +1,4 @@
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 /*
  * #%L
@@ -27,6 +27,11 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+
+import com.sap.prd.mobile.ios.mios.EffectiveBuildSettings;
+import com.sap.prd.mobile.ios.mios.Forker;
+import com.sap.prd.mobile.ios.mios.FrameworkStructureValidator;
+import com.sap.prd.mobile.ios.mios.XCodeException;
 
 public class PackageFrameworkTask
 {

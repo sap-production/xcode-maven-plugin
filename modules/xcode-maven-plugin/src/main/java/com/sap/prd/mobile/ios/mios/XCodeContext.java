@@ -36,7 +36,7 @@ import java.util.Locale;
  * output stream
  *
  */
-class XCodeContext
+public class XCodeContext
 {
   private final static String ls = System.getProperty("line.separator");
 

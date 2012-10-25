@@ -24,6 +24,8 @@ import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
+import com.sap.prd.mobile.ios.mios.task.ExtractBuildSettingsTask;
+
 /**
  * Appends a build phase to the project that dumps the all environment variables to a file.
  * 

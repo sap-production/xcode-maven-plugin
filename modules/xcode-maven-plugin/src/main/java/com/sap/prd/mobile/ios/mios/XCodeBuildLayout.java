@@ -26,7 +26,7 @@ import java.io.File;
  * Helper methods for Xcode build to retrieve certain directories
  *
  */
-class XCodeBuildLayout
+public class XCodeBuildLayout
 {
 
   //
@@ -36,31 +36,33 @@ class XCodeBuildLayout
   // are relevant for distiguishing build artifacts.
   //
 
-  static File getBinary(final File buildDir, final String configuration, final String sdk, final String projectName)
+  public static File getBinary(final File buildDir, final String configuration, final String sdk,
+        final String projectName)
   {
 
     return new File(buildDir, configuration + "-" + sdk + "/lib" + projectName + ".a");
   }
 
-  static File getBundleDirectory(final File srcDir, final String bundleName)
+  public static File getBundleDirectory(final File srcDir, final String bundleName)
   {
 
     return new File(srcDir, bundleName + ".bundle");
   }
 
-  static File getPublicHeadersDirectory(final File mavenTargetDir, final File buildDir, final String configuration, final String sdk)
+  public static File getPublicHeadersDirectory(final File mavenTargetDir, final File buildDir,
+        final String configuration, final String sdk)
   {
     String publicHeaderPath = new EffectiveBuildSettings(mavenTargetDir, configuration, sdk).getBuildSetting(EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
     return new File(new File(buildDir, configuration + "-" + sdk), publicHeaderPath);
   }
 
   // TODO invent better method name
-  static File getAppFolder(final File baseDirectory, final String configuration, final String sdk)
+  public static File getAppFolder(final File baseDirectory, final String configuration, final String sdk)
   {
     return new File(getBuildDir(baseDirectory), configuration + "-" + sdk);
   }
 
-  static File getBuildDir(final File baseDirectory)
+  public static File getBuildDir(final File baseDirectory)
   {
 
     if (baseDirectory == null)

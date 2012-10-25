@@ -23,6 +23,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProjectHelper;
 
+import com.sap.prd.mobile.ios.mios.task.PackageAppTask;
+
 /**
  * Packages the application built by Xcode and prepares the generated artifact for deployment.
  * 

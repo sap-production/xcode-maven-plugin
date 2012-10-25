@@ -26,6 +26,8 @@ import java.util.HashSet;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
+import com.sap.prd.mobile.ios.mios.task.ChangeAppIdTask;
+
 /**
  * Appends a suffix to the appId. No actions are taken if the suffix is not specified or the suffix
  * has zero length.

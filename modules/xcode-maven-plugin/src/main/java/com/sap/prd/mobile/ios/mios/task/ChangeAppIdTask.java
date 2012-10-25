@@ -1,4 +1,4 @@
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 /*
  * #%L
@@ -25,6 +25,10 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.maven.plugin.logging.Log;
+
+import com.sap.prd.mobile.ios.mios.EffectiveBuildSettings;
+import com.sap.prd.mobile.ios.mios.PListAccessor;
+import com.sap.prd.mobile.ios.mios.XCodeException;
 
 public class ChangeAppIdTask
 {
@@ -97,7 +101,8 @@ public class ChangeAppIdTask
     }
   }
   
-  static void changeAppId(PListAccessor infoPlistAccessor, String appIdSuffix, Log log) throws XCodeException  {
+  public static void changeAppId(PListAccessor infoPlistAccessor, String appIdSuffix, Log log) throws XCodeException
+  {
     ensurePListFileIsWritable(infoPlistAccessor.getPlistFile(), log);
     try {
       appendAppIdSuffix(infoPlistAccessor, appIdSuffix, log);

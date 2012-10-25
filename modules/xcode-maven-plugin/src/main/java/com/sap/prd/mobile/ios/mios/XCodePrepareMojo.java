@@ -30,6 +30,8 @@ import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.RemoteRepository;
 
+import com.sap.prd.mobile.ios.mios.task.XCodePrepareBuildTask;
+
 /**
  * Prepares the local build environment. Copies and unpacks the artifacts of the referenced projects
  * into the target folder.

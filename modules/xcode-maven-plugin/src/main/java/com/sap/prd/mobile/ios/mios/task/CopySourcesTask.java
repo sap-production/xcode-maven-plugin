@@ -1,4 +1,4 @@
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.task;
 
 /*
  * #%L
@@ -26,6 +26,9 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.logging.Log;
+
+import com.sap.prd.mobile.ios.mios.MavenBuildFolderLayout;
+import com.sap.prd.mobile.ios.mios.XCodeException;
 
 public class CopySourcesTask
 {
