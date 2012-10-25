@@ -19,44 +19,23 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.apache.maven.it.util.IOUtil;
 import org.junit.Test;
-import org.junit.rules.TestName;
 
 public class XCodeLifecycleTest extends XCodeTest
-{
-
-  @Test
-  private void compareFilesContainingDynamicVersions(final String dynamicVersion, File template, File versionFileLib)
-        throws FileNotFoundException, IOException
-  {
-      String toBeTestedAgainst = IOUtils.toString(new FileInputStream(template)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion);
-      Assert.assertEquals(toBeTestedAgainst, IOUtils.toString(new FileInputStream(versionFileLib)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion));
-  }
-  
+{  
   @Test
   public void testLifecycleWithSnapshotDependency() throws Exception
   {
@@ -79,55 +58,6 @@ public class XCodeLifecycleTest extends XCodeTest
           THE_EMPTY_MAP, pomReplacements);
     
     assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
-  }
-
-  private void assertBuildEnvironmentPropertiesFile(String testName, String projectName) throws IOException,
-        FileNotFoundException
-  {
-    File buildEnvironmentDump = new File(new File(getTestExecutionDirectory(testName, projectName), "target"),
-          EffectiveBuildSettings.getBuildSettingsFileName("Release", "iphoneos"));
-    assertTrue(buildEnvironmentDump.exists());
-    Properties properties = new Properties();
-    properties.load(new FileInputStream(buildEnvironmentDump));
-    assertEquals(projectName, properties.getProperty("PRODUCT_NAME"));
-  }
-
-  @SuppressWarnings("resource")
-  private String extractAppIdSuffixFromLogFile(File logFile) throws IOException
-  {
-    BufferedReader reader = new BufferedReader(new FileReader(logFile));
-    try {
-      String line;
-      Pattern p = Pattern.compile("appIdSuffix=(\\w+)");
-      while ((line = reader.readLine()) != null)
-      {
-        Matcher matcher = p.matcher(line);
-        if (matcher.find())
-        {
-          return matcher.group(1);
-        }
-      }
-    } finally {
-      IOUtils.closeQuietly(reader);
-    }
-    return null;
-  }
-
-  
-  private void compareFileContent(File expectedFile, File actualFile) throws IOException
-  {
-    final InputStream actualStream = new FileInputStream(actualFile.getAbsoluteFile());
-    final InputStream expectedStream = new FileInputStream(expectedFile.getAbsoluteFile());
-
-    try {
-      Assert.assertEquals(String.format("File contents differ (expected file: %s, actual file: %s)",
-            expectedFile.getName(), actualFile.getName()),
-            IOUtil.toString(expectedStream, "UTF-8"), IOUtil.toString(actualStream, "UTF-8"));
-    }
-    finally {
-      IOUtil.close(actualStream);
-      IOUtil.close(expectedStream);
-    }
   }
 
   @Test
@@ -367,7 +297,7 @@ public class XCodeLifecycleTest extends XCodeTest
           THE_EMPTY_MAP, pomReplacements);
     
     test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), Arrays.asList(new String[] {"initialize", "initialize"}),
-          THE_EMPTY_LIST,
+          THE_EMPTY_LIST, 
           THE_EMPTY_MAP, pomReplacements);
-  }    
+  }
 }
