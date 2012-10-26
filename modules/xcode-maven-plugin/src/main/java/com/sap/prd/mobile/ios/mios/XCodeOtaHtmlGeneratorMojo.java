@@ -19,23 +19,14 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import static com.sap.prd.mobile.ios.mios.task.PackageIpaTask.getIpaClassifier;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
-import com.sap.prd.mobile.ios.mios.buddy.PlistAccessorBuddy;
-import com.sap.prd.mobile.ios.mios.buddy.ProductNameBuddy;
+import com.sap.prd.mobile.ios.mios.task.GenerateOtaHtmlTask;
 
 /**
  * Generates over the air html files and prepares the generated artifacts for deployment.
@@ -76,87 +67,21 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
     if (sdks == null || sdks.size() == 0)
       throw new MojoExecutionException("Invalid sdks: \"" + sdks + "\".");
 
-
     for (final String configuration : configurations) {
       for (final String sdk : sdks) {
 
-        if (configuration == null || configuration.isEmpty())
-          throw new IllegalStateException("Invalid configuration: '" + configuration + "'.");
-
-        String productName = ProductNameBuddy.getProductName(getLog(), this.productName, project, sdk,
-              configuration);
-        String strippedProductName = ProductNameBuddy.stripProductName(productName);
-
-        getLog().info(
-              "Using product name '" + productName + " (fixed product name '" + strippedProductName + "')"
-                    + "' for configuration '" + configuration + "' and sdk '" + sdk + "'.");
-
-        final File otaHtmlFile = new File(XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration,
-              sdk), strippedProductName + ".htm");
-
-        final String otaClassifier = getOtaHtmlClassifier(configuration, sdk);
-        final String ipaClassifier = getIpaClassifier(configuration, sdk);
-
         try {
-          PListAccessor plistAccessor = PlistAccessorBuddy.getInfoPListAccessor(project, getXCodeCompileDirectory(),
-                configuration, sdk);
-          final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
-                plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
-                plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION), ipaClassifier,
-                otaClassifier);
-
-          if (otaManager.generateOtaHTML()) {
-
-            PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(otaHtmlFile), "UTF-8"));
-
-            try {
-              otaManager.writeOtaHtml(pw);
-              getLog().info(
-                    "OTA HTML file '" + otaHtmlFile + "' created for configuration '" + configuration + "' and sdk '"
-                          + sdk + "'");
-              prepareOtaHtmlFileForDeployment(project, otaClassifier, otaHtmlFile);
-              getLog().info(
-                    "OTA HTML file '" + otaHtmlFile + "' attached as additional artifact for configuration '"
-                          + configuration + "' and sdk '"
-                          + sdk + "'");
-            }
-            finally {
-              pw.close();
-            }
-          }
-          else {
-            getLog().info(
-                  "OTA HTML file '" + otaHtmlFile + "' was not created for configuration '" + configuration
-                        + "' and sdk '" + sdk + "'");
-          }
-        }
-        catch (IOException e) {
-          throw new MojoExecutionException("Cannot create OTA HTML file. Check log for details.", e);
+          GenerateOtaHtmlTask task = new GenerateOtaHtmlTask();
+          task.setLog(getLog()).setCompileDir(getXCodeCompileDirectory()).setMavenProject(project)
+            .setMiosOtaServiceUrl(miosOtaServiceUrl).setProductName(productName).setProjectHelper(projectHelper)
+            .setConfiguration(configuration).setSdk(sdk);
+          task.execute();
         }
         catch (XCodeException e) {
-          throw new MojoExecutionException("Cannot create OTA HTML file. Check log for details.", e);
+          throw new MojoExecutionException("Cannot create OTA HTML file: " + e.getMessage(), e);
         }
       }
     }
-
-  }
-
-  /**
-   * Generates the classifier used for OTA HTML deployment
-   * 
-   * @param configuration
-   * @param sdk
-   * @return
-   */
-  static String getOtaHtmlClassifier(String configuration, String sdk)
-  {
-    return configuration + "-" + sdk + OTA_CLASSIFIER_APPENDIX;
-  }
-
-  private void prepareOtaHtmlFileForDeployment(final MavenProject mavenProject, final String classifier,
-        final File otaHtmlFile)
-  {
-    projectHelper.attachArtifact(mavenProject, OTA_HTML_FILE_APPENDIX, classifier, otaHtmlFile);
   }
 
 }
