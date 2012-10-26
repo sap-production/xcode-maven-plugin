@@ -222,29 +222,6 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   }
 
   /**
-   * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
-   * to it.
-   * 
-   * @param xcodeProjectDirectory
-   *          the directory where the Xcode project is located. If you want to access the unmodified
-   *          Plist (i.e. AppID not appended) use the {@link #getXCodeSourceDirectory()} method, if
-   *          you want to access the modified plist, use the {@link #getXCodeCompileDirectory()}
-   *          method.
-   */
-  protected PListAccessor getInfoPListAccessor(File xcodeProjectDirectory, String configuration, String sdk)
-        throws MojoExecutionException
-  {
-    String plistFileName = new EffectiveBuildSettings(project, configuration, sdk)
-      .getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
-    File plistFile = new File(xcodeProjectDirectory, plistFileName);
-    if (!plistFile.isFile()) {
-      throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFileName
-            + "' that does not exist.");
-    }
-    return new PListAccessor(plistFile);
-  }
-
-  /**
    * Calls a shell script in order to zip a folder. We have to call a shell script as Java cannot
    * zip symbolic links.
    * 

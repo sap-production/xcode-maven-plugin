@@ -34,6 +34,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
+import com.sap.prd.mobile.ios.mios.buddy.PlistAccessorBuddy;
 import com.sap.prd.mobile.ios.mios.buddy.ProductNameBuddy;
 
 /**
@@ -97,7 +98,8 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
         final String ipaClassifier = getIpaClassifier(configuration, sdk);
 
         try {
-          PListAccessor plistAccessor = getInfoPListAccessor(getXCodeCompileDirectory(), configuration, sdk);
+          PListAccessor plistAccessor = PlistAccessorBuddy.getInfoPListAccessor(project, getXCodeCompileDirectory(),
+                configuration, sdk);
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION), ipaClassifier,
@@ -129,6 +131,9 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
           }
         }
         catch (IOException e) {
+          throw new MojoExecutionException("Cannot create OTA HTML file. Check log for details.", e);
+        }
+        catch (XCodeException e) {
           throw new MojoExecutionException("Cannot create OTA HTML file. Check log for details.", e);
         }
       }

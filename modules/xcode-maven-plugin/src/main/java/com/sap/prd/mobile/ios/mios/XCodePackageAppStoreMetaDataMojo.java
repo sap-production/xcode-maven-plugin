@@ -20,16 +20,13 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.archiver.Archiver;
-import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
-import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+
+import com.sap.prd.mobile.ios.mios.task.PackageAppStoreMetaDataTask;
 
 /**
  * Packages the AppStore metadata information and prepares the generated artifact for deployment.
@@ -66,76 +63,15 @@ public class XCodePackageAppStoreMetaDataMojo extends AbstractXCodeMojo
 
     try {
 
-      packageAndAttachAppStoreMetaData();
-
+      PackageAppStoreMetaDataTask task = new PackageAppStoreMetaDataTask();
+      task.setLog(getLog()).setAppStoreMetadata(appStoreMetadata).setArchiverManager(archiverManager)
+        .setMavenProject(project).setProjectHelper(projectHelper).setXcodeSourceDir(getXCodeSourceDirectory())
+        .setConfigurations(getConfigurations());
+      task.execute();
     }
-    catch (IOException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
-    catch (NoSuchArchiverException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
-    catch (ArchiverException e) {
+    catch (Exception e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
 
   }
-
-  private void packageAndAttachAppStoreMetaData() throws IOException, NoSuchArchiverException, ArchiverException,
-        MojoExecutionException
-  {
-
-    final String bundleIdentifier = getBundleIdentifier();
-
-    final File appStoreMetaDataFolder = new File(appStoreMetadata, bundleIdentifier);
-
-    if (appStoreMetaDataFolder.exists() && appStoreMetaDataFolder.list().length != 0) {
-
-      Archiver archiver = archiverManager.getArchiver("zip");
-
-      File destination = new File(new File(project.getBuild().getDirectory()), "AppStoreMetadata.zip");
-
-      archiver.addDirectory(appStoreMetaDataFolder, new String[] { "**/*" }, null);
-      archiver.setDestFile(destination);
-      archiver.createArchive();
-      getLog().info("AppStore MetaData packaged in (" + destination + ")");
-
-      prepareAppStoreMetaDataFileForDeployment(project, destination);
-    }
-    else {
-      getLog().info(
-            "AppStore MetaData packaging skipped. Folder " + appStoreMetaDataFolder.getAbsolutePath()
-                  + " doesn't exist.");
-    }
-
-  }
-
-  private String getBundleIdentifier() throws MojoExecutionException
-  {
-    String bundleIdentifier = null;
-    for (String configuration : getConfigurations()) {
-      try {
-        PListAccessor plistAccessor = getInfoPListAccessor(getXCodeSourceDirectory(), configuration, "iphoneos");
-        String _bundleIdentifier = plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
-
-        if (bundleIdentifier == null)
-          bundleIdentifier = _bundleIdentifier;
-        else if (!bundleIdentifier.equals(_bundleIdentifier))
-          throw new IllegalStateException("Different bundle identifiers defined (" + _bundleIdentifier + "/"
-                + bundleIdentifier + ")");
-      }
-      catch (IOException e) {
-        throw new MojoExecutionException(e.getMessage(), e);
-      }
-
-    }
-    return bundleIdentifier;
-  }
-
-  private void prepareAppStoreMetaDataFileForDeployment(final MavenProject mavenProject, final File appStoreMetaDataFile)
-  {
-
-    projectHelper.attachArtifact(mavenProject, "zip", "AppStoreMetaData", appStoreMetaDataFile);
-  }
-
 }
