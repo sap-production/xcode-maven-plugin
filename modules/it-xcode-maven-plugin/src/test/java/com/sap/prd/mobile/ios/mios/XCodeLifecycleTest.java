@@ -37,7 +37,7 @@ import org.junit.Test;
 public class XCodeLifecycleTest extends XCodeTest
 {  
   @Test
-  public void testLifecycleWithSnapshotDependency() throws Exception
+  public void testDontUseSymbolicLinksForSnapshotDependencies() throws Exception
   {
     final String testName = getTestName();
 
@@ -199,82 +199,6 @@ public class XCodeLifecycleTest extends XCodeTest
     assertTrue(new File(remoteRepositoryDirectory,
           Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
                 + configuration + "-iphoneos.ipa").exists());
-  }
-
-  @Test
-  public void testOTAUrlIsSetToEmpty() throws Exception
-  {
-    final String testName = getTestName();
-
-    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
-
-    prepareRemoteRepository(remoteRepositoryDirectory);
-
-    Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());  
-    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0" + String.valueOf(System.currentTimeMillis()));
-    
-    Map<String, String> additionalSystemProperties = new HashMap<String, String>();
-    additionalSystemProperties.put("mios.ota-service.url", "");
-
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
-    
-    final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
-    Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
-    try {
-      verifier = test(verifier, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
-            "deploy", THE_EMPTY_LIST, additionalSystemProperties, pomReplacements);
-
-    }
-    catch (VerificationException e) {
-      //
-      // This exception is expected.
-      // Below we check for the reason in the log file.
-      //
-    }
-
-    verifier.verifyTextInLog("Unable to convert '' to an URL");
-    verifier.verifyTextInLog("java.net.MalformedURLException: no protocol");
-  }
-
-  @Test
-  public void testOTAUrlIsNotUrl() throws Exception
-  {
-    final String testName = getTestName();
-
-    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
-
-    prepareRemoteRepository(remoteRepositoryDirectory);
-
-    Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
-    
-    Map<String, String> additionalSystemProperties = new HashMap<String, String>();
-    String otaWrongURL = "htp://apple-ota.wdf.sap.corp:8080/ota-service/HTML";
-    additionalSystemProperties.put("mios.ota-service.url", otaWrongURL);
-
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
-    
-    final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
-
-    Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
-
-    try {
-      test(verifier, testName, projectDirectory, "deploy",
-            THE_EMPTY_LIST,
-            additionalSystemProperties, pomReplacements);
-    }
-    catch (VerificationException ex) {
-      //
-      // This exception is expected.
-      // Below we check for the reason in the log file.
-      //
-    }
-
-    verifier.verifyTextInLog("java.net.MalformedURLException: unknown protocol: htp");
-    verifier.verifyTextInLog("Unable to convert '" + otaWrongURL + "' to an URL");
-
   }
 
   @Test
