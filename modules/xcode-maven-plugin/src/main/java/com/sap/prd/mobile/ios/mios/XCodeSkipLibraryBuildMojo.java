@@ -23,11 +23,11 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 /**
- * Prevents building of libraries during Company Build. 
+ * Prevents building of libraries or frameworks during Company Build.
  * 
- * The apps must be code signed. 
- * In case of signing with multiple certificates, e.g Enterprise and Company, apps must be built twice.
- * The libraries do not need to be signed and must be built once.
+ * The apps must be code signed. In case of signing with multiple certificates, e.g Enterprise and
+ * Company, apps must be built twice. The libraries and the frameworks do not need to be signed and
+ * must be built once.
  * 
  * 
  * @goal skip-library-build
@@ -51,8 +51,9 @@ public class XCodeSkipLibraryBuildMojo extends AbstractXCodeMojo
 
     if (forbidLibBuild)
       throw new MojoExecutionException(
-            "xcode-library detected ("
+            "xcode-library or xcode-framework detected ("
                   + project.getArtifact()
-                  + "). Libraries must not be built during company builds. They are not released separately. At the time when the company build is triggered we expect all libraries are already contained in the repository.");
+                  + "). Libraries and Frameworks must not be built during company builds. "
+                  + "They are not released separately. At the time when the company build is triggered we expect all libraries and frameworks are already contained in the repository.");
   }
 }
