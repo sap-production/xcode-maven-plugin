@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 class FatLibAnalyzer
 {
@@ -71,11 +72,15 @@ class FatLibAnalyzer
             continue;
 
           String[] strings = line.split(" ");
+          
+          if(strings.length < 2)
+            throw new IllegalStateException("Architecture could not be parsed: " + line);
+          
+          String[] architecture = new String[strings.length - 1];
 
-          if (strings.length != 2)
-            throw new IllegalStateException("Lipo output cannot be parsed: " + detailedLipoInfo);
-
-          architectures.add(strings[1]);
+          System.arraycopy(strings, 1, architecture, 0, strings.length - 1);
+          
+          architectures.add(StringUtils.join(architecture, " "));
         }
 
         this.architectures = architectures;

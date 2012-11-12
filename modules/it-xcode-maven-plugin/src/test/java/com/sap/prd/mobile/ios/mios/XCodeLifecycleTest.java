@@ -298,7 +298,7 @@ public class XCodeLifecycleTest extends XCodeTest
       //
     }
 
-    final String message = "xcode-library detected";
+    final String message = "xcode-library or xcode-framework detected";
 
     try {
 

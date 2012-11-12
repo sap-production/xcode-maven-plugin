@@ -28,10 +28,9 @@
 	<h1>Introduction</h1>
 	<p>This page explains how you can enable your Maven Xcode project
 		to package the Xcode sources and the resolved binary dependencies into
-		a zip archive. This archive
-		could serve as source distribution. When unpackaged, it could be
-		opened and compiled in the Xcode IDE without any further
-		modifications.</p>
+		a zip archive. This archive could serve as source distribution. When
+		unpackaged, it could be opened and compiled in the Xcode IDE without
+		any further modifications.</p>
 
 	<p>The default content of the source archive contains the following
 		files and folders:</p>
@@ -150,6 +149,47 @@ mvn xcode:package-xcodeproj
                    <span>&lt;param&gt;</span>src/docs<span>&lt;/param&gt;</span>
                    <span>&lt;param&gt;</span>target/versions.xml<span>&lt;/param&gt;</span>
                 <span>&lt;/additionalArchivePaths&gt;</span>
+             <span>&lt;/configuration&gt;</span>
+          <span>&lt;/plugin&gt;</span>
+            ...
+        <span>&lt;/plugins&gt;</span>
+    <span>&lt;/build&gt;</span>
+...
+</pre>
+		</div>
+	</div>
+	
+	<h1>Excluding files and folders from the source archive</h1>
+
+	<p>	
+		Use the <tt>excludes</tt> list parameter in order to exclude some source files or folders from the archive. 
+		If the path denotes a folder, the folder content with all subfolders will be excluded. 
+		If the path points to a file, only the file will be excluded. The provided paths are relative to the project 
+		base directory. If the paths do not exist the entry is ignored.
+		
+	</p>
+
+	<p>Example:</p>
+	<div style="border-style: solid; border-width: 1px;">
+		<div style="border-bottom-width: 1px; border-bottom-style: solid;">
+			<b>pom.xml</b>
+		</div>
+		<div>
+			<pre>
+...
+    <span>&lt;build&gt;</span>
+       <span>&lt;plugins&gt;</span>
+          <span>&lt;plugin&gt;</span>
+             <span>&lt;groupId&gt;</span>com.sap.prd.mobile.ios.mios<span>&lt;/groupId&gt;</span>
+             <span>&lt;artifactId&gt;</span>xcode-maven-plugin<span>&lt;/artifactId&gt;</span>
+             <span>&lt;extensions&gt;</span>true<span>&lt;/extensions&gt;</span>
+             <span>&lt;configuration&gt;</span>
+                <span>&lt;excludes&gt;</span>
+                   <span>&lt;param&gt;</span>*.tmp<span>&lt;/param&gt;</span>
+                   <span>&lt;param&gt;</span>*/tmp/*<span>&lt;/param&gt;</span>
+                   <span>&lt;param&gt;</span>src/xcode/excludeDir/*<span>&lt;/param&gt;</span>
+                   <span>&lt;param&gt;</span>src/xcode/doNotPackage.txt<span>&lt;/param&gt;</span>
+                <span>&lt;/excludes&gt;</span>
              <span>&lt;/configuration&gt;</span>
           <span>&lt;/plugin&gt;</span>
             ...
