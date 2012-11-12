@@ -60,11 +60,11 @@ class XCodeProjectLayoutValidator
     if (xcodeProjectFolders.size() == 0)
     {
       throw new XCodeProjectNotFoundException(
-            "Inside folder \""
+            "The folder \""
                   + xcodeFolder
-                  + "\" there exists no folder named \""
+                  + "\" must contain folder named \""
                   + xcodeProjectFolderName
-                  + "\". This folder is expected to hold the xcode project configuration. The xcode project is expected to have the same name than the maven artifactId.");
+                  + "\". This folder is expected to hold the xcode project configuration. The xcode project must have the same name as the maven artifactId");
     }
     
     for (final File xcodeProjectFolder : xcodeProjectFolders)
