@@ -22,8 +22,12 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -143,8 +147,6 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
     String xprojZipFileName = project.getArtifactId() + "-" + XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip";
 
     try {
-      // we have to do this via zip command line call in order to be able to package symbolic links
-      ArrayList<String> zipCmdCall = new ArrayList<String>();
       File targetFolder = new File(project.getBuild().getDirectory());
       if (!targetFolder.isDirectory()) {
         targetFolder.mkdirs();
@@ -154,40 +156,59 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
       String relativeSrcDirName = FileUtils.getRelativePath(FolderLayout.getSourceFolder(project).getAbsolutePath(),
             project.getBasedir().getAbsolutePath(), "/");
 
-      Collections.addAll(zipCmdCall, "zip", "-r", "-y", "-q", relativeTargetDirName + "/" + xprojZipFileName);
+      Set<String> includes = new HashSet<String>();
 
-      zipCmdCall.add(relativeSrcDirName); // src/xcode folder
-      zipCmdCall.add("pom.xml");
-      zipCmdCall.add("sync.info");
-      zipCmdCall.add(relativeTargetDirName + "/bundles");
-      zipCmdCall.add(relativeTargetDirName + "/headers");
-      zipCmdCall.add(relativeTargetDirName + "/libs");
-      zipCmdCall.add(relativeTargetDirName + "/xcode-deps");
+      includes.add(relativeSrcDirName); // src/xcode folder
+      includes.add(relativeTargetDirName + "/xcode-deps/frameworks");
+      
+      zip(Arrays.asList("zip", "-r", "-y", "-q", relativeTargetDirName + "/" + xprojZipFileName), includes, excludes);
+      
+      includes.clear();      
+
+      includes.add("pom.xml");
+      includes.add("sync.info");
+      includes.add(relativeTargetDirName + "/bundles");
+      includes.add(relativeTargetDirName + "/headers");
+      includes.add(relativeTargetDirName + "/libs");
+      includes.add(relativeTargetDirName + "/xcode-deps/libs");
+
       if (additionalArchivePaths != null) {
-        zipCmdCall.addAll(additionalArchivePaths);
+        includes.addAll(additionalArchivePaths);
       }
-
-      if (excludes != null && !excludes.isEmpty()) {
-        zipCmdCall.add("-x");
-        zipCmdCall.addAll(excludes);
-      }
-
-      getLog().info("Packaging the Xcode project with all its dependencies into the zip file " + xprojZipFileName);
-      getLog().info("Executing: " + StringUtils.join(zipCmdCall, ' '));
-      int exitCode = Forker.forkProcess(System.out, project.getBasedir(), zipCmdCall.toArray(new String[] {}));
-      if (exitCode != 0) {
-        throw new MojoExecutionException(
-              "Could not package the Xcode project with all its dependencies into a zip file.");
-      }
+      
+      zip(Arrays.asList("zip", "-r", "-g", "-q", relativeTargetDirName + "/" + xprojZipFileName), includes, excludes);
+      
+      getLog().info("Packaged the Xcode project with all its dependencies into the zip file " + xprojZipFileName);
     }
     catch (IOException e) {
-      throw new MojoExecutionException("Could not package the Xcode project with all its dependencies into a zip file.");
+      throw new MojoExecutionException("Could not package the Xcode project with all its dependencies into a zip file.", e);
     }
     
     projectHelper.attachArtifact(project, "zip", XCODEPROJ_WITH_DEPS_CLASSIFIER, new File(project.getBuild()
       .getDirectory(), xprojZipFileName));
     
 
+  }
+  
+  
+  private void zip(List<String> zipCommandParts, Collection<String> includes, Collection<String> excludes) throws IOException, MojoExecutionException {
+
+    ArrayList<String> zipCmdCall = new ArrayList<String>();
+
+    zipCmdCall.addAll(zipCommandParts);
+    zipCmdCall.addAll(includes);
+    
+    if (excludes != null && !excludes.isEmpty()) {
+      zipCmdCall.add("-x");
+      zipCmdCall.addAll(excludes);
+    }
+
+    getLog().info("Executing: " + StringUtils.join(zipCmdCall, ' '));
+    int exitCode = Forker.forkProcess(System.out, project.getBasedir(), zipCmdCall.toArray(new String[] {}));
+    if (exitCode != 0) {
+      throw new MojoExecutionException(
+            "Could not package the Xcode project with all its dependencies into a zip file.");
+    }
   }
 
 
