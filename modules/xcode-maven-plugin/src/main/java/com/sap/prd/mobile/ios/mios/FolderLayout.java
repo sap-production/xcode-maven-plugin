@@ -33,7 +33,7 @@ class FolderLayout
 {
   public final static String LIBS_DIR_NAME = "libs";
   public final static String HEADERS_DIR_NAME = "headers";
-  private static String XCODE_DEPS_TARGET_FOLDER = "xcode-deps";
+  static String XCODE_DEPS_TARGET_FOLDER = "xcode-deps";
 
   static File getFolderForExtractedHeaders(MavenProject project, final String configuration, final String sdk)
   {
