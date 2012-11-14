@@ -35,27 +35,27 @@ class FolderLayout
   public final static String HEADERS_DIR_NAME = "headers";
   private static String XCODE_DEPS_TARGET_FOLDER = "xcode-deps";
 
-  private static File getFolderForExtractedHeaders(MavenProject project, final String configuration, final String sdk)
+  static File getFolderForExtractedHeaders(MavenProject project, final String configuration, final String sdk)
   {
     return new File(new File(new File(project.getBuild().getDirectory()), HEADERS_DIR_NAME), configuration + "-" + sdk);
   }
 
-  private static File getFolderForExtractedLibs(MavenProject project, final String configuration, final String sdk)
+  static File getFolderForExtractedLibs(MavenProject project, final String configuration, final String sdk)
   {
     return new File(new File(new File(project.getBuild().getDirectory()), LIBS_DIR_NAME), configuration + "-" + sdk);
   }
 
-  private static File getFolderForExtractedBundles(MavenProject project)
+  static File getFolderForExtractedBundles(MavenProject project)
   {
     return new File(new File(project.getBuild().getDirectory()), "bundles");
   }
 
-  private static File getFolderForExtractedFrameworks(MavenProject project)
+  static File getFolderForExtractedFrameworks(MavenProject project)
   {
     return new File(new File(new File(project.getBuild().getDirectory()), XCODE_DEPS_TARGET_FOLDER), "frameworks");
   }
 
-  private static File getFolderForExtractedFatLibs(MavenProject project, final String configuration)
+  static File getFolderForExtractedFatLibs(MavenProject project, final String configuration)
   {
     return new File(project.getBuild().getDirectory() + "/" + XCODE_DEPS_TARGET_FOLDER + "/" + LIBS_DIR_NAME + "/"
           + configuration);

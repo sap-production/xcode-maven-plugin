@@ -19,6 +19,8 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.FileUtils.mkdirs;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -71,6 +73,8 @@ class XCodePrepareBuildManager
         final Set<String> sdks) throws MojoExecutionException, XCodeException, IOException
   {
 
+    prepareRootFolders(project, configurations,  sdks);
+    
     final Iterator compileArtifacts = project.getCompileArtifacts().iterator();
     
     if(!compileArtifacts.hasNext()) {
@@ -138,6 +142,23 @@ class XCodePrepareBuildManager
         continue;
     }
   }
+
+  private static void prepareRootFolders(MavenProject project, Set<String> configurations, Set<String> sdks) throws IOException
+  {
+    mkdirs(FolderLayout.getFolderForExtractedMainArtifact(project));
+    mkdirs(FolderLayout.getFolderForExtractedBundles(project));
+    mkdirs(FolderLayout.getFolderForExtractedFrameworks(project));
+    
+    for(String configuration : configurations) {
+      
+      mkdirs(FolderLayout.getFolderForExtractedFatLibs(project, configuration));
+      
+      for(String sdk : sdks) {
+        mkdirs(FolderLayout.getFolderForExtractedHeaders(project, configuration, sdk));
+        mkdirs(FolderLayout.getFolderForExtractedLibs(project, configuration, sdk));
+      }
+    }
+  } 
 
   private File resolveThinLib(MavenProject project, final String xcodeConfiguration, final String sdk,
         final Artifact primaryArtifact)

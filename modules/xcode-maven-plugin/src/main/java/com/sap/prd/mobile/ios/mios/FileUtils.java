@@ -34,6 +34,12 @@ import org.apache.commons.io.IOUtils;
 public class FileUtils
 {
 
+  public static void mkdirs(final File f) throws IOException {
+    
+    if (!f.exists() && !f.mkdirs())
+     throw new IOException("Could not create folder '" + f + "'.");
+  }
+  
   public static void deleteDirectory(final File directory) throws IOException {
     org.codehaus.plexus.util.FileUtils.deleteDirectory(directory);  
   }
