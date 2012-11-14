@@ -172,7 +172,7 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
       includes.add(relativeTargetDirName + "/libs");
       includes.add(relativeTargetDirName + "/xcode-deps");
       
-      Collection<String> myExcludes = new ArrayList<String>(excludes);
+      Collection<String> myExcludes = excludes == null ? new ArrayList<String>() : new ArrayList<String>(excludes);
       myExcludes.add(relativeTargetDirName + "/xcode-deps/frameworks/*");
 
       if (additionalArchivePaths != null) {
