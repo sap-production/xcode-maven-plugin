@@ -190,7 +190,7 @@ public class XCodeFrameworkTest extends XCodeTest
     int exitCode = Forker.forkProcess(System.out, tmpDir, "unzip", "../" + projectZipFile.getName());
     
     if(exitCode != 0)
-      throw new IOException("Could not unzip file '" + projectZipFile + "' into directory '" + tmpDir + "'");
+      throw new IOException("Could not unzip file '" + projectZipFile + "' into directory '" + tmpDir + "'. Exit code is: " + exitCode);
     
     
     File headerFile = new File(tmpDir, "target/headers/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/PrintOutObject.h");

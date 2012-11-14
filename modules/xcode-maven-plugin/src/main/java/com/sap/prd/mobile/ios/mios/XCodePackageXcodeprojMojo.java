@@ -170,13 +170,16 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
       includes.add(relativeTargetDirName + "/bundles");
       includes.add(relativeTargetDirName + "/headers");
       includes.add(relativeTargetDirName + "/libs");
-      includes.add(relativeTargetDirName + "/xcode-deps/libs");
+      includes.add(relativeTargetDirName + "/xcode-deps");
+      
+      Collection<String> myExcludes = new ArrayList<String>(excludes);
+      myExcludes.add(relativeTargetDirName + "/xcode-deps/frameworks/*");
 
       if (additionalArchivePaths != null) {
         includes.addAll(additionalArchivePaths);
       }
       
-      zip(Arrays.asList("zip", "-r", "-g", "-q", relativeTargetDirName + "/" + xprojZipFileName), includes, excludes);
+      zip(Arrays.asList("zip", "-r", "-g", "-q", relativeTargetDirName + "/" + xprojZipFileName), includes, myExcludes);
       
       getLog().info("Packaged the Xcode project with all its dependencies into the zip file " + xprojZipFileName);
     }
