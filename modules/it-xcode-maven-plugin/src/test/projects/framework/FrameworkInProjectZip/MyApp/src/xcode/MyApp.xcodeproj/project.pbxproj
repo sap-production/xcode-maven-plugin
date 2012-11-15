@@ -212,6 +212,7 @@
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/../../target/frameworks/com.sap.ondevice.production.ios.tests/MyFramework\"",
 					"\"$(SRCROOT)/../../target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework\"",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -234,6 +235,7 @@
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/../../target/frameworks/com.sap.ondevice.production.ios.tests/MyFramework\"",
 					"\"$(SRCROOT)/../../target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

@@ -52,6 +52,9 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
     
     final File originalHeadersDir = new File(project.getBuild().getDirectory(), FolderLayout.HEADERS_DIR_NAME);
     final File copyOfHeadersDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.HEADERS_DIR_NAME);
+    
+    final File originalXcodeDepsDir = new File(project.getBuild().getDirectory(), FolderLayout.XCODE_DEPS_TARGET_FOLDER);
+    final File copyOfXcodeDepsDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.XCODE_DEPS_TARGET_FOLDER);
 
     try {
 
@@ -65,7 +68,8 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
         {
           return ! (checkoutDirectory.getAbsoluteFile().equals(pathname.getAbsoluteFile()) || 
                     originalLibDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
-                    originalHeadersDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()));
+                    originalHeadersDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) || 
+                    originalXcodeDepsDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()));
         }
         
       });
@@ -75,6 +79,10 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       
       if(originalHeadersDir.exists())
         com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir, copyOfHeadersDir);
+      
+      if(originalXcodeDepsDir.exists())
+        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalXcodeDepsDir, copyOfXcodeDepsDir);
+       
     }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);

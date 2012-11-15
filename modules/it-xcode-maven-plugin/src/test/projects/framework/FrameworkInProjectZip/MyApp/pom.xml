@@ -1,0 +1,100 @@
+<!--
+  #%L
+  it-xcode-maven-plugin
+  %%
+  Copyright (C) 2012 SAP AG
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.sap.ondevice.production.ios.tests</groupId>
+  <artifactId>MyApp</artifactId>
+  <version>1.0.0</version>
+  <packaging>xcode-app</packaging>
+  <dependencies>
+      <dependency>
+          <groupId>com.sap.ondevice.production.ios.tests</groupId>
+          <artifactId>MyLibrary</artifactId>
+          <version>${dynamicVersion}</version>
+          <type>xcode-lib</type>
+      </dependency>
+      <dependency>
+          <groupId>com.sap.ondevice.production.ios.tests</groupId>
+          <artifactId>MyFramework</artifactId>
+          <version>1.0.0</version>
+          <type>xcode-framework</type>
+      </dependency>
+  </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.sap.prd.mobile.ios.mios</groupId>
+                <artifactId>xcode-maven-plugin</artifactId>
+                <version>1.6.1-SNAPSHOT</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <excludes>
+                        <param>src/xcode/**/*.m</param>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>package-xcode-project</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package-xcodeproj</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
+<repositories>
+    <repository>
+        <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+        </snapshots>
+        <id>remoteRepo</id>
+        <name>Remote repository</name>
+        <url>file:${deployrepo.directory}</url>
+        <layout>default</layout>
+    </repository>
+    <repository>
+        <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+        </snapshots>
+        <id>frameworkRepo</id>
+        <name>frameworkRepo</name>
+        <url>file:${frwkrepo.directory}</url>
+        <layout>default</layout>
+    </repository>
+</repositories>
+</project>
+
