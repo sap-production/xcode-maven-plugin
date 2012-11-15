@@ -31,9 +31,9 @@ import org.apache.maven.project.MavenProject;
  */
 class FolderLayout
 {
-  public final static String LIBS_DIR_NAME = "libs";
-  public final static String HEADERS_DIR_NAME = "headers";
-  static String XCODE_DEPS_TARGET_FOLDER = "xcode-deps";
+  final static String LIBS_DIR_NAME = "libs";
+  final static String HEADERS_DIR_NAME = "headers";
+  final static String XCODE_DEPS_TARGET_FOLDER = "xcode-deps";
 
   static File getFolderForExtractedHeaders(MavenProject project, final String configuration, final String sdk)
   {
