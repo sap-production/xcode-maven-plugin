@@ -39,7 +39,7 @@ public class SpecificTargetTest extends XCodeTest
   @Test
   public void buildSpecificTarget() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass()
       .getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -54,7 +54,7 @@ public class SpecificTargetTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
     
-    Verifier verifier = test(testName, new File(getTestRootDirectory(), "multiple-targets/MultipleTargets"), "pom.xml", "compile", THE_EMPTY_LIST, additionalSystemProperties,
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "multiple-targets/MultipleTargets"), "compile", THE_EMPTY_LIST, additionalSystemProperties,
           pomReplacements);
     assertCorrectTargetBuild(new File(verifier.getBasedir(),
           verifier.getLogFileName()));
