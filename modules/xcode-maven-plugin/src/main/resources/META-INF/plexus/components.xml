@@ -180,7 +180,9 @@
               <process-sources>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:save-build-settings,
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-app-id
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-app-id,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-versions-in-plist,                
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-versions-in-plist
               </process-sources>
               <compile>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild

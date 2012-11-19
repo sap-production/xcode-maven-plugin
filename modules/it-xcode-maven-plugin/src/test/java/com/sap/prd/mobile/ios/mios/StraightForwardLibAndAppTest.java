@@ -29,7 +29,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -40,13 +39,12 @@ import junit.framework.Assert;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.Verifier;
-import org.apache.maven.it.util.IOUtil;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class StraightForwardLibAndAppTest extends XCodeTest
 {
-  private static File remoteRepositoryDirectory = null;
+  private static File remoteRepositoryDirectory = null, appTestBaseDir = null;
   private static String dynamicVersion = null,
         myLibArtifactFilePrefix = null,
         testName = null, 
@@ -104,7 +102,9 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     appstoreFolder.deleteOnExit();
     extractFileWithShellScript(appstoreUploadFile, appstoreFolder);
 
-    archiveArtifactsDir = new File(appVerifier.getBasedir(), "archive/artifacts/com.sap.ondevice.production.ios.tests/MyApp");
+    appTestBaseDir = new File(appVerifier.getBasedir());
+    
+    archiveArtifactsDir = new File(appTestBaseDir, "archive/artifacts/com.sap.ondevice.production.ios.tests/MyApp");
 
   
   }
@@ -234,7 +234,7 @@ public class StraightForwardLibAndAppTest extends XCodeTest
 
     final String otaFileNameSuffix = appIdSuffix == null ? "-iphoneos-ota.htm" : "-" + appIdSuffix
           + "-iphoneos-ota.htm";
-    compareFileContent(new File("src/test/resources/MyApp-Release-1.0.0" + otaFileNameSuffix),
+    compareFilesContainingDynamicVersions(dynamicVersion, new File("src/test/resources/MyApp-Release-1.0.0" + otaFileNameSuffix),
           otaHtmlFileActualRelease);    
   }
   
@@ -331,6 +331,20 @@ public class StraightForwardLibAndAppTest extends XCodeTest
    assertBuildEnvironmentPropertiesFile("MyApp"); 
   }
   
+  @Test
+  public void testCFBundeShortVersionInInfoPlist() throws Exception
+  {    
+    final File infoPList = new File(appTestBaseDir, "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
+    assertEquals("CFBundleShortVersion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.", dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING));
+  }
+
+  @Test
+  public void testCFBundeVersionInInfoPlist() throws Exception
+  {
+    final File infoPList = new File(appTestBaseDir, "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
+    assertEquals("CFBundleVErsion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.", dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_VERSION));
+  }
+
   private static void assertRedirectFileExists(final String name) {
     assertTrue("Redirect file '" + name + "' does not exist.", new File(archiveArtifactsDir, name).isFile());
   }
@@ -373,21 +387,5 @@ public class StraightForwardLibAndAppTest extends XCodeTest
       IOUtils.closeQuietly(reader);
     }
     return null;
-  }
-  
-  private static void compareFileContent(File expectedFile, File actualFile) throws IOException
-  {
-    final InputStream actualStream = new FileInputStream(actualFile.getAbsoluteFile());
-    final InputStream expectedStream = new FileInputStream(expectedFile.getAbsoluteFile());
-
-    try {
-      Assert.assertEquals(String.format("File contents differ (expected file: %s, actual file: %s)",
-            expectedFile.getName(), actualFile.getName()),
-            IOUtil.toString(expectedStream, "UTF-8"), IOUtil.toString(actualStream, "UTF-8"));
-    }
-    finally {
-      IOUtil.close(actualStream);
-      IOUtil.close(expectedStream);
-    }
-  }
+  }  
 }

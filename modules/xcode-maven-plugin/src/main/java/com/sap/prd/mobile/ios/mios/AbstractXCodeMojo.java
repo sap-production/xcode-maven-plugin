@@ -239,14 +239,18 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   protected PListAccessor getInfoPListAccessor(File xcodeProjectDirectory, String configuration, String sdk)
         throws MojoExecutionException
   {
-    String plistFileName = new EffectiveBuildSettings(project, configuration, sdk)
-      .getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
-    File plistFile = new File(xcodeProjectDirectory, plistFileName);
+    File plistFile = getPListFile(xcodeProjectDirectory, configuration, sdk);
     if (!plistFile.isFile()) {
-      throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFileName
+      throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFile
             + "' that does not exist.");
     }
     return new PListAccessor(plistFile);
+  }
+  
+  protected File getPListFile(File xcodeProjectDirectory, String configuration, String sdk) {
+    String plistFileName = new EffectiveBuildSettings(project, configuration, sdk)
+    .getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
+    return new File(xcodeProjectDirectory, plistFileName);
   }
 
   /**

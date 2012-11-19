@@ -30,6 +30,7 @@ public class PListAccessor
 {
   public static final String KEY_BUNDLE_IDENTIFIER = "CFBundleIdentifier";
   public static final String KEY_BUNDLE_VERSION = "CFBundleVersion";
+  public static final String KEY_BUNDLE_SHORT_VERSION_STRING = "CFBundleShortVersionString";
   
   private final File plist;
 
@@ -60,11 +61,27 @@ public class PListAccessor
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
 
-      if (p.exitValue() == 0)
+      int exitValue = p.exitValue();
+      
+      if (exitValue == 0)
       {
         return new Scanner(p.getInputStream()).useDelimiter("\\Z").next();
       }
-      throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed");
+      
+      String errorMessage = "<n/a>";
+      
+      try {
+        errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+      } catch(Exception ex) {
+        System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
+      }
+      
+      if(errorMessage.contains(":" + key + "\", Does Not Exist")) {
+        // ugly string parsing above, but no other known way ...
+        return null;
+      }
+      
+      throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed. Error message is: " + errorMessage + ". Return code was: '" + exitValue + "'.");
     }
     catch (InterruptedException e)
     {
@@ -76,18 +93,18 @@ public class PListAccessor
   {
     if (!plist.exists())
     {
-      throw new FileNotFoundException();
+      throw new FileNotFoundException("Plist file '" + plist + "' not found.");
     }
 
-    String command = "<not set>";
     try
     {
-      command = "/usr/libexec/PlistBuddy -x -c \"Set :" + key + " " + value + "\" \"" + plist.getAbsolutePath() + "\"";
+      String command = "/usr/libexec/PlistBuddy -x -c \"Set :" + key + " " + value + "\" \"" + plist.getAbsolutePath() + "\"";
       System.out.println("[INFO] PlistBuddy Set command is: '" + command + "'.");
       String[] args = new String[] { "bash", "-c", command };
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
-      if (p.exitValue() != 0)
+      int exitValue = p.exitValue(); 
+      if (exitValue != 0)
       {
         String errorMessage = "n/a";
         try {
@@ -95,7 +112,39 @@ public class PListAccessor
         } catch(Exception ex) {
           System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
         }
-        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed: " + errorMessage);
+        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed: " + errorMessage + ". Exit code was: " + exitValue);
+      }
+    }
+    catch (InterruptedException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void addStringValue(String key, String value) throws IOException
+  {
+    if (!plist.exists())
+    {
+      throw new FileNotFoundException("Plist file '" + plist + "' not found.");
+    }
+
+    try
+    {
+      String command = "/usr/libexec/PlistBuddy -x -c \"Add :" + key + " string " + value + "\" \"" + plist.getAbsolutePath() + "\"";
+      System.out.println("[INFO] PlistBuddy Add command is: '" + command + "'.");
+      String[] args = new String[] { "bash", "-c", command };
+      Process p = Runtime.getRuntime().exec(args);
+      p.waitFor();
+      int exitValue = p.exitValue(); 
+      if (exitValue != 0)
+      {
+        String errorMessage = "n/a";
+        try {
+          errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+        } catch(Exception ex) {
+          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
+        }
+        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed: " + errorMessage + ". Exit code was: " + exitValue);
       }
     }
     catch (InterruptedException e)
