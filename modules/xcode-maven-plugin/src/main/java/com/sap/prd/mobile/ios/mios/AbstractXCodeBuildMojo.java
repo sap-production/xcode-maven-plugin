@@ -81,6 +81,8 @@ public abstract class AbstractXCodeBuildMojo extends AbstractXCodeMojo
     context.setOut(System.out);
     context.setProvisioningProfile(provisioningProfile);
     context.setTarget(target);
+    context.setOptions(getOptions());
+    context.setSettings(getSettings());
 
     return context;
   }

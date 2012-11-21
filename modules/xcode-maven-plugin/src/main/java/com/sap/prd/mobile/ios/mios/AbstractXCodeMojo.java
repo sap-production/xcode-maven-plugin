@@ -22,6 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -139,6 +140,20 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    * @since 1.4.2
    */
   private String primaryFmwkConfiguration;
+
+    /**
+     * Settings to pass to XCode - if any are explicitly defined here, this plugin will not provide default settings to XCode.
+     * @parameter
+     * @since 1.6.2
+     */
+  private Map<String, String> settings;
+
+    /**
+     * Options to pass to XCode - if any are explicitly defined here, this plugin will not provide default options to XCode.
+     * @parameter
+     * @since 1.6.2
+     */
+  private Map<String, String> options;
 
   protected Set<String> getSDKs()
   {
@@ -308,5 +323,21 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     }
     throw new MojoExecutionException("The primaryFmwkConfiguration '" + primaryFmwkConfiguration
           + "' is not part of the configurations '" + getConfigurations() + "' defined in the POM for this project");
+  }
+
+    public Map<String, String> getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Map<String, String> settings) {
+        this.settings = settings;
+    }
+
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    public void setOptions(Map<String, String> options) {
+        this.options = options;
   }
 }
