@@ -25,6 +25,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,12 +42,54 @@ public class CommandLineBuilderTest
     projectDirectory = new File(new File(".").getAbsoluteFile(), "src/test/projects/MyLibrary");
   }
 
+    private String appendStrings(String[] stringArray) {
+       StringBuffer buffer = new StringBuffer();
+       for (String string : stringArray) {
+          buffer.append(string).append(" ");
+       }
+       return buffer.toString();
+    }
+
+    private void expect(XCodeContext context, String ... expected) {
+        CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
+        String[] actual = commandLineBuilder.createBuildCall();
+        assertArrayEquals("\r\nExpected: "+appendStrings(expected)+"\r\nActual:   "+appendStrings(actual), expected, actual);
+    }
+
   @Test
   public void testCommandlineBuilderStraightForward() throws Exception
   {
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out));
+    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out);
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
     assertArrayEquals(new String[] { "xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
         "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build" }, commandLineBuilder.createBuildCall());
+    expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
+            "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build");
+  }
+
+    @Test
+    public void testCommandlineBuilderStraightForwardSettings() throws Exception
+    {
+      XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out);
+      Map<String, String> settings = new LinkedHashMap<String, String>();
+      settings.put("VALID_ARCHS", "i386");
+      settings.put("CONFIGURATION_BUILD_DIR", "/Users/me/projects/myapp/target/xcode/src/main/xcode/build");
+      context.setSettings(settings);
+      expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
+              "mysdk", "VALID_ARCHS=i386", "CONFIGURATION_BUILD_DIR=/Users/me/projects/myapp/target/xcode/src/main/xcode/build", "clean", "build");
+      context.setSettings(null);
+    }
+
+    @Test
+    public void testCommandlineBuilderStraightForwardOptions() throws Exception
+    {
+      XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out);
+      Map<String, String> options = new LinkedHashMap<String, String>();
+      options.put("arch", "i386");
+      context.setOptions(options);
+      expect(context, "xcodebuild", "-arch", "i386", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
+              "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build");
+      context.setOptions(null);
   }
 
   @Test

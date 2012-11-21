@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Context object for Xcode build to hold relevant data:
@@ -35,7 +36,8 @@ import java.util.Locale;
  * projectRootDirectory
  * codeSignIdentity
  * output stream
- *
+ * xcode options
+ * xcode settings
  */
 class XCodeContext
 {
@@ -57,7 +59,9 @@ class XCodeContext
   
   private final String target;
 
-  
+  private Map<String, String> options;
+
+  private Map<String, String> settings;
 
   public XCodeContext(String projectName, List<String> buildActions,
         File projectRootDirectory, PrintStream out) {
@@ -133,6 +137,30 @@ class XCodeContext
     return target;
   }
 
+    public Map getOptions() {
+        return options;
+    }
+
+    public void setOptions(Map<String, String> options) {
+        this.options = options;
+    }
+
+    public Map getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Map<String, String> settings) {
+        this.settings = settings;
+    }
+
+   private static String toString(String prefix, Map<String, String> map, String separator) {
+       StringBuffer buffer = new StringBuffer();
+       for (Map.Entry entry : map.entrySet()){
+           buffer.append(prefix).append(entry.getKey()).append(separator).append(entry.getValue());
+       }
+       return buffer.toString();
+   }
+
   @Override
   public String toString()
   {
@@ -143,6 +171,8 @@ class XCodeContext
     sb.append("CodeSignIdentity    : ").append(codeSignIdentity).append(ls);
     sb.append("ProvisioningProfile : ").append(provisioningProfile).append(ls);
     sb.append("Target              : ").append(target).append(ls);
+    sb.append("Options             : ").append(toString(" -", options, " "));
+    sb.append("Settings            : ").append(toString(" ", settings, "="));
     return sb.toString();
   }
 

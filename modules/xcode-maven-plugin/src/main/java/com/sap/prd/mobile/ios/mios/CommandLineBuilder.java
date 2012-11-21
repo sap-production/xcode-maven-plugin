@@ -21,6 +21,7 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class CommandLineBuilder
 {
@@ -67,6 +68,12 @@ class CommandLineBuilder
     List<String> result = new ArrayList<String>();
 
     result.add(XCODEBUILD);
+    Map<String, String> options = xcodeContext.getOptions();
+    if (options != null) {
+        for(Map.Entry<String, String> entry : options.entrySet()) {
+            appendOption(result, entry.getKey(), entry.getValue());
+        }
+    }
     appendOption(result, PROJECT_NAME, xcodeContext.getProjectName() + XCodeConstants.XCODE_PROJECT_EXTENTION);
     appendOption(result, CONFIGURATION, configuration);
     if (sdk != null && !sdk.trim().isEmpty()) {
@@ -84,11 +91,18 @@ class CommandLineBuilder
       appendOption(result, TARGET, xcodeContext.getTarget());
     }
     
+    Map<String, String> settings = xcodeContext.getSettings();
+    if (settings != null) {
+        for(Map.Entry<String, String> entry : settings.entrySet()) {
+            appendEnv(result, entry.getKey(), entry.getValue());
+        }
+    } else {
     // Output directories should be specified (recommended by Apple - http://developer.apple.com/devcenter/download.action?path=/wwdc_2012/wwdc_2012_session_pdfs/session_404__building_from_the_command_line_with_xcode.pdf)
     appendEnv(result, "DSTROOT", "build");
     appendEnv(result, "SYMROOT", "build");
     appendEnv(result, "SHARED_PRECOMPS_DIR", "build");
     appendEnv(result, "OBJROOT", "build");
+    }
     return result;
   }
 
