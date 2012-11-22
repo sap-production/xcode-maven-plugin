@@ -19,7 +19,7 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-public class XCodeInvalidCFBundleVersionException extends XCodeException
+class XCodeInvalidVersionException extends XCodeException
 {
 
   /**
@@ -27,22 +27,22 @@ public class XCodeInvalidCFBundleVersionException extends XCodeException
    */
   private static final long serialVersionUID = 2939512543487296403L;
 
-  public XCodeInvalidCFBundleVersionException()
+  XCodeInvalidVersionException()
   {
     this((String)null);
   }
 
-  public XCodeInvalidCFBundleVersionException(String message, Throwable cause)
+  XCodeInvalidVersionException(String message, Throwable cause)
   {
     super(message, cause);
   }
 
-  public XCodeInvalidCFBundleVersionException(String message)
+  XCodeInvalidVersionException(String message)
   {
     this(message, null);
   }
 
-  public XCodeInvalidCFBundleVersionException(Throwable cause)
+  XCodeInvalidVersionException(Throwable cause)
   {
     super(null, cause);
   }

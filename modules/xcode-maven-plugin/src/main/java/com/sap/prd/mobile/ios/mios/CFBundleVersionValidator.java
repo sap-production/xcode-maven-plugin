@@ -19,7 +19,7 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-public class CFBundleVersionValidator
+class CFBundleVersionValidator
 {
 
   private final static String REGEX = "[\\d+\\.]+\\d+"; 
@@ -28,9 +28,9 @@ public class CFBundleVersionValidator
     throw new UnsupportedOperationException();
   }
   
-  public static void validate(final String version) throws XCodeException {
+  static void validate(final String version) throws XCodeException {
     
     if(!version.matches(REGEX))
-      throw new XCodeInvalidCFBundleVersionException("Version '" + version + "' does not match regular expression '" + REGEX + "'.");
+      throw new XCodeInvalidVersionException("Version '" + version + "' does not match regular expression '" + REGEX + "'.");
   }  
 }
