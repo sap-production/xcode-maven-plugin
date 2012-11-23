@@ -23,6 +23,7 @@ import static com.sap.prd.mobile.ios.mios.FileUtils.mkdirs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -75,7 +76,7 @@ class XCodePrepareBuildManager
 
     prepareRootFolders(project, configurations,  sdks);
     
-    final Iterator compileArtifacts = project.getCompileArtifacts().iterator();
+    final Iterator<?> compileArtifacts = getCompileArtifacts(project).iterator();
     
     if(!compileArtifacts.hasNext()) {
       log.info("No compile dependencies found.");
@@ -410,5 +411,23 @@ class XCodePrepareBuildManager
           sourceFile.getCanonicalPath(),
           destinationFolder.getCanonicalPath());
   }
+  
+  private static List<Artifact> getCompileArtifacts(MavenProject project)
+  {
+      Set<Artifact> artifacts = project.getArtifacts();
+    
+      List<Artifact> result = new ArrayList<Artifact>( artifacts.size() );
 
+      for ( Artifact a : artifacts )
+      {
+          if ( a.getArtifactHandler().isAddedToClasspath() )
+          {
+              if ( Artifact.SCOPE_COMPILE.equals( a.getScope() ) || Artifact.SCOPE_PROVIDED.equals( a.getScope() ) || Artifact.SCOPE_SYSTEM.equals( a.getScope() ) )
+              {
+                  result.add( a );
+              }
+          }
+      }
+      return result;
+  }
 }

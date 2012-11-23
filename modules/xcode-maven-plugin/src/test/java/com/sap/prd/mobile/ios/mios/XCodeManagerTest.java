@@ -24,9 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.HashSet;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -79,8 +77,6 @@ public class XCodeManagerTest extends XCodeTest
     EasyMock.expect(mavenProject.getBuild()).andStubReturn(build);
     EasyMock.expect(build.getDirectory()).andStubReturn("");
 
-    EasyMock.expect(mavenProject.getCompileArtifacts()).andStubReturn(Arrays.asList((Artifact)null));
-
     EasyMock.replay(build, mavenProject);
 
     // The null values below does only work since we do not have any
@@ -107,8 +103,6 @@ public class XCodeManagerTest extends XCodeTest
     EasyMock.expect(mavenProject.getBuild()).andStubReturn(build);
     EasyMock.expect(build.getDirectory()).andStubReturn("");
 
-    EasyMock.expect(mavenProject.getCompileArtifacts()).andStubReturn(Arrays.asList((Artifact)null));
-
     EasyMock.replay(build, mavenProject);
 
     final XCodeContext context = new XCodeContext();
@@ -131,8 +125,6 @@ public class XCodeManagerTest extends XCodeTest
 
     EasyMock.expect(mavenProject.getBuild()).andStubReturn(build);
     EasyMock.expect(build.getDirectory()).andStubReturn("");
-
-    EasyMock.expect(mavenProject.getCompileArtifacts()).andStubReturn(Arrays.asList((Artifact)null));
 
     EasyMock.replay(build, mavenProject);
 
