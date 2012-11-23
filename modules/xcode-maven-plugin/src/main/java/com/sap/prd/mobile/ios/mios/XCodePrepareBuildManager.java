@@ -24,7 +24,10 @@ import static com.sap.prd.mobile.ios.mios.FileUtils.mkdirs;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -412,17 +415,19 @@ class XCodePrepareBuildManager
           destinationFolder.getCanonicalPath());
   }
   
+  private final static Collection<String> relevantScopes = new HashSet<String>(Arrays.asList(Artifact.SCOPE_COMPILE, Artifact.SCOPE_PROVIDED, Artifact.SCOPE_SYSTEM));
+  
   private static List<Artifact> getCompileArtifacts(MavenProject project)
   {
-      Set<Artifact> artifacts = project.getArtifacts();
+      final Set<Artifact> artifacts = project.getArtifacts();
     
-      List<Artifact> result = new ArrayList<Artifact>( artifacts.size() );
+      final List<Artifact> result = new ArrayList<Artifact>( artifacts.size() );
 
       for ( Artifact a : artifacts )
       {
           if ( a.getArtifactHandler().isAddedToClasspath() )
           {
-              if ( Artifact.SCOPE_COMPILE.equals( a.getScope() ) || Artifact.SCOPE_PROVIDED.equals( a.getScope() ) || Artifact.SCOPE_SYSTEM.equals( a.getScope() ) )
+              if ( relevantScopes.contains(a.getScope() ) )
               {
                   result.add( a );
               }
