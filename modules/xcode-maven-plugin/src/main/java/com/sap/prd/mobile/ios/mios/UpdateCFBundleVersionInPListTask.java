@@ -25,6 +25,6 @@ class UpdateCFBundleVersionInPListTask extends UpdateVersionInPListTask
     super.execute();    
     final String version = new RemoveTrailingCharactersVersionTransformer().transform(this.version);
     CFBundleVersionValidator.validate(version);
-    updateProperty(new PListAccessor(plistFile), PListAccessor.KEY_BUNDLE_VERSION, version);
+    updateProperty(plistFile, PListAccessor.KEY_BUNDLE_VERSION, version);
   }
 }

@@ -66,9 +66,11 @@ abstract class UpdateVersionInPListTask
     }
   }
   
-  protected void updateProperty(PListAccessor infoPlistAccessor, String key, String newValue) throws XCodeException {
+  protected void updateProperty(File plistFile, String key, String newValue) throws XCodeException {
 
     try {
+      
+      final PListAccessor infoPlistAccessor = new PListAccessor(plistFile);
       
       final String oldValue = infoPlistAccessor.getStringValue(key);
 
