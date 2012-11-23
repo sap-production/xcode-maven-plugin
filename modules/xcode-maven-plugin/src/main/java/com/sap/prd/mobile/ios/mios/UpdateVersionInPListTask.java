@@ -84,7 +84,7 @@ abstract class UpdateVersionInPListTask
       }
              
       infoPlistAccessor.updateStringValue(key, newValue);
-      log.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set " + key + " to '" + version + "'.");
+      log.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set " + key + " from old value " + oldValue  + " to new value '" + version + "'.");
     }
     catch (IOException e) {
       throw new XCodeException(e.getMessage(), e);
