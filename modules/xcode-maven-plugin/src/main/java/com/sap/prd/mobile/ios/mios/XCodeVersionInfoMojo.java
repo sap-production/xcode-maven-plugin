@@ -69,7 +69,7 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
  * @goal attach-version-info
  * @requiresDependencyResolution
  */
-public class XCodeVersionInfoMojo extends AbstractXCodeMojo
+public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 {
 
   /**
@@ -177,6 +177,9 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
       catch (ExecutionResultVerificationException e) {
         throw new MojoExecutionException(e.getMessage(), e);
       }
+      catch(XCodeException e) {
+        throw new MojoExecutionException(e.getMessage(), e);
+      }
     }
 
     projectHelper.attachArtifact(project, "xml", "versions", versionsFile);
@@ -184,7 +187,7 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
     getLog().info("versions.xml '" + versionsFile + " attached as additional artifact.");
   }
 
-  private void copyVersionsXmlAndSign() throws IOException, ExecutionResultVerificationException
+  private void copyVersionsXmlAndSign() throws IOException, ExecutionResultVerificationException, XCodeException
   {
     for (final String configuration : getConfigurations())
     {
@@ -194,7 +197,8 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
         {
           File versionsXmlInBuild = new File(project.getBuild().getDirectory(), "versions.xml");
           File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, sdk);
-          String productName = EffectiveBuildSettings.getProductName(this.project, configuration, sdk);
+          
+          String productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
           File appFolder = new File(rootDir, productName + ".app");
           File versionsXmlInApp = new File(appFolder, "versions.xml");
 
@@ -218,11 +222,10 @@ public class XCodeVersionInfoMojo extends AbstractXCodeMojo
     }
   }
 
-  private void sign(File rootDir, String configuration, String sdk) throws IOException
+  private void sign(File rootDir, String configuration, String sdk) throws IOException, XCodeException
   {
-    EffectiveBuildSettings settings = new EffectiveBuildSettings(this.project, configuration, sdk);
-    String csi = settings.getBuildSetting(EffectiveBuildSettings.CODE_SIGN_IDENTITY);
-    File appFolder = new File(settings.getBuildSetting(EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
+    String csi = EffectiveBuildSettings.getBuildSetting(getXCodeContext(), configuration, sdk, EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(getXCodeContext(), configuration, sdk, EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
     CodeSignManager.sign(csi, appFolder, true);
   }
 

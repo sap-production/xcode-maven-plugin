@@ -39,7 +39,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  * @goal update-version-in-pom
  * 
  */
-public class UpdateVersionInPomMojo extends AbstractXCodeBuildMojo
+public class UpdateVersionInPomMojo extends BuildContextAwareMojo
 {
 
   /**
@@ -133,8 +133,7 @@ public class UpdateVersionInPomMojo extends AbstractXCodeBuildMojo
 
         String _version = null;
 
-        String infoPListFileName = EffectiveBuildSettings.getInfoPListFile(project, configuration, sdk);
-
+        String infoPListFileName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(), configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
         if(infoPListFileName == null || infoPListFileName.isEmpty())
           throw new XCodeException("Cannot retrieve info plist file from Build settings.");
         

@@ -20,13 +20,15 @@ package com.sap.prd.mobile.ios.mios;
  * #L%
  */
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.project.MavenProject;
 
 public class EffectiveBuildSettings
 {
@@ -39,82 +41,102 @@ public class EffectiveBuildSettings
   public static final String PUBLIC_HEADERS_FOLDER_PATH = "PUBLIC_HEADERS_FOLDER_PATH";
   public static final String BUILT_PRODUCTS_DIR = "BUILT_PRODUCTS_DIR";
   
+  private final static Map<Key, Properties> buildSettings = new HashMap<Key, Properties>();
   
-  private Properties properties;
-
-  public static String getInfoPListFile(MavenProject project, String configuration, String sdk)
+  public static String getBuildSetting(XCodeContext context, String configuration, String sdk, String key) throws XCodeException
   {
-    EffectiveBuildSettings settings = new EffectiveBuildSettings(project, configuration, sdk);
-    return settings.getBuildSetting(INFOPLIST_FILE);
-  }
-
-  
-  public static String getProductName(MavenProject project, String configuration, String sdk)
-  {
-    EffectiveBuildSettings settings = new EffectiveBuildSettings(project, configuration, sdk);
-    return settings.getBuildSetting(PRODUCT_NAME);
-  }
-
-  public static File getBuildSettingsFile(MavenProject project, String configuration, String sdk)
-  {
-    return getBuildSettingsFile(project.getBuild().getDirectory(), configuration, sdk);
-  }
-
-  public static File getBuildSettingsFile(String directory, String configuration, String sdk)
-  {
-    return new File(directory, getBuildSettingsFileName(configuration, sdk));
-  }
-
-  public static String getBuildSettingsFileName(String configuration, String sdk)
-  {
-    return "build-settings" + "-" + configuration + "-" + sdk + ".properties";
-  }
-
-  
-  /**
-   * @param configuration
-   *          e.g. "Release"
-   * @param sdk
-   *          e.g. "iphoneos"
-   */
-  public EffectiveBuildSettings(MavenProject project, String configuration, String sdk)
-  {
-    this(project.getBuild().getDirectory(), configuration, sdk);
+    return getBuildSettings(context, configuration, sdk).getProperty(key);
   }
   
-  /**
-   * @param directory
-   *          the project directory
-   * @param configuration
-   *          e.g. "Release"
-   * @param sdk
-   *          e.g. "iphoneos"
-   */
-  public EffectiveBuildSettings(String directory, String configuration, String sdk)
-  {
-      File file = getBuildSettingsFile(directory, configuration, sdk);
-      Properties p = new Properties();
-      FileInputStream fis = null;
-      try {
-        fis = new FileInputStream(file);
-        p.load(fis);
-        properties = p;
+  private static synchronized Properties getBuildSettings(final XCodeContext context, final String configuration, final String sdk) throws XCodeException {
+    
+    final Key key = new Key(configuration, sdk);
+    Properties _buildSettings = buildSettings.get(key);
+    
+    if(_buildSettings == null) {
+      _buildSettings = extractBuildSettings(context, configuration, sdk);
+      buildSettings.put(key, _buildSettings);
+    }
+      
+    return _buildSettings;
+  }
+  
+  private static Properties extractBuildSettings(final XCodeContext context, final String configuration, final String sdk) throws  XCodeException
+  { 
+    final CommandLineBuilder cmdLineBuilder = new CommandLineBuilder(configuration, sdk, context);
+    PrintStream out = null;
+    try {
+      ByteArrayOutputStream os = new ByteArrayOutputStream();
+      out = new PrintStream(os);
+      final int returnValue = Forker.forkProcess(out, context.getProjectRootDirectory(),
+            cmdLineBuilder.createShowBuildSettingsCall());
+
+      if (returnValue != 0) {
+        throw new XCodeException("Could not execute xcodebuild -showBuildSettings command for configuration "
+              + configuration + " and sdk " + sdk);
       }
-      catch (IOException e) {
-        throw new IllegalStateException("Could not read build properties file " + file, e);
-      }
-      finally {
-        IOUtils.closeQuietly(fis);
-      }
+
+      out.flush();
+      Properties prop = new Properties();
+      prop.load(new ByteArrayInputStream(os.toByteArray()));
+      return prop;
+
+    } catch(IOException ex) {
+      throw new XCodeException("Cannot extract build properties: " + ex.getMessage(), ex);
+    }
+    finally {
+      IOUtils.closeQuietly(out);
+    }
   }
   
-  public String getBuildSetting(String key)
-  {
-    return properties.getProperty(key);
-  }
-  
-  public String getBuildSetting(String key, String defaultValue)
-  {
-    return properties.getProperty(key, defaultValue);
+  private static class Key {
+    
+    private final String configuration, sdk;
+    
+    Key(String configuration, String sdk) {
+      
+      if(configuration == null || configuration.isEmpty())
+        throw new IllegalArgumentException("Configuration was not provided.");
+      
+      if(sdk == null || sdk.isEmpty())
+        throw new IllegalArgumentException("SDK was not provided.");
+      
+      this.configuration = configuration;
+      this.sdk = sdk;
+    }
+
+    @Override
+    public int hashCode()
+    {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((configuration == null) ? 0 : configuration.hashCode());
+      result = prime * result + ((sdk == null) ? 0 : sdk.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
+      Key other = (Key) obj;
+      if (configuration == null) {
+        if (other.configuration != null) return false;
+      }
+      else if (!configuration.equals(other.configuration)) return false;
+      if (sdk == null) {
+        if (other.sdk != null) return false;
+      }
+      else if (!sdk.equals(other.sdk)) return false;
+      return true;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "Key [configuration=" + configuration + ", sdk=" + sdk + "]";
+    }
   }
 }

@@ -34,7 +34,7 @@ import org.codehaus.plexus.archiver.manager.ArchiverManager;
  * @goal xcode-package
  * 
  */
-public class XCodePackageMojo extends AbstractXCodeMojo
+public class XCodePackageMojo extends BuildContextAwareMojo
 {
 
   /**
@@ -64,12 +64,15 @@ public class XCodePackageMojo extends AbstractXCodeMojo
 
     try {
 
-      new XCodePackageManager(getLog(), archiverManager, projectHelper).packageArtifacts(getXCodeCompileDirectory(),
+      new XCodePackageManager(getLog(), archiverManager, projectHelper).packageArtifacts(getXCodeContext(),
             getConfigurations(),
             getSDKs(), project, bundles);
     }
     catch (IOException ex) {
       throw new MojoExecutionException("", ex);
+    }
+    catch(XCodeException ex) {
+      throw new MojoExecutionException(ex.getMessage(), ex);
     }
   }
 }

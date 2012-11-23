@@ -24,12 +24,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.maven.plugin.MojoExecutionException;
+
 /**
  * Contains all parameters and methods that are needed for mojos that invoke the 'xcodebuild'
  * command.
  * 
  */
-public abstract class AbstractXCodeBuildMojo extends AbstractXCodeMojo
+public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 {
 
   protected final static List<String> DEFAULT_BUILD_ACTIONS = Collections.unmodifiableList(Arrays.asList("clean",
@@ -89,5 +91,40 @@ public abstract class AbstractXCodeBuildMojo extends AbstractXCodeMojo
   {
     return (buildActions == null || buildActions.isEmpty()) ? DEFAULT_BUILD_ACTIONS : Collections
       .unmodifiableList(buildActions);
+  }
+  
+  /**
+   * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
+   * to it.
+   */
+  protected PListAccessor getInfoPListAccessor(String configuration, String sdk)
+        throws MojoExecutionException, XCodeException
+  {
+    File plistFile = getPListFile(configuration, sdk);
+    if (!plistFile.isFile()) {
+      throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFile
+            + "' that does not exist.");
+    }
+    return new PListAccessor(plistFile);
+  }
+  
+  protected File getPListFile(String configuration, String sdk) throws XCodeException {
+
+    String plistFileName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(), configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
+
+    final File plistFile = new File(plistFileName);
+
+    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(getXCodeContext(), configuration, sdk, EffectiveBuildSettings.SRC_ROOT));
+
+    if(! plistFile.isAbsolute()) {
+      return new File(srcRoot, plistFileName);
+    }
+    
+
+    if(FileUtils.isChild(srcRoot, plistFile))
+      return plistFile;
+    
+    throw new IllegalStateException("Plist file " + plistFile + " is not located inside the xcode project " + srcRoot +  ".");
+    
   }
 }

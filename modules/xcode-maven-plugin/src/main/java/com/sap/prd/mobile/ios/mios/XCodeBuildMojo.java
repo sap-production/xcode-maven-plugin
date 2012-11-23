@@ -31,7 +31,7 @@ import org.apache.maven.plugin.MojoFailureException;
  * @requiresDependencyResolution
  * 
  */
-public class XCodeBuildMojo extends AbstractXCodeBuildMojo
+public class XCodeBuildMojo extends BuildContextAwareMojo
 {
   
   @Override

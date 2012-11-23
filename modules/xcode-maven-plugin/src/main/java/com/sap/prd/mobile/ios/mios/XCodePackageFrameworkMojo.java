@@ -34,18 +34,23 @@ import org.apache.maven.plugin.MojoFailureException;
  * @goal package-framework
  * 
  */
-public class XCodePackageFrameworkMojo extends AbstractXCodeMojo
+public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
 {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
-    EffectiveBuildSettings effBuildSettings = new EffectiveBuildSettings(project, getPrimaryFmwkConfiguration(),
-          "iphoneos");
-    String productName = effBuildSettings.getBuildSetting(EffectiveBuildSettings.PRODUCT_NAME);
-    String builtProductsDirName = effBuildSettings.getBuildSetting(EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
-
+    String productName = null;
+    String builtProductsDirName = null;
+    
+    try {
+      productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(), getPrimaryFmwkConfiguration(), "iphoneos", EffectiveBuildSettings.PRODUCT_NAME);
+      builtProductsDirName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(), getPrimaryFmwkConfiguration(), "iphoneos", EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+    } catch(XCodeException ex) {
+      throw new MojoExecutionException(ex.getMessage(), ex);
+    }
+    
     File builtProductsDir = new File(builtProductsDirName);
     String fmwkDirName = productName + ".framework";
     File fmwkDir = new File(builtProductsDir, fmwkDirName);
