@@ -79,7 +79,7 @@ class XCodePrepareBuildManager
 
     prepareRootFolders(project, configurations,  sdks);
     
-    final Iterator<?> compileArtifacts = getCompileArtifacts(project).iterator();
+    final Iterator<Artifact> compileArtifacts = getCompileArtifacts(project).iterator();
     
     if(!compileArtifacts.hasNext()) {
       log.info("No compile dependencies found.");
@@ -87,7 +87,7 @@ class XCodePrepareBuildManager
     
     while(compileArtifacts.hasNext()) {
 
-      final Artifact mainArtifact = (Artifact) compileArtifacts.next();
+      final Artifact mainArtifact = compileArtifacts.next();
 
       log.info("Preparing dependency: " + mainArtifact.getId());
 
