@@ -28,7 +28,7 @@ import org.apache.maven.it.Verifier;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class VersionTestsWithAppAsSnapshot extends XCodeTest
+public class VersionWithAppAsSnapshotTest extends XCodeTest
 {
   private static File remoteRepositoryDirectory = null, appTestBaseDir = null;
   private static String dynamicVersion = null,
@@ -40,9 +40,9 @@ public class VersionTestsWithAppAsSnapshot extends XCodeTest
   public static void __setup() throws Exception {
 
     dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    testName = VersionTestsWithAppAsSnapshot.class.getName() +  File.separator + Thread.currentThread().getStackTrace()[1].getMethodName();
+    testName = VersionWithAppAsSnapshotTest.class.getName() +  File.separator + Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    remoteRepositoryDirectory = getRemoteRepositoryDirectory(VersionTestsWithAppAsSnapshot.class.getName());
+    remoteRepositoryDirectory = getRemoteRepositoryDirectory(VersionWithAppAsSnapshotTest.class.getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
 
