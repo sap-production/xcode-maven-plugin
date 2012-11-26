@@ -20,6 +20,7 @@
 package com.sap.prd.mobile.ios.mios;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -107,10 +108,10 @@ public class PListAccessorTest extends XCodeTest
     plist.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, "foo");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void readStringFromNonExistingKey() throws IOException
   {
-    plist.getStringValue("foo");
+    assertNull(plist.getStringValue("foo"));
   }
 
   @Test(expected=IllegalStateException.class)
@@ -123,6 +124,13 @@ public class PListAccessorTest extends XCodeTest
     loadPList();
     appId = plist.getStringValue("foo");
     assertEquals("com.sap.myapp.internal", appId);
+  }
+  
+  @Test
+  public void testAddEntry() throws Exception
+  {
+   plist.addStringValue("hugo", "test");
+   assertEquals("test", plist.getStringValue("hugo"));
   }
 
 }
