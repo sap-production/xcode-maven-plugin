@@ -72,6 +72,9 @@ public class VersionWithAppAsSnapshotTest extends XCodeTest
   public void testCFBundeVersionInInfoPlist() throws Exception
   {
     final File infoPList = new File(appTestBaseDir, "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
-    assertEquals("CFBundleVersion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "-SNAPSHOT'.", dynamicVersion + "-SNAPSHOT", new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_VERSION));
+    
+    // inside the pom of the test case here "-SNAPSHOT" is appended. This appendix must be removed before the version
+    // is put into the plist.
+    assertEquals("CFBundleVersion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.", dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_VERSION));
   }
 }
