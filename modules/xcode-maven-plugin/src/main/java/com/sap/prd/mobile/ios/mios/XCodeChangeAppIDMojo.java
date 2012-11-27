@@ -60,8 +60,8 @@ public class XCodeChangeAppIDMojo extends AbstractXCodeMojo
 
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
-        PListAccessor infoPlistAccessor = getInfoPListAccessor(getXCodeCompileDirectory(), configuration, sdk);
-        File infoPlistFile = infoPlistAccessor.getPlistFile();
+        File infoPlistFile = getPListFile(getXCodeCompileDirectory(), configuration, sdk);
+        PListAccessor infoPlistAccessor = new PListAccessor(infoPlistFile);
         if (alreadyUpdatedPlists.contains(infoPlistFile)) {
           getLog().debug("PList file '" + infoPlistFile.getName()
                 + "' was already updated for another configuration. This file will be skipped.");

@@ -67,13 +67,21 @@ public abstract class XCodeTest
   private static String activeProfiles = null;
   
   @Rule
-  public TemporaryFolder tmpFolder = new TemporaryFolder();
+  public static TemporaryFolder tmpFolder = new TemporaryFolder();
 
   @BeforeClass
   public static void setup() throws IOException, XmlPullParserException {
     prepareTestExecutionSettingsFile();
     prepareTestExecutionActiveProfiles();
     setupLocalRepo();
+  }
+  
+  //
+  // Works only when called directly by a junit test method. Otherwise getStrackTrace()[2] below is missleading.
+  //
+  protected String getTestName()
+  {
+    return getClass().getName() + File.separator + Thread.currentThread().getStackTrace()[2].getMethodName();
   }
   
   private static void prepareTestExecutionActiveProfiles()
@@ -194,25 +202,24 @@ public abstract class XCodeTest
   protected final static Map<String, String> THE_EMPTY_MAP = Collections.emptyMap();
   protected final static List<String> THE_EMPTY_LIST = Collections.emptyList();
   
-  protected Verifier test(final String testName, final File projectDirectory, final String pomFileName,
+  protected static Verifier test(final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
-
-    return test(null, testName, projectDirectory, pomFileName, target, additionalCommandLineOptions,
+    return test(null, testName, projectDirectory, target, additionalCommandLineOptions,
           additionalSystemProperties, pomReplacements);
   }
 
 
-  protected Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
-        final String pomFileName, final String target, List<String> additionalCommandLineOptions,
+  protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
+        final String target, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
-    return test(_verifier, testName, projectDirectory, pomFileName, Arrays.asList(new String[] {target}), additionalCommandLineOptions, additionalSystemProperties, pomReplacements);
+    return test(_verifier, testName, projectDirectory, Arrays.asList(new String[] {target}), additionalCommandLineOptions, additionalSystemProperties, pomReplacements);
   }
   
-  protected Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
-        final String pomFileName, List<String> targets, List<String> additionalCommandLineOptions,
+  protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
+        List<String> targets, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
 
@@ -238,7 +245,7 @@ public abstract class XCodeTest
 
     prepareTestExectutionFolder(projectDirectory, testExecutionFolder);
 
-    rewritePom(new File(testExecutionFolder, pomFileName), pomReplacements);
+    rewritePom(new File(testExecutionFolder, "pom.xml"), pomReplacements);
 
     try {
 
@@ -253,13 +260,6 @@ public abstract class XCodeTest
       
       final List<String> commandLineOptions = new ArrayList<String>();
       
-      if(pomFileName != null) 
-      {
-        commandLineOptions.add("-f");
-        commandLineOptions.add(pomFileName);
-      }
-
-      if(getTestExectutionSettingsFile() != null)
       {
         commandLineOptions.add("-s");
         commandLineOptions.add(getTestExectutionSettingsFile().getAbsolutePath());
@@ -327,14 +327,13 @@ public abstract class XCodeTest
     return new File(new File(".").getAbsoluteFile(), "target/tests/");
   }
   
-  protected File getTestExecutionDirectory(final String testName, final String projectName)
+  protected static File getTestExecutionDirectory(final String testName, final String projectName)
   {
     return new File(
-          getTestsExecutionDirectory(),
-                getClass().getName() + "/" + testName + "/" + projectName);
+          getTestsExecutionDirectory(), testName + "/" + projectName);
   }
 
-  private void showLog(PrintStream out, final String projectName, final File logFile)
+  private static void showLog(PrintStream out, final String projectName, final File logFile)
         throws FileNotFoundException, IOException
   {
 
@@ -364,7 +363,7 @@ public abstract class XCodeTest
     }
   }
 
-  private void rewritePom(File pomFile, Properties pomReplacements)
+  private static void rewritePom(File pomFile, Properties pomReplacements)
         throws IOException
   {
 
@@ -440,7 +439,7 @@ public abstract class XCodeTest
             + remoteRepository);
   }
 
-  protected String getMavenXcodePluginVersion() throws IOException
+  protected static String getMavenXcodePluginVersion() throws IOException
   {
     Properties properties = new Properties();
     properties.load(XCodeTest.class.getResourceAsStream("/project.properties"));
@@ -452,7 +451,7 @@ public abstract class XCodeTest
     return xcodePluginVersion;
   }
 
-  private static File getTargetDirectory() throws IOException
+  protected static File getTargetDirectory() throws IOException
   {
     return new File(new File(".").getCanonicalFile(), "target");
   }
@@ -476,7 +475,7 @@ public abstract class XCodeTest
     return tmpXcodeProjDir;
   }
 
-  protected void extractFileWithShellScript(File sourceFile, File destinationFolder)
+  protected static void extractFileWithShellScript(File sourceFile, File destinationFolder)
         throws IOException
   {
     File workingDirectory = tmpFolder.newFolder("scriptWorkingDir");

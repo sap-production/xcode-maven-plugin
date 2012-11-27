@@ -41,14 +41,14 @@ public class XCodeFrameworkTest extends XCodeTest
   @Test
   public void createRealFramework() throws Exception
   {
-    String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    String testName = getTestName();
     createAndValidateFmwk(testName, "MyRealFramework");
   }
 
   @Test
   public void createFakeFramework() throws Exception
   {
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();;
     createAndValidateFmwk(testName, "MyFakeFramework");
   }
 
@@ -56,7 +56,7 @@ public class XCodeFrameworkTest extends XCodeTest
   @Test
   public void buildLibAsFramework() throws Exception
   {    
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
     File projectDirectory = new File(getTestRootDirectory(), "framework/MyLibrary");
@@ -67,7 +67,7 @@ public class XCodeFrameworkTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
     
     try {
-      test(verifier, testName, projectDirectory, "pom.xml", "deploy",
+      test(verifier, testName, projectDirectory, "deploy",
             THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
       fail("Expected the Maven call to fail due to missing framework build result.");
     }
@@ -86,7 +86,7 @@ public class XCodeFrameworkTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-    test(testName, new File(getTestRootDirectory(), "framework/" + fmwkName), "pom.xml", "deploy",
+    test(testName, new File(getTestRootDirectory(), "framework/" + fmwkName), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
     final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion + "/" + fmwkName
@@ -113,7 +113,7 @@ public class XCodeFrameworkTest extends XCodeTest
   {
     final String dynamicVersion = "1.0.0";
     
-    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+    final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
 
@@ -128,7 +128,7 @@ public class XCodeFrameworkTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_FRWK_REPO_DIR, frameworkRepository.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
-    test(testName, new File(getTestRootDirectory(), "framework/MyApp"), "pom.xml",
+    test(testName, new File(getTestRootDirectory(), "framework/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
           additionalSystemParameters, pomReplacements);
@@ -165,12 +165,12 @@ public class XCodeFrameworkTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_FRWK_REPO_DIR, frameworkRepository.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
-    test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyLibrary"), "pom.xml",
+    test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyLibrary"),
           "deploy",
           THE_EMPTY_LIST,
           additionalSystemParameters, pomReplacements);
 
-    Verifier verifier = test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyApp"), "pom.xml",
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyApp"),
           "install",
           THE_EMPTY_LIST,
           additionalSystemParameters, pomReplacements);
@@ -231,14 +231,14 @@ public class XCodeFrameworkTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_FRWK_REPO_DIR, frameworkRepository.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
-    test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyLibrary"), "pom.xml",
+    test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyLibrary"),
           "deploy",
           THE_EMPTY_LIST,
           additionalSystemParameters, pomReplacements);
 
     additionalSystemParameters.put("xcode.preferFatLibs", Boolean.TRUE.toString());
     
-    Verifier verifier = test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyApp"), "pom.xml",
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyApp"), 
           "install",
           THE_EMPTY_LIST,
           additionalSystemParameters, pomReplacements);
