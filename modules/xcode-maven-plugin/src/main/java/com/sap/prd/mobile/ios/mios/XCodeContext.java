@@ -144,7 +144,7 @@ class XCodeContext
     }
 
     public void setOptions(Map<String, String> options) {
-        this.options = options;
+        this.options = CommandLineBuilder.Options.validateUserOptions(options);
     }
 
     public Map getSettings() {
@@ -152,10 +152,11 @@ class XCodeContext
     }
 
     public void setSettings(Map<String, String> settings) {
-        this.settings = settings;
+        this.settings = CommandLineBuilder.Settings.validateUserSettings(settings);
     }
 
    private static String toString(String prefix, Map<String, String> map, String separator) {
+       if (map == null) return "";
        StringBuffer buffer = new StringBuffer();
        for (Map.Entry entry : map.entrySet()){
            buffer.append(prefix).append(entry.getKey()).append(separator).append(entry.getValue());
@@ -163,7 +164,7 @@ class XCodeContext
        return buffer.toString();
    }
 
-  @Override
+    @Override
   public String toString()
   {
     final StringBuilder sb = new StringBuilder();

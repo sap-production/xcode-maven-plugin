@@ -325,19 +325,12 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
           + "' is not part of the configurations '" + getConfigurations() + "' defined in the POM for this project");
   }
 
-    public Map<String, String> getSettings() {
+    protected Map<String, String> getSettings() {
         return settings;
     }
 
-    public void setSettings(Map<String, String> settings) {
-        this.settings = settings;
-    }
-
-    public Map<String, String> getOptions() {
+    protected Map<String, String> getOptions() {
         return options;
     }
 
-    public void setOptions(Map<String, String> options) {
-        this.options = options;
-  }
 }

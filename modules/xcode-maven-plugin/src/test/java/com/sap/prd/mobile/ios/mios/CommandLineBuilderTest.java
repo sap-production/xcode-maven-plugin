@@ -72,7 +72,9 @@ public class CommandLineBuilderTest
       settings.put("CONFIGURATION_BUILD_DIR", "/Users/me/projects/myapp/target/xcode/src/main/xcode/build");
       context.setSettings(settings);
       expect("xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
-              "mysdk", "VALID_ARCHS=i386", "CONFIGURATION_BUILD_DIR=/Users/me/projects/myapp/target/xcode/src/main/xcode/build", "clean", "build");
+              "mysdk", "VALID_ARCHS=i386",
+              "CONFIGURATION_BUILD_DIR=/Users/me/projects/myapp/target/xcode/src/main/xcode/build", "DSTROOT=build",
+              "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build");
       context.setSettings(null);
     }
 
@@ -85,7 +87,7 @@ public class CommandLineBuilderTest
       expect("xcodebuild", "-arch", "i386", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
               "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build");
       context.setOptions(null);
-  }
+    }
 
   @Test
   public void testCodeSignIdentity() throws Exception
