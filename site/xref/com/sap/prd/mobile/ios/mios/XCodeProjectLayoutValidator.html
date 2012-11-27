@@ -70,11 +70,11 @@
 <a class="jxr_linenumber" name="60" href="#60">60</a>      <strong class="jxr_keyword">if</strong> (xcodeProjectFolders.size() == 0)
 <a class="jxr_linenumber" name="61" href="#61">61</a>      {
 <a class="jxr_linenumber" name="62" href="#62">62</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/XCodeProjectNotFoundException.html">XCodeProjectNotFoundException</a>(
-<a class="jxr_linenumber" name="63" href="#63">63</a>              <span class="jxr_string">"Inside folder \&quot;"</span>
+<a class="jxr_linenumber" name="63" href="#63">63</a>              <span class="jxr_string">"The folder \&quot;"</span>
 <a class="jxr_linenumber" name="64" href="#64">64</a>                    + xcodeFolder
-<a class="jxr_linenumber" name="65" href="#65">65</a>                    + <span class="jxr_string">"\&quot; there exists no folder named \&quot;"</span>
+<a class="jxr_linenumber" name="65" href="#65">65</a>                    + <span class="jxr_string">"\&quot; must contain folder named \&quot;"</span>
 <a class="jxr_linenumber" name="66" href="#66">66</a>                    + xcodeProjectFolderName
-<a class="jxr_linenumber" name="67" href="#67">67</a>                    + <span class="jxr_string">"\&quot;. This folder is expected to hold the xcode project configuration. The xcode project is expected to have the same name than the maven artifactId."</span>);
+<a class="jxr_linenumber" name="67" href="#67">67</a>                    + <span class="jxr_string">"\&quot;. This folder is expected to hold the xcode project configuration. The xcode project must have the same name as the maven artifactId"</span>);
 <a class="jxr_linenumber" name="68" href="#68">68</a>      }
 <a class="jxr_linenumber" name="69" href="#69">69</a>      
 <a class="jxr_linenumber" name="70" href="#70">70</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> File xcodeProjectFolder : xcodeProjectFolders)
