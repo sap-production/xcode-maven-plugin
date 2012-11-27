@@ -91,16 +91,16 @@ class CommandLineBuilder {
      * Settings management encapsulated here.
      */
     static class Settings {
-        private final static String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
-        private final static String PROVISIONING_PROFILE = "PROVISIONING_PROFILE";
-        private final static String DSTROOT = "DSTROOT";
-        private final static String SYMROOT = "SYMROOT";
-        private final static String SHARED_PRECOMPS_DIR = "SHARED_PRECOMPS_DIR";
-        private final static String OBJROOT = "OBJROOT";
-        private final static String XCODE_OUTPUT_DIRECTORY = "build";
+        final static String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
+        final static String PROVISIONING_PROFILE = "PROVISIONING_PROFILE";
+        final static String DSTROOT = "DSTROOT";
+        final static String SYMROOT = "SYMROOT";
+        final static String SHARED_PRECOMPS_DIR = "SHARED_PRECOMPS_DIR";
+        final static String OBJROOT = "OBJROOT";
+        final static String XCODE_OUTPUT_DIRECTORY = "build";
 
-        private final static List<String> MANAGED = Arrays.asList(CODE_SIGN_IDENTITY, PROVISIONING_PROFILE, DSTROOT, SYMROOT, SHARED_PRECOMPS_DIR, OBJROOT);
-        private final static Map<String, String> REQUIRED = new LinkedHashMap<String, String>(7);
+        final static List<String> MANAGED = Arrays.asList(CODE_SIGN_IDENTITY, PROVISIONING_PROFILE, DSTROOT, SYMROOT, SHARED_PRECOMPS_DIR, OBJROOT);
+        final static Map<String, String> REQUIRED = new LinkedHashMap<String, String>(7);
 
         static {
             // Output directories should be specified (recommended by Apple - http://developer.apple.com/devcenter/download.action?path=/wwdc_2012/wwdc_2012_session_pdfs/session_404__building_from_the_command_line_with_xcode.pdf)
@@ -154,10 +154,10 @@ class CommandLineBuilder {
      * Options management is encapsulated here.
      */
     static class Options {
-        private final static String PROJECT_NAME = "project";
-        private final static String CONFIGURATION = "configuration";
-        private final static String SDK = "sdk";
-        private final static List<String> MANAGED = Arrays.asList(PROJECT_NAME, CONFIGURATION, SDK);
+        final static String PROJECT_NAME = "project";
+        final static String CONFIGURATION = "configuration";
+        final static String SDK = "sdk";
+        final static List<String> MANAGED = Arrays.asList(PROJECT_NAME, CONFIGURATION, SDK);
 
         /**
           * @param userOptions to be validated.

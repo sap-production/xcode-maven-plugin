@@ -44,11 +44,11 @@ public class CommandLineBuilderTest
   }
   
     private String appendStrings(String[] stringArray) {
-       StringBuffer buffer = new StringBuffer();
+       StringBuilder builder = new StringBuilder();
        for (String string : stringArray) {
-          buffer.append(string).append(" ");
+          builder.append(string).append(" ");
        }
-       return buffer.toString();
+       return builder.toString();
     }
 
     private void expect(String ... expected) {
@@ -78,6 +78,32 @@ public class CommandLineBuilderTest
       context.setSettings(null);
     }
 
+    private void assertIllegalSettings(String name, String value) throws IllegalArgumentException {
+        Map<String, String> settings = new LinkedHashMap<String, String>();
+        settings.put(name, value);
+        context.setSettings(settings);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCommandlineBuilderStraightForwardSetting_DSTROOT() {
+        assertIllegalSettings(CommandLineBuilder.Settings.DSTROOT, "build");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCommandlineBuilderStraightForwardSetting_SYMROOT() {
+        assertIllegalSettings(CommandLineBuilder.Settings.SYMROOT, "build");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCommandlineBuilderStraightForwardSetting_SHARED_PRECOMPS_DIR() {
+        assertIllegalSettings(CommandLineBuilder.Settings.SHARED_PRECOMPS_DIR, "build");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCommandlineBuilderStraightForwardSetting_OBJROOT() {
+        assertIllegalSettings(CommandLineBuilder.Settings.OBJROOT, "build");
+    }
+
     @Test
     public void testCommandlineBuilderStraightForwardOptions() throws Exception
     {
@@ -87,6 +113,27 @@ public class CommandLineBuilderTest
       expect("xcodebuild", "-arch", "i386", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
               "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build");
       context.setOptions(null);
+    }
+
+    private void assertIllegalOption(String name, String value) throws IllegalArgumentException {
+        Map<String, String> options = new LinkedHashMap<String, String>();
+        options.put(name, value);
+        context.setOptions(options);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCommandlineBuilderStraightForwardOption_project() {
+        assertIllegalOption(CommandLineBuilder.Options.PROJECT_NAME, "MyLib.xcodeproj");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCommandlineBuilderStraightForwardOption_configuration() {
+        assertIllegalOption(CommandLineBuilder.Options.CONFIGURATION, "Release");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCommandlineBuilderStraightForwardOption_sdk() {
+        assertIllegalOption(CommandLineBuilder.Options.SDK, "mysdk");
     }
 
   @Test

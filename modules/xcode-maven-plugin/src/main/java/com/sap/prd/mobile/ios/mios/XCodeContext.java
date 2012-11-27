@@ -139,7 +139,7 @@ class XCodeContext
     this.target = target;
   }
 
-    public Map getOptions() {
+    public Map<String, String> getOptions() {
         return options;
     }
 
@@ -147,7 +147,7 @@ class XCodeContext
         this.options = CommandLineBuilder.Options.validateUserOptions(options);
     }
 
-    public Map getSettings() {
+    public Map<String, String> getSettings() {
         return settings;
     }
 
@@ -157,11 +157,11 @@ class XCodeContext
 
    private static String toString(String prefix, Map<String, String> map, String separator) {
        if (map == null) return "";
-       StringBuffer buffer = new StringBuffer();
+       StringBuilder builder = new StringBuilder();
        for (Map.Entry entry : map.entrySet()){
-           buffer.append(prefix).append(entry.getKey()).append(separator).append(entry.getValue());
+           builder.append(prefix).append(entry.getKey()).append(separator).append(entry.getValue());
        }
-       return buffer.toString();
+       return builder.toString();
    }
 
     @Override
