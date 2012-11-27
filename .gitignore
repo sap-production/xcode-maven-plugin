@@ -2,7 +2,8 @@
 .classpath
 .settings/
 .idea/
-*.iml
+.idea/libraries/*.xml
+**/*.iml
 /modules/archetype/target/
 /modules/it-xcode-maven-plugin/target/
 /modules/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/src/xcode/build/
