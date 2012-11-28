@@ -24,15 +24,17 @@
  ------
  2012-11-26
  ------
- 
-Purpose of this page
+
+How to include Maven metadata into a library
+
+* Purpose of this page
  
    Sometimes it is helpful to include maven metadata into a library so that those metadata can be accessed on coding level.
    E.g. it might be desirable to have the maven GAV or the changelist with that a library was built available in order to
    write those data into a log.
    This page explains what need to be done in order to get maven metadata available for a project on coding level.
    
-The big picture
+* The big picture
  
    In order to provide meta data on source code level an additional header file containing some <<<#define>>>s can be provided.
    For each meta data property one define needs to be defined. This header file needs to be provided to the project. Since the
@@ -44,7 +46,7 @@ The big picture
    
    An example for the scenario described on that page can be found {{{./IncludeMavenMetadataIntoALibrary.zip}here}}
 
-How it works
+* How it works
 
 
    The {{{http://maven.apache.org/plugins/maven-resources-plugin/}maven-resource-plugin}} can be used for filtering resources.
@@ -68,7 +70,7 @@ How it works
    With the following pom snippets that file gets filtered. The result needs to be provided inside a folder that is on the header search path of the
    xcode project, e.g. <<<$\{project.build.directory\}/xcode-deps/private/headers>>>.
    
-* Define what should be filtered
+** Define what should be filtered
 
    The files that should be filtered are defined in a filter section. The root directory for that the filtering is applied is denoted by <<<directory>>>.
    The root directory is relative to the project directory.
@@ -92,9 +94,9 @@ How it works
 </build>
 +-------------
 
-* Configure the maven-resoure-plugin
+** Configure the maven-resoure-plugin
 
-** Define the maven-resource-plugin.
+*** Define the maven-resource-plugin.
 
    The maven-resource-plugin is defined by its GAV
 
@@ -115,7 +117,7 @@ How it works
     </executions>
 +-------------
 
-** Bind the filter goal to a lifecycle phase.
+*** Bind the filter goal to a lifecycle phase.
 
    The filtering needs to be activated by binding the filter goal to a lifecycle phase. In order to get the header file containing the maven metadata at an early point
    in the lifecyle it is recommanded to bind to the <<<initialize>>> phase. The goal that needs to be bound is <<<resources>>>.
@@ -135,7 +137,7 @@ How it works
 +-------------
 
 
-** Define the output folder for the maven-resource-plugin.
+*** Define the output folder for the maven-resource-plugin.
 
    The output folder for the filtering must point to a folder located on the header search path of the xcode project.
 
@@ -147,7 +149,7 @@ How it works
       </configuration>
 +-------------
 
-** Define the delimiter
+*** Define the delimiter
 
    By default the delimiters are:
    The asterix is not suitable for our purpose since the NSString is created with <<<@"">>>. Hence we have to disable the default
