@@ -8,6 +8,7 @@
 /modules/plist-parser/target/
 /modules/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/target/
 /modules/it-xcode-maven-plugin/src/test/projects/multiple-targets/MultipleTargets/target/
+/parent/target/
 project.xcworkspace/
 xcuserdata/
 /target/
