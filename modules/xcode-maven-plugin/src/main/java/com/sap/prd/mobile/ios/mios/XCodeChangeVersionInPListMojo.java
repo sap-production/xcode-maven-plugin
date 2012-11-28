@@ -63,7 +63,7 @@ public class XCodeChangeVersionInPListMojo extends AbstractXCodeMojo
 
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
-        File infoPlistFile = getPListFile(getXCodeCompileDirectory(), configuration, sdk);
+        File infoPlistFile = getPListFile(configuration, sdk);
         if (alreadyUpdatedPlists.contains(infoPlistFile)) {
           getLog().debug("Version in PList file '" + infoPlistFile.getName()
                 + "' was already updated for another configuration. This file will be skipped.");

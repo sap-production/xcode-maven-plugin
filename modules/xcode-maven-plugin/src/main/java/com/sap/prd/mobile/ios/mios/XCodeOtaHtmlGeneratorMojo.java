@@ -107,7 +107,7 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
         final String ipaClassifier = getIpaClassifier(configuration, sdk);
 
         try {
-          PListAccessor plistAccessor = getInfoPListAccessor(getXCodeCompileDirectory(), configuration, sdk);
+          PListAccessor plistAccessor = getInfoPListAccessor(configuration, sdk);
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION), ipaClassifier,

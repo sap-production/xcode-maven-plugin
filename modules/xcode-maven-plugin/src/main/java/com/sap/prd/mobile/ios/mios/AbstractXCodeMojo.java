@@ -229,17 +229,11 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   /**
    * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
    * to it.
-   * 
-   * @param xcodeProjectDirectory
-   *          the directory where the Xcode project is located. If you want to access the unmodified
-   *          Plist (i.e. AppID not appended) use the {@link #getXCodeSourceDirectory()} method, if
-   *          you want to access the modified plist, use the {@link #getXCodeCompileDirectory()}
-   *          method.
    */
-  protected PListAccessor getInfoPListAccessor(File xcodeProjectDirectory, String configuration, String sdk)
+  protected PListAccessor getInfoPListAccessor(String configuration, String sdk)
         throws MojoExecutionException
   {
-    File plistFile = getPListFile(xcodeProjectDirectory, configuration, sdk);
+    File plistFile = getPListFile(configuration, sdk);
     if (!plistFile.isFile()) {
       throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFile
             + "' that does not exist.");
@@ -247,17 +241,18 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return new PListAccessor(plistFile);
   }
   
-  protected File getPListFile(File xcodeProjectDirectory, String configuration, String sdk) {
+  protected File getPListFile(String configuration, String sdk) {
     EffectiveBuildSettings buildSettings = new EffectiveBuildSettings(project, configuration, sdk);
     String plistFileName = buildSettings.getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
 
     final File plistFile = new File(plistFileName);
 
+    File srcRoot = new File(buildSettings.getBuildSetting(EffectiveBuildSettings.SRC_ROOT));
+
     if(! plistFile.isAbsolute()) {
-      return new File(xcodeProjectDirectory, plistFileName);
+      return new File(srcRoot, plistFileName);
     }
     
-    File srcRoot = new File(buildSettings.getBuildSetting(EffectiveBuildSettings.SRC_ROOT));
 
     if(FileUtils.isChild(srcRoot, plistFile))
       return plistFile;

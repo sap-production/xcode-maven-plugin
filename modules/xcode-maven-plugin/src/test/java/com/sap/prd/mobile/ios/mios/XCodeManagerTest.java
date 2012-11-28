@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.HashSet;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Build;
