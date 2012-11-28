@@ -248,9 +248,22 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   }
   
   protected File getPListFile(File xcodeProjectDirectory, String configuration, String sdk) {
-    String plistFileName = new EffectiveBuildSettings(project, configuration, sdk)
-    .getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
-    return new File(xcodeProjectDirectory, plistFileName);
+    EffectiveBuildSettings buildSettings = new EffectiveBuildSettings(project, configuration, sdk);
+    String plistFileName = buildSettings.getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
+
+    final File plistFile = new File(plistFileName);
+
+    if(! plistFile.isAbsolute()) {
+      return new File(xcodeProjectDirectory, plistFileName);
+    }
+    
+    File srcRoot = new File(buildSettings.getBuildSetting(EffectiveBuildSettings.SRC_ROOT));
+
+    if(FileUtils.isChild(srcRoot, plistFile))
+      return plistFile;
+    
+    throw new IllegalStateException("Plist file " + plistFile + " is not located inside the xcode project " + srcRoot +  ".");
+    
   }
 
   /**

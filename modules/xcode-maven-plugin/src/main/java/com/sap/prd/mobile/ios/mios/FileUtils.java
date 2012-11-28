@@ -58,28 +58,37 @@ public class FileUtils
   public static String getDelta(File parent, File child)
   {
 
-    final List<String> _baseDir = split(parent.getAbsoluteFile());
-    final List<String> _sourceDir = split(child.getAbsoluteFile());
+    final List<String> _parent = split(parent.getAbsoluteFile());
+    final List<String> _child = split(child.getAbsoluteFile());
 
-    int index = 0;
 
-    for (int size = _baseDir.size(); index < size; index++)
-      if (!_baseDir.get(index).equals(_sourceDir.get(index)))
-        throw new IllegalStateException("Source directory '" + child + "' is not a child of the base directory '"
+    if(! isChild(_parent, _child))
+      throw new IllegalStateException("Child directory '" + child + "' is not a child of the base directory '"
               + parent + "'.");
 
     StringBuilder path = new StringBuilder();
 
-    boolean first = true;
-    for (int size = _sourceDir.size(); index < size; index++) {
+    int index = getNumberOfCommonElements(_parent, _child);
+    
+    for (int size = _child.size(); index < size; index++) {
 
-      if (!first)
+      if (path.length() != 0)
         path.append(File.separator);
-      path.append(_sourceDir.get(index));
-      first = false;
+      path.append(_child.get(index));
     }
 
     return path.toString();
+  }
+
+  private static int getNumberOfCommonElements(List<String> _parent, List<String> _child)
+  {
+    int index = 0;
+    
+    for(int size = Math.min(_parent.size(), _child.size()); index < size; index++)
+      if(! _parent.get(index).equals(_child.get(index)))
+        break;
+    
+    return index;
   }
 
   private static List<String> split(File dir)
@@ -229,5 +238,23 @@ public class FileUtils
     if (returnValue != 0) {
       throw new RuntimeException("Cannot create symbolic link from '" + source + "' to '"  +target + "'. Return value:" + returnValue);
     }
+  }
+
+  public static boolean isChild(File parent, File child)
+  {
+    return isChild(split(parent.getAbsoluteFile()), split(child.getAbsoluteFile()));
+  }
+  
+  private static boolean isChild(List<String> parent, List<String> child) {
+
+    if(child.size() < parent.size())
+      return false;
+
+    for (int index = 0, size = parent.size(); index < size; index++)
+      if (! parent.get(index).equals(child.get(index)))
+        return false;
+
+    return true;
+
   }
 }
