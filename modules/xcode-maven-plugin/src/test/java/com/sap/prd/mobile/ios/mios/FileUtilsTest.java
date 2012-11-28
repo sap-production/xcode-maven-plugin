@@ -40,7 +40,7 @@ public class FileUtilsTest
   public TemporaryFolder tmpFolder = new TemporaryFolder();
   
   @Test
-  public void testStraightForward() throws Exception
+  public void testGetDelta() throws Exception
   {
 
     Assert.assertEquals("source/dir",
@@ -52,6 +52,18 @@ public class FileUtilsTest
   {
     FileUtils.getDelta(new File("/home/abc"), new File("/home/def"));
   }
+  
+  @Test
+  public void testIsChild() throws Exception
+  {
+    assertTrue(FileUtils.isChild(new File("/abc/def"), new File("/abc/def/ghi")));
+  }
+
+  public void testIsNotAChild() throws Exception
+  {
+    assertFalse(FileUtils.isChild(new File("/abc/def"), new File("/abc/ghi/def")));
+  }
+
   
 
   @Test

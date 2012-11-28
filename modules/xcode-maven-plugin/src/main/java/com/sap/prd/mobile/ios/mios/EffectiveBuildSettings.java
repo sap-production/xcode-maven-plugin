@@ -31,7 +31,7 @@ import org.apache.maven.project.MavenProject;
 public class EffectiveBuildSettings
 {
   public static final String PRODUCT_NAME = "PRODUCT_NAME";
-  public static final String INFO_PLIST_FILE = "INFOPLIST_FILE";
+  public static final String SRC_ROOT = "SRCROOT";
   public static final String GCC_GENERATE_DEBUGGING_SYMBOLS = "GCC_GENERATE_DEBUGGING_SYMBOLS";
   public static final String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
   public static final String CODESIGNING_FOLDER_PATH = "CODESIGNING_FOLDER_PATH";
@@ -45,7 +45,7 @@ public class EffectiveBuildSettings
   public static String getInfoPListFile(MavenProject project, String configuration, String sdk)
   {
     EffectiveBuildSettings settings = new EffectiveBuildSettings(project, configuration, sdk);
-    return settings.getBuildSetting(INFO_PLIST_FILE);
+    return settings.getBuildSetting(INFOPLIST_FILE);
   }
 
   
@@ -54,7 +54,7 @@ public class EffectiveBuildSettings
     EffectiveBuildSettings settings = new EffectiveBuildSettings(project, configuration, sdk);
     return settings.getBuildSetting(PRODUCT_NAME);
   }
-  
+
   public static File getBuildSettingsFile(MavenProject project, String configuration, String sdk)
   {
     return getBuildSettingsFile(project.getBuild().getDirectory(), configuration, sdk);
