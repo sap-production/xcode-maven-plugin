@@ -66,7 +66,10 @@ How it works
    For more information about the parameters that can be filtered see {{{http://docs.codehaus.org/display/MAVENUSER/MavenPropertiesGuide}here}}.
 
    With the following pom snippets that file gets filtered. The result needs to be provided inside a folder that is on the header search path of the
-   xcode project, e.g. <<<$\{project.build.directory\}/xcode-deps/private/headers>>>.
+   xcode project. Since the xcode project is copied into <<<$\{project.build.directory\}/checkout>>> before the xcode build is executed the
+   metadata header file should be located inside <<<$\{project.build.diretory\}/xcode-deps>>>. This folder is copied together with the
+   xcode sources so that the relative pathes from the xcode sources into the xcode-deps folder are preserbed. The metadata header file
+   can e.g. be located under <<<$\{project.build.directory\}/xcode-deps/private/headers>>>.
    
 * Define what should be filtered
 
