@@ -57,10 +57,10 @@ How it works
 //
 
 
-#define GROUP_ID @"$\{project.groupId\}"
-#define ARTIFACT_ID @"$\{project.artifactId\}"
-#define VERSION @"$\{project.version\}"
-#define CHANGELIST @"$\{changelist\}"
+#define GROUP_ID @"\${project.groupId}"
+#define ARTIFACT_ID @"\${project.artifactId}"
+#define VERSION @"\${project.version}"
+#define CHANGELIST @"${changelist}"
 +-------------
 
    For more information about the parameters that can be filtered see {{{http://docs.codehaus.org/display/MAVENUSER/MavenPropertiesGuide}here}}.
