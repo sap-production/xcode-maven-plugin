@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="60" href="#60">60</a>  
 <a class="jxr_linenumber" name="61" href="#61">61</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String configuration : getConfigurations()) {
 <a class="jxr_linenumber" name="62" href="#62">62</a>        <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String sdk : getSDKs()) {
-<a class="jxr_linenumber" name="63" href="#63">63</a>          File infoPlistFile = getPListFile(getXCodeCompileDirectory(), configuration, sdk);
+<a class="jxr_linenumber" name="63" href="#63">63</a>          File infoPlistFile = getPListFile(configuration, sdk);
 <a class="jxr_linenumber" name="64" href="#64">64</a>          <a href="../../../../../../com/sap/prd/mobile/ios/mios/PListAccessor.html">PListAccessor</a> infoPlistAccessor = <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/PListAccessor.html">PListAccessor</a>(infoPlistFile);
 <a class="jxr_linenumber" name="65" href="#65">65</a>          <strong class="jxr_keyword">if</strong> (alreadyUpdatedPlists.contains(infoPlistFile)) {
 <a class="jxr_linenumber" name="66" href="#66">66</a>            getLog().debug(<span class="jxr_string">"PList file '"</span> + infoPlistFile.getName()

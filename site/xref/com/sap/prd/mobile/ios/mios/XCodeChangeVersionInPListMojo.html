@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="63" href="#63">63</a>  
 <a class="jxr_linenumber" name="64" href="#64">64</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String configuration : getConfigurations()) {
 <a class="jxr_linenumber" name="65" href="#65">65</a>        <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String sdk : getSDKs()) {
-<a class="jxr_linenumber" name="66" href="#66">66</a>          File infoPlistFile = getPListFile(getXCodeCompileDirectory(), configuration, sdk);
+<a class="jxr_linenumber" name="66" href="#66">66</a>          File infoPlistFile = getPListFile(configuration, sdk);
 <a class="jxr_linenumber" name="67" href="#67">67</a>          <strong class="jxr_keyword">if</strong> (alreadyUpdatedPlists.contains(infoPlistFile)) {
 <a class="jxr_linenumber" name="68" href="#68">68</a>            getLog().debug(<span class="jxr_string">"Version in PList file '"</span> + infoPlistFile.getName()
 <a class="jxr_linenumber" name="69" href="#69">69</a>                  + <span class="jxr_string">"' was already updated for another configuration. This file will be skipped."</span>);

@@ -125,7 +125,7 @@
 <a class="jxr_linenumber" name="115" href="#115">115</a>     String bundleIdentifier = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="116" href="#116">116</a>     <strong class="jxr_keyword">for</strong> (String configuration : getConfigurations()) {
 <a class="jxr_linenumber" name="117" href="#117">117</a>       <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="118" href="#118">118</a>         <a href="../../../../../../com/sap/prd/mobile/ios/mios/PListAccessor.html">PListAccessor</a> plistAccessor = getInfoPListAccessor(getXCodeSourceDirectory(), configuration, <span class="jxr_string">"iphoneos"</span>);
+<a class="jxr_linenumber" name="118" href="#118">118</a>         <a href="../../../../../../com/sap/prd/mobile/ios/mios/PListAccessor.html">PListAccessor</a> plistAccessor = getInfoPListAccessor(configuration, <span class="jxr_string">"iphoneos"</span>);
 <a class="jxr_linenumber" name="119" href="#119">119</a>         String _bundleIdentifier = plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
 <a class="jxr_linenumber" name="120" href="#120">120</a> 
 <a class="jxr_linenumber" name="121" href="#121">121</a>         <strong class="jxr_keyword">if</strong> (bundleIdentifier == <strong class="jxr_keyword">null</strong>)
