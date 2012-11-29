@@ -97,10 +97,10 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
    * to it.
    */
-  protected PListAccessor getInfoPListAccessor(String configuration, String sdk)
+  protected PListAccessor getInfoPListAccessor(File location, String configuration, String sdk)
         throws MojoExecutionException, XCodeException
   {
-    File plistFile = getPListFile(configuration, sdk);
+    File plistFile = getPListFile(location, configuration, sdk);
     if (!plistFile.isFile()) {
       throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFile
             + "' that does not exist.");
@@ -108,13 +108,17 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     return new PListAccessor(plistFile);
   }
   
-  protected File getPListFile(String configuration, String sdk) throws XCodeException {
+  protected File getPListFile(File location, String configuration, String sdk) throws XCodeException {
 
-    String plistFileName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(), configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
+    
+    XCodeContext context = getXCodeContext();
+    context.setProjectRootDirectory(location);
+    
+    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
+    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, configuration, sdk, EffectiveBuildSettings.SRC_ROOT));
 
     final File plistFile = new File(plistFileName);
 
-    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(getXCodeContext(), configuration, sdk, EffectiveBuildSettings.SRC_ROOT));
 
     if(! plistFile.isAbsolute()) {
       return new File(srcRoot, plistFileName);

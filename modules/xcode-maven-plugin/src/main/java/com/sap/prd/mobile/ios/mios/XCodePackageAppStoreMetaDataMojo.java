@@ -115,7 +115,8 @@ public class XCodePackageAppStoreMetaDataMojo extends BuildContextAwareMojo
     String bundleIdentifier = null;
     for (String configuration : getConfigurations()) {
       try {
-        PListAccessor plistAccessor = getInfoPListAccessor(configuration, "iphoneos");
+        
+        PListAccessor plistAccessor = getInfoPListAccessor(getXCodeSourceDirectory().getAbsoluteFile(), configuration, "iphoneos");
         String _bundleIdentifier = plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
 
         if (bundleIdentifier == null)

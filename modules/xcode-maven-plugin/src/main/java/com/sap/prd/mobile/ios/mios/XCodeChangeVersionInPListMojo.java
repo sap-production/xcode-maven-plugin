@@ -65,7 +65,7 @@ public class XCodeChangeVersionInPListMojo extends BuildContextAwareMojo
       for (final String sdk : getSDKs()) {
         File infoPlistFile = null;
         try {
-          infoPlistFile = getPListFile(configuration, sdk);
+          infoPlistFile = getPListFile(getXCodeCompileDirectory(), configuration, sdk);
         }
         catch (XCodeException e) {
           throw new MojoExecutionException(e.getMessage(), e);

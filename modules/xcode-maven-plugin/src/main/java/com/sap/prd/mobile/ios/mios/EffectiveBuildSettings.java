@@ -22,6 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ class EffectiveBuildSettings
   
   private static synchronized Properties getBuildSettings(final XCodeContext context, final String configuration, final String sdk) throws XCodeException {
     
-    final Key key = new Key(configuration, sdk);
+    final Key key = new Key(context.getProjectRootDirectory(), configuration, sdk);
     Properties _buildSettings = buildSettings.get(key);
     
     if(_buildSettings == null) {
@@ -68,6 +69,7 @@ class EffectiveBuildSettings
     try {
       ByteArrayOutputStream os = new ByteArrayOutputStream();
       out = new PrintStream(os);
+
       final int returnValue = Forker.forkProcess(out, context.getProjectRootDirectory(),
             cmdLineBuilder.createShowBuildSettingsCall());
 
@@ -91,9 +93,10 @@ class EffectiveBuildSettings
   
   private static class Key {
     
+    private final File location;
     private final String configuration, sdk;
     
-    Key(String configuration, String sdk) {
+    Key(File location, String configuration, String sdk) {
       
       if(configuration == null || configuration.isEmpty())
         throw new IllegalArgumentException("Configuration was not provided.");
@@ -101,8 +104,19 @@ class EffectiveBuildSettings
       if(sdk == null || sdk.isEmpty())
         throw new IllegalArgumentException("SDK was not provided.");
       
+      if(location == null)
+        throw new IllegalArgumentException("Location was not provided.");
+        
+      
       this.configuration = configuration;
       this.sdk = sdk;
+      this.location = location;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "Key [location=" + location + ", configuration=" + configuration + ", sdk=" + sdk + "]";
     }
 
     @Override
@@ -111,6 +125,7 @@ class EffectiveBuildSettings
       final int prime = 31;
       int result = 1;
       result = prime * result + ((configuration == null) ? 0 : configuration.hashCode());
+      result = prime * result + ((location == null) ? 0 : location.hashCode());
       result = prime * result + ((sdk == null) ? 0 : sdk.hashCode());
       return result;
     }
@@ -126,6 +141,7 @@ class EffectiveBuildSettings
         if (other.configuration != null) return false;
       }
       else if (!configuration.equals(other.configuration)) return false;
+      if (location != other.location) return false;
       if (sdk == null) {
         if (other.sdk != null) return false;
       }
@@ -133,10 +149,7 @@ class EffectiveBuildSettings
       return true;
     }
 
-    @Override
-    public String toString()
-    {
-      return "Key [configuration=" + configuration + ", sdk=" + sdk + "]";
-    }
+  
+  
   }
 }

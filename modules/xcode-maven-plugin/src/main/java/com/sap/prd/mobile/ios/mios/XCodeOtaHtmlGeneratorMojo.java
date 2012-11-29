@@ -111,7 +111,7 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
         final String ipaClassifier = getIpaClassifier(configuration, sdk);
 
         try {
-          PListAccessor plistAccessor = getInfoPListAccessor(configuration, sdk);
+          PListAccessor plistAccessor = getInfoPListAccessor(getXCodeCompileDirectory(), configuration, sdk);
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION), ipaClassifier,
