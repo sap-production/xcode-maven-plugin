@@ -22,9 +22,15 @@ package com.sap.prd.mobile.ios.mios;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.Verifier;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -52,13 +58,33 @@ public class VersionWithAppAsSnapshotTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward-with-app-as-snapshot/MyLibrary"), "deploy",
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
-    
-    appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward-with-app-as-snapshot/MyApp"),
+
+    appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
-          null, pomReplacements, new NullProjectModifier());
+          null, pomReplacements, new ProjectModifier() {
+
+            public void execute() throws Exception
+            {
+              final File pom = new File(testExecutionDirectory, "pom.xml");
+              FileInputStream fis = null;
+              FileOutputStream fos = null;
+
+              try {
+                fis = new FileInputStream(pom);
+                final Model model = new MavenXpp3Reader().read(fis);
+                fis.close();
+                fos = new FileOutputStream(pom);
+                model.setVersion(model.getVersion() + "-SNAPSHOT");
+                new MavenXpp3Writer().write(fos,  model);
+              } finally {
+                IOUtils.closeQuietly(fis);
+                IOUtils.closeQuietly(fos);
+              }
+            }
+          });
 
     appTestBaseDir = new File(appVerifier.getBasedir());
   }
