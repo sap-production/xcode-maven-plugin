@@ -175,6 +175,11 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testDeviantSourceDirectory() throws Exception
   {
+    final File testRootDirectory = getTestRootDirectory();
+    final File testSourceDirLib = new File(testRootDirectory, "straight-forward/MyLibrary");
+    final File testSourceDirApp = new File(testRootDirectory, "straight-forward/MyApp");
+    final File alternateTestSourceDirApp = new File(testRootDirectory, "deviant-source-directory/MyApp");
+    
     class RelocateProjectProjectModifier extends ProjectModifier {
 
       @Override
@@ -199,8 +204,10 @@ public class XCodeLifecycleTest extends XCodeTest
         File src = new File(testExecutionDirectory,  "src/xcode");
         org.apache.commons.io.FileUtils.copyDirectory(src, new File(testExecutionDirectory, "abc"));
         org.apache.commons.io.FileUtils.deleteDirectory(src);
+        
+        final String filePath = "abc/MyApp.xcodeproj/project.pbxproj";
+        org.apache.commons.io.FileUtils.copyFile(new File(alternateTestSourceDirApp, filePath), new File(testExecutionDirectory, filePath));
       }
-      
     }
     
     final String testName = getTestName();
@@ -214,13 +221,13 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
+    test(testName, testSourceDirLib, "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements, new RelocateProjectProjectModifier());
 
-    test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyApp"), "deploy",
+    test(testName, testSourceDirApp, "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+          THE_EMPTY_MAP, pomReplacements, new RelocateProjectProjectModifier());
 
     final String configuration = "Release";
 
