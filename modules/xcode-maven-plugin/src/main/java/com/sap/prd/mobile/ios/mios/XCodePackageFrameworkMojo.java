@@ -41,12 +41,12 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
-    String productName = null;
+    final String sdk = "iphoneos";
+    String productName = getProductName(getPrimaryFmwkConfiguration(), sdk);
     String builtProductsDirName = null;
     
     try {
-      productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), getPrimaryFmwkConfiguration(), "iphoneos", EffectiveBuildSettings.PRODUCT_NAME);
-      builtProductsDirName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), getPrimaryFmwkConfiguration(), "iphoneos", EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+      builtProductsDirName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), getPrimaryFmwkConfiguration(), sdk, EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
     } catch(XCodeException ex) {
       throw new MojoExecutionException(ex.getMessage(), ex);
     }

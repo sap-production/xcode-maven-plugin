@@ -55,11 +55,6 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
    */
   private MavenProjectHelper projectHelper;
 
-  /**
-   * @parameter expression="${product.name}"
-   */
-  private String productName;
-
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -83,20 +78,7 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
         if (configuration == null || configuration.isEmpty())
           throw new IllegalStateException("Invalid configuration: '" + configuration + "'.");
 
-        final String productName;
-
-        if (this.productName != null) {
-          productName = this.productName;
-          getLog().info("Production name obtained from pom file");
-        }
-        else {
-          try {
-          productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
-          getLog().info("Product name obtained from effective build settings file");
-          } catch(XCodeException ex) {
-            throw new MojoExecutionException("Cannot obtain product name: " + ex.getMessage(), ex);
-          }
-        }
+        final String productName = getProductName(configuration, sdk);
 
         final String fixedProductName = getFixedProductName(productName);
 

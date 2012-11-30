@@ -53,11 +53,6 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
    */
   private MavenProjectHelper projectHelper;
 
-  /**
-   * @parameter expression="${product.name}"
-   */
-  private String productName;
-
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -88,25 +83,10 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
   }
 
   private void packageAndAttachDSym(String sdk, String config) throws IOException, NoSuchArchiverException,
-        ArchiverException, XCodeException
+        ArchiverException, XCodeException, MojoExecutionException
   {
 
-    final String productName;
-
-    if (this.productName != null) {
-      productName = this.productName.trim();
-
-      if (productName.isEmpty())
-        throw new IllegalStateException("ProductName from pom file was empty.");
-
-    }
-    else {
-      
-      productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), config, sdk, EffectiveBuildSettings.PRODUCT_NAME);
-      
-      if (productName == null || productName.isEmpty())
-        throw new IllegalStateException("Product Name not found in effective build settings file");
-    }
+    final String productName = getProductName(config, sdk);
 
     final String fixedProductName = getFixedProductName(productName);
 

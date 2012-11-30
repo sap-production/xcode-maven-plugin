@@ -187,7 +187,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     getLog().info("versions.xml '" + versionsFile + " attached as additional artifact.");
   }
 
-  private void copyVersionsXmlAndSign() throws IOException, ExecutionResultVerificationException, XCodeException
+  private void copyVersionsXmlAndSign() throws IOException, ExecutionResultVerificationException, XCodeException, MojoExecutionException
   {
     for (final String configuration : getConfigurations())
     {
@@ -198,7 +198,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           File versionsXmlInBuild = new File(project.getBuild().getDirectory(), "versions.xml");
           File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, sdk);
           
-          String productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+          String productName = getProductName(configuration, sdk);
           File appFolder = new File(rootDir, productName + ".app");
           File versionsXmlInApp = new File(appFolder, "versions.xml");
 
