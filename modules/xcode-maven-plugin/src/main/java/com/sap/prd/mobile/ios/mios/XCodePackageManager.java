@@ -94,7 +94,7 @@ class XCodePackageManager
 
       if (!bundleDirectory.exists()) {
         log.info("Bundle directory '" + bundleDirectory + "' does not exist. Bundle will not be attached.");
-        return;
+        continue;
       }
       final File bundleFile = new File(new File(project.getBuild().getDirectory()), bundleName + ".bundle");
 
