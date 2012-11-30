@@ -185,6 +185,8 @@ public class XCodeLifecycleTest extends XCodeTest
       @Override
       void execute() throws Exception
       {
+        
+        final String relocationTarget = "abc";
         final File pom = new File(testExecutionDirectory, "pom.xml");
         FileInputStream fis = null;
         FileOutputStream fos = null;
@@ -194,7 +196,7 @@ public class XCodeLifecycleTest extends XCodeTest
           final Model model = new MavenXpp3Reader().read(fis);
           fis.close();
           fos = new FileOutputStream(pom);
-          model.getProperties().setProperty("xcode.sourceDirectory", "abc");
+          model.getProperties().setProperty("xcode.sourceDirectory", relocationTarget);
           new MavenXpp3Writer().write(fos,  model);
         } finally {
           IOUtils.closeQuietly(fis);
@@ -202,10 +204,10 @@ public class XCodeLifecycleTest extends XCodeTest
         }
 
         File src = new File(testExecutionDirectory,  "src/xcode");
-        org.apache.commons.io.FileUtils.copyDirectory(src, new File(testExecutionDirectory, "abc"));
+        org.apache.commons.io.FileUtils.copyDirectory(src, new File(testExecutionDirectory, relocationTarget));
         org.apache.commons.io.FileUtils.deleteDirectory(src);
         
-        final String filePath = "abc/MyApp.xcodeproj/project.pbxproj";
+        final String filePath = relocationTarget + "/MyApp.xcodeproj/project.pbxproj";
         org.apache.commons.io.FileUtils.copyFile(new File(alternateTestSourceDirApp, filePath), new File(testExecutionDirectory, filePath));
       }
     }
@@ -239,6 +241,43 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testXCodeSourceDirEqualsMavenSourceDirectory() throws Exception
   {
+    final File testRootDirectory = getTestRootDirectory();
+    final File testSourceDirLib = new File(testRootDirectory, "straight-forward/MyLibrary");
+    final File testSourceDirApp = new File(testRootDirectory, "straight-forward/MyApp");
+    final File alternateTestSourceDirApp = new File(testRootDirectory, "deviant-source-directory-2/MyApp");
+
+    class RelocateProjectProjectModifier extends ProjectModifier {
+
+      @Override
+      void execute() throws Exception
+      {
+        
+        final String relocationTarget = "";
+        final File pom = new File(testExecutionDirectory, "pom.xml");
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+
+        try {
+          fis = new FileInputStream(pom);
+          final Model model = new MavenXpp3Reader().read(fis);
+          fis.close();
+          fos = new FileOutputStream(pom);
+          model.getProperties().setProperty("xcode.sourceDirectory", relocationTarget);
+          new MavenXpp3Writer().write(fos,  model);
+        } finally {
+          IOUtils.closeQuietly(fis);
+          IOUtils.closeQuietly(fos);
+        }
+
+        File src = new File(testExecutionDirectory,  "src/xcode");
+        org.apache.commons.io.FileUtils.copyDirectory(src, new File(testExecutionDirectory, relocationTarget));
+        org.apache.commons.io.FileUtils.deleteDirectory(src);
+        
+        final String filePath = relocationTarget + "/MyApp.xcodeproj/project.pbxproj";
+        org.apache.commons.io.FileUtils.copyFile(new File(alternateTestSourceDirApp, filePath), new File(testExecutionDirectory, filePath));
+      }
+    }
+
     final String testName = getTestName();
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
 
@@ -249,12 +288,12 @@ public class XCodeLifecycleTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
+    
+    test(testName, testSourceDirLib, "deploy",
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new RelocateProjectProjectModifier());
 
-    test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyLibrary"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
-
-    test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyApp"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+    test(testName, testSourceDirApp, "deploy",
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new RelocateProjectProjectModifier());
 
     final String configuration = "Release";
 
