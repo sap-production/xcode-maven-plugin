@@ -64,7 +64,7 @@ public class FatBinaryTest extends XCodeTest
       com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(masterRemoteRepoDir);
 
     test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyLibrary"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
   }
 
   @Before
@@ -88,8 +88,8 @@ public class FatBinaryTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "install",
           THE_EMPTY_LIST,
-          additionalSystemProperties, pomReplacements);
-
+          additionalSystemProperties, pomReplacements, new NullProjectModifier());
+    
     final File testRootDir = getTestExecutionDirectory(testName, "MyApp");
 
     Assert.assertTrue(new File(testRootDir,
@@ -114,8 +114,8 @@ public class FatBinaryTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
           THE_EMPTY_LIST,
-          additionalSystemProperties, pomReplacements);
-
+          additionalSystemProperties, pomReplacements, new NullProjectModifier());
+    
     final File testRootDir = getTestExecutionDirectory(testName, "MyApp");
 
     Assert.assertFalse(new File(testRootDir,
@@ -150,8 +150,8 @@ public class FatBinaryTest extends XCodeTest
 
     test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
           THE_EMPTY_LIST,
-          additionalSystemProperties, pomReplacements);
-
+          additionalSystemProperties, pomReplacements, new NullProjectModifier());
+    
     final File testRootDir = getTestExecutionDirectory(testName, "MyApp");
 
     final File fatLibReleaseInProject = new File(testRootDir,
@@ -198,8 +198,8 @@ public class FatBinaryTest extends XCodeTest
 
     test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
           THE_EMPTY_LIST,
-          additionalSystemProperties, pomReplacements);
-
+          additionalSystemProperties, pomReplacements, new NullProjectModifier());
+    
     final File testRootDir = getTestExecutionDirectory(testName, "MyApp");
 
     final File fatLibReleaseInProject = new File(testRootDir,

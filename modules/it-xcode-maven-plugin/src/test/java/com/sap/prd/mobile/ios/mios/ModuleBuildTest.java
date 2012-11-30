@@ -55,7 +55,7 @@ public class ModuleBuildTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     test(testName, new File(getTestRootDirectory(), "moduleBuild"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     testExecutionDirectoryLibrary = getTestExecutionDirectory(testName, "moduleBuild/MyLibrary");
     testExecutionDirectoryApplication = getTestExecutionDirectory(testName, "moduleBuild/MyApp");

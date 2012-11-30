@@ -47,7 +47,7 @@ public class XCodePrepareMojoTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"),
           "deploy", null,
-          THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     final Map<String, String> additionalSystemParameters = new HashMap<String, String>();
     additionalSystemParameters.put("configuration", "Release");
@@ -56,7 +56,7 @@ public class XCodePrepareMojoTest extends XCodeTest
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:" + getMavenXcodePluginVersion() + ":prepare-xcode-build",
           THE_EMPTY_LIST,
-          additionalSystemParameters, pomReplacements);
+          additionalSystemParameters, pomReplacements, new NullProjectModifier());
 
     final String configuration = "Release";
 

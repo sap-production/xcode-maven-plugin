@@ -67,7 +67,7 @@ public class XCodeFrameworkTest extends XCodeTest
 
     try {
       test(verifier, testName, projectDirectory, "deploy",
-            THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+            THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
       fail("Expected the Maven call to fail due to missing framework build result.");
     }
     catch (VerificationException ex) {
@@ -86,7 +86,7 @@ public class XCodeFrameworkTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
     test(testName, new File(getTestRootDirectory(), "framework/" + fmwkName), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion
           + "/" + fmwkName
@@ -129,7 +129,7 @@ public class XCodeFrameworkTest extends XCodeTest
     test(testName, new File(getTestRootDirectory(), "framework/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
-          additionalSystemParameters, pomReplacements);
+          additionalSystemParameters, pomReplacements, new NullProjectModifier());
 
     Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/frameworks/"
           + Constants.GROUP_ID
@@ -166,13 +166,13 @@ public class XCodeFrameworkTest extends XCodeTest
     test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyLibrary"),
           "deploy",
           THE_EMPTY_LIST,
-          additionalSystemParameters, pomReplacements);
+          additionalSystemParameters, pomReplacements, new NullProjectModifier());
 
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyApp"),
           "install",
           THE_EMPTY_LIST,
-          additionalSystemParameters, pomReplacements);
-
+          additionalSystemParameters, pomReplacements, new NullProjectModifier());
+    
     File projectZipFile = new File(verifier.getBasedir(), "target/MyApp-xcodeproj-with-deps.zip");
     assertTrue("The file containing the zipped project does not exist at '" + projectZipFile + "'.",
           projectZipFile.exists());
@@ -243,15 +243,15 @@ public class XCodeFrameworkTest extends XCodeTest
     test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyLibrary"),
           "deploy",
           THE_EMPTY_LIST,
-          additionalSystemParameters, pomReplacements);
+          additionalSystemParameters, pomReplacements, new NullProjectModifier());
 
     additionalSystemParameters.put("xcode.preferFatLibs", Boolean.TRUE.toString());
 
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyApp"),
           "install",
           THE_EMPTY_LIST,
-          additionalSystemParameters, pomReplacements);
-
+          additionalSystemParameters, pomReplacements, new NullProjectModifier());
+    
     File projectZipFile = new File(verifier.getBasedir(), "target/MyApp-xcodeproj-with-deps.zip");
     assertTrue("The file containing the zipped project does not exist at '" + projectZipFile + "'.",
           projectZipFile.exists());

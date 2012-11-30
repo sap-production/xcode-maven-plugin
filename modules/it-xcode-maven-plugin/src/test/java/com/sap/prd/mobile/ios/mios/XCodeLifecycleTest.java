@@ -51,15 +51,14 @@ public class XCodeLifecycleTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     Verifier verifier = test(testName, new File(getTestRootDirectory(),
           "straight-forward-with-snapshot-dependency/MyApp"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
-
-    assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir()
-          + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+    
+    assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
   }
 
   @Test
@@ -86,7 +85,7 @@ public class XCodeLifecycleTest extends XCodeTest
 
     try {
       test(verifier, testName, projectDirectory, "deploy", THE_EMPTY_LIST, additionalSystemProperties,
-            pomReplacements);
+            pomReplacements, new NullProjectModifier());
 
       Assert.fail("Library was build instead of a failure.");
     }
@@ -124,7 +123,7 @@ public class XCodeLifecycleTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("xcode.artifactIdSuffix", "release");
@@ -132,7 +131,7 @@ public class XCodeLifecycleTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "deploy",
           THE_EMPTY_LIST,
-          additionalSystemProperties, pomReplacements);
+          additionalSystemProperties, pomReplacements, new NullProjectModifier());
 
     final String configuration = "Release";
 
@@ -163,11 +162,11 @@ public class XCodeLifecycleTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyApp"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     final String configuration = "Release";
 
@@ -191,10 +190,10 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyLibrary"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyApp"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     final String configuration = "Release";
 
@@ -218,11 +217,10 @@ public class XCodeLifecycleTest extends XCodeTest
 
     test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "install",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
-
-    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
-          Arrays.asList(new String[] { "initialize", "initialize" }),
-          THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+    
+    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), Arrays.asList(new String[] {"initialize", "initialize"}),
+          THE_EMPTY_LIST, 
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
   }
 }

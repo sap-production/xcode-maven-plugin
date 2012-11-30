@@ -60,7 +60,7 @@ public class OptionsAndSettingsFromCommandLineTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     dsymFile = new File(remoteRepoGAVFolder, "MyApp-" + dynamicVersion + "-Release-iphoneos-app.dSYM.zip");
 
@@ -82,7 +82,7 @@ public class OptionsAndSettingsFromCommandLineTest extends XCodeTest
     additionalSystemProperties.put("xcode.settings.GCC_GENERATE_DEBUGGING_SYMBOLS", "YES");
 
     Verifier verifier = test(testName + "-noDsym", new File(getTestRootDirectory(), "straight-forward/MyApp"), "deploy",
-          THE_EMPTY_LIST, additionalSystemProperties, pomReplacements);
+          THE_EMPTY_LIST, additionalSystemProperties, pomReplacements, new NullProjectModifier());
 
     File pom = new File(remoteRepoGAVFolder, "MyApp-" + dynamicVersion + ".pom");
 
@@ -105,7 +105,7 @@ public class OptionsAndSettingsFromCommandLineTest extends XCodeTest
   public void testDymFilesDoesExist() throws Exception
   {
     Verifier verifier = test(testName + "-withDsym", new File(getTestRootDirectory(), "straight-forward/MyApp"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     File remoteRepoGAVFolder = new File(remoteRepositoryDirectory, "com/sap/ondevice/production/ios/tests/MyApp/" + dynamicVersion);
     File pom = new File(remoteRepoGAVFolder, "MyApp-" + dynamicVersion + ".pom");

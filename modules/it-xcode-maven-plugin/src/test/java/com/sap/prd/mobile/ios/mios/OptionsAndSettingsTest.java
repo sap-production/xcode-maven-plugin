@@ -48,7 +48,7 @@ public class OptionsAndSettingsTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     test(testName, new File(getTestRootDirectory(), "optionsAndSettings/MyLibrary"), "compile",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
   }
 
   @Test
