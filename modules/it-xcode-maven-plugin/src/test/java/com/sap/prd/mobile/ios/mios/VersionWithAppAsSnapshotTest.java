@@ -64,27 +64,7 @@ public class VersionWithAppAsSnapshotTest extends XCodeTest
     appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
-          null, pomReplacements, new ProjectModifier() {
-
-            public void execute() throws Exception
-            {
-              final File pom = new File(testExecutionDirectory, "pom.xml");
-              FileInputStream fis = null;
-              FileOutputStream fos = null;
-
-              try {
-                fis = new FileInputStream(pom);
-                final Model model = new MavenXpp3Reader().read(fis);
-                fis.close();
-                fos = new FileOutputStream(pom);
-                model.setVersion(model.getVersion() + "-SNAPSHOT");
-                new MavenXpp3Writer().write(fos,  model);
-              } finally {
-                IOUtils.closeQuietly(fis);
-                IOUtils.closeQuietly(fos);
-              }
-            }
-          });
+          null, pomReplacements, new AppendSnapshotToProjectVersionProjectModifier());
 
     appTestBaseDir = new File(appVerifier.getBasedir());
   }
