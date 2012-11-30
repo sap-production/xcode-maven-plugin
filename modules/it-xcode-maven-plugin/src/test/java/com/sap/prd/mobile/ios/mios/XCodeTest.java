@@ -209,23 +209,22 @@ public abstract class XCodeTest
 
   protected static Verifier test(final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
+        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier) throws Exception
   {
     return test(null, testName, projectDirectory, target, additionalCommandLineOptions,
-          additionalSystemProperties, pomReplacements);
+          additionalSystemProperties, pomReplacements, modifier);
   }
 
   protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
+        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier) throws Exception
   {
-    return test(_verifier, testName, projectDirectory, Arrays.asList(new String[] { target }),
-          additionalCommandLineOptions, additionalSystemProperties, pomReplacements);
+    return test(_verifier, testName, projectDirectory, Arrays.asList(new String[] {target}), additionalCommandLineOptions, additionalSystemProperties, pomReplacements, modifier);
   }
 
   protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         List<String> targets, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
+        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier) throws Exception
   {
 
     final PrintStream originalOut = System.out;
@@ -251,6 +250,9 @@ public abstract class XCodeTest
     prepareTestExectutionFolder(projectDirectory, testExecutionFolder);
 
     rewritePom(new File(testExecutionFolder, "pom.xml"), pomReplacements);
+
+    modifier.setTestExecutionDirectory(testExecutionFolder);
+    modifier.execute();
 
     try {
 

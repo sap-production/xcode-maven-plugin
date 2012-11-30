@@ -81,12 +81,12 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     additionalSystemProperties.put("xcode.useSymbolicLinks", Boolean.TRUE.toString());
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
-
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+    
     appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
-          additionalSystemProperties, pomReplacements);
+          additionalSystemProperties, pomReplacements, new NullProjectModifier());
 
     myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
     myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;

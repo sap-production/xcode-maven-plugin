@@ -58,7 +58,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "versions-info/MyLibrary"),
           "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     File libraryVersionsInfo = new File(remoteRepositoryDirectory,
           Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion
@@ -69,7 +69,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "versions-info/MyApp"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     File versionFileAppExpected = new File("src/test/resources/MyApp-1.0.0-without-dependent-info-versions.xml")
       .getAbsoluteFile();
@@ -118,7 +118,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
       Map<String, String> additionalSystemProperties = new HashMap<String, String>();
       additionalSystemProperties.put("xcode.failOnMissingSyncInfo", "true");
       test(testName, intermediateDir, "install", THE_EMPTY_LIST, additionalSystemProperties,
-            pomReplacements);
+            pomReplacements, new NullProjectModifier());
       fail("Expected the Maven call to fail due to a missing info.sync file.");
     }
     catch (VerificationException ex) {

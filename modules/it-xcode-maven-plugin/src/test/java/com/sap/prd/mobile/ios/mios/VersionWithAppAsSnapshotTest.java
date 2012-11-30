@@ -53,12 +53,12 @@ public class VersionWithAppAsSnapshotTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     test(testName, new File(getTestRootDirectory(), "straight-forward-with-app-as-snapshot/MyLibrary"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
-
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+    
     appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward-with-app-as-snapshot/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
-          null, pomReplacements);
+          null, pomReplacements, new NullProjectModifier());
 
     appTestBaseDir = new File(appVerifier.getBasedir());
   }

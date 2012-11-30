@@ -45,15 +45,13 @@ public class OTATests extends XCodeTest
 
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("mios.ota-service.url", "");
-
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
-
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+    
     final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
     try {
       verifier = test(verifier, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
-            "deploy", THE_EMPTY_LIST, additionalSystemProperties, pomReplacements);
+            "deploy", THE_EMPTY_LIST, additionalSystemProperties, pomReplacements, new NullProjectModifier());
 
     }
     catch (VerificationException e) {
@@ -84,9 +82,8 @@ public class OTATests extends XCodeTest
     String otaWrongURL = "htp://apple-ota.wdf.sap.corp:8080/ota-service/HTML";
     additionalSystemProperties.put("mios.ota-service.url", otaWrongURL);
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
-
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+    
     final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
 
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
@@ -94,7 +91,7 @@ public class OTATests extends XCodeTest
     try {
       test(verifier, testName, projectDirectory, "deploy",
             THE_EMPTY_LIST,
-            additionalSystemProperties, pomReplacements);
+            additionalSystemProperties, pomReplacements, new NullProjectModifier());
     }
     catch (VerificationException ex) {
       //
