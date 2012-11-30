@@ -24,12 +24,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.maven.plugin.MojoExecutionException;
+
 /**
  * Contains all parameters and methods that are needed for mojos that invoke the 'xcodebuild'
  * command.
  * 
  */
-public abstract class AbstractXCodeBuildMojo extends AbstractXCodeMojo
+public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 {
 
   protected final static List<String> DEFAULT_BUILD_ACTIONS = Collections.unmodifiableList(Arrays.asList("clean",
@@ -67,27 +69,65 @@ public abstract class AbstractXCodeBuildMojo extends AbstractXCodeMojo
    * @since 1.4.1
    */
   protected String target;
-
-  protected XCodeContext getXCodeContext()
+  
+  protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation)
   {
     final String projectName = project.getArtifactId();
-    final File projectDirectory = getXCodeCompileDirectory();
+    File projectDirectory = null;
 
-    final XCodeContext context = new XCodeContext();
-    context.setProjectName(projectName);
-    context.setBuildActions(getBuildActions());
-    context.setProjectRootDirectory(projectDirectory);
-    context.setCodeSignIdentity(codeSignIdentity);
-    context.setOut(System.out);
-    context.setProvisioningProfile(provisioningProfile);
-    context.setTarget(target);
+    if(sourceCodeLocation == XCodeContext.SourceCodeLocation.WORKING_COPY) {
+      projectDirectory = getXCodeCompileDirectory();
+    } else if(sourceCodeLocation == XCodeContext.SourceCodeLocation.ORIGINAL) {
+      projectDirectory = getXCodeSourceDirectory();
+    } else {
+      throw new IllegalStateException("Invalid source code location: '" + sourceCodeLocation + "'");
+    }
 
-    return context;
+    return new XCodeContext(projectName, getBuildActions(), projectDirectory, System.out, codeSignIdentity,
+          provisioningProfile, target);
   }
 
   protected List<String> getBuildActions()
   {
     return (buildActions == null || buildActions.isEmpty()) ? DEFAULT_BUILD_ACTIONS : Collections
       .unmodifiableList(buildActions);
+  }
+  
+  /**
+   * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
+   * to it.
+   */
+  protected PListAccessor getInfoPListAccessor(XCodeContext.SourceCodeLocation location, String configuration, String sdk)
+        throws MojoExecutionException, XCodeException
+  {
+    File plistFile = getPListFile(location, configuration, sdk);
+    if (!plistFile.isFile()) {
+      throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFile
+            + "' that does not exist.");
+    }
+    return new PListAccessor(plistFile);
+  }
+  
+  protected File getPListFile(XCodeContext.SourceCodeLocation location, String configuration, String sdk) throws XCodeException {
+
+    
+    XCodeContext context = getXCodeContext(location);
+    
+    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, getLog(), configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
+    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, getLog(), configuration, sdk, EffectiveBuildSettings.SRC_ROOT));
+
+    final File plistFile = new File(plistFileName);
+
+
+    if(! plistFile.isAbsolute()) {
+      return new File(srcRoot, plistFileName);
+    }
+    
+
+    if(FileUtils.isChild(srcRoot, plistFile))
+      return plistFile;
+    
+    throw new IllegalStateException("Plist file " + plistFile + " is not located inside the xcode project " + srcRoot +  ".");
+    
   }
 }

@@ -22,6 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,31 +39,61 @@ import java.util.Locale;
  */
 class XCodeContext
 {
+  enum SourceCodeLocation {ORIGINAL, WORKING_COPY};
+
   private final static String ls = System.getProperty("line.separator");
 
-  private String projectName;
+  private final String projectName;
 
-  private List<String> buildActions;
+  private final List<String> buildActions;
 
-  private String codeSignIdentity;
+  private final String codeSignIdentity;
 
-  private File projectRootDirectory;
+  private final File projectRootDirectory;
 
   private PrintStream out;
 
-  private String provisioningProfile;
+  private final String provisioningProfile;
   
-  private String target;
+  private final String target;
+
+  
+
+  public XCodeContext(String projectName, List<String> buildActions,
+        File projectRootDirectory, PrintStream out) {
+    this(projectName, buildActions, projectRootDirectory, out, null, null, null);
+}
+  
+  public XCodeContext(String projectName, List<String> buildActions,
+        File projectRootDirectory, PrintStream out, String codeSignIdentity, String provisioningProfile, String target)
+  {
+    super();
+
+    raiseExceptionIfNullOrEmpty("projectName", projectName);
+    raiseExceptionIfInvalid("buildActions", buildActions);
+
+    if(projectRootDirectory == null || !projectRootDirectory.canRead())
+      throw new IllegalArgumentException("ProjectRootDirectory '" + projectRootDirectory + "' is null or cannot be read.");
+
+    if (codeSignIdentity != null && codeSignIdentity.trim().isEmpty())
+      throw new IllegalArgumentException("CodesignIdentity was empty: '" + codeSignIdentity
+            + "'. If you want to use the code" +
+            " sign identity defined in the xCode project configuration just do" +
+            " not provide the 'codeSignIdentity' in your Maven settings.");
+   
+    
+    this.projectName = projectName;
+    this.buildActions = Collections.unmodifiableList(buildActions);
+    this.codeSignIdentity = codeSignIdentity;
+    this.projectRootDirectory = projectRootDirectory;
+    setOut(out);
+    this.provisioningProfile = provisioningProfile;
+    this.target = target;
+  }
 
   public String getProjectName()
   {
     return projectName;
-  }
-
-  public void setProjectName(String projectName)
-  {
-    raiseExceptionIfNullOrEmpty("projectName", projectName);
-    this.projectName = projectName;
   }
 
   public List<String> getBuildActions()
@@ -70,25 +101,9 @@ class XCodeContext
     return buildActions;
   }
 
-  public void setBuildActions(List<String> buildActions)
-  {
-    raiseExceptionIfInvalid("buildActions", buildActions);
-    this.buildActions = buildActions;
-  }
-
   public String getCodeSignIdentity()
   {
     return codeSignIdentity;
-  }
-
-  public void setCodeSignIdentity(String codeSignIdentity)
-  {
-    if (codeSignIdentity != null && codeSignIdentity.trim().isEmpty())
-      throw new IllegalArgumentException("CodesignIdentity was empty: '" + codeSignIdentity
-            + "'. If you want to use the code" +
-            " sign identity defined in the xCode project configuration just do" +
-            " not provide the 'codeSignIdentity' in your Maven settings.");
-    this.codeSignIdentity = codeSignIdentity;
   }
 
   public File getProjectRootDirectory()
@@ -96,17 +111,12 @@ class XCodeContext
     return projectRootDirectory;
   }
 
-  public void setProjectRootDirectory(File projectRootDirectory)
-  {
-    this.projectRootDirectory = projectRootDirectory;
-  }
-
   public PrintStream getOut()
   {
     return out;
   }
 
-  public void setOut(PrintStream out)
+  public final void setOut(PrintStream out)
   {
     if (out == null)
       throw new IllegalArgumentException("PrintStream for log handling is not available.");
@@ -118,19 +128,9 @@ class XCodeContext
     return provisioningProfile;
   }
 
-  public void setProvisioningProfile(String provisioningProfile)
-  {
-    this.provisioningProfile = provisioningProfile;
-  }
-  
   public String getTarget()
   {
     return target;
-  }
-
-  public void setTarget(String target)
-  {
-    this.target = target;
   }
 
   @Override
@@ -139,16 +139,65 @@ class XCodeContext
     final StringBuilder sb = new StringBuilder();
     sb.append("ProjectRootDirectory: ").append(getProjectRootDirectory()).append(ls);
     sb.append("ProjectName         : ").append(getProjectName()).append(ls);
-    sb.append("BuildActions        : ").append(buildActions);
-    sb.append("CodeSignIdentity    : ").append(codeSignIdentity);
-    sb.append("ProvisioningProfile : ").append(provisioningProfile);
-    sb.append("Target              : ").append(target);
+    sb.append("BuildActions        : ").append(buildActions).append(ls);
+    sb.append("CodeSignIdentity    : ").append(codeSignIdentity).append(ls);
+    sb.append("ProvisioningProfile : ").append(provisioningProfile).append(ls);
+    sb.append("Target              : ").append(target).append(ls);
     return sb.toString();
+  }
+
+
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((buildActions == null) ? 0 : buildActions.hashCode());
+    result = prime * result + ((codeSignIdentity == null) ? 0 : codeSignIdentity.hashCode());
+    result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
+    result = prime * result + ((projectRootDirectory == null) ? 0 : projectRootDirectory.hashCode());
+    result = prime * result + ((provisioningProfile == null) ? 0 : provisioningProfile.hashCode());
+    result = prime * result + ((target == null) ? 0 : target.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    XCodeContext other = (XCodeContext) obj;
+    if (buildActions == null) {
+      if (other.buildActions != null) return false;
+    }
+    else if (!buildActions.equals(other.buildActions)) return false;
+    if (codeSignIdentity == null) {
+      if (other.codeSignIdentity != null) return false;
+    }
+    else if (!codeSignIdentity.equals(other.codeSignIdentity)) return false;
+    if (projectName == null) {
+      if (other.projectName != null) return false;
+    }
+    else if (!projectName.equals(other.projectName)) return false;
+    if (projectRootDirectory == null) {
+      if (other.projectRootDirectory != null) return false;
+    }
+    else if (!projectRootDirectory.equals(other.projectRootDirectory)) return false;
+    if (provisioningProfile == null) {
+      if (other.provisioningProfile != null) return false;
+    }
+    else if (!provisioningProfile.equals(other.provisioningProfile)) return false;
+    if (target == null) {
+      if (other.target != null) return false;
+    }
+    else if (!target.equals(other.target)) return false;
+    return true;
   }
 
   private static void raiseExceptionIfNullOrEmpty(final String key, final String value)
   {
-    if (value == null || value.length() == 0)
+    if (value == null || value.trim().length() == 0)
       throw new IllegalArgumentException(String.format(Locale.ENGLISH, "No %s provided. Was null or empty.", key));
   }
 

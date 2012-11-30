@@ -19,9 +19,9 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -318,18 +318,6 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     assertTrue(FileUtils.isSymbolicLink(new File(appVerifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
 
   }
-
-  @Test
-  public void testBuildEnvironmentPropertiesFileMyLibraryIsHealthy() throws IOException
-  {    
-    assertBuildEnvironmentPropertiesFile("MyLibrary");
-  }
-
-  @Test
-  public void testBuildEnvironmentPropertiesFileMyAppIsHealthy() throws IOException
-  {
-   assertBuildEnvironmentPropertiesFile("MyApp"); 
-  }
   
   @Test
   public void testCFBundeShortVersionInInfoPlist() throws Exception
@@ -353,20 +341,6 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     String toBeTestedAgainst = IOUtils.toString(new FileInputStream(template)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion);
     Assert.assertEquals(toBeTestedAgainst, IOUtils.toString(new FileInputStream(versionFileLib)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion));
   }
-
-  private static void assertBuildEnvironmentPropertiesFile(final String projectName) throws IOException
-  {
-    File buildEnvironmentDump = new File(new File(getTestExecutionDirectory(testName, projectName), "target"),
-          EffectiveBuildSettings.getBuildSettingsFileName("Release", "iphoneos"));
-    
-    assertTrue(buildEnvironmentDump.exists());
-    
-    Properties properties = new Properties();
-    properties.load(new FileInputStream(buildEnvironmentDump));
-    
-    assertEquals(projectName, properties.getProperty("PRODUCT_NAME"));    
-  }
-
   
   @SuppressWarnings("resource")
   private static String extractAppIdSuffixFromLogFile(File logFile) throws IOException

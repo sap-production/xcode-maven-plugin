@@ -35,7 +35,7 @@ import org.apache.maven.plugin.logging.Log;
  * @goal change-app-id
  * 
  */
-public class XCodeChangeAppIDMojo extends AbstractXCodeMojo
+public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
 {
 
   /**
@@ -60,7 +60,13 @@ public class XCodeChangeAppIDMojo extends AbstractXCodeMojo
 
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
-        File infoPlistFile = getPListFile(getXCodeCompileDirectory(), configuration, sdk);
+        File infoPlistFile = null;
+        try {
+          infoPlistFile = getPListFile(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);
+        }
+        catch (XCodeException e) {
+          throw new MojoExecutionException(e.getMessage(), e);
+        }
         PListAccessor infoPlistAccessor = new PListAccessor(infoPlistFile);
         if (alreadyUpdatedPlists.contains(infoPlistFile)) {
           getLog().debug("PList file '" + infoPlistFile.getName()

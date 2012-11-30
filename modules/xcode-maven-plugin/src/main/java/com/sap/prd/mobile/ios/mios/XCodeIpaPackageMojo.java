@@ -32,7 +32,7 @@ import org.apache.maven.project.MavenProjectHelper;
  * 
  * @goal package-ipa
  */
-public class XCodeIpaPackageMojo extends AbstractXCodeMojo
+public class XCodeIpaPackageMojo extends BuildContextAwareMojo
 {
 
   /**
@@ -76,8 +76,14 @@ public class XCodeIpaPackageMojo extends AbstractXCodeMojo
           getLog().info("Production name obtained from pom file");
         }
         else {
-          productName = EffectiveBuildSettings.getProductName(this.project, configuration, sdk);
-          getLog().info("Product name obtained from effective build settings file");
+          
+          try {
+            productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+            getLog().info("Product name obtained from effective build settings file");
+            
+          } catch(final XCodeException ex) {
+            throw new MojoExecutionException("Cannot get product name: " + ex.getMessage(), ex);
+          }
         }
 
         final String fixedProductName = getFixedProductName(productName);

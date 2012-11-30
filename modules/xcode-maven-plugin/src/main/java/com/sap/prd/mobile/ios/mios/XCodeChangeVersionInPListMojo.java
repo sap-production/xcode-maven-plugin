@@ -39,7 +39,7 @@ import org.apache.maven.plugin.MojoFailureException;
  * @goal change-versions-in-plist
  * @since 1.6.2
  */
-public class XCodeChangeVersionInPListMojo extends AbstractXCodeMojo
+public class XCodeChangeVersionInPListMojo extends BuildContextAwareMojo
 {
   /**
    * If this parameter is set to <code>true</code> no version will be transferred into the Xcode project.
@@ -63,7 +63,13 @@ public class XCodeChangeVersionInPListMojo extends AbstractXCodeMojo
 
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
-        File infoPlistFile = getPListFile(getXCodeCompileDirectory(), configuration, sdk);
+        File infoPlistFile = null;
+        try {
+          infoPlistFile = getPListFile(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);
+        }
+        catch (XCodeException e) {
+          throw new MojoExecutionException(e.getMessage(), e);
+        }
         if (alreadyUpdatedPlists.contains(infoPlistFile)) {
           getLog().debug("Version in PList file '" + infoPlistFile.getName()
                 + "' was already updated for another configuration. This file will be skipped.");

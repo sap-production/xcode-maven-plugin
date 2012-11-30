@@ -32,7 +32,7 @@ import org.apache.maven.project.MavenProjectHelper;
  * @goal package-application
  * 
  */
-public class XCodePackageAppMojo extends AbstractXCodeMojo
+public class XCodePackageAppMojo extends BuildContextAwareMojo
 {
   /**
    * @component
@@ -69,8 +69,11 @@ public class XCodePackageAppMojo extends AbstractXCodeMojo
 
     }
     else {
-      productName = EffectiveBuildSettings.getProductName(this.project, config, sdk);
-
+      try {
+        productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), config, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+      } catch(XCodeException ex) {
+        throw new MojoExecutionException("Cannot obtain product name: " + ex.getMessage(), ex);
+      }
       if (productName == null || productName.isEmpty())
         throw new IllegalStateException("Product Name not found in effective build settings file");
     }
