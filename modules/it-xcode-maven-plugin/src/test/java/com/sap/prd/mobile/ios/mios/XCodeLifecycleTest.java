@@ -23,6 +23,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +32,12 @@ import java.util.Properties;
 
 import junit.framework.Assert;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.junit.Test;
 
 public class XCodeLifecycleTest extends XCodeTest
@@ -47,16 +53,36 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." +  String.valueOf(System.currentTimeMillis()));
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyLibrary"), "deploy",
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+          THE_EMPTY_MAP, pomReplacements, new AppendSnapshotToProjectVersionProjectModifier());
 
-    Verifier verifier = test(testName, new File(getTestRootDirectory(),
-          "straight-forward-with-snapshot-dependency/MyApp"), "deploy",
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+          THE_EMPTY_MAP, pomReplacements, new ProjectModifier() {
+
+            @Override
+            void execute() throws Exception
+            {
+              final File pom = new File(testExecutionDirectory, "pom.xml");
+              FileInputStream fis = null;
+              FileOutputStream fos = null;
+
+              try {
+                fis = new FileInputStream(pom);
+                final Model model = new MavenXpp3Reader().read(fis);
+                fis.close();
+                model.getDependencies().get(0).setVersion(model.getDependencies().get(0).getVersion() + "-SNAPSHOT");
+                fos = new FileOutputStream(pom);
+                new MavenXpp3Writer().write(fos,  model);
+              } finally {
+                IOUtils.closeQuietly(fis);
+                IOUtils.closeQuietly(fos);
+              }
+            }
+          });
     
     assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
   }
