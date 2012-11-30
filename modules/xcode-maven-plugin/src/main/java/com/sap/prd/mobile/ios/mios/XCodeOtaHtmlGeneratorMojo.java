@@ -91,7 +91,7 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
         }
         else {
           try {
-          productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+          productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
           getLog().info("Product name obtained from effective build settings file");
           } catch(XCodeException ex) {
             throw new MojoExecutionException("Cannot obtain product name: " + ex.getMessage(), ex);
@@ -111,7 +111,7 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
         final String ipaClassifier = getIpaClassifier(configuration, sdk);
 
         try {
-          PListAccessor plistAccessor = getInfoPListAccessor(getXCodeCompileDirectory(), configuration, sdk);
+          PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION), ipaClassifier,

@@ -22,7 +22,6 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -30,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.plugin.logging.Log;
 
 class EffectiveBuildSettings
 {
@@ -44,19 +44,24 @@ class EffectiveBuildSettings
   
   private final static Map<Key, Properties> buildSettings = new HashMap<Key, Properties>();
   
-  static String getBuildSetting(XCodeContext context, String configuration, String sdk, String key) throws XCodeException
+  static String getBuildSetting(XCodeContext context, Log log, String configuration, String sdk, String key) throws XCodeException
   {
-    return getBuildSettings(context, configuration, sdk).getProperty(key);
+    String buildSetting = getBuildSettings(context, log, configuration, sdk).getProperty(key);
+    debug(log, "Build settings for context '" + context + " configuration: '" + configuration + "' sdk: '" + sdk + "' key: '" + key + "' resolved to: " + buildSetting);
+    return buildSetting;
   }
   
-  private static synchronized Properties getBuildSettings(final XCodeContext context, final String configuration, final String sdk) throws XCodeException {
+  private static synchronized Properties getBuildSettings(final XCodeContext context, final Log log, final String configuration, final String sdk) throws XCodeException {
     
-    final Key key = new Key(context.getProjectRootDirectory(), configuration, sdk);
+    final Key key = new Key(context, configuration, sdk);
     Properties _buildSettings = buildSettings.get(key);
     
     if(_buildSettings == null) {
       _buildSettings = extractBuildSettings(context, configuration, sdk);
       buildSettings.put(key, _buildSettings);
+      debug(log, "Build settings for key: '" + key + " loaded.");
+    }else{
+      debug(log, "Build settings for key: '" + key + " found in cache.");
     }
       
     return _buildSettings;
@@ -93,10 +98,11 @@ class EffectiveBuildSettings
   
   private static class Key {
     
-    private final File location;
+   private final XCodeContext context;
+   
     private final String configuration, sdk;
     
-    Key(File location, String configuration, String sdk) {
+    Key(XCodeContext context, String configuration, String sdk) {
       
       if(configuration == null || configuration.isEmpty())
         throw new IllegalArgumentException("Configuration was not provided.");
@@ -104,19 +110,19 @@ class EffectiveBuildSettings
       if(sdk == null || sdk.isEmpty())
         throw new IllegalArgumentException("SDK was not provided.");
       
-      if(location == null)
-        throw new IllegalArgumentException("Location was not provided.");
+      if(context == null)
+        throw new IllegalArgumentException("Xcode Context was not provided.");
         
       
       this.configuration = configuration;
       this.sdk = sdk;
-      this.location = location;
+      this.context = context;
     }
 
     @Override
     public String toString()
     {
-      return "Key [location=" + location + ", configuration=" + configuration + ", sdk=" + sdk + "]";
+      return "Key [Context=" + context + ", configuration=" + configuration + ", sdk=" + sdk + "]";
     }
 
     @Override
@@ -125,7 +131,7 @@ class EffectiveBuildSettings
       final int prime = 31;
       int result = 1;
       result = prime * result + ((configuration == null) ? 0 : configuration.hashCode());
-      result = prime * result + ((location == null) ? 0 : location.hashCode());
+      result = prime * result + ((context == null) ? 0 : context.hashCode());
       result = prime * result + ((sdk == null) ? 0 : sdk.hashCode());
       return result;
     }
@@ -141,15 +147,16 @@ class EffectiveBuildSettings
         if (other.configuration != null) return false;
       }
       else if (!configuration.equals(other.configuration)) return false;
-      if (location != other.location) return false;
+      if (context != other.context) return false;
       if (sdk == null) {
         if (other.sdk != null) return false;
       }
       else if (!sdk.equals(other.sdk)) return false;
       return true;
     }
-
+  }
   
-  
+  private static void debug(Log log, String message) {
+    log.debug(EffectiveBuildSettings.class.getName() + ": " + message);
   }
 }

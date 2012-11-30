@@ -78,8 +78,7 @@ public class XCodeIpaPackageMojo extends BuildContextAwareMojo
         else {
           
           try {
-          
-            productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+            productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
             getLog().info("Product name obtained from effective build settings file");
             
           } catch(final XCodeException ex) {

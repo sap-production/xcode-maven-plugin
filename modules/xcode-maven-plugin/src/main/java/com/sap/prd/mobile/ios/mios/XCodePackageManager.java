@@ -167,7 +167,7 @@ class XCodePackageManager
         Log log) throws IOException, XCodeException
   {
 
-    String publicHeaderPath = EffectiveBuildSettings.getBuildSetting(xcodeContext, configuration, sdk, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
+    String publicHeaderPath = EffectiveBuildSettings.getBuildSetting(xcodeContext, log, configuration, sdk, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
     
     final File headerDir = new File(XCodeBuildLayout.getAppFolder(xcodeContext.getProjectRootDirectory(), configuration, sdk), publicHeaderPath);
 

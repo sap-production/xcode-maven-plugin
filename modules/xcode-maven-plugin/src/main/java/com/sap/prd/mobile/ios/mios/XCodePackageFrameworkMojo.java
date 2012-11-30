@@ -45,8 +45,8 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
     String builtProductsDirName = null;
     
     try {
-      productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getPrimaryFmwkConfiguration(), "iphoneos", EffectiveBuildSettings.PRODUCT_NAME);
-      builtProductsDirName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getPrimaryFmwkConfiguration(), "iphoneos", EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+      productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), getPrimaryFmwkConfiguration(), "iphoneos", EffectiveBuildSettings.PRODUCT_NAME);
+      builtProductsDirName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), getPrimaryFmwkConfiguration(), "iphoneos", EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
     } catch(XCodeException ex) {
       throw new MojoExecutionException(ex.getMessage(), ex);
     }

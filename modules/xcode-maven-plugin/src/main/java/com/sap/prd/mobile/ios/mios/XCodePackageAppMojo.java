@@ -70,7 +70,7 @@ public class XCodePackageAppMojo extends BuildContextAwareMojo
     }
     else {
       try {
-        productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), config, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+        productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), config, sdk, EffectiveBuildSettings.PRODUCT_NAME);
       } catch(XCodeException ex) {
         throw new MojoExecutionException("Cannot obtain product name: " + ex.getMessage(), ex);
       }

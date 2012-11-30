@@ -83,7 +83,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
       throw new IllegalStateException("Invalid source code location: '" + sourceCodeLocation + "'");
     }
 
-    return new XCodeContext(projectName, buildActions, projectDirectory, System.out, codeSignIdentity,
+    return new XCodeContext(projectName, getBuildActions(), projectDirectory, System.out, codeSignIdentity,
           provisioningProfile, target);
   }
 
@@ -97,7 +97,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
    * to it.
    */
-  protected PListAccessor getInfoPListAccessor(File location, String configuration, String sdk)
+  protected PListAccessor getInfoPListAccessor(XCodeContext.SourceCodeLocation location, String configuration, String sdk)
         throws MojoExecutionException, XCodeException
   {
     File plistFile = getPListFile(location, configuration, sdk);
@@ -108,13 +108,13 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     return new PListAccessor(plistFile);
   }
   
-  protected File getPListFile(File location, String configuration, String sdk) throws XCodeException {
+  protected File getPListFile(XCodeContext.SourceCodeLocation location, String configuration, String sdk) throws XCodeException {
 
     
-    XCodeContext context = getXCodeContext(XCodeContext.SourceCodeLocation.ORIGINAL);
+    XCodeContext context = getXCodeContext(location);
     
-    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
-    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, configuration, sdk, EffectiveBuildSettings.SRC_ROOT));
+    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, getLog(), configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
+    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, getLog(), configuration, sdk, EffectiveBuildSettings.SRC_ROOT));
 
     final File plistFile = new File(plistFileName);
 

@@ -139,11 +139,60 @@ class XCodeContext
     final StringBuilder sb = new StringBuilder();
     sb.append("ProjectRootDirectory: ").append(getProjectRootDirectory()).append(ls);
     sb.append("ProjectName         : ").append(getProjectName()).append(ls);
-    sb.append("BuildActions        : ").append(buildActions);
-    sb.append("CodeSignIdentity    : ").append(codeSignIdentity);
-    sb.append("ProvisioningProfile : ").append(provisioningProfile);
-    sb.append("Target              : ").append(target);
+    sb.append("BuildActions        : ").append(buildActions).append(ls);
+    sb.append("CodeSignIdentity    : ").append(codeSignIdentity).append(ls);
+    sb.append("ProvisioningProfile : ").append(provisioningProfile).append(ls);
+    sb.append("Target              : ").append(target).append(ls);
     return sb.toString();
+  }
+
+
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((buildActions == null) ? 0 : buildActions.hashCode());
+    result = prime * result + ((codeSignIdentity == null) ? 0 : codeSignIdentity.hashCode());
+    result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
+    result = prime * result + ((projectRootDirectory == null) ? 0 : projectRootDirectory.hashCode());
+    result = prime * result + ((provisioningProfile == null) ? 0 : provisioningProfile.hashCode());
+    result = prime * result + ((target == null) ? 0 : target.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    XCodeContext other = (XCodeContext) obj;
+    if (buildActions == null) {
+      if (other.buildActions != null) return false;
+    }
+    else if (!buildActions.equals(other.buildActions)) return false;
+    if (codeSignIdentity == null) {
+      if (other.codeSignIdentity != null) return false;
+    }
+    else if (!codeSignIdentity.equals(other.codeSignIdentity)) return false;
+    if (projectName == null) {
+      if (other.projectName != null) return false;
+    }
+    else if (!projectName.equals(other.projectName)) return false;
+    if (projectRootDirectory == null) {
+      if (other.projectRootDirectory != null) return false;
+    }
+    else if (!projectRootDirectory.equals(other.projectRootDirectory)) return false;
+    if (provisioningProfile == null) {
+      if (other.provisioningProfile != null) return false;
+    }
+    else if (!provisioningProfile.equals(other.provisioningProfile)) return false;
+    if (target == null) {
+      if (other.target != null) return false;
+    }
+    else if (!target.equals(other.target)) return false;
+    return true;
   }
 
   private static void raiseExceptionIfNullOrEmpty(final String key, final String value)

@@ -198,7 +198,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           File versionsXmlInBuild = new File(project.getBuild().getDirectory(), "versions.xml");
           File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, sdk);
           
-          String productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+          String productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
           File appFolder = new File(rootDir, productName + ".app");
           File versionsXmlInApp = new File(appFolder, "versions.xml");
 
@@ -224,8 +224,8 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
   private void sign(File rootDir, String configuration, String sdk) throws IOException, XCodeException
   {
-    String csi = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), configuration, sdk, EffectiveBuildSettings.CODE_SIGN_IDENTITY);
-    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), configuration, sdk, EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
+    String csi = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
     CodeSignManager.sign(csi, appFolder, true);
   }
 

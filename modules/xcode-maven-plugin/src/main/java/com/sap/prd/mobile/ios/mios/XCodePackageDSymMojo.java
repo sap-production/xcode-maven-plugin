@@ -102,7 +102,7 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
     }
     else {
       
-      productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), config, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+      productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), config, sdk, EffectiveBuildSettings.PRODUCT_NAME);
       
       if (productName == null || productName.isEmpty())
         throw new IllegalStateException("Product Name not found in effective build settings file");
@@ -110,7 +110,7 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
 
     final String fixedProductName = getFixedProductName(productName);
 
-    String generateDSym = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), config, sdk, EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
+    String generateDSym = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), config, sdk, EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
     if (generateDSym == null || generateDSym.equalsIgnoreCase("YES")) {
 
