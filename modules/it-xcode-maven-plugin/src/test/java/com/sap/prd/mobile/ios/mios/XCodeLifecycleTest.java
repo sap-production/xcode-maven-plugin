@@ -175,6 +175,34 @@ public class XCodeLifecycleTest extends XCodeTest
   @Test
   public void testDeviantSourceDirectory() throws Exception
   {
+    class RelocateProjectProjectModifier extends ProjectModifier {
+
+      @Override
+      void execute() throws Exception
+      {
+        final File pom = new File(testExecutionDirectory, "pom.xml");
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+
+        try {
+          fis = new FileInputStream(pom);
+          final Model model = new MavenXpp3Reader().read(fis);
+          fis.close();
+          fos = new FileOutputStream(pom);
+          model.getProperties().setProperty("xcode.sourceDirectory", "abc");
+          new MavenXpp3Writer().write(fos,  model);
+        } finally {
+          IOUtils.closeQuietly(fis);
+          IOUtils.closeQuietly(fos);
+        }
+
+        File src = new File(testExecutionDirectory,  "src/xcode");
+        org.apache.commons.io.FileUtils.copyDirectory(src, new File(testExecutionDirectory, "abc"));
+        org.apache.commons.io.FileUtils.deleteDirectory(src);
+      }
+      
+    }
+    
     final String testName = getTestName();
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
 
@@ -186,9 +214,9 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
-    test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyLibrary"), "deploy",
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+          THE_EMPTY_MAP, pomReplacements, new RelocateProjectProjectModifier());
 
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory/MyApp"), "deploy",
           THE_EMPTY_LIST,
