@@ -69,22 +69,22 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * @since 1.4.1
    */
   protected String target;
-
-  protected XCodeContext getXCodeContext()
+  
+  protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation)
   {
     final String projectName = project.getArtifactId();
-    final File projectDirectory = getXCodeCompileDirectory();
+    File projectDirectory = null;
 
-    final XCodeContext context = new XCodeContext();
-    context.setProjectName(projectName);
-    context.setBuildActions(getBuildActions());
-    context.setProjectRootDirectory(projectDirectory);
-    context.setCodeSignIdentity(codeSignIdentity);
-    context.setOut(System.out);
-    context.setProvisioningProfile(provisioningProfile);
-    context.setTarget(target);
+    if(sourceCodeLocation == XCodeContext.SourceCodeLocation.WORKING_COPY) {
+      projectDirectory = getXCodeCompileDirectory();
+    } else if(sourceCodeLocation == XCodeContext.SourceCodeLocation.ORIGINAL) {
+      projectDirectory = getXCodeSourceDirectory();
+    } else {
+      throw new IllegalStateException("Invalid source code location: '" + sourceCodeLocation + "'");
+    }
 
-    return context;
+    return new XCodeContext(projectName, buildActions, projectDirectory, System.out, codeSignIdentity,
+          provisioningProfile, target);
   }
 
   protected List<String> getBuildActions()
@@ -111,8 +111,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
   protected File getPListFile(File location, String configuration, String sdk) throws XCodeException {
 
     
-    XCodeContext context = getXCodeContext();
-    context.setProjectRootDirectory(location);
+    XCodeContext context = getXCodeContext(XCodeContext.SourceCodeLocation.ORIGINAL);
     
     String plistFileName = EffectiveBuildSettings.getBuildSetting(context, configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
     File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, configuration, sdk, EffectiveBuildSettings.SRC_ROOT));

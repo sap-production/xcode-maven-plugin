@@ -91,7 +91,7 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
         }
         else {
           try {
-          productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+          productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
           getLog().info("Product name obtained from effective build settings file");
           } catch(XCodeException ex) {
             throw new MojoExecutionException("Cannot obtain product name: " + ex.getMessage(), ex);

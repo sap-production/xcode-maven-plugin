@@ -23,28 +23,30 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class CommandLineBuilderTest
 {
+  private static File projectDirectory;
 
-  private XCodeContext context;
 
-  @Before
-  public void before()
+  @BeforeClass
+  public static void setup()
   {
-    context = new XCodeContext();
-    context.setProjectName("MyLib");
-    context.setBuildActions(Arrays.asList("clean", "build"));
+    projectDirectory = new File(new File(".").getAbsoluteFile(), "src/test/projects/MyLibrary");
   }
-  
+
   @Test
   public void testCommandlineBuilderStraightForward() throws Exception
   {
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out));
     assertArrayEquals(new String[] { "xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
         "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build" }, commandLineBuilder.createBuildCall());
   }
@@ -52,7 +54,7 @@ public class CommandLineBuilderTest
   @Test
   public void testCodeSignIdentity() throws Exception
   {
-    context.setCodeSignIdentity("MyCodeSignIdentity");
+    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out, "MyCodeSignIdentity", null, null);
     CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
     assertTrue(Arrays.asList(commandLineBuilder.createBuildCall()).contains("CODE_SIGN_IDENTITY=MyCodeSignIdentity"));
   }
@@ -60,7 +62,7 @@ public class CommandLineBuilderTest
   @Test
   public void testCodeSignIdentityIsNull() throws Exception
   {
-    context.setCodeSignIdentity(null);
+    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out);
     CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
 
     for (String param : commandLineBuilder.createBuildCall()) {
@@ -72,7 +74,7 @@ public class CommandLineBuilderTest
   @Test(expected = IllegalArgumentException.class)
   public void testCodeSignIdentityIsEmpty() throws Exception
   {
-    context.setCodeSignIdentity("");
+    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), null, System.out, "", null, null);
     new CommandLineBuilder("Release", "mysdk", context);
   }
 
@@ -80,7 +82,7 @@ public class CommandLineBuilderTest
   @Test
   public void testProvisioningProfile() throws Exception
   {
-    context.setProvisioningProfile("MyProvisioningProfile");
+    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out, null, "MyProvisioningProfile", null);
     CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
     assertTrue(Arrays.asList(commandLineBuilder.createBuildCall()).contains("PROVISIONING_PROFILE=MyProvisioningProfile"));
   }
@@ -88,7 +90,7 @@ public class CommandLineBuilderTest
   @Test
   public void testProvisioningProfileIsNull() throws Exception
   {
-    context.setProvisioningProfile(null);
+    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out, null, null, null);
     CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
     for (String param : commandLineBuilder.createBuildCall()) {
       assertFalse("The command line must not contain a parameter 'PROVISIONING_PROFILE='",

@@ -66,11 +66,7 @@ public class XCodeManagerTest extends XCodeTest
   public void straightForwardTestBuildLibWithoutPredecessors() throws Exception
   {
 
-    final XCodeContext context = new XCodeContext();
-    context.setProjectName("MyLibrary");
-    context.setBuildActions(Arrays.asList("clean", "build"));
-    context.setProjectRootDirectory(new File(projectDirectory, "MyLibrary/src/xcode"));
-    context.setOut(System.out);
+    final XCodeContext context = new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), new File(projectDirectory, "MyLibrary/src/xcode"), System.out);
 
     Log log = EasyMock.createMock(Log.class);
     MavenProject mavenProject = EasyMock.createMock(MavenProject.class);
@@ -111,12 +107,7 @@ public class XCodeManagerTest extends XCodeTest
 
     EasyMock.replay(build, mavenProject);
 
-    final XCodeContext context = new XCodeContext();
-    context.setProjectName("MyLibrary");
-    context.setBuildActions(Arrays.asList("clean", "build"));
-    context.setProjectRootDirectory(projectDirectory);
-    context.setOut(System.out);
-
+    final XCodeContext context = new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, System.out);
     new XCodeManager(log). callXcodeBuild(context, "NON-EXISTNG_CONFIGURATION", "iphoneos");
 
   }
@@ -137,11 +128,7 @@ public class XCodeManagerTest extends XCodeTest
     EasyMock.replay(build, mavenProject);
 
     
-    final XCodeContext context = new XCodeContext();
-    context.setProjectName("MyLibrary");
-    context.setBuildActions(Arrays.asList("clean", "build"));
-    context.setProjectRootDirectory(projectDirectory);
-    context.setOut(new PrintStream(
+    final XCodeContext context = new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, new PrintStream(
           new ByteArrayOutputStream()) {
 
       @Override

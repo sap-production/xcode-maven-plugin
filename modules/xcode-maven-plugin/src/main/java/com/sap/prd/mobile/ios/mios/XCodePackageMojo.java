@@ -64,7 +64,7 @@ public class XCodePackageMojo extends BuildContextAwareMojo
 
     try {
 
-      new XCodePackageManager(getLog(), archiverManager, projectHelper).packageArtifacts(getXCodeContext(),
+      new XCodePackageManager(getLog(), archiverManager, projectHelper).packageArtifacts(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY),
             getConfigurations(),
             getSDKs(), project, bundles);
     }

@@ -40,7 +40,7 @@ public class XCodeBuildMojo extends BuildContextAwareMojo
     
     try {
       XCodeManager xcodeMgr = new XCodeManager(getLog());
-      XCodeContext ctx = getXCodeContext();
+      XCodeContext ctx = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY);
       getLog().info(ctx.toString());
 
       if (getPackagingType() == PackagingType.FRAMEWORK) {
