@@ -69,7 +69,12 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * @since 1.4.1
    */
   protected String target;
-  
+
+  /**
+   * @parameter expression="${product.name}"
+   */
+  private String productName;
+
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation)
   {
     final String projectName = project.getArtifactId();
@@ -129,5 +134,30 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     
     throw new IllegalStateException("Plist file " + plistFile + " is not located inside the xcode project " + srcRoot +  ".");
     
+  }
+  
+  protected String getProductName(final String configuration, final String sdk) throws MojoExecutionException {
+    
+    final String productName;
+
+    if (this.productName != null) {
+      productName = this.productName;
+      getLog().info("Production name obtained from pom file");
+    }
+    else {
+      
+      try {
+        productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+        getLog().info("Product name obtained from effective build settings file");
+        
+      } catch(final XCodeException ex) {
+        throw new MojoExecutionException("Cannot get product name: " + ex.getMessage(), ex);
+      }
+    }
+
+    if(productName == null || productName.trim().length() == 0)
+      throw new MojoExecutionException("Invalid product name. Was null or empty.");
+
+    return productName;
   }
 }

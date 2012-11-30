@@ -39,11 +39,6 @@ public class XCodePackageAppMojo extends BuildContextAwareMojo
    */
   private MavenProjectHelper projectHelper;
 
-  /**
-   * @parameter expression="${product.name}"
-   */
-  private String productName;
-
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -59,24 +54,7 @@ public class XCodePackageAppMojo extends BuildContextAwareMojo
   private void packageAndAttachAppFolder(String sdk, String config) throws MojoExecutionException
   {
 
-    final String productName;
-
-    if (this.productName != null) {
-      productName = this.productName.trim();
-
-      if (productName.isEmpty())
-        throw new IllegalStateException("ProductName from pom file was empty.");
-
-    }
-    else {
-      try {
-        productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), config, sdk, EffectiveBuildSettings.PRODUCT_NAME);
-      } catch(XCodeException ex) {
-        throw new MojoExecutionException("Cannot obtain product name: " + ex.getMessage(), ex);
-      }
-      if (productName == null || productName.isEmpty())
-        throw new IllegalStateException("Product Name not found in effective build settings file");
-    }
+    final String productName = getProductName(config, sdk);
 
     final String fixedProductName = getFixedProductName(productName);
 
