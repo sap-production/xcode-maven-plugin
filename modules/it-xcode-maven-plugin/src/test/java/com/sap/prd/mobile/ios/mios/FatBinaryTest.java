@@ -62,8 +62,8 @@ public class FatBinaryTest extends XCodeTest
 
     if (masterRemoteRepoDir.exists())
       com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(masterRemoteRepoDir);
-
-    test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyLibrary"), "deploy",
+    
+    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
   }
 
