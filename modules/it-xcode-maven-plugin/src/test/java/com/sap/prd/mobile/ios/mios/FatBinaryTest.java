@@ -112,7 +112,8 @@ public class FatBinaryTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepoDir.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
+    
+    test(testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "install",
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements, new NullProjectModifier());
     
@@ -147,8 +148,8 @@ public class FatBinaryTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepoDir.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-
-    test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
+    
+    test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "install",
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements, new NullProjectModifier());
     
@@ -195,8 +196,8 @@ public class FatBinaryTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepoDir.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-
-    test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "initialize",
+    
+    test(verifier, testName, new File(getTestRootDirectory(), "straight-forward-fat-libs/MyApp"), "install",
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements, new NullProjectModifier());
     
