@@ -37,7 +37,7 @@ import org.apache.maven.plugin.MojoFailureException;
  * so that it consists of three numbers separated by two dots.
  * 
  * @goal change-versions-in-plist
- * @since 1.6.2
+ * @since 1.7.0
  */
 public class XCodeChangeVersionInPListMojo extends BuildContextAwareMojo
 {
