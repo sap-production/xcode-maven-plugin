@@ -5,7 +5,7 @@
 
   <groupId>com.sap.prd.mobile.ios.mios</groupId>
   <artifactId>parent</artifactId>
-  <version>1.7.0</version>
+  <version>1.7.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Xcode Maven Plugin Parent</name>
   <description>The parent POM for the xcode-maven-plugin</description>
