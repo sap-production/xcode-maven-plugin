@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Build;
@@ -65,7 +67,12 @@ public class XCodeManagerTest extends XCodeTest
   public void straightForwardTestBuildLibWithoutPredecessors() throws Exception
   {
 
-    final XCodeContext context = new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), new File(projectDirectory, "MyLibrary/src/xcode"), System.out);
+    Map<String, String> managedOptions = new HashMap<String, String>();
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLibrary.xcodeproj");
+    managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
+    managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "iphoneos");
+    Options options = new Options(null, managedOptions);
+    final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), new File(projectDirectory, "MyLibrary/src/xcode"), System.out, null, options);
 
     Log log = EasyMock.createMock(Log.class);
     MavenProject mavenProject = EasyMock.createMock(MavenProject.class);
@@ -82,7 +89,7 @@ public class XCodeManagerTest extends XCodeTest
     // dependency resolution. We build here a project without any
     // predecessor.
 
-    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos");
+    new XCodeManager(log).callXcodeBuild(context);
   }
 
   //
@@ -106,8 +113,13 @@ public class XCodeManagerTest extends XCodeTest
 
     EasyMock.replay(build, mavenProject);
 
-    final XCodeContext context = new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, System.out);
-    new XCodeManager(log). callXcodeBuild(context, "NON-EXISTNG_CONFIGURATION", "iphoneos");
+    Map<String, String> managedOptions = new HashMap<String, String>();
+    managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "NON-EXISTNG_CONFIGURATION");
+    managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "iphoneos");
+    
+    Options options = new Options(null, managedOptions);
+    final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null, options);
+    new XCodeManager(log). callXcodeBuild(context);
 
   }
 
@@ -126,8 +138,13 @@ public class XCodeManagerTest extends XCodeTest
 
     EasyMock.replay(build, mavenProject);
 
+    Map<String, String> managedOptions = new HashMap<String, String>();
+    managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
+    managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "iphoneos");
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLibrary.xcodeproj");
     
-    final XCodeContext context = new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, new PrintStream(
+    Options options = new Options(null, managedOptions);
+    final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, new PrintStream(
           new ByteArrayOutputStream()) {
 
       @Override
@@ -135,8 +152,8 @@ public class XCodeManagerTest extends XCodeTest
       {
         setError();
       }
-    });
-    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos");
+    }, null, options);
+    new XCodeManager(log).callXcodeBuild(context);
 
   }
 }

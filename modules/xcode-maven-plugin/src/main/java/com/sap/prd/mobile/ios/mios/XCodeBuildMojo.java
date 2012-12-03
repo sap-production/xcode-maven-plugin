@@ -40,17 +40,21 @@ public class XCodeBuildMojo extends BuildContextAwareMojo
     
     try {
       XCodeManager xcodeMgr = new XCodeManager(getLog());
-      XCodeContext ctx = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY);
-      getLog().info(ctx.toString());
 
       if (getPackagingType() == PackagingType.FRAMEWORK) {
         // we do not provide a sdk for frameworks as the target should assure that all required sdks are built
-        xcodeMgr.callXcodeBuild(ctx, getPrimaryFmwkConfiguration(), null);
+        XCodeContext ctx = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, getPrimaryFmwkConfiguration(), null);
+        getLog().info(ctx.toString());
+        xcodeMgr.callXcodeBuild(ctx);
       }
       else { 
         for (String configuration : getConfigurations()) {
           for (final String sdk : getSDKs()) {
-            xcodeMgr.callXcodeBuild(ctx, configuration, sdk);
+            // we do not provide a sdk for frameworks as the target should assure that all required sdks are built
+            XCodeContext ctx = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);
+            getLog().info(ctx.toString());
+
+            xcodeMgr.callXcodeBuild(ctx);
           }
         }
       }

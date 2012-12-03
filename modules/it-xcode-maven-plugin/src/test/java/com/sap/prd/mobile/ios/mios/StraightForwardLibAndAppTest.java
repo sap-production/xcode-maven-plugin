@@ -90,7 +90,7 @@ public class StraightForwardLibAndAppTest extends XCodeTest
 
     final File tmpFolder = new File(getTargetDirectory(), "tests/tmp");
     tmpFolder.deleteOnExit();
-    
+
     extractedIpaFolder = new File(tmpFolder, "ipa");
     extractFileWithShellScript(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-Release-iphoneos.ipa"),
           extractedIpaFolder);
@@ -103,12 +103,10 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     extractFileWithShellScript(appstoreUploadFile, appstoreFolder);
 
     appTestBaseDir = new File(appVerifier.getBasedir());
-    
-    archiveArtifactsDir = new File(appTestBaseDir, "archive/artifacts/com.sap.ondevice.production.ios.tests/MyApp");
 
-  
-  }
-  
+    archiveArtifactsDir = new File(appTestBaseDir, "archive/artifacts/com.sap.ondevice.production.ios.tests/MyApp");
+}
+
   @Test
   public void testExistsHeaders() throws Exception
   {

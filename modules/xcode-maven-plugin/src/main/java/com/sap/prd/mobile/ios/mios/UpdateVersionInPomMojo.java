@@ -133,7 +133,7 @@ public class UpdateVersionInPomMojo extends BuildContextAwareMojo
 
         String _version = null;
 
-        String infoPListFileName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
+        String infoPListFileName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(), EffectiveBuildSettings.INFOPLIST_FILE);
         if(infoPListFileName == null || infoPListFileName.isEmpty())
           throw new XCodeException("Cannot retrieve info plist file from Build settings.");
         

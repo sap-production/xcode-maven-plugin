@@ -40,10 +40,10 @@ class XCodeManager
    * @throws IOException
    * @throws {@link XCodeException}
    */
-  void callXcodeBuild(XCodeContext ctx, String configuration, final String sdk) throws IOException,
+  void callXcodeBuild(XCodeContext ctx) throws IOException,
         XCodeException
   {
-    final CommandLineBuilder commandLineBuilder = new CommandLineBuilder(configuration, sdk, ctx);
+    final CommandLineBuilder commandLineBuilder = new CommandLineBuilder(ctx);
 
     //
     //TODO The command line printed into the log is not 100% accurate. We have a problem with
@@ -53,7 +53,7 @@ class XCodeManager
     final int returnValue = Forker.forkProcess(ctx.getOut(), ctx.getProjectRootDirectory(),
           commandLineBuilder.createBuildCall());
     if (returnValue != 0) {
-      throw new XCodeException("Could not execute xcodebuild for configuration " + configuration);
+      throw new XCodeException("Could not execute xcodebuild for configuration " + ctx.getOptions().getAllOptions().get(Options.ManagedOption.CONFIGURATION.getOptionName()));
     }
   }
 }

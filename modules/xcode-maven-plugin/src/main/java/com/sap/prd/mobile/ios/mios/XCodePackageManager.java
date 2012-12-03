@@ -59,24 +59,12 @@ class XCodePackageManager
    * 
    * @param buildDir
    */
-  void packageArtifacts(final XCodeContext xCodeContext, final Set<String> configurations, final Set<String> sdks,
-        final MavenProject project, final Set<String> bundles) throws IOException, XCodeException
+  void packageArtifacts(final File compileDir, final MavenProject project, final Set<String> bundles) throws IOException, XCodeException
   {
 
     File mainArtifact = createMainArtifactFile(project);
 
-    final File buildDir = XCodeBuildLayout.getBuildDir(xCodeContext.getProjectRootDirectory());
-
-    for (final String configuration : configurations) {
-      for (final String sdk : sdks) {
-        packageHeaders(xCodeContext, configuration, sdk, project, log);
-        log.info("Headers packaged for configuration '" + configuration + "' and sdk '" + sdk + "' .");
-
-        attachLibrary(buildDir, configuration, sdk, project, projectHelper, log);
-      }
-    }
-
-    attachBundle(xCodeContext.getProjectRootDirectory(), project, bundles, mainArtifact);
+    attachBundle(compileDir, project, bundles, mainArtifact);
 
     final File mainArtifactFile = archiveMainArtifact(project, mainArtifact);
     setMainArtifact(project, mainArtifactFile);
@@ -163,18 +151,20 @@ class XCodePackageManager
     log.info("Main artifact file '" + mainArtifactTarFile + "' attached for " + project.getArtifact());
   }
 
-  private void packageHeaders(final XCodeContext xcodeContext, final String configuration, final String sdk, MavenProject project,
+
+
+  void packageHeaders(final XCodeContext xcodeContext, MavenProject project,
         Log log) throws IOException, XCodeException
   {
 
-    String publicHeaderPath = EffectiveBuildSettings.getBuildSetting(xcodeContext, log, configuration, sdk, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
+    String publicHeaderPath = EffectiveBuildSettings.getBuildSetting(xcodeContext, log, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
     
-    final File headerDir = new File(XCodeBuildLayout.getAppFolder(xcodeContext.getProjectRootDirectory(), configuration, sdk), publicHeaderPath);
+    final File headerDir = new File(XCodeBuildLayout.getAppFolder(xcodeContext.getProjectRootDirectory(), xcodeContext.getConfiguration(), xcodeContext.getSDK()), publicHeaderPath);
 
     if (!headerDir.canRead())
       return;
 
-    final File headersFile = new File(new File(new File(project.getBuild().getDirectory()), configuration + "-" + sdk),
+    final File headersFile = new File(new File(new File(project.getBuild().getDirectory()), xcodeContext.getConfiguration() + "-" + xcodeContext.getSDK()),
           "headers.tar");
 
     try {
@@ -189,10 +179,11 @@ class XCodePackageManager
       throw new RuntimeException("Could not archive header directory '" + headerDir + "'", ex);
     }
 
-    prepareHeaderFileForDeployment(project, configuration, sdk, headersFile);
+    prepareHeaderFileForDeployment(project, xcodeContext.getConfiguration(), xcodeContext.getSDK(), headersFile);
 
   }
 
+  
   private void prepareHeaderFileForDeployment(final MavenProject mavenProject, final String configuration,
         final String sdk, final File headersFile)
   {
@@ -227,16 +218,16 @@ class XCodePackageManager
     }
   }
 
-  private static void attachLibrary(File buildDir, final String configuration, final String sdk,
+  static void attachLibrary(final XCodeContext xcodeContext, File buildDir,
         final MavenProject project, final MavenProjectHelper projectHelper, Log log)
   {
 
-    final File fatBinary = XCodeBuildLayout.getBinary(buildDir, configuration, sdk, project.getArtifactId());
+    final File fatBinary = XCodeBuildLayout.getBinary(buildDir, xcodeContext.getConfiguration(), xcodeContext.getSDK(), project.getArtifactId());
 
     if (!fatBinary.exists())
       throw new RuntimeException(fatBinary + " should be attached but does not exist.");
 
-    final String classifier = configuration + "-" + sdk;
+    final String classifier = xcodeContext.getConfiguration() + "-" + xcodeContext.getSDK();
 
     projectHelper.attachArtifact(project, "a", classifier, fatBinary);
 

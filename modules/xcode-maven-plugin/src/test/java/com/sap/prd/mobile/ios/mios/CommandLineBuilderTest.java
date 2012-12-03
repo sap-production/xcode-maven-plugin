@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -51,7 +52,8 @@ public class CommandLineBuilderTest
     }
 
     private void expect(XCodeContext context, String ... expected) {
-        CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
+
+        CommandLineBuilder commandLineBuilder = new CommandLineBuilder(context);
         String[] actual = commandLineBuilder.createBuildCall();
         assertArrayEquals("\r\nExpected: "+appendStrings(expected)+"\r\nActual:   "+appendStrings(actual), expected, actual);
     }
@@ -59,83 +61,154 @@ public class CommandLineBuilderTest
   @Test
   public void testCommandlineBuilderStraightForward() throws Exception
   {
-    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out);
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
-    assertArrayEquals(new String[] { "xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
-        "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build" }, commandLineBuilder.createBuildCall());
-    expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
-            "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build");
+    Map<String, String> managedOptions = new HashMap<String, String>();
+    managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
+    managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "mysdk");
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLib.xcodeproj");
+
+    Options options = new Options(null, managedOptions);
+    
+    XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null, options);
+    expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-sdk",
+            "mysdk", "-configuration", "Release", "clean", "build", "OBJROOT=build", "SYMROOT=build", "DSTROOT=build", "SHARED_PRECOMPS_DIR=build");
   }
 
     @Test
     public void testCommandlineBuilderStraightForwardSettings() throws Exception
     {
-      XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out);
-      Map<String, String> settings = new LinkedHashMap<String, String>();
-      settings.put("VALID_ARCHS", "i386");
-      settings.put("CONFIGURATION_BUILD_DIR", "/Users/me/projects/myapp/target/xcode/src/main/xcode/build");
-      context.setSettings(settings);
-      expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
-              "mysdk", "VALID_ARCHS=i386", "CONFIGURATION_BUILD_DIR=/Users/me/projects/myapp/target/xcode/src/main/xcode/build", "clean", "build");
-      context.setSettings(null);
+      Map<String, String> managedOptions = new HashMap<String, String>();
+      managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
+      managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "mysdk");
+      managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLib.xcodeproj");
+
+      Options options = new Options(null, managedOptions);
+
+      Map<String, String> userSettings = new LinkedHashMap<String, String>();
+      userSettings.put("VALID_ARCHS", "i386");
+      userSettings.put("CONFIGURATION_BUILD_DIR", "/Users/me/projects/myapp/target/xcode/src/main/xcode/build");
+      Settings settings = new Settings(userSettings, null);
+
+      XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, settings, options);
+      expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-sdk",
+              "mysdk", "-configuration", "Release", "clean", "build", "OBJROOT=build", "SYMROOT=build", "DSTROOT=build", "CONFIGURATION_BUILD_DIR=/Users/me/projects/myapp/target/xcode/src/main/xcode/build", "SHARED_PRECOMPS_DIR=build", "VALID_ARCHS=i386");
     }
 
     @Test
     public void testCommandlineBuilderStraightForwardOptions() throws Exception
     {
-      XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out);
-      Map<String, String> options = new LinkedHashMap<String, String>();
-      options.put("arch", "i386");
-      context.setOptions(options);
-      expect(context, "xcodebuild", "-arch", "i386", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
-              "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "clean", "build");
-      context.setOptions(null);
+      
+      Map<String, String> managedOptions = new HashMap<String, String>();
+      managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
+      managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "mysdk");
+      managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLib.xcodeproj");
+
+      Map<String, String> userOptions = new LinkedHashMap<String, String>();
+      userOptions.put("arch", "i386");
+
+      Options options = new Options(userOptions, managedOptions);
+
+      XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null, options);
+      expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-arch", "i386", "-sdk",
+            "mysdk", "-configuration", "Release", "clean", "build", "OBJROOT=build", "SYMROOT=build", "DSTROOT=build", "SHARED_PRECOMPS_DIR=build");
     }
 
   @Test
   public void testCodeSignIdentity() throws Exception
   {
-    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out, "MyCodeSignIdentity", null, null);
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
+    Map<String, String> userSettings = null, managedSettings = new HashMap<String, String>();
+    managedSettings.put("CODE_SIGN_IDENTITY", "MyCodeSignIdentity");
+    Settings settings = new Settings(userSettings, managedSettings);
+    
+    Map<String, String> managedOptions = new HashMap<String, String>();
+    managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
+    managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "mysdk");
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLib.xcodeproj");
+    Options options = new Options(null, managedOptions);
+
+    
+    XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, settings, options);
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder(context);
     assertTrue(Arrays.asList(commandLineBuilder.createBuildCall()).contains("CODE_SIGN_IDENTITY=MyCodeSignIdentity"));
-  }
-
-  @Test
-  public void testCodeSignIdentityIsNull() throws Exception
-  {
-    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out);
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
-
-    for (String param : commandLineBuilder.createBuildCall()) {
-      assertFalse("The command line must not contain a parameter 'CODE_SIGN_IDENTITY='",
-            param.contains("CODE_SIGN_IDENTITY="));
-    }
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testCodeSignIdentityIsEmpty() throws Exception
   {
-    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), null, System.out, "", null, null);
-    new CommandLineBuilder("Release", "mysdk", context);
+    Map<String, String> managedOptions = new HashMap<String, String>();
+    managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
+    managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "mysdk");
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLib.xcodeproj");
+    Options options = new Options(null, managedOptions);
+
+    
+    HashMap<String, String> managedSettings = new HashMap<String, String>();
+    managedSettings.put(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name(), "");
+    Settings settings = new Settings(null, managedSettings);
+    XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), null, System.out, settings, options);
+    new CommandLineBuilder(context);
   }
 
   
   @Test
   public void testProvisioningProfile() throws Exception
   {
-    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out, null, "MyProvisioningProfile", null);
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
+    Map<String, String> userSettings = null, managedSettings = new HashMap<String, String>();
+    managedSettings.put("PROVISIONING_PROFILE", "MyProvisioningProfile");
+    Settings settings = new Settings(userSettings, managedSettings);
+    
+    Map<String, String> managedOptions = new HashMap<String, String>();
+    managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
+    managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "mysdk");
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLib.xcodeproj");
+    Options options = new Options(null, managedOptions);
+
+
+    XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, settings, options);
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder(context);
     assertTrue(Arrays.asList(commandLineBuilder.createBuildCall()).contains("PROVISIONING_PROFILE=MyProvisioningProfile"));
   }
 
   @Test
   public void testProvisioningProfileIsNull() throws Exception
   {
-    XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out, null, null, null);
-    CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", context);
+    Map<String, String> managedOptions = new HashMap<String, String>();
+    managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
+    managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "mysdk");
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLib.xcodeproj");
+    Options options = new Options(null, managedOptions);
+
+    XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null, options);
+    CommandLineBuilder commandLineBuilder = new CommandLineBuilder(context);
     for (String param : commandLineBuilder.createBuildCall()) {
       assertFalse("The command line must not contain a parameter 'PROVISIONING_PROFILE='",
             param.contains("PROVISIONING_PROFILE="));
     }
+  }
+  
+  @Test
+  public void testLibraryCommandline() throws Exception
+  {
+    //
+    // Should be similiar to
+    //xcodebuild -project $PROJECT_NAME.xcodeproj -arch i386 -target $PROJECT_NAME -configuration Debug -sdk $SDK clean build VALID_ARCHS="i386" CONFIGURATION_BUILD_DIR="$PROJECT_PATH/build"
+    //
+    // PROJECT_NAME, PROJECT_PATH, SDK are environment variables in the shell and are replaced by concrete values.
+    //
+    Map<String, String> managedOptions = new HashMap<String, String>();
+    managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Debug");
+    managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "iphoneos");
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLib.xcodeproj");
+    managedOptions.put(Options.ManagedOption.TARGET.getOptionName(), "MyLib");
+    
+    Map<String, String> userOptions = new HashMap<String, String>();
+    userOptions.put("arch", "i386");
+
+    Options options = new Options(userOptions, managedOptions);
+    HashMap<String, String> userSettings = new HashMap<String, String>();
+    userSettings.put("VALID_ARCHS", "i386");
+    userSettings.put("CONFIGURATION_BUILD_DIR", "MyLib/build");
+    Settings settings = new Settings(userSettings, null);
+    XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, settings, options);
+    expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-arch", "i386",  "-target", "MyLib", "-sdk", "iphoneos", "-configuration", "Debug", "clean", "build", "OBJROOT=build", "SYMROOT=build", "DSTROOT=build", "CONFIGURATION_BUILD_DIR=MyLib/build", "SHARED_PRECOMPS_DIR=build", "VALID_ARCHS=i386");
   }
 }

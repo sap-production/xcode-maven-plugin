@@ -46,7 +46,7 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
     String builtProductsDirName = null;
     
     try {
-      builtProductsDirName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), getPrimaryFmwkConfiguration(), sdk, EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+      builtProductsDirName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, getPrimaryFmwkConfiguration(), sdk), getLog(), EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
     } catch(XCodeException ex) {
       throw new MojoExecutionException(ex.getMessage(), ex);
     }

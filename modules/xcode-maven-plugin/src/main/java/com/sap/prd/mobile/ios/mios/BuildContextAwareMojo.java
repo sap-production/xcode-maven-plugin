@@ -22,7 +22,9 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -74,8 +76,22 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * @parameter expression="${product.name}"
    */
   private String productName;
+  
+  /**
+   * Settings to pass to XCode - if any are explicitly defined here, this plugin will not provide default settings to XCode.
+   * @parameter
+   * @since 1.6.2
+   */
+private Map<String, String> settings;
 
-  protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation)
+  /**
+   * Options to pass to XCode - if any are explicitly defined here, this plugin will not provide default options to XCode.
+   * @parameter
+   * @since 1.6.2
+   */
+private Map<String, String> options;
+
+  protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation, String configuration, String sdk)
   {
     final String projectName = project.getArtifactId();
     File projectDirectory = null;
@@ -88,8 +104,25 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
       throw new IllegalStateException("Invalid source code location: '" + sourceCodeLocation + "'");
     }
 
-    return new XCodeContext(projectName, getBuildActions(), projectDirectory, System.out, codeSignIdentity,
-          provisioningProfile, target);
+    HashMap<String, String> managedSettings = new HashMap<String, String>();
+    if(codeSignIdentity != null && !codeSignIdentity.trim().isEmpty())
+      managedSettings.put(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name(), codeSignIdentity);
+
+    if(provisioningProfile != null)
+      managedSettings.put(Settings.ManagedSetting.PROVISIONING_PROFILE.name(), provisioningProfile);
+
+    HashMap<String, String> managedOptions = new HashMap<String, String>();
+
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), projectName + ".xcodeproj");
+
+    if(configuration != null && !configuration.trim().isEmpty())
+      managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), configuration);
+    if(sdk != null && !sdk.trim().isEmpty())
+      managedOptions.put(Options.ManagedOption.SDK.getOptionName(), sdk);
+    if(target != null && !target.trim().isEmpty())
+      managedOptions.put(Options.ManagedOption.TARGET.getOptionName(), target);
+
+    return new XCodeContext(getBuildActions(), projectDirectory, System.out, new Settings(settings, managedSettings), new Options(options, managedOptions));
   }
 
   protected List<String> getBuildActions()
@@ -116,10 +149,10 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
   protected File getPListFile(XCodeContext.SourceCodeLocation location, String configuration, String sdk) throws XCodeException {
 
     
-    XCodeContext context = getXCodeContext(location);
+    XCodeContext context = getXCodeContext(location, configuration, sdk);
     
-    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, getLog(), configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
-    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, getLog(), configuration, sdk, EffectiveBuildSettings.SRC_ROOT));
+    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, getLog(), EffectiveBuildSettings.INFOPLIST_FILE);
+    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, getLog(), EffectiveBuildSettings.SRC_ROOT));
 
     final File plistFile = new File(plistFileName);
 
@@ -147,7 +180,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     else {
       
       try {
-        productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+        productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(), EffectiveBuildSettings.PRODUCT_NAME);
         getLog().info("Product name obtained from effective build settings file");
         
       } catch(final XCodeException ex) {

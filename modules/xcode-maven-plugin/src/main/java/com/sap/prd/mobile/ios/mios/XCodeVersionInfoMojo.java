@@ -250,11 +250,8 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
   private void sign(File rootDir, String configuration, String sdk) throws IOException, XCodeException
   {
-    String csi = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY),
-          getLog(), configuration, sdk, EffectiveBuildSettings.CODE_SIGN_IDENTITY);
-    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(
-          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk,
-          EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
+    String csi = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(), EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(), EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
     CodeSignManager.sign(csi, appFolder, true);
   }
 
