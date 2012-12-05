@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>coordinates</key>
+	<dict>
+		<key>artifactId</key>
+		<string>MyApp</string>
+		<key>groupId</key>
+		<string>com.sap.ondevice.production.ios.tests</string>
+		<key>version</key>
+		<string>${dynamicVersion}</string>
+	</dict>
+	<key>dependencies</key>
+	<dict>
+		<key>0</key>
+		<dict>
+			<key>coordinates</key>
+			<dict>
+				<key>artifactId</key>
+				<string>MyLibrary</string>
+				<key>groupId</key>
+				<string>com.sap.ondevice.production.ios.tests</string>
+				<key>version</key>
+				<string>${dynamicVersion}</string>
+			</dict>
+			<key>scm</key>
+			<dict>
+				<key>connection</key>
+				<string>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/</string>
+				<key>revision</key>
+				<string>4711</string>
+			</dict>
+		</dict>
+	</dict>
+	<key>scm</key>
+	<dict>
+		<key>connection</key>
+		<string>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/</string>
+		<key>revision</key>
+		<string>1234</string>
+	</dict>
+</dict>
+</plist>

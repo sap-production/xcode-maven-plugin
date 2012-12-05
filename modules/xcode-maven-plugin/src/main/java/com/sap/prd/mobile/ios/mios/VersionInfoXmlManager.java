@@ -59,7 +59,7 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Versions;
  * added.
  * 
  */
-public class VersionInfoManager
+public class VersionInfoXmlManager
 {
   private static final String THREEDOTS = "...";
 

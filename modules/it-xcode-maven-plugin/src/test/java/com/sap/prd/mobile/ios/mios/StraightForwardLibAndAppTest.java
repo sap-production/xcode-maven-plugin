@@ -156,6 +156,15 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   }
   
   @Test
+  public void testVersionFile() throws Exception
+  {
+    File versionFileApp = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-versions.xml");
+    assertTrue(versionFileApp.exists());
+    File versionsTestFile = new File("src/test/resources/MyApp-versions.xml");
+    compareFilesContainingDynamicVersions(dynamicVersion, versionsTestFile, versionFileApp);    
+  }
+
+  @Test
   public void testIpaReleaseIPhoneOsExists() throws Exception
   {
     // we built only the Xcode config Release for iphoneos SDK. All other combinations must not exist:
@@ -198,16 +207,29 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   }
   
   @Test
-  public void testVersionsFileContent() throws Exception
+  public void testVersionsFileXMLInApplicationFile() throws Exception
   {
     File versionsXmlInIpa = new File(extractedIpaFolder, "Payload/MyApp.app/versions.xml");
     File versionsXmlInAppZip = new File(appstoreFolder, "MyApp.app/versions.xml");
     assertTrue(versionsXmlInIpa.exists());
     assertTrue(versionsXmlInAppZip.exists());
-    File versionsTestFile = new File("src/test/resources/MyApp-versions.xml");
+    File versionsTestXMLFile = new File("src/test/resources/MyApp-versions.xml");
 
-    compareFilesContainingDynamicVersions(dynamicVersion, versionsTestFile, versionsXmlInAppZip);    
+    compareFilesContainingDynamicVersions(dynamicVersion, versionsTestXMLFile, versionsXmlInAppZip);
   }
+
+  @Test
+  public void testVersionsFilePListInApplicationFile() throws Exception
+  {
+    File versionsPListInIpa = new File(extractedIpaFolder, "Payload/MyApp.app/versions.plist");
+    File versionsPListInAppZip = new File(appstoreFolder, "MyApp.app/versions.plist");
+    assertTrue(versionsPListInIpa.exists());
+    assertTrue(versionsPListInAppZip.exists());
+    File versionsTestPListFile = new File("src/test/resources/MyApp-versions.plist");
+
+    compareFilesContainingDynamicVersions(dynamicVersion, versionsTestPListFile, versionsPListInAppZip);
+  }
+
   
   @Test
   public void testVerifyCodesignIdentityInIpa() throws Exception
@@ -301,15 +323,6 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   public void testAppStoreMetadataExists() throws Exception
   {
     assertTrue(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-AppStoreMetadata.zip").exists());    
-  }
-  
-  @Test
-  public void testVersionFile() throws Exception
-  {
-    File versionFileApp = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-versions.xml");
-    assertTrue(versionFileApp.exists());
-    File versionsTestFile = new File("src/test/resources/MyApp-versions.xml");
-    compareFilesContainingDynamicVersions(dynamicVersion, versionsTestFile, versionFileApp);    
   }
   
   @Test

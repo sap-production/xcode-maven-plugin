@@ -141,14 +141,14 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
     getLog().info("Sync info file found: '" + syncInfoFile.getAbsolutePath() + "'. Creating versions.xml file.");
 
-    final File versionsFile = new File(project.getBuild().getDirectory(), "versions.xml");
+    final File versionsXmlFile = new File(project.getBuild().getDirectory(), "versions.xml");
 
     FileOutputStream os = null;
 
     try {
-      os = new FileOutputStream(versionsFile);
+      os = new FileOutputStream(versionsXmlFile);
 
-      new VersionInfoManager().createVersionInfoFile(project.getGroupId(), project.getArtifactId(),
+      new VersionInfoXmlManager().createVersionInfoFile(project.getGroupId(), project.getArtifactId(),
             project.getVersion(), syncInfoFile, getDependencies(), os);
 
     }
@@ -165,11 +165,26 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
       IOUtils.closeQuietly(os);
     }
 
+    final File versionsPlistFile = new File(project.getBuild().getDirectory(), "versions.plist");
+    try {
+      new VersionInfoPListManager().createVersionInfoPlistFile(project.getGroupId(), project.getArtifactId(),
+            project.getVersion(), syncInfoFile, getDependencies(), versionsPlistFile);
+    }
+    catch (JAXBException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
+    }
+    catch (SAXException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
+    }
+    catch (IOException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
+    }
+     
     if (getPackagingType() == PackagingType.APP)
     {
       try
       {
-        copyVersionsXmlAndSign();
+        copyVersionsFilesAndSign();
       }
       catch (IOException e) {
         throw new MojoExecutionException(e.getMessage(), e);
@@ -177,17 +192,20 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
       catch (ExecutionResultVerificationException e) {
         throw new MojoExecutionException(e.getMessage(), e);
       }
-      catch(XCodeException e) {
+      catch (XCodeException e) {
         throw new MojoExecutionException(e.getMessage(), e);
       }
     }
 
-    projectHelper.attachArtifact(project, "xml", "versions", versionsFile);
-
-    getLog().info("versions.xml '" + versionsFile + " attached as additional artifact.");
+    projectHelper.attachArtifact(project, "xml", "versions", versionsXmlFile);
+    getLog().info("versions.xml '" + versionsXmlFile + " attached as additional artifact.");
+    
+    projectHelper.attachArtifact(project, "plist", "versions", versionsPlistFile);
+    getLog().info("versions.plist '" + versionsPlistFile + " attached as additional artifact.");
   }
 
-  private void copyVersionsXmlAndSign() throws IOException, ExecutionResultVerificationException, XCodeException, MojoExecutionException
+  private void copyVersionsFilesAndSign() throws IOException, ExecutionResultVerificationException, XCodeException,
+        MojoExecutionException
   {
     for (final String configuration : getConfigurations())
     {
@@ -196,11 +214,14 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
         if (sdk.startsWith("iphoneos"))
         {
           File versionsXmlInBuild = new File(project.getBuild().getDirectory(), "versions.xml");
+          File versionsPListInBuild = new File(project.getBuild().getDirectory(), "versions.plist");
+
           File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, sdk);
-          
+
           String productName = getProductName(configuration, sdk);
           File appFolder = new File(rootDir, productName + ".app");
           File versionsXmlInApp = new File(appFolder, "versions.xml");
+          File versionsPListInApp = new File(appFolder, "versions.plist");
 
           CodeSignManager.verify(appFolder);
           final ExecResult originalCodesignEntitlementsInfo = CodeSignManager
@@ -208,6 +229,9 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           final ExecResult originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
 
           FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);
+          getLog().info("Versions.xml file copied from: '" + versionsXmlInBuild + " ' to ' "+ versionsXmlInApp);
+          FileUtils.copyFile(versionsPListInBuild, versionsPListInApp);
+          getLog().info("Versions.plist file copied from: '" + versionsPListInBuild + " ' to ' "+ versionsPListInApp);
 
           sign(rootDir, configuration, sdk);
 
@@ -222,10 +246,14 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     }
   }
 
+
   private void sign(File rootDir, String configuration, String sdk) throws IOException, XCodeException
   {
-    String csi = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.CODE_SIGN_IDENTITY);
-    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
+    String csi = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY),
+          getLog(), configuration, sdk, EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk,
+          EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
     CodeSignManager.sign(csi, appFolder, true);
   }
 
@@ -244,7 +272,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
               repoSession).resolveSideArtifact(mainArtifact, "versions", "xml");
         getLog().info("Version information retrieved for artifact: " + mainArtifact);
 
-        result.add(VersionInfoManager.parseDependency(sideArtifact.getFile()));
+        result.add(VersionInfoXmlManager.parseDependency(sideArtifact.getFile()));
       }
       catch (SideArtifactNotFoundException e) {
         getLog().info("Could not retrieve version information for artifact:" + mainArtifact);
