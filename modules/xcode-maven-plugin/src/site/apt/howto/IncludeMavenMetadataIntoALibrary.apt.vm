@@ -1,0 +1,170 @@
+~~~
+~~ #%L
+~~ xcode-maven-plugin
+~~ %%
+~~ Copyright (C) 2012 SAP AG
+~~ %%
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~ 
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~ 
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~ #L%
+~~~
+ 
+ ------
+ Usage
+ ------
+ ------
+ 2012-11-26
+ ------
+ 
+Purpose of this page
+ 
+   Sometimes it is helpful to include maven metadata into a library so that those metadata can be accessed on coding level.
+   E.g. it might be desirable to have the maven GAV or the changelist with that a library was built available in order to
+   write those data into a log.
+   This page explains what need to be done in order to get maven metadata available for a project on coding level.
+   
+The big picture
+ 
+   In order to provide meta data on source code level an additional header file containing some <<<#define>>>s can be provided.
+   For each meta data property one define needs to be defined. This header file needs to be provided to the project. Since the
+   file is generated and should not be modified the recommanded location for that file is not directly inside the project but
+   inside the header search path of the project.
+   
+   The value of the define statement is a <<<NSString>>> containing a placeholder. That placeholder is replaced by the corresponding value
+   at an early phase in the lifecycle when runnning maven.
+   
+   An example for the scenario described on that page can be found {{{./IncludeMavenMetadataIntoALibrary.zip}here}}
+
+How it works
+
+
+   The {{{http://maven.apache.org/plugins/maven-resources-plugin/}maven-resource-plugin}} can be used for filtering resources.
+   With this plugin we are able to replace placeholders by appropriate values. The template for the header file can be provided at a suitable location, 
+   e.g. according the the maven file system layout under <<<src/resources/Metadata.h>>>:
+
++-------------
+//
+//  Metadata.h
+//
+
+
+#define GROUP_ID @"\${project.groupId}"
+#define ARTIFACT_ID @"\${project.artifactId}"
+#define VERSION @"\${project.version}"
+#define CHANGELIST @"${changelist}"
++-------------
+
+   For more information about the parameters that can be filtered see {{{http://docs.codehaus.org/display/MAVENUSER/MavenPropertiesGuide}here}}.
+
+   With the following pom snippets that file gets filtered. The result needs to be provided inside a folder that is on the header search path of the
+   xcode project. Since the xcode project is copied into <<<$\{project.build.directory\}/checkout>>> before the xcode build is executed the
+   metadata header file should be located inside <<<$\{project.build.diretory\}/xcode-deps>>>. This folder is copied together with the
+   xcode sources so that the relative pathes from the xcode sources into the xcode-deps folder are preserbed. The metadata header file
+   can e.g. be located under <<<$\{project.build.directory\}/xcode-deps/private/headers>>>.
+   
+* Define what should be filtered
+
+   The files that should be filtered are defined in a filter section. The root directory for that the filtering is applied is denoted by <<<directory>>>.
+   The root directory is relative to the project directory.
+   The files that are filtered are defined by the include section. The folder structure below the root directory is preserved. For the details regarding the
+   syntax of the includes see {{{http://maven.apache.org/plugins/maven-resources-plugin/examples/include-exclude.html}here}}.
+   The filtering is only executed if the <<<filtering>>> tag provided with value <<<true>>>.
+
++-------------
+<build>
+...
+  <resources>
+    <resource>
+      <directory>src/resources/</directory>
+      <includes>
+        <include>Metadata.h</include>
+      </includes>
+      <filtering>true</filtering>
+    </resource>
+  </resources>
+...
+</build>
++-------------
+
+* Configure the maven-resoure-plugin
+
+** Define the maven-resource-plugin.
+
+   The maven-resource-plugin is defined by its GAV
+
++-------------
+<build>
+...
+  <plugins>
+   ...
+    <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-resources-plugin</artifactId>
+    <version>2.6</version>
+    <executions>
+      <execution>
+        <id>MY_ID</id>
+      ...
+      </execution>
+    </executions>
++-------------
+
+** Bind the filter goal to a lifecycle phase.
+
+   The filtering needs to be activated by binding the filter goal to a lifecycle phase. In order to get the header file containing the maven metadata at an early point
+   in the lifecyle it is recommanded to bind to the <<<initialize>>> phase. The goal that needs to be bound is <<<resources>>>.
+
++-------------
+    <execution>
+      <id>MY_ID</id>
+      <phase>initialize</phase>
+      <goals>
+        <goal>resources</goal>
+      </goals>
+      <configuration>
+       ...
+      </configuration>
+    </execution>
+    ...
++-------------
+
+
+** Define the output folder for the maven-resource-plugin.
+
+   The output folder for the filtering must point to a folder located on the header search path of the xcode project.
+
++-------------
+      <configuration>
+        ...
+        <outputDirectory>$\{project.build.directory\}/xcode-deps/private/headers</outputDirectory>
+        ...
+      </configuration>
++-------------
+
+** Define the delimiter
+
+   By default the delimiters are:
+   The asterix is not suitable for our purpose since the NSString is created with <<<@"">>>. Hence we have to disable the default
+   delimiters.
+   Additionally we have to provide the <<<$\{*\}>>> delimiter.
+
++-------------
+      <configuration>
+        ...
+        <useDefaultDelimiters>false</useDefaultDelimiters>
+        <delimiters>
+          <delimiter>${*}</delimiter>
+        </delimiters>
+        ...
+      </configuration>
++-------------
+

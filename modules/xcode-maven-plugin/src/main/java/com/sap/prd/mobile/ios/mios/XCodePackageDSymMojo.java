@@ -39,7 +39,7 @@ import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
  * @goal package-dsym
  * 
  */
-public class XCodePackageDSymMojo extends AbstractXCodeMojo
+public class XCodePackageDSymMojo extends BuildContextAwareMojo
 {
 
   /**
@@ -52,11 +52,6 @@ public class XCodePackageDSymMojo extends AbstractXCodeMojo
    * @component
    */
   private MavenProjectHelper projectHelper;
-
-  /**
-   * @parameter expression="${product.name}"
-   */
-  private String productName;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -79,34 +74,23 @@ public class XCodePackageDSymMojo extends AbstractXCodeMojo
         catch (ArchiverException e) {
           throw new MojoExecutionException(e.getMessage(), e);
         }
+        catch (XCodeException e) {
+          throw new MojoExecutionException(e.getMessage(), e);          
+        }
       }
     }
 
   }
 
   private void packageAndAttachDSym(String sdk, String config) throws IOException, NoSuchArchiverException,
-        ArchiverException
+        ArchiverException, XCodeException, MojoExecutionException
   {
 
-    final String productName;
-
-    if (this.productName != null) {
-      productName = this.productName.trim();
-
-      if (productName.isEmpty())
-        throw new IllegalStateException("ProductName from pom file was empty.");
-
-    }
-    else {
-      productName = EffectiveBuildSettings.getProductName(this.project, config, sdk);
-
-      if (productName == null || productName.isEmpty())
-        throw new IllegalStateException("Product Name not found in effective build settings file");
-    }
+    final String productName = getProductName(config, sdk);
 
     final String fixedProductName = getFixedProductName(productName);
 
-    String generateDSym = new EffectiveBuildSettings(this.project, config, sdk).getBuildSetting(EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
+    String generateDSym = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), config, sdk, EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
     if (generateDSym == null || generateDSym.equalsIgnoreCase("YES")) {
 

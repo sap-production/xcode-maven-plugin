@@ -25,8 +25,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -42,7 +40,7 @@ public class XCodeContextTest
   @BeforeClass
   public static void setup()
   {
-    projectDirectory = new File(new File("..").getAbsoluteFile(), "test-projects/straight-forward/MyLibrary");
+    projectDirectory = new File(new File(".").getAbsoluteFile(), "src/test/projects/MyLibrary");
   }
 
   @Test
@@ -51,14 +49,8 @@ public class XCodeContextTest
 
     final String projectName = "MyLibrary";
 
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName(projectName);
-    xCodeContext.setBuildActions(Arrays.asList("clean",
-          "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity("MyCodeSignIdentity");
-    xCodeContext.setOut(System.out);
-    xCodeContext.setProvisioningProfile("MyProvisioningProfile");
+    final XCodeContext xCodeContext = new XCodeContext(projectName, Arrays.asList("clean",
+          "build"), projectDirectory, System.out, "MyCodeSignIdentity", "MyProvisioningProfile", null, null, null);
 
     assertEquals(projectName, xCodeContext.getProjectName());
     assertArrayEquals(new String[] { "clean", "build" }, xCodeContext.getBuildActions().toArray());
@@ -69,116 +61,63 @@ public class XCodeContextTest
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyBuildActions()
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setBuildActions(new ArrayList<String>());
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(System.out);
+    new XCodeContext("MyLibrary", new ArrayList<String>(), projectDirectory, System.out);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testBuildActionWithEmptyEntry()
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setBuildActions(Arrays.asList("clean", "", "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(System.out);
+    new XCodeContext("MyLibrary", Arrays.asList("clean", "", "build"), projectDirectory, System.out);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void TestBuildActionEntryWithBlank()
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setBuildActions(Arrays.asList("clean", "build foo"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(System.out);
+    new XCodeContext("MyLibrary", Arrays.asList("clean", "build foo"), projectDirectory, System.out);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testBuildActionWithNullElement()
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setBuildActions(Arrays.asList(
-          "clean", null, "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(System.out);
+    new XCodeContext("MyLibrary", Arrays.asList("clean", null, "build"), projectDirectory, System.out);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testXCodeContextWithEmptyProjectName()
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("");
-    xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(System.out);
+    new XCodeContext("", Arrays.asList("clean", "build"), projectDirectory, System.out);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testXCodeContextWithoutProjectName()
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName(null);
-    xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(System.out);
+    new XCodeContext(null, Arrays.asList("clean", "build"), projectDirectory, System.out);
    }
 
 
   @Test(expected = IllegalArgumentException.class)
   public void testXCodeContextWithoutPrintStream()
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(null);
+    new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, null);
   }
 
   @Test
   public void testCodeSignIdentityIsNull() throws Exception
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity(null);
-    xCodeContext.setOut(System.out);
-  
+    final XCodeContext xCodeContext = new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory,System.out);
     Assert.assertNull(xCodeContext.getCodeSignIdentity());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testCodeSignIdentityIsEmpty() throws Exception
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setCodeSignIdentity("");
-    xCodeContext.setOut(System.out);
+    new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, System.out, "", null, null, null, null);
   }
   
   @Test
   public void testProvisioningProfileIsNull() throws Exception
   {
-    final XCodeContext xCodeContext = new XCodeContext();
-    xCodeContext.setProjectName("MyLibrary");
-    xCodeContext.setBuildActions(Arrays.asList("clean", "build"));
-    xCodeContext.setProjectRootDirectory(projectDirectory);
-    xCodeContext.setProvisioningProfile(null);
-    xCodeContext.setOut(System.out);
-
+    final XCodeContext xCodeContext = new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, System.out);
     Assert.assertNull(xCodeContext.getProvisioningProfile());
   }
 }

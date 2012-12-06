@@ -63,6 +63,10 @@
 			</item>
 		</menu>
 
+                <menu name="How to">
+                        <item name="How to include maven metadata into a library" href="howto/IncludeMavenMetadataIntoALibrary.html" />
+                </menu>
+
 		<menu ref="reports" />
 
 	</body>

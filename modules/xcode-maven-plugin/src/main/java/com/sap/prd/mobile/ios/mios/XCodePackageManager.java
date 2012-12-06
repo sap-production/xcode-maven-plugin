@@ -59,24 +59,24 @@ class XCodePackageManager
    * 
    * @param buildDir
    */
-  void packageArtifacts(final File compileDir, final Set<String> configurations, final Set<String> sdks,
-        final MavenProject project, final Set<String> bundles) throws IOException
+  void packageArtifacts(final XCodeContext xCodeContext, final Set<String> configurations, final Set<String> sdks,
+        final MavenProject project, final Set<String> bundles) throws IOException, XCodeException
   {
 
     File mainArtifact = createMainArtifactFile(project);
 
-    final File buildDir = XCodeBuildLayout.getBuildDir(compileDir);
+    final File buildDir = XCodeBuildLayout.getBuildDir(xCodeContext.getProjectRootDirectory());
 
     for (final String configuration : configurations) {
       for (final String sdk : sdks) {
-        packageHeaders(buildDir, configuration, sdk, project, log);
+        packageHeaders(xCodeContext, configuration, sdk, project, log);
         log.info("Headers packaged for configuration '" + configuration + "' and sdk '" + sdk + "' .");
 
         attachLibrary(buildDir, configuration, sdk, project, projectHelper, log);
       }
     }
 
-    attachBundle(compileDir, project, bundles, mainArtifact);
+    attachBundle(xCodeContext.getProjectRootDirectory(), project, bundles, mainArtifact);
 
     final File mainArtifactFile = archiveMainArtifact(project, mainArtifact);
     setMainArtifact(project, mainArtifactFile);
@@ -94,7 +94,7 @@ class XCodePackageManager
 
       if (!bundleDirectory.exists()) {
         log.info("Bundle directory '" + bundleDirectory + "' does not exist. Bundle will not be attached.");
-        return;
+        continue;
       }
       final File bundleFile = new File(new File(project.getBuild().getDirectory()), bundleName + ".bundle");
 
@@ -163,11 +163,13 @@ class XCodePackageManager
     log.info("Main artifact file '" + mainArtifactTarFile + "' attached for " + project.getArtifact());
   }
 
-  private void packageHeaders(final File buildDir, final String configuration, final String sdk, MavenProject project,
-        Log log) throws IOException
+  private void packageHeaders(final XCodeContext xcodeContext, final String configuration, final String sdk, MavenProject project,
+        Log log) throws IOException, XCodeException
   {
 
-    final File headerDir = XCodeBuildLayout.getPublicHeadersDirectory(project.getBuild().getDirectory(), buildDir, configuration, sdk);
+    String publicHeaderPath = EffectiveBuildSettings.getBuildSetting(xcodeContext, log, configuration, sdk, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
+    
+    final File headerDir = new File(XCodeBuildLayout.getAppFolder(xcodeContext.getProjectRootDirectory(), configuration, sdk), publicHeaderPath);
 
     if (!headerDir.canRead())
       return;

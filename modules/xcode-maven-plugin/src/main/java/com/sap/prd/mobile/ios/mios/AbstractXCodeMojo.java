@@ -148,6 +148,7 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
      */
   private Map<String, String> settings;
 
+
     /**
      * Options to pass to XCode - if any are explicitly defined here, this plugin will not provide default options to XCode.
      * @parameter
@@ -241,32 +242,6 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return new File(getXCodeCompileDirectory(), project.getArtifactId() + ".xcodeproj/project.pbxproj");
   }
 
-  /**
-   * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
-   * to it.
-   * 
-   * @param xcodeProjectDirectory
-   *          the directory where the Xcode project is located. If you want to access the unmodified
-   *          Plist (i.e. AppID not appended) use the {@link #getXCodeSourceDirectory()} method, if
-   *          you want to access the modified plist, use the {@link #getXCodeCompileDirectory()}
-   *          method.
-   */
-  protected PListAccessor getInfoPListAccessor(File xcodeProjectDirectory, String configuration, String sdk)
-        throws MojoExecutionException
-  {
-    File plistFile = getPListFile(xcodeProjectDirectory, configuration, sdk);
-    if (!plistFile.isFile()) {
-      throw new MojoExecutionException("The Xcode project refers to the Info.plist file '" + plistFile
-            + "' that does not exist.");
-    }
-    return new PListAccessor(plistFile);
-  }
-  
-  protected File getPListFile(File xcodeProjectDirectory, String configuration, String sdk) {
-    String plistFileName = new EffectiveBuildSettings(project, configuration, sdk)
-    .getBuildSetting(EffectiveBuildSettings.INFOPLIST_FILE);
-    return new File(xcodeProjectDirectory, plistFileName);
-  }
 
   /**
    * Calls a shell script in order to zip a folder. We have to call a shell script as Java cannot
@@ -329,12 +304,24 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
           + "' is not part of the configurations '" + getConfigurations() + "' defined in the POM for this project");
   }
 
-    protected Map<String, String> getSettings() {
+    public Map<String, String> getSettings() {
         return settings;
     }
 
-    protected Map<String, String> getOptions() {
+    // Only Maven will be calling this, validate user input using setters
+    // c.f. http://maven.apache.org/guides/plugin/guide-java-plugin-development.html#Using_Setters
+    public void setSettings(Map<String, String> settings) {
+        this.settings = CommandLineBuilder.Settings.validateUserSettings(settings);
+    }
+
+    public Map<String, String> getOptions() {
         return options;
+    }
+
+    // Only Maven will be calling this, validate user input using setters
+    // c.f. http://maven.apache.org/guides/plugin/guide-java-plugin-development.html#Using_Setters
+    public void setOptions(Map<String, String> options) {
+        this.options = CommandLineBuilder.Options.validateUserOptions(options);
     }
 
 }

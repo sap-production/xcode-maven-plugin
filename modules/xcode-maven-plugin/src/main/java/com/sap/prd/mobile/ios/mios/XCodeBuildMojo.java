@@ -31,7 +31,7 @@ import org.apache.maven.plugin.MojoFailureException;
  * @requiresDependencyResolution
  * 
  */
-public class XCodeBuildMojo extends AbstractXCodeBuildMojo
+public class XCodeBuildMojo extends BuildContextAwareMojo
 {
   
   @Override
@@ -40,7 +40,7 @@ public class XCodeBuildMojo extends AbstractXCodeBuildMojo
     
     try {
       XCodeManager xcodeMgr = new XCodeManager(getLog());
-      XCodeContext ctx = getXCodeContext();
+      XCodeContext ctx = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY);
       getLog().info(ctx.toString());
 
       if (getPackagingType() == PackagingType.FRAMEWORK) {

@@ -37,7 +37,7 @@ import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
  * @goal package-metadata
  * 
  */
-public class XCodePackageAppStoreMetaDataMojo extends AbstractXCodeMojo
+public class XCodePackageAppStoreMetaDataMojo extends BuildContextAwareMojo
 {
 
 
@@ -115,7 +115,8 @@ public class XCodePackageAppStoreMetaDataMojo extends AbstractXCodeMojo
     String bundleIdentifier = null;
     for (String configuration : getConfigurations()) {
       try {
-        PListAccessor plistAccessor = getInfoPListAccessor(getXCodeSourceDirectory(), configuration, "iphoneos");
+        
+        PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.ORIGINAL, configuration, "iphoneos");
         String _bundleIdentifier = plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
 
         if (bundleIdentifier == null)
@@ -125,6 +126,9 @@ public class XCodePackageAppStoreMetaDataMojo extends AbstractXCodeMojo
                 + bundleIdentifier + ")");
       }
       catch (IOException e) {
+        throw new MojoExecutionException(e.getMessage(), e);
+      }
+      catch (XCodeException e) {
         throw new MojoExecutionException(e.getMessage(), e);
       }
 

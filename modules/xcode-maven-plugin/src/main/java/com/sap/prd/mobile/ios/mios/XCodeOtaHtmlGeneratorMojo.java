@@ -40,7 +40,7 @@ import org.apache.maven.project.MavenProjectHelper;
  * @goal generate-ota-html
  */
 
-public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
+public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
 {
 
   final static String OTA_CLASSIFIER_APPENDIX = "-ota";
@@ -54,11 +54,6 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
    * @component
    */
   private MavenProjectHelper projectHelper;
-
-  /**
-   * @parameter expression="${product.name}"
-   */
-  private String productName;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -83,16 +78,7 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
         if (configuration == null || configuration.isEmpty())
           throw new IllegalStateException("Invalid configuration: '" + configuration + "'.");
 
-        final String productName;
-
-        if (this.productName != null) {
-          productName = this.productName;
-          getLog().info("Production name obtained from pom file");
-        }
-        else {
-          productName = EffectiveBuildSettings.getProductName(this.project, configuration, sdk);
-          getLog().info("Product name obtained from effective build settings file");
-        }
+        final String productName = getProductName(configuration, sdk);
 
         final String fixedProductName = getFixedProductName(productName);
 
@@ -107,7 +93,7 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
         final String ipaClassifier = getIpaClassifier(configuration, sdk);
 
         try {
-          PListAccessor plistAccessor = getInfoPListAccessor(getXCodeCompileDirectory(), configuration, sdk);
+          PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION), ipaClassifier,
@@ -139,6 +125,9 @@ public class XCodeOtaHtmlGeneratorMojo extends AbstractXCodeMojo
           }
         }
         catch (IOException e) {
+          throw new MojoExecutionException("Cannot create OTA HTML file. Check log for details.", e);
+        }
+        catch (XCodeException e) {
           throw new MojoExecutionException("Cannot create OTA HTML file. Check log for details.", e);
         }
       }

@@ -32,17 +32,12 @@ import org.apache.maven.project.MavenProjectHelper;
  * @goal package-application
  * 
  */
-public class XCodePackageAppMojo extends AbstractXCodeMojo
+public class XCodePackageAppMojo extends BuildContextAwareMojo
 {
   /**
    * @component
    */
   private MavenProjectHelper projectHelper;
-
-  /**
-   * @parameter expression="${product.name}"
-   */
-  private String productName;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -59,21 +54,7 @@ public class XCodePackageAppMojo extends AbstractXCodeMojo
   private void packageAndAttachAppFolder(String sdk, String config) throws MojoExecutionException
   {
 
-    final String productName;
-
-    if (this.productName != null) {
-      productName = this.productName.trim();
-
-      if (productName.isEmpty())
-        throw new IllegalStateException("ProductName from pom file was empty.");
-
-    }
-    else {
-      productName = EffectiveBuildSettings.getProductName(this.project, config, sdk);
-
-      if (productName == null || productName.isEmpty())
-        throw new IllegalStateException("Product Name not found in effective build settings file");
-    }
+    final String productName = getProductName(config, sdk);
 
     final String fixedProductName = getFixedProductName(productName);
 

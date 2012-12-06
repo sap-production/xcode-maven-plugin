@@ -48,12 +48,6 @@ class XCodeBuildLayout
     return new File(srcDir, bundleName + ".bundle");
   }
 
-  static File getPublicHeadersDirectory(final String mavenTargetDir, final File buildDir, final String configuration, final String sdk)
-  {
-    String publicHeaderPath = new EffectiveBuildSettings(mavenTargetDir, configuration, sdk).getBuildSetting(EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
-    return new File(new File(buildDir, configuration + "-" + sdk), publicHeaderPath);
-  }
-
   // TODO invent better method name
   static File getAppFolder(final File baseDirectory, final String configuration, final String sdk)
   {

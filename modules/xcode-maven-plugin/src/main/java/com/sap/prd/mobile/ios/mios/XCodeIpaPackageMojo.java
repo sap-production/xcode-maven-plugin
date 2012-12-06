@@ -32,18 +32,13 @@ import org.apache.maven.project.MavenProjectHelper;
  * 
  * @goal package-ipa
  */
-public class XCodeIpaPackageMojo extends AbstractXCodeMojo
+public class XCodeIpaPackageMojo extends BuildContextAwareMojo
 {
 
   /**
    * @component
    */
   private MavenProjectHelper projectHelper;
-
-  /**
-   * @parameter expression="${product.name}"
-   */
-  private String productName;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -69,17 +64,7 @@ public class XCodeIpaPackageMojo extends AbstractXCodeMojo
         if (configuration == null || configuration.isEmpty())
           throw new IllegalStateException("Invalid configuration: '" + configuration + "'.");
 
-        final String productName;
-
-        if (this.productName != null) {
-          productName = this.productName;
-          getLog().info("Production name obtained from pom file");
-        }
-        else {
-          productName = EffectiveBuildSettings.getProductName(this.project, configuration, sdk);
-          getLog().info("Product name obtained from effective build settings file");
-        }
-
+        final String productName = getProductName(configuration, sdk);
         final String fixedProductName = getFixedProductName(productName);
 
         getLog().info(

@@ -59,8 +59,6 @@ class FatLibAnalyzer
       BufferedReader br = null;
       
       try {
-
-        final String detailedLipoInfo = getDetailedLipoInfo();
         
         br = new BufferedReader(new StringReader(getDetailedLipoInfo()));
 
