@@ -22,14 +22,11 @@ package com.sap.prd.mobile.ios.mios;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -45,6 +42,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.Tailer;
+import org.apache.commons.io.input.TailerListenerAdapter;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Settings;
@@ -228,8 +227,6 @@ public abstract class XCodeTest
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
 
-    final PrintStream originalOut = System.out;
-
     if (additionalSystemProperties == null) {
       additionalSystemProperties = new HashMap<String, String>();
     }
@@ -238,6 +235,7 @@ public abstract class XCodeTest
 
     final Verifier verifier;
     final File testExecutionFolder;
+    final PrintStream originalOut = System.out;
 
     if (_verifier != null) {
       testExecutionFolder = new File(_verifier.getBasedir()).getCanonicalFile();
@@ -251,6 +249,8 @@ public abstract class XCodeTest
     prepareTestExectutionFolder(projectDirectory, testExecutionFolder);
 
     rewritePom(new File(testExecutionFolder, "pom.xml"), pomReplacements);
+
+    Tailer tailer = null;
 
     try {
 
@@ -297,33 +297,45 @@ public abstract class XCodeTest
         targets.add(0, "clean");
       }
 
-      for (String target : targets) {
+      final File logFile = new File(testExecutionFolder,
+            verifier.getLogFileName());
 
+      org.apache.commons.io.FileUtils.touch(logFile);
+      
+      tailer = new Tailer(logFile, new TailerListenerAdapter() {
+
+        @Override
+        public void handle(String line)
+        {
+          originalOut.println(line);
+        }
+
+        @Override
+        public void fileNotFound()
+        {
+          originalOut.println("Log file '" + logFile + " not found.");
+        }
+
+        @Override
+        public void handle(Exception ex)
+        {
+          originalOut.println("[ERROR] " + ex.getClass().getSimpleName() + " cauhgt while tailing log file '" + logFile + "': " + ex);
+        }
+      });
+
+      Thread t = new Thread(tailer, "TailerThread");
+      t.setDaemon(true);
+      t.start();
+
+      for(String target : targets){
         verifier.executeGoal(target);
-
         verifier.verifyErrorFreeLog();
-
-        final File logFile = new File(testExecutionFolder,
-              verifier.getLogFileName());
-
-        if (!logFile.exists())
-          originalOut.println("Log file '" + logFile
-                + "' does not exist.");
-        else
-          showLog(originalOut, projectName, logFile);
       }
 
     }
     finally {
+      tailer.stop();
       verifier.resetStreams();
-      final File logFile = new File(testExecutionFolder,
-            verifier.getLogFileName());
-
-      if (!logFile.exists())
-        System.out.println("Log file '" + logFile
-              + "' does not exist.");
-      else
-        showLog(System.out, projectName, logFile);
     }
     return verifier;
   }
@@ -337,36 +349,6 @@ public abstract class XCodeTest
   {
     return new File(
           getTestsExecutionDirectory(), testName + "/" + projectName);
-  }
-
-  private static void showLog(PrintStream out, final String projectName, final File logFile)
-        throws FileNotFoundException, IOException
-  {
-
-    out.println();
-    out.println();
-    out.println();
-    out.println("Log output for project \"" + projectName + "\".");
-    out.println();
-    out.println();
-    out.println();
-
-    InputStream log = null;
-
-    try {
-
-      log = new BufferedInputStream(new FileInputStream(logFile));
-
-      byte[] buff = new byte[1024];
-
-      for (int i; (i = log.read(buff)) != -1;)
-        out.write(buff, 0, i);
-
-    }
-    finally {
-      if (log != null)
-        IOUtils.closeQuietly(log);
-    }
   }
 
   private static void rewritePom(File pomFile, Properties pomReplacements)
