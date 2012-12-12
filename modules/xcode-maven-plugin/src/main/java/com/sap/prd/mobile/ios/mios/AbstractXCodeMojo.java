@@ -36,17 +36,6 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
 {
 
   /**
-   * The original Xcode sources located in the <code>src/xcode</code> directory stay untouched
-   * during the whole Maven build. However, as we might have to modify the info.plist or the project
-   * itself we copy the whole Xcode source directory during the build into another "checkout"
-   * directory that by default named <code>checkout</code> and located below the Maven build (
-   * <code>target</code>) directory.
-   * 
-   * @parameter expression="${xcode.checkoutDirectory}";
-   */
-  private File checkoutDirectory;
-
-  /**
    * The xcode directory of the copied sources below the checkout directory.
    * 
    * @parameter expression="${xcode.compileDirectory}"
@@ -196,7 +185,11 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
 
   protected File getCheckoutDirectory()
   {
-    return checkoutDirectory;
+    
+    String checkoutDir = project.getProperties().getProperty(XCodeDefaultConfigurationMojo.XCODE_CHECKOUT_DIR);
+    if(checkoutDir == null || checkoutDir.trim().isEmpty())
+      throw new IllegalStateException("Checkout directory has not been set: '" + checkoutDir + ".");
+    return new File(checkoutDir);
   }
 
   /**

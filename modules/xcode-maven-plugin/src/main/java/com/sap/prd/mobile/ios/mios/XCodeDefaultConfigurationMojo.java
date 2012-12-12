@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -36,11 +37,12 @@ import org.apache.maven.project.MavenProject;
 public class XCodeDefaultConfigurationMojo extends AbstractMojo
 {
 
+  
   private static final String DEFAULT_MAVEN_SOURCE_DIRECTORY = "src/main/java";
   static final String DEFAULT_XCODE_SOURCE_DIRECTORY = "src/xcode";
   private static final String DEFAULT_FOLDER_NAME_CHECKOUT_DIRECTORY = "checkout";
 
-  private static final String XCODE_CHECKOUT_DIR = "xcode.checkoutDirectory";
+  static final String XCODE_CHECKOUT_DIR = "xcode.checkoutDirectory";
   private static final String XCODE_COMPILE_DIR = "xcode.compileDirectory";
   static final String XCODE_SOURCE_DIRECTORY = "xcode.sourceDirectory";
 
@@ -49,6 +51,25 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
    * @required
    */
   protected MavenProject project;
+  
+  /**
+   * @parameter expression="${session}"
+   * @required
+   * @readonly 
+   */
+  protected MavenSession session;
+
+  /**
+   * The original Xcode sources located in the <code>src/xcode</code> directory stay untouched
+   * during the whole Maven build. However, as we might have to modify the info.plist or the project
+   * itself we copy the whole Xcode source directory during the build into another "checkout"
+   * directory that by default named <code>checkout</code> and located below the Maven build (
+   * <code>target</code>) directory. Expected is a directory name. This directory name is
+   * interpreted relative to the maven build directory.
+   * 
+   * @parameter expression="${xcode.checkoutDirectory}";
+   */
+  private File checkoutDirectory;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -56,7 +77,7 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
 
     final Properties projectProperties = project.getProperties();
 
-    if (!projectProperties.containsKey(XCODE_SOURCE_DIRECTORY)) {
+    if (!propertyAvailable(XCODE_SOURCE_DIRECTORY)) {
 
       projectProperties.setProperty(XCODE_SOURCE_DIRECTORY, DEFAULT_XCODE_SOURCE_DIRECTORY);
 
@@ -106,7 +127,7 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
     File checkoutDirectory = getCanonicalFile(new File(new File(project.getBuild().getDirectory()),
           DEFAULT_FOLDER_NAME_CHECKOUT_DIRECTORY));
 
-    if (!projectProperties.containsKey(XCODE_CHECKOUT_DIR)) {
+    if (!propertyAvailable(XCODE_CHECKOUT_DIR)) {
 
       projectProperties.setProperty(XCODE_CHECKOUT_DIR, getCanonicalPath(checkoutDirectory));
 
@@ -120,13 +141,14 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
             "Property ${" + XCODE_CHECKOUT_DIR + "} found with value '"
                   + projectProperties.getProperty(XCODE_CHECKOUT_DIR) + "'. This value will not be modified.");
 
-      checkoutDirectory = getCanonicalFile(new File(projectProperties.getProperty(XCODE_CHECKOUT_DIR)));
+      checkoutDirectory = getCanonicalFile(new File(project.getBuild().getDirectory(), getProperty(XCODE_CHECKOUT_DIR)));
+      projectProperties.put(XCODE_CHECKOUT_DIR, getCanonicalPath(checkoutDirectory));
 
     }
 
     final File compileDirectory = getCanonicalFile(new File(checkoutDirectory, sourceDirectory));
 
-    if (!projectProperties.containsKey(XCODE_COMPILE_DIR)) {
+    if (!propertyAvailable(XCODE_COMPILE_DIR)) {
 
       projectProperties.setProperty(XCODE_COMPILE_DIR, getCanonicalPath(compileDirectory));
 
@@ -135,13 +157,13 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
                   + getCanonicalPath(compileDirectory));
 
     }
-    else if (!compileDirectory.equals(getCanonicalFile(new File(projectProperties.getProperty(XCODE_COMPILE_DIR))))) {
+    else if (!compileDirectory.equals(getCanonicalFile(new File(getProperty(XCODE_COMPILE_DIR))))) {
 
       getLog()
         .warn("Property ${"
               + XCODE_COMPILE_DIR
               + "} was found to be '"
-              + projectProperties.getProperty(XCODE_COMPILE_DIR)
+              + getProperty(XCODE_COMPILE_DIR)
               + "' but should be '"
               + compileDirectory
               + "'. That property will be updated accordingly. Fix this issue in your pom file e.g by removing property ${"
@@ -158,6 +180,7 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
     getLog().info("Summary:");
     getLog().info("${project.build.sourceDirectory}: " + project.getBuild().getSourceDirectory());
     getLog().info("${" + XCODE_CHECKOUT_DIR + "} : " + project.getProperties().getProperty(XCODE_CHECKOUT_DIR));
+    getLog().debug("Checkout directory handed over from outside was: '" + this.checkoutDirectory + "'");
     getLog().info("${" + XCODE_COMPILE_DIR + "} : " + project.getProperties().getProperty(XCODE_COMPILE_DIR));
     getLog().info("${" + XCODE_SOURCE_DIRECTORY + "}: " + project.getProperties().getProperty(XCODE_SOURCE_DIRECTORY));
   }
@@ -173,6 +196,18 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
     return FileUtils.getDelta(baseDir, sourceDir);
   }
 
+  
+  private boolean propertyAvailable(String name) {
+    return session.getUserProperties().keySet().contains(name) || project.getProperties().keySet().contains(name);
+  }
+  private String getProperty(String name) {
+    String value = session.getUserProperties().getProperty(name);
+
+    if(value == null)
+      value = project.getProperties().getProperty(name);
+
+    return value;
+  }
   private static String getCanonicalPath(File f) throws MojoExecutionException
   {
     try {
