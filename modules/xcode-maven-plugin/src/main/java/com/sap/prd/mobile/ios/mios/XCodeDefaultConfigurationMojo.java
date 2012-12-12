@@ -120,8 +120,10 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
             "Property ${" + XCODE_CHECKOUT_DIR + "} found with value '"
                   + projectProperties.getProperty(XCODE_CHECKOUT_DIR) + "'. This value will not be modified.");
 
-      checkoutDirectory = getCanonicalFile(new File(projectProperties.getProperty(XCODE_CHECKOUT_DIR)));
+      checkoutDirectory = getCanonicalFile(new File(new File(project.getBuild().getDirectory()),
+            projectProperties.getProperty(XCODE_CHECKOUT_DIR)));
 
+      projectProperties.setProperty(XCODE_CHECKOUT_DIR, getCanonicalPath(checkoutDirectory));
     }
 
     final File compileDirectory = getCanonicalFile(new File(checkoutDirectory, sourceDirectory));
