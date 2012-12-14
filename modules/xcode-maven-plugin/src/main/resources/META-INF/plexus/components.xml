@@ -71,7 +71,7 @@
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:check-prerequisites
               </validate>
               <initialize>
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-source-directory,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:skip-library-build,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-project-validate,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build
@@ -92,7 +92,7 @@
                 org.apache.maven.plugins:maven-install-plugin:install
               </install>
               <deploy>
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,              
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,
                 org.apache.maven.plugins:maven-deploy-plugin:deploy
               </deploy>
             </phases>
@@ -105,7 +105,7 @@
                 org.apache.maven.plugins:maven-clean-plugin:clean
               </clean>
             </phases>
-          </lifecycle>          
+          </lifecycle>
         </lifecycles>
       </configuration>
     </component>
@@ -122,7 +122,7 @@
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:check-prerequisites
               </validate>
               <initialize>
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-source-directory,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:skip-library-build,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-project-validate,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build
@@ -141,7 +141,7 @@
                 org.apache.maven.plugins:maven-install-plugin:install
               </install>
               <deploy>
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,              
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,
                 org.apache.maven.plugins:maven-deploy-plugin:deploy
               </deploy>
             </phases>
@@ -171,8 +171,8 @@
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:check-prerequisites
               </validate>
               <initialize>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-source-directory,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:change-artifact-id,
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-configuration,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-project-validate,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:prepare-xcode-build
               </initialize>

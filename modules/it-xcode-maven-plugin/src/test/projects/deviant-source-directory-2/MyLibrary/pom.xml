@@ -27,10 +27,8 @@
   <artifactId>MyLibrary</artifactId>
   <version>${dynamicVersion}</version>
   <packaging>xcode-lib</packaging>
-  <properties>
-    <xcode.sourceDirectory></xcode.sourceDirectory>
-  </properties>
     <build>
+        <sourceDirectory></sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>com.sap.prd.mobile.ios.mios</groupId>

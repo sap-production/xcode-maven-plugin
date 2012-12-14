@@ -42,16 +42,9 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    * directory that by default named <code>checkout</code> and located below the Maven build (
    * <code>target</code>) directory.
    * 
-   * @parameter expression="${xcode.checkoutDirectory}";
+   * @parameter expression="${xcode.checkoutDirectory}" default-value="checkout";
    */
-  private File checkoutDirectory;
-
-  /**
-   * The xcode directory of the copied sources below the checkout directory.
-   * 
-   * @parameter expression="${xcode.compileDirectory}"
-   */
-  private File xcodeCompileDirectory;
+  private String checkoutDirectory;
 
   /**
    * @parameter expression="${project}"
@@ -196,7 +189,7 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
 
   protected File getCheckoutDirectory()
   {
-    return checkoutDirectory;
+    return new File(project.getBuild().getDirectory(), checkoutDirectory);
   }
 
   /**
@@ -204,16 +197,16 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    */
   protected File getXCodeCompileDirectory()
   {
-    return xcodeCompileDirectory;
+    return new File(getCheckoutDirectory(), getXCodeSourceDirectory());
   }
 
   /**
    * 
    * @return the <code>src/xcode</code> directory
    */
-  protected File getXCodeSourceDirectory()
+  protected String getXCodeSourceDirectory()
   {
-    return new File(project.getBuild().getSourceDirectory());
+    return FileUtils.getDelta(project.getBasedir(), new File(project.getBuild().getSourceDirectory()));
   }
 
   protected String getFixedProductName(final String productName)

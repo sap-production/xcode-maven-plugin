@@ -149,8 +149,7 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
       }
       String relativeTargetDirName = FileUtils.getRelativePath(project.getBuild().getDirectory(), project.getBasedir()
         .getAbsolutePath(), "/");
-      String relativeSrcDirName = FileUtils.getRelativePath(FolderLayout.getSourceFolder(project).getAbsolutePath(),
-            project.getBasedir().getAbsolutePath(), "/");
+      String relativeSrcDirName = getXCodeSourceDirectory();
 
       Set<String> includes = new HashSet<String>();
 

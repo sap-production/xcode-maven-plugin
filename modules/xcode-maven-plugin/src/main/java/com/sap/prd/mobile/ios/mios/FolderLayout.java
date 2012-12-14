@@ -20,7 +20,6 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.util.Properties;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
@@ -100,19 +99,4 @@ class FolderLayout
           primaryArtifact.getGroupId()), primaryArtifact.getArtifactId());
   }
 
-  /**
-   * Checks if the source folder location has been explicitly set by the "xcode.sourceDirectory". If
-   * not the default "src/xcode" is returned.
-   */
-  static File getSourceFolder(MavenProject project)
-  {
-    final Properties projectProperties = project.getProperties();
-
-    if (projectProperties.containsKey(XCodeDefaultConfigurationMojo.XCODE_SOURCE_DIRECTORY)) {
-      return new File(project.getBasedir(),
-            projectProperties.getProperty(XCodeDefaultConfigurationMojo.XCODE_SOURCE_DIRECTORY));
-    }
-    return new File(project.getBasedir(), XCodeDefaultConfigurationMojo.DEFAULT_XCODE_SOURCE_DIRECTORY);
-
-  }
 }

@@ -27,10 +27,10 @@
   <version>${dynamicVersion}</version>
   <packaging>xcode-app</packaging>
   <properties>
-    <xcode.sourceDirectory></xcode.sourceDirectory>
     <xcode.appStoreMetadataDirectory>${project.basedir}/AppStoreMetadata</xcode.appStoreMetadataDirectory>
   </properties>
     <build>
+        <sourceDirectory></sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>com.sap.prd.mobile.ios.mios</groupId>

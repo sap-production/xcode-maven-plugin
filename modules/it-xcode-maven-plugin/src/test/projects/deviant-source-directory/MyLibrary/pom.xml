@@ -28,6 +28,7 @@
   <version>${dynamicVersion}</version>
   <packaging>xcode-lib</packaging>
     <build>
+        <sourceDirectory>abc</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>com.sap.prd.mobile.ios.mios</groupId>
@@ -37,9 +38,6 @@
             </plugin>
         </plugins>
     </build>
-  <properties>
-    <xcode.sourceDirectory>abc</xcode.sourceDirectory>
-  </properties>
   <distributionManagement>
     <repository>
       <uniqueVersion>false</uniqueVersion>
