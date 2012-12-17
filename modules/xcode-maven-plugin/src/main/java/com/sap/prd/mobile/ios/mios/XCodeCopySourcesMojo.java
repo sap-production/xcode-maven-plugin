@@ -85,7 +85,8 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if(originalLibDir.exists()) {
         if(useSymbolicLinks()) {
-          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalLibDir.getParentFile(), originalLibDir.getAbsolutePath(), copyOfLibDir.getName());
+          String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(originalLibDir.getAbsolutePath(), copyOfLibDir.getAbsolutePath(), "/");
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(copyOfLibDir.getParentFile(), relativePath, copyOfLibDir.getName());
         } else {
           FileUtils.copyDirectory(originalLibDir, copyOfLibDir);
         }
@@ -93,7 +94,8 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if(originalHeadersDir.exists()) {
         if(useSymbolicLinks) {
-          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir.getParentFile(), originalHeadersDir.getAbsolutePath(), copyOfHeadersDir.getName());
+          String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(originalHeadersDir.getAbsolutePath(), copyOfHeadersDir.getAbsolutePath(), "/");
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(copyOfHeadersDir.getParentFile(), relativePath, copyOfHeadersDir.getName());
         } else {
           FileUtils.copyDirectory(originalHeadersDir, copyOfHeadersDir);
         }
@@ -101,7 +103,8 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if(originalXcodeDepsDir.exists()) {
         if(useSymbolicLinks) {
-          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalXcodeDepsDir.getParentFile(), originalXcodeDepsDir.getAbsolutePath(), copyOfXcodeDepsDir.getName());
+          String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(originalXcodeDepsDir.getAbsolutePath(), copyOfXcodeDepsDir.getAbsolutePath(), "/");
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(copyOfXcodeDepsDir.getParentFile(), relativePath, copyOfXcodeDepsDir.getName());
         } else {
           FileUtils.copyDirectory(originalXcodeDepsDir, copyOfXcodeDepsDir);
         }
