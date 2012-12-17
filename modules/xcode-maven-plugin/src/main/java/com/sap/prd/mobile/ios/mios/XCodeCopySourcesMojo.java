@@ -85,7 +85,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if(originalLibDir.exists()) {
         if(useSymbolicLinks()) {
-          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalLibDir, copyOfLibDir);
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalLibDir.getParentFile(), originalLibDir, copyOfLibDir);
         } else {
           FileUtils.copyDirectory(originalLibDir, copyOfLibDir);
         }
@@ -93,7 +93,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if(originalHeadersDir.exists()) {
         if(useSymbolicLinks) {
-          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir, copyOfHeadersDir);
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir.getParentFile(), originalHeadersDir, copyOfHeadersDir);
         } else {
           FileUtils.copyDirectory(originalHeadersDir, copyOfHeadersDir);
         }
@@ -101,7 +101,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if(originalXcodeDepsDir.exists()) {
         if(useSymbolicLinks) {
-          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalXcodeDepsDir, copyOfXcodeDepsDir);
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalXcodeDepsDir.getParentFile(), originalXcodeDepsDir, copyOfXcodeDepsDir);
         } else {
           FileUtils.copyDirectory(originalXcodeDepsDir, copyOfXcodeDepsDir);
         }
