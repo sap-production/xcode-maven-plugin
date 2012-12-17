@@ -233,10 +233,13 @@ public class FileUtils
   }
   
   
-  public static void createSymbolicLink(final File directory, final File target, final File theLink) throws IOException {
+  public static void createSymbolicLink(final File directory, final File target, final String theLink) throws IOException {
     System.out.println("[INFO] Creating symbolic link '" + theLink + "' to target:" + target.getAbsolutePath());
-    theLink.getParentFile().mkdirs();
-    int returnValue = Forker.forkProcess(System.out, directory, "ln", "-sf", target.getAbsolutePath(), theLink.getAbsolutePath());
+
+    if(!directory.exists() && !directory.mkdirs())
+      throw new IOException("Cannot created directory: '" + directory + "'.");
+    
+    int returnValue = Forker.forkProcess(System.out, directory, "ln", "-sf", target.getAbsolutePath(), theLink);
     if (returnValue != 0) {
       throw new RuntimeException("Cannot create symbolic link '" + theLink + "' to '"  + target + "'. Return value:" + returnValue);
     }
