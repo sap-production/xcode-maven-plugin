@@ -265,7 +265,7 @@ class XCodePrepareBuildManager
         FileUtils.copyFile(source, target);
       }
     else {
-        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source.getParentFile(), source, target.getName());
+        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source.getParentFile(), source.getAbsolutePath(), target.getName());
       }
   }
 
@@ -293,7 +293,7 @@ class XCodePrepareBuildManager
       FileUtils.copyFile(source, target);
     }
     else {
-      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source.getParentFile(), source, target.getName());
+      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source.getParentFile(), source.getAbsolutePath(), target.getName());
     }
 
     final FatLibAnalyzer lipoHelper = new FatLibAnalyzer(target);
