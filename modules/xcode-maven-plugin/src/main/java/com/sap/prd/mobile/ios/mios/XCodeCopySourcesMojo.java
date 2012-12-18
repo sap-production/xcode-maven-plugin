@@ -86,7 +86,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       if(originalLibDir.exists()) {
         if(useSymbolicLinks()) {
           String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(originalLibDir.getAbsolutePath(), copyOfLibDir.getAbsolutePath(), "/");
-          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(copyOfLibDir.getParentFile(), relativePath, copyOfLibDir.getName());
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(copyOfLibDir, relativePath);
         } else {
           FileUtils.copyDirectory(originalLibDir, copyOfLibDir);
         }
@@ -95,7 +95,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       if(originalHeadersDir.exists()) {
         if(useSymbolicLinks) {
           String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(originalHeadersDir.getAbsolutePath(), copyOfHeadersDir.getAbsolutePath(), "/");
-          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(copyOfHeadersDir.getParentFile(), relativePath, copyOfHeadersDir.getName());
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(copyOfHeadersDir, relativePath);
         } else {
           FileUtils.copyDirectory(originalHeadersDir, copyOfHeadersDir);
         }
@@ -104,7 +104,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       if(originalXcodeDepsDir.exists()) {
         if(useSymbolicLinks) {
           String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(originalXcodeDepsDir.getAbsolutePath(), copyOfXcodeDepsDir.getAbsolutePath(), "/");
-          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(copyOfXcodeDepsDir.getParentFile(), relativePath, copyOfXcodeDepsDir.getName());
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(copyOfXcodeDepsDir, relativePath);
         } else {
           FileUtils.copyDirectory(originalXcodeDepsDir, copyOfXcodeDepsDir);
         }

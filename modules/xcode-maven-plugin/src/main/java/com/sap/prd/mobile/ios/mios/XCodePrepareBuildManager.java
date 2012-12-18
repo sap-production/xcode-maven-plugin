@@ -266,7 +266,7 @@ class XCodePrepareBuildManager
       }
     else {
         String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(source.getAbsolutePath(), target.getAbsolutePath(), "/");
-        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(target.getParentFile(), relativePath, target.getName());
+        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(target, relativePath);
       }
   }
 
@@ -295,7 +295,7 @@ class XCodePrepareBuildManager
     }
     else {
       String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(target.getAbsolutePath(), source.getAbsolutePath(), "/");
-      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(target.getParentFile(), relativePath, target.getName());
+      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(target, relativePath);
     }
 
     final FatLibAnalyzer lipoHelper = new FatLibAnalyzer(target);

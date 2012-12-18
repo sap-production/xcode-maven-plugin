@@ -67,12 +67,12 @@ public class FileUtilsTest
   @Test
   public void testCreateSymbolicLink() throws Exception
   {
-    File source = prepareFile();
+    File link = prepareFile("link");
     File target = tmpFolder.newFile("target");
 
-    FileUtils.createSymbolicLink(source.getParentFile(), source.getAbsolutePath(), target.getName());
+    FileUtils.createSymbolicLink(link, target.getName());
 
-    Assert.assertTrue(checkForSymbolicLink(target));
+    Assert.assertTrue(checkForSymbolicLink(link));
   }
 
   @Test
@@ -84,16 +84,16 @@ public class FileUtilsTest
   @Test
   public void testIsSymbolicLinkWithSymbolicLink() throws Exception
   {
-    File source = prepareFile();
-    File target = tmpFolder.newFile("target");
-    FileUtils.createSymbolicLink(source.getParentFile(), source.getAbsolutePath(), target.getName());
-    assertTrue(FileUtils.isSymbolicLink(target));
+    File link = prepareFile("link");
+    File target = prepareFile("target");
+    FileUtils.createSymbolicLink(link, target.getName());
+    assertTrue(FileUtils.isSymbolicLink(link));
   }
 
   @Test
   public void testIsSymbolicLinkWithRealFile() throws Exception
   {
-    File file = prepareFile();
+    File file = prepareFile("source");
     assertFalse(FileUtils.isSymbolicLink(file));
   }
 
@@ -112,10 +112,9 @@ public class FileUtilsTest
       IOUtils.closeQuietly(stream);
     }
   }
-
-  private File prepareFile() throws IOException
-  {
-    File file = tmpFolder.newFile("source");
+  
+  private File prepareFile(String name) throws IOException {
+    File file = tmpFolder.newFile(name);
     org.apache.commons.io.FileUtils.writeStringToFile(file, "abc");
     return file;
   }
