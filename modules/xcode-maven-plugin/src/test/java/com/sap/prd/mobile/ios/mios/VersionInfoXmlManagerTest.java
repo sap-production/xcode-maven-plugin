@@ -31,9 +31,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.util.IOUtil;
 import org.junit.Test;
 
+import com.sap.prd.mobile.ios.mios.VersionInfoXmlManager;
 import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
 
-public class VersionInfoManagerTest
+public class VersionInfoXmlManagerTest
 {
 
   @Test
