@@ -166,6 +166,9 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     }
 
     final File versionsPlistFile = new File(project.getBuild().getDirectory(), "versions.plist");
+    if (versionsPlistFile.exists()){
+      versionsPlistFile.delete();
+    }
     try {
       new VersionInfoPListManager().createVersionInfoPlistFile(project.getGroupId(), project.getArtifactId(),
             project.getVersion(), syncInfoFile, getDependencies(), versionsPlistFile);
@@ -179,7 +182,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
-     
+
     if (getPackagingType() == PackagingType.APP)
     {
       try
@@ -199,9 +202,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
     projectHelper.attachArtifact(project, "xml", "versions", versionsXmlFile);
     getLog().info("versions.xml '" + versionsXmlFile + " attached as additional artifact.");
-    
-    projectHelper.attachArtifact(project, "plist", "versions", versionsPlistFile);
-    getLog().info("versions.plist '" + versionsPlistFile + " attached as additional artifact.");
+
   }
 
   private void copyVersionsFilesAndSign() throws IOException, ExecutionResultVerificationException, XCodeException,
