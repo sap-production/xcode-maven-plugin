@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Context object for Xcode build to hold relevant data:
@@ -35,7 +36,8 @@ import java.util.Locale;
  * projectRootDirectory
  * codeSignIdentity
  * output stream
- *
+ * xcode options
+ * xcode settings
  */
 class XCodeContext
 {
@@ -57,19 +59,22 @@ class XCodeContext
   
   private final String target;
 
-  
+  private final Map<String, String> options;
+
+  private final Map<String, String> settings;
 
   public XCodeContext(String projectName, List<String> buildActions,
         File projectRootDirectory, PrintStream out) {
-    this(projectName, buildActions, projectRootDirectory, out, null, null, null);
+    this(projectName, buildActions, projectRootDirectory, out, null, null, null, null, null);
 }
   
   public XCodeContext(String projectName, List<String> buildActions,
-        File projectRootDirectory, PrintStream out, String codeSignIdentity, String provisioningProfile, String target)
+                      File projectRootDirectory, PrintStream out, String codeSignIdentity, String provisioningProfile,
+                      String target, Map<String, String> options, Map<String, String> settings)
   {
     super();
 
-    raiseExceptionIfNullOrEmpty("projectName", projectName);
+      raiseExceptionIfNullOrEmpty("projectName", projectName);
     raiseExceptionIfInvalid("buildActions", buildActions);
 
     if(projectRootDirectory == null || !projectRootDirectory.canRead())
@@ -89,6 +94,8 @@ class XCodeContext
     setOut(out);
     this.provisioningProfile = provisioningProfile;
     this.target = target;
+    this.options = options;
+    this.settings = settings;
   }
 
   public String getProjectName()
@@ -133,6 +140,24 @@ class XCodeContext
     return target;
   }
 
+
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    public Map<String, String> getSettings() {
+        return settings;
+    }
+
+    private static String toString(String prefix, Map<String, String> map, String separator) {
+        if (map == null) return "";
+        StringBuffer buffer = new StringBuffer();
+        for (Map.Entry entry : map.entrySet()){
+            buffer.append(prefix).append(entry.getKey()).append(separator).append(entry.getValue());
+        }
+        return buffer.toString();
+    }
+
   @Override
   public String toString()
   {
@@ -143,6 +168,8 @@ class XCodeContext
     sb.append("CodeSignIdentity    : ").append(codeSignIdentity).append(ls);
     sb.append("ProvisioningProfile : ").append(provisioningProfile).append(ls);
     sb.append("Target              : ").append(target).append(ls);
+    sb.append("Options             : ").append(toString(" -", options, " ")).append(ls);
+    sb.append("Settings            : ").append(toString(" ", settings, "=")).append(ls);
     return sb.toString();
   }
 

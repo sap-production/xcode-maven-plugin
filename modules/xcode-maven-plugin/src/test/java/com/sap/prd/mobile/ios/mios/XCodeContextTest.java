@@ -50,7 +50,7 @@ public class XCodeContextTest
     final String projectName = "MyLibrary";
 
     final XCodeContext xCodeContext = new XCodeContext(projectName, Arrays.asList("clean",
-          "build"), projectDirectory, System.out, "MyCodeSignIdentity", "MyProvisioningProfile", null);
+          "build"), projectDirectory, System.out, "MyCodeSignIdentity", "MyProvisioningProfile", null, null, null);
 
     assertEquals(projectName, xCodeContext.getProjectName());
     assertArrayEquals(new String[] { "clean", "build" }, xCodeContext.getBuildActions().toArray());
@@ -111,7 +111,7 @@ public class XCodeContextTest
   @Test(expected = IllegalArgumentException.class)
   public void testCodeSignIdentityIsEmpty() throws Exception
   {
-    new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, System.out, "", null, null);
+    new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, System.out, "", null, null, null, null);
   }
   
   @Test
