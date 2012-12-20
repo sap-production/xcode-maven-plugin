@@ -43,23 +43,23 @@ public class SpecificTargetTest extends XCodeTest
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass()
       .getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
-    
+
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("xcode.app.defaultConfigurations", "Release");
     additionalSystemProperties.put("xcode.app.defaultSdks", "iphoneos");
     additionalSystemProperties.put("xcode.target", "Target2");
-    
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
-    
-    Verifier verifier = test(testName, new File(getTestRootDirectory(), "multiple-targets/MultipleTargets"), "compile", THE_EMPTY_LIST, additionalSystemProperties,
+
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "multiple-targets/MultipleTargets"), "compile",
+          THE_EMPTY_LIST, additionalSystemProperties,
           pomReplacements);
     assertCorrectTargetBuild(new File(verifier.getBasedir(),
           verifier.getLogFileName()));
   }
-  
+
   private void assertCorrectTargetBuild(File logFile) throws IOException
   {
     BufferedReader reader = new BufferedReader(new FileReader(logFile));
@@ -69,12 +69,15 @@ public class SpecificTargetTest extends XCodeTest
       boolean target2Built = false;
       while ((line = reader.readLine()) != null)
       {
-        target1Built |= line.equals("=== BUILD NATIVE TARGET Target1 OF PROJECT MultipleTargets WITH CONFIGURATION Release ===");
-        target2Built |= line.equals("=== BUILD NATIVE TARGET Target2 OF PROJECT MultipleTargets WITH CONFIGURATION Release ===");
+        target1Built |= line
+          .equals("=== BUILD NATIVE TARGET Target1 OF PROJECT MultipleTargets WITH CONFIGURATION Release ===");
+        target2Built |= line
+          .equals("=== BUILD NATIVE TARGET Target2 OF PROJECT MultipleTargets WITH CONFIGURATION Release ===");
       }
       Assert.assertFalse("Target1 must not be built", target1Built);
       Assert.assertTrue("Target2 must be built", target2Built);
-    } finally {
+    }
+    finally {
       IOUtils.closeQuietly(reader);
     }
   }

@@ -47,8 +47,9 @@ class FatLibAnalyzer
 
     this.fatLib = fatLib;
   }
-  
-  File getFatLibrary() {
+
+  File getFatLibrary()
+  {
     return fatLib;
   }
 
@@ -57,27 +58,27 @@ class FatLibAnalyzer
     if (architectures == null) {
 
       BufferedReader br = null;
-      
+
       try {
-        
+
         br = new BufferedReader(new StringReader(getDetailedLipoInfo()));
 
         Set<String> architectures = new HashSet<String>();
 
-        for(String line; (line = br.readLine()) != null; ) {
+        for (String line; (line = br.readLine()) != null;) {
 
           if (!line.trim().startsWith("architecture"))
             continue;
 
           String[] strings = line.split(" ");
-          
-          if(strings.length < 2)
+
+          if (strings.length < 2)
             throw new IllegalStateException("Architecture could not be parsed: " + line);
-          
+
           String[] architecture = new String[strings.length - 1];
 
           System.arraycopy(strings, 1, architecture, 0, strings.length - 1);
-          
+
           architectures.add(StringUtils.join(architecture, " "));
         }
 
@@ -105,16 +106,18 @@ class FatLibAnalyzer
     }
     return false;
   }
-  
-  private String getDetailedLipoInfo() throws IOException {
-    
+
+  private String getDetailedLipoInfo() throws IOException
+  {
+
     ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
     PrintStream ps = new PrintStream(byteOs);
     try {
       Forker.forkProcess(ps, null, "lipo", "-detailed_info", fatLib.getAbsolutePath());
 
       return new String(byteOs.toByteArray());
-    } finally {
+    }
+    finally {
       IOUtils.closeQuietly(ps);
     }
   }

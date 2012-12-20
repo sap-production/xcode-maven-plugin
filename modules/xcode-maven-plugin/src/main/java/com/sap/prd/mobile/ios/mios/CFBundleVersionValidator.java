@@ -22,15 +22,18 @@ package com.sap.prd.mobile.ios.mios;
 class CFBundleVersionValidator
 {
 
-  private final static String REGEX = "[\\d+\\.]+\\d+"; 
-  
-  private CFBundleVersionValidator() {
+  private final static String REGEX = "[\\d+\\.]+\\d+";
+
+  private CFBundleVersionValidator()
+  {
     throw new UnsupportedOperationException();
   }
-  
-  static void validate(final String version) throws XCodeException {
-    
-    if(!version.matches(REGEX))
-      throw new XCodeInvalidVersionException("Version '" + version + "' does not match regular expression '" + REGEX + "'.");
-  }  
+
+  static void validate(final String version) throws XCodeException
+  {
+
+    if (!version.matches(REGEX))
+      throw new XCodeInvalidVersionException("Version '" + version + "' does not match regular expression '" + REGEX
+            + "'.");
+  }
 }

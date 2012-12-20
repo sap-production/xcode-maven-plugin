@@ -21,10 +21,9 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
 
-
 /**
  * Helper methods for Xcode build to retrieve certain directories
- *
+ * 
  */
 class XCodeBuildLayout
 {

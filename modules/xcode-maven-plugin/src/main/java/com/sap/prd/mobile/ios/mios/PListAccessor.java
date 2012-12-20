@@ -35,7 +35,7 @@ public class PListAccessor
   public static final String KEY_BUNDLE_IDENTIFIER = "CFBundleIdentifier";
   public static final String KEY_BUNDLE_VERSION = "CFBundleVersion";
   public static final String KEY_BUNDLE_SHORT_VERSION_STRING = "CFBundleShortVersionString";
-  
+
   private final File plist;
 
   public PListAccessor(File file)
@@ -58,39 +58,42 @@ public class PListAccessor
     try
     {
       String command = "/usr/libexec/PlistBuddy -c \"Print :" + key + "\" \"" + plist.getAbsolutePath() + "\"";
-      
+
       System.out.println("[INFO] PlistBuddy Print command is: '" + command + "'.");
-      
+
       String[] args = new String[] { "bash", "-c", command };
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
 
       int exitValue = p.exitValue();
-      
+
       if (exitValue == 0)
       {
         return new Scanner(p.getInputStream()).useDelimiter("\\Z").next();
       }
-      
+
       String errorMessage = "<n/a>";
-      
+
       try {
         errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
-      } catch(Exception ex) {
-        System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
       }
-      
-      if(errorMessage.contains(":" + key + "\", Does Not Exist")) {
+      catch (Exception ex) {
+        System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
+              + ex);
+      }
+
+      if (errorMessage.contains(":" + key + "\", Does Not Exist")) {
         // ugly string parsing above, but no other known way ...
         return null;
       }
-      
-      throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed. Error message is: " + errorMessage + ". Return code was: '" + exitValue + "'.");
+
+      throw new IllegalStateException("Execution of \"" + StringUtils.join(args, " ")
+            + "\" command failed. Error message is: " + errorMessage + ". Return code was: '" + exitValue + "'.");
     }
     catch (InterruptedException e)
     {
       throw new RuntimeException(e);
-    }    
+    }
   }
 
   public void updateStringValue(String key, String value) throws IOException
@@ -102,21 +105,25 @@ public class PListAccessor
 
     try
     {
-      String command = "/usr/libexec/PlistBuddy -x -c \"Set :" + key + " " + value + "\" \"" + plist.getAbsolutePath() + "\"";
+      String command = "/usr/libexec/PlistBuddy -x -c \"Set :" + key + " " + value + "\" \"" + plist.getAbsolutePath()
+            + "\"";
       System.out.println("[INFO] PlistBuddy Set command is: '" + command + "'.");
       String[] args = new String[] { "bash", "-c", command };
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
-      int exitValue = p.exitValue(); 
+      int exitValue = p.exitValue();
       if (exitValue != 0)
       {
         String errorMessage = "n/a";
         try {
           errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
-        } catch(Exception ex) {
-          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
         }
-        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed: " + errorMessage + ". Exit code was: " + exitValue);
+        catch (Exception ex) {
+          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
+                + ex);
+        }
+        throw new IllegalStateException("Execution of \"" + StringUtils.join(args, " ") + "\" command failed: "
+              + errorMessage + ". Exit code was: " + exitValue);
       }
     }
     catch (InterruptedException e)
@@ -134,21 +141,25 @@ public class PListAccessor
 
     try
     {
-      String command = "/usr/libexec/PlistBuddy -x -c \"Add :" + key + " string " + value + "\" \"" + plist.getAbsolutePath() + "\"";
+      String command = "/usr/libexec/PlistBuddy -x -c \"Add :" + key + " string " + value + "\" \""
+            + plist.getAbsolutePath() + "\"";
       System.out.println("[INFO] PlistBuddy Add command is: '" + command + "'.");
       String[] args = new String[] { "bash", "-c", command };
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
-      int exitValue = p.exitValue(); 
+      int exitValue = p.exitValue();
       if (exitValue != 0)
       {
         String errorMessage = "n/a";
         try {
           errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
-        } catch(Exception ex) {
-          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
         }
-        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed: " + errorMessage + ". Exit code was: " + exitValue);
+        catch (Exception ex) {
+          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
+                + ex);
+        }
+        throw new IllegalStateException("Execution of \"" + StringUtils.join(args, " ") + "\" command failed: "
+              + errorMessage + ". Exit code was: " + exitValue);
       }
     }
     catch (InterruptedException e)
@@ -156,7 +167,7 @@ public class PListAccessor
       throw new RuntimeException(e);
     }
   }
-  
+
   public void addStringValueToDict(String key, String value, String dictKey) throws IOException
   {
     if (!plist.exists())
@@ -166,21 +177,25 @@ public class PListAccessor
 
     try
     {
-      String command = "/usr/libexec/PlistBuddy -x -c \"Add :" + dictKey + ":" + key + " string " + value + "\" \"" + plist.getAbsolutePath() + "\"";
+      String command = "/usr/libexec/PlistBuddy -x -c \"Add :" + dictKey + ":" + key + " string " + value + "\" \""
+            + plist.getAbsolutePath() + "\"";
       System.out.println("[INFO] PlistBuddy Add command is: '" + command + "'.");
       String[] args = new String[] { "bash", "-c", command };
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
-      int exitValue = p.exitValue(); 
+      int exitValue = p.exitValue();
       if (exitValue != 0)
       {
         String errorMessage = "n/a";
         try {
           errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
-        } catch(Exception ex) {
-          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
         }
-        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed: " + errorMessage + ". Exit code was: " + exitValue);
+        catch (Exception ex) {
+          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
+                + ex);
+        }
+        throw new IllegalStateException("Execution of \"" + StringUtils.join(args, " ") + "\" command failed: "
+              + errorMessage + ". Exit code was: " + exitValue);
       }
     }
     catch (InterruptedException e)
@@ -188,7 +203,7 @@ public class PListAccessor
       throw new RuntimeException(e);
     }
   }
-  
+
   public void addElement(String key, String type) throws IOException
   {
     if (!plist.exists())
@@ -197,21 +212,25 @@ public class PListAccessor
     }
     try
     {
-      String command = "/usr/libexec/PlistBuddy -x -c \"Add :" + key + " " + type + "  " + "\" \"" + plist.getAbsolutePath() + "\"";
+      String command = "/usr/libexec/PlistBuddy -x -c \"Add :" + key + " " + type + "  " + "\" \""
+            + plist.getAbsolutePath() + "\"";
       System.out.println("[INFO] PlistBuddy Add command is: '" + command + "'.");
       String[] args = new String[] { "bash", "-c", command };
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
-      int exitValue = p.exitValue(); 
+      int exitValue = p.exitValue();
       if (exitValue != 0)
       {
         String errorMessage = "n/a";
         try {
           errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
-        } catch(Exception ex) {
-          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
         }
-        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed: " + errorMessage + ". Exit code was: " + exitValue);
+        catch (Exception ex) {
+          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
+                + ex);
+        }
+        throw new IllegalStateException("Execution of \"" + StringUtils.join(args, " ") + "\" command failed: "
+              + errorMessage + ". Exit code was: " + exitValue);
       }
     }
     catch (InterruptedException e)
@@ -219,7 +238,7 @@ public class PListAccessor
       throw new RuntimeException(e);
     }
   }
-  
+
   public void addDictToArray(String dict, String array) throws IOException
   {
     if (!plist.exists())
@@ -229,21 +248,25 @@ public class PListAccessor
 
     try
     {
-      String command = "/usr/libexec/PlistBuddy -x -c \"Add :" + array  + ":" + dict + " dict "  + "\" \"" + plist.getAbsolutePath() + "\"";
+      String command = "/usr/libexec/PlistBuddy -x -c \"Add :" + array + ":" + dict + " dict " + "\" \""
+            + plist.getAbsolutePath() + "\"";
       System.out.println("[INFO] PlistBuddy Add command is: '" + command + "'.");
       String[] args = new String[] { "bash", "-c", command };
       Process p = Runtime.getRuntime().exec(args);
       p.waitFor();
-      int exitValue = p.exitValue(); 
+      int exitValue = p.exitValue();
       if (exitValue != 0)
       {
         String errorMessage = "n/a";
         try {
           errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
-        } catch(Exception ex) {
-          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': " + ex);
         }
-        throw new IllegalStateException("Execution of \""+ StringUtils.join(args, " ") +"\" command failed: " + errorMessage + ". Exit code was: " + exitValue);
+        catch (Exception ex) {
+          System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
+                + ex);
+        }
+        throw new IllegalStateException("Execution of \"" + StringUtils.join(args, " ") + "\" command failed: "
+              + errorMessage + ". Exit code was: " + exitValue);
       }
     }
     catch (InterruptedException e)
@@ -251,10 +274,10 @@ public class PListAccessor
       throw new RuntimeException(e);
     }
   }
-  
+
   public void createPlist() throws IOException
   {
-   
+
     try
     {
       String command = "/usr/libexec/PlistBuddy -x -c \"Save \" \"" + plist.getAbsolutePath() + "\"";
@@ -286,10 +309,10 @@ public class PListAccessor
       throw new RuntimeException(e);
     }
   }
-  
+
   public String printValue(String key) throws IOException
   {
-   
+
     try
     {
       String command = "/usr/libexec/PlistBuddy -c \"Print :" + key + "\" \"" + plist.getAbsolutePath() + "\"";
@@ -316,16 +339,17 @@ public class PListAccessor
               + errorMessage + ". Exit code was: " + exitValue);
       }
 
-      byte[] buff = new byte[64]; 
+      byte[] buff = new byte[64];
       StringBuilder sb = new StringBuilder();
-      for(int i=0; (i = is.read(buff)) != -1;) {
+      for (int i = 0; (i = is.read(buff)) != -1;) {
         sb.append(new String(buff, 0, i));
       }
       BufferedReader reader = new BufferedReader(new StringReader(sb.toString()));
-      
+
       try {
         return reader.readLine();
-      } finally {
+      }
+      finally {
         IOUtils.closeQuietly(reader);
       }
     }
@@ -335,6 +359,5 @@ public class PListAccessor
       throw new RuntimeException(e);
     }
   }
-
 
 }

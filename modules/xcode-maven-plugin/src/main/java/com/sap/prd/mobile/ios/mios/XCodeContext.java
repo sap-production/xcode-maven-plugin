@@ -21,79 +21,72 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 /**
- * Context object for Xcode build to hold relevant data:
- * * projectName
- * * Set of configurations
- * * Set of SDKs
- * * List of buildActions
- * projectRootDirectory
- * codeSignIdentity
- * output stream
- *
+ * Context object for Xcode build to hold relevant data: * projectName * Set of configurations * Set
+ * of SDKs * List of buildActions projectRootDirectory codeSignIdentity output stream xcode options
+ * xcode settings
  */
 class XCodeContext
 {
-  enum SourceCodeLocation {ORIGINAL, WORKING_COPY};
+  enum SourceCodeLocation
+  {
+    ORIGINAL, WORKING_COPY
+  };
 
   private final static String ls = System.getProperty("line.separator");
 
-  private final String projectName;
-
   private final List<String> buildActions;
-
-  private final String codeSignIdentity;
 
   private final File projectRootDirectory;
 
   private PrintStream out;
 
-  private final String provisioningProfile;
-  
-  private final String target;
+  private final Options options;
 
-  
+  private final Settings settings;
 
-  public XCodeContext(String projectName, List<String> buildActions,
-        File projectRootDirectory, PrintStream out) {
-    this(projectName, buildActions, projectRootDirectory, out, null, null, null);
-}
-  
-  public XCodeContext(String projectName, List<String> buildActions,
-        File projectRootDirectory, PrintStream out, String codeSignIdentity, String provisioningProfile, String target)
+  public XCodeContext(List<String> buildActions,
+        File projectRootDirectory, PrintStream out, Settings settings, Options options)
   {
     super();
 
-    raiseExceptionIfNullOrEmpty("projectName", projectName);
-    raiseExceptionIfInvalid("buildActions", buildActions);
+    raiseExceptionIfBuildActionsAreInvalid("buildActions", buildActions);
 
-    if(projectRootDirectory == null || !projectRootDirectory.canRead())
-      throw new IllegalArgumentException("ProjectRootDirectory '" + projectRootDirectory + "' is null or cannot be read.");
+    if (projectRootDirectory == null || !projectRootDirectory.canRead())
+      throw new IllegalArgumentException("ProjectRootDirectory '" + projectRootDirectory
+            + "' is null or cannot be read.");
 
-    if (codeSignIdentity != null && codeSignIdentity.trim().isEmpty())
-      throw new IllegalArgumentException("CodesignIdentity was empty: '" + codeSignIdentity
-            + "'. If you want to use the code" +
-            " sign identity defined in the xCode project configuration just do" +
-            " not provide the 'codeSignIdentity' in your Maven settings.");
-   
-    
-    this.projectName = projectName;
-    this.buildActions = Collections.unmodifiableList(buildActions);
-    this.codeSignIdentity = codeSignIdentity;
-    this.projectRootDirectory = projectRootDirectory;
+    this.buildActions = Collections.unmodifiableList(new ArrayList<String>(buildActions));
+    this.projectRootDirectory = new File(projectRootDirectory, "");
     setOut(out);
-    this.provisioningProfile = provisioningProfile;
-    this.target = target;
+
+    if (settings == null) {
+      Map<String, String> userSettings = new HashMap<String, String>(), managedSettings = new HashMap<String, String>();
+      this.settings = new Settings(userSettings, managedSettings);
+    }
+    else {
+      this.settings = settings;
+    }
+
+    if (options == null) {
+      Map<String, String> userOptions = new HashMap<String, String>(), managedOptions = new HashMap<String, String>();
+      this.options = new Options(userOptions, managedOptions);
+    }
+    else {
+      this.options = options;
+    }
   }
 
   public String getProjectName()
   {
-    return projectName;
+    return options.getAllOptions().get(Options.ManagedOption.PROJECT.getOptionName());
   }
 
   public List<String> getBuildActions()
@@ -103,7 +96,7 @@ class XCodeContext
 
   public String getCodeSignIdentity()
   {
-    return codeSignIdentity;
+    return settings.getAllSettings().get(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name());
   }
 
   public File getProjectRootDirectory()
@@ -123,29 +116,49 @@ class XCodeContext
     this.out = out;
   }
 
+  public String getSDK()
+  {
+    return getOptions().getAllOptions().get(Options.ManagedOption.SDK.getOptionName());
+  }
+
+  public String getConfiguration()
+  {
+    return getOptions().getAllOptions().get(Options.ManagedOption.CONFIGURATION.getOptionName());
+  }
+
   public String getProvisioningProfile()
   {
-    return provisioningProfile;
+    return getSettings().getAllSettings().get(Settings.ManagedSetting.PROVISIONING_PROFILE.name());
   }
 
   public String getTarget()
   {
-    return target;
+    return getOptions().getAllOptions().get(Options.ManagedOption.TARGET.getOptionName());
+  }
+
+  public Options getOptions()
+  {
+    return options;
+  }
+
+  public Settings getSettings()
+  {
+    return settings;
   }
 
   @Override
   public String toString()
   {
     final StringBuilder sb = new StringBuilder();
+    sb.append(ls).append(super.toString()).append(ls);
     sb.append("ProjectRootDirectory: ").append(getProjectRootDirectory()).append(ls);
-    sb.append("ProjectName         : ").append(getProjectName()).append(ls);
-    sb.append("BuildActions        : ").append(buildActions).append(ls);
-    sb.append("CodeSignIdentity    : ").append(codeSignIdentity).append(ls);
-    sb.append("ProvisioningProfile : ").append(provisioningProfile).append(ls);
-    sb.append("Target              : ").append(target).append(ls);
+    sb.append("BuildActions: ").append(buildActions).append(ls).append(ls);
+    sb.append("Options:").append(ls);
+    sb.append(options).append(ls).append(ls);
+    sb.append("Settings:").append(ls);
+    sb.append(settings).append(ls);
     return sb.toString();
   }
-
 
   @Override
   public int hashCode()
@@ -153,11 +166,9 @@ class XCodeContext
     final int prime = 31;
     int result = 1;
     result = prime * result + ((buildActions == null) ? 0 : buildActions.hashCode());
-    result = prime * result + ((codeSignIdentity == null) ? 0 : codeSignIdentity.hashCode());
-    result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
+    result = prime * result + ((options == null) ? 0 : options.hashCode());
     result = prime * result + ((projectRootDirectory == null) ? 0 : projectRootDirectory.hashCode());
-    result = prime * result + ((provisioningProfile == null) ? 0 : provisioningProfile.hashCode());
-    result = prime * result + ((target == null) ? 0 : target.hashCode());
+    result = prime * result + ((settings == null) ? 0 : settings.hashCode());
     return result;
   }
 
@@ -172,48 +183,42 @@ class XCodeContext
       if (other.buildActions != null) return false;
     }
     else if (!buildActions.equals(other.buildActions)) return false;
-    if (codeSignIdentity == null) {
-      if (other.codeSignIdentity != null) return false;
+    if (options == null) {
+      if (other.options != null) return false;
     }
-    else if (!codeSignIdentity.equals(other.codeSignIdentity)) return false;
-    if (projectName == null) {
-      if (other.projectName != null) return false;
-    }
-    else if (!projectName.equals(other.projectName)) return false;
+    else if (!options.equals(other.options)) return false;
     if (projectRootDirectory == null) {
       if (other.projectRootDirectory != null) return false;
     }
     else if (!projectRootDirectory.equals(other.projectRootDirectory)) return false;
-    if (provisioningProfile == null) {
-      if (other.provisioningProfile != null) return false;
+    if (settings == null) {
+      if (other.settings != null) return false;
     }
-    else if (!provisioningProfile.equals(other.provisioningProfile)) return false;
-    if (target == null) {
-      if (other.target != null) return false;
-    }
-    else if (!target.equals(other.target)) return false;
+    else if (!settings.equals(other.settings)) return false;
     return true;
   }
 
-  private static void raiseExceptionIfNullOrEmpty(final String key, final String value)
-  {
-    if (value == null || value.trim().length() == 0)
-      throw new IllegalArgumentException(String.format(Locale.ENGLISH, "No %s provided. Was null or empty.", key));
-  }
-
-  private static void raiseExceptionIfInvalid(final String key, final Collection<String> collection)
+  private static void raiseExceptionIfBuildActionsAreInvalid(final String key, final Collection<String> buildActions)
   {
 
-    if (collection == null || collection.size() == 0)
-      throw new IllegalArgumentException("No build actions has been provided (Was either null or empty).");
-
-    for (final String buildAction : collection) {
+    for (final String buildAction : buildActions) {
 
       if (buildAction == null || buildAction.length() == 0)
-        throw new IllegalArgumentException("Build action array contained a null element or an empty element.");
+        throw new InvalidBuildActionException("Build action array contained a null element or an empty element.");
 
       if (!buildAction.matches("[A-Za-z0-9_]+"))
-        throw new IllegalArgumentException("Build action array contains an invalid element (" + buildAction + ").");
+        throw new InvalidBuildActionException("Build action array contains an invalid element (" + buildAction + ").");
+    }
+  }
+
+  static class InvalidBuildActionException extends IllegalArgumentException
+  {
+
+    private static final long serialVersionUID = 6635006296438188082L;
+
+    InvalidBuildActionException(String message)
+    {
+      super(message);
     }
   }
 }

@@ -20,9 +20,10 @@
 package com.sap.prd.mobile.ios.mios;
 
 class UpdateCFBundleShortVersionStringInPListTask extends UpdateVersionInPListTask
-{ 
-  void execute() throws XCodeException {
-    
+{
+  void execute() throws XCodeException
+  {
+
     super.execute();
     final String version = new RemoveTrailingCharactersVersionTransformer(3).transform(this.version);
     CFBundleShortVersionStringValidator.validate(version);

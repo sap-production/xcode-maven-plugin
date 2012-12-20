@@ -52,10 +52,9 @@ public class XCodeFrameworkTest extends XCodeTest
     createAndValidateFmwk(testName, "MyFakeFramework");
   }
 
-
   @Test
   public void buildLibAsFramework() throws Exception
-  {    
+  {
     final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -63,9 +62,9 @@ public class XCodeFrameworkTest extends XCodeTest
     Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
 
     Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());   
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
-    
+
     try {
       test(verifier, testName, projectDirectory, "deploy",
             THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
@@ -80,7 +79,7 @@ public class XCodeFrameworkTest extends XCodeTest
   private void createAndValidateFmwk(String testName, String fmwkName) throws IOException, Exception
   {
     String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    
+
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
     Properties pomReplacements = new Properties();
@@ -89,7 +88,8 @@ public class XCodeFrameworkTest extends XCodeTest
     test(testName, new File(getTestRootDirectory(), "framework/" + fmwkName), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
-    final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion + "/" + fmwkName
+    final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion
+          + "/" + fmwkName
           + "-" + dynamicVersion;
     File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + ".xcode-framework-zip");
     assertTrue(repoArtifact.exists());
@@ -97,8 +97,6 @@ public class XCodeFrameworkTest extends XCodeTest
     extractFileWithShellScript(repoArtifact, extractedFrameworkFolder);
     validateFrameworkStructure(extractedFrameworkFolder, fmwkName);
   }
-
-
 
   private void validateFrameworkStructure(File parentFolder, String frameworkName) throws IOException
   {
@@ -112,7 +110,7 @@ public class XCodeFrameworkTest extends XCodeTest
   public void testUseFramework() throws Exception
   {
     final String dynamicVersion = "1.0.0";
-    
+
     final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -144,12 +142,12 @@ public class XCodeFrameworkTest extends XCodeTest
     assertTrue(xcodeprojAppZip.exists());
     assertUnpackAndCompile(xcodeprojAppZip);
   }
-  
+
   @Test
   public void testFrameworkInProjectZip() throws Exception
   {
     final String dynamicVersion = "1.0." + System.currentTimeMillis();
-    
+
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -174,48 +172,59 @@ public class XCodeFrameworkTest extends XCodeTest
           "install",
           THE_EMPTY_LIST,
           additionalSystemParameters, pomReplacements);
-    
+
     File projectZipFile = new File(verifier.getBasedir(), "target/MyApp-xcodeproj-with-deps.zip");
-    assertTrue("The file containing the zipped project does not exist at '" + projectZipFile + "'.", projectZipFile.exists());
-    
+    assertTrue("The file containing the zipped project does not exist at '" + projectZipFile + "'.",
+          projectZipFile.exists());
+
     File tmpDir = new File(verifier.getBasedir(), "target/tmp");
     tmpDir = tmpDir.getCanonicalFile();
-    
-    if(tmpDir.exists())
+
+    if (tmpDir.exists())
       FileUtils.deleteDirectory(tmpDir);
-    
-    if(!tmpDir.mkdirs())
+
+    if (!tmpDir.mkdirs())
       throw new IOException("Could not create temp dir for expanding the project zip file at '" + tmpDir + "'.");
-    
+
     int exitCode = Forker.forkProcess(System.out, tmpDir, "unzip", "../" + projectZipFile.getName());
-    
-    if(exitCode != 0)
-      throw new IOException("Could not unzip file '" + projectZipFile + "' into directory '" + tmpDir + "'. Exit code is: " + exitCode);
-    
-    
-    File headerFile = new File(tmpDir, "target/headers/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/PrintOutObject.h");
+
+    if (exitCode != 0)
+      throw new IOException("Could not unzip file '" + projectZipFile + "' into directory '" + tmpDir
+            + "'. Exit code is: " + exitCode);
+
+    File headerFile = new File(tmpDir,
+          "target/headers/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/PrintOutObject.h");
     assertTrue("Header file '" + headerFile + "' does not exist.", headerFile.exists());
-    assertFalse("Header file '" + headerFile + "' is a symbolic link, but should be a real file.", FileUtils.isSymbolicLink(headerFile));
+    assertFalse("Header file '" + headerFile + "' is a symbolic link, but should be a real file.",
+          FileUtils.isSymbolicLink(headerFile));
 
-    File libFile = new File(tmpDir, "target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a");
+    File libFile = new File(tmpDir,
+          "target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a");
     assertTrue("Library file '" + libFile + "' does not exist.", libFile.exists());
-    assertFalse("Library file '" + libFile + "' is a symbolic link, but should be a real file.", FileUtils.isSymbolicLink(libFile));
-    
-    File headersInFramework = new File(tmpDir, "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Headers");
-    assertTrue("Header file '" + headersInFramework + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(headersInFramework));
-   
-    File libInFramework = new File(tmpDir, "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/MyFramework");
-    assertTrue("Library file '" + libInFramework + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(libInFramework));  
+    assertFalse("Library file '" + libFile + "' is a symbolic link, but should be a real file.",
+          FileUtils.isSymbolicLink(libFile));
 
-    File resourcesInFramework = new File(tmpDir, "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Resources");
-    assertTrue("Resources folder in framework '" + resourcesInFramework + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(resourcesInFramework));      
+    File headersInFramework = new File(tmpDir,
+          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Headers");
+    assertTrue("Header file '" + headersInFramework + "' is not a symbolic link, but should be a symbolic link.",
+          FileUtils.isSymbolicLink(headersInFramework));
+
+    File libInFramework = new File(tmpDir,
+          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/MyFramework");
+    assertTrue("Library file '" + libInFramework + "' is not a symbolic link, but should be a symbolic link.",
+          FileUtils.isSymbolicLink(libInFramework));
+
+    File resourcesInFramework = new File(tmpDir,
+          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Resources");
+    assertTrue("Resources folder in framework '" + resourcesInFramework
+          + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(resourcesInFramework));
   }
 
   @Test
   public void testFrameworkInProjectZipWithFatLibrary() throws Exception
   {
     final String dynamicVersion = "1.0." + System.currentTimeMillis();
-    
+
     final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -237,45 +246,55 @@ public class XCodeFrameworkTest extends XCodeTest
           additionalSystemParameters, pomReplacements);
 
     additionalSystemParameters.put("xcode.preferFatLibs", Boolean.TRUE.toString());
-    
-    Verifier verifier = test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyApp"), 
+
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "framework/FrameworkInProjectZip/MyApp"),
           "install",
           THE_EMPTY_LIST,
           additionalSystemParameters, pomReplacements);
-    
+
     File projectZipFile = new File(verifier.getBasedir(), "target/MyApp-xcodeproj-with-deps.zip");
-    assertTrue("The file containing the zipped project does not exist at '" + projectZipFile + "'.", projectZipFile.exists());
-    
+    assertTrue("The file containing the zipped project does not exist at '" + projectZipFile + "'.",
+          projectZipFile.exists());
+
     File tmpDir = new File(verifier.getBasedir(), "target/tmp");
     tmpDir = tmpDir.getCanonicalFile();
-    
-    if(tmpDir.exists())
+
+    if (tmpDir.exists())
       FileUtils.deleteDirectory(tmpDir);
-    
-    if(!tmpDir.mkdirs())
+
+    if (!tmpDir.mkdirs())
       throw new IOException("Could not create temp dir for expanding the project zip file at '" + tmpDir + "'.");
-    
+
     int exitCode = Forker.forkProcess(System.out, tmpDir, "unzip", "../" + projectZipFile.getName());
-    
-    if(exitCode != 0)
+
+    if (exitCode != 0)
       throw new IOException("Could not unzip file '" + projectZipFile + "' into directory '" + tmpDir + "'");
-    
-    
-    File headerFile = new File(tmpDir, "target/headers/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/PrintOutObject.h");
+
+    File headerFile = new File(tmpDir,
+          "target/headers/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/PrintOutObject.h");
     assertTrue("Header file '" + headerFile + "' does not exist.", headerFile.exists());
-    assertFalse("Header file '" + headerFile + "' is a symbolic link, but should be a real file.", FileUtils.isSymbolicLink(headerFile));
+    assertFalse("Header file '" + headerFile + "' is a symbolic link, but should be a real file.",
+          FileUtils.isSymbolicLink(headerFile));
 
-    File libFile = new File(tmpDir, "target/xcode-deps/libs/Release/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a");
+    File libFile = new File(tmpDir,
+          "target/xcode-deps/libs/Release/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a");
     assertTrue("Fat library file '" + libFile + "' does not exist.", libFile.exists());
-    assertFalse("Fat library file '" + libFile + "' is a symbolic link, but should be a real file.", FileUtils.isSymbolicLink(libFile));
-    
-    File headersInFramework = new File(tmpDir, "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Headers");
-    assertTrue("Header file '" + headersInFramework + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(headersInFramework));
-   
-    File libInFramework = new File(tmpDir, "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/MyFramework");
-    assertTrue("Library file '" + libInFramework + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(libInFramework));  
+    assertFalse("Fat library file '" + libFile + "' is a symbolic link, but should be a real file.",
+          FileUtils.isSymbolicLink(libFile));
 
-    File resourcesInFramework = new File(tmpDir, "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Resources");
-    assertTrue("Resources folder in framework '" + resourcesInFramework + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(resourcesInFramework));  
+    File headersInFramework = new File(tmpDir,
+          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Headers");
+    assertTrue("Header file '" + headersInFramework + "' is not a symbolic link, but should be a symbolic link.",
+          FileUtils.isSymbolicLink(headersInFramework));
+
+    File libInFramework = new File(tmpDir,
+          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/MyFramework");
+    assertTrue("Library file '" + libInFramework + "' is not a symbolic link, but should be a symbolic link.",
+          FileUtils.isSymbolicLink(libInFramework));
+
+    File resourcesInFramework = new File(tmpDir,
+          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Resources");
+    assertTrue("Resources folder in framework '" + resourcesInFramework
+          + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(resourcesInFramework));
   }
 }

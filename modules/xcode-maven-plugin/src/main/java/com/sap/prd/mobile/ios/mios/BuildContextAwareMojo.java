@@ -22,7 +22,9 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -62,9 +64,11 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * @since 1.2.1
    */
   protected String provisioningProfile;
-  
+
   /**
-   * The Xcode target to be built. If not specified, the default target (the first target) will be built.
+   * The Xcode target to be built. If not specified, the default target (the first target) will be
+   * built.
+   * 
    * @parameter expression="${xcode.target}"
    * @since 1.4.1
    */
@@ -75,21 +79,60 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    */
   private String productName;
 
-  protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation)
+  /**
+   * Settings to pass to XCode - if any are explicitly defined here, this plugin will not provide
+   * default settings to XCode.
+   * 
+   * @parameter
+   * @since 1.6.2
+   */
+  private Map<String, String> settings;
+
+  /**
+   * Options to pass to XCode - if any are explicitly defined here, this plugin will not provide
+   * default options to XCode.
+   * 
+   * @parameter
+   * @since 1.6.2
+   */
+  private Map<String, String> options;
+
+  protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,
+        String configuration, String sdk)
   {
     final String projectName = project.getArtifactId();
     File projectDirectory = null;
 
-    if(sourceCodeLocation == XCodeContext.SourceCodeLocation.WORKING_COPY) {
+    if (sourceCodeLocation == XCodeContext.SourceCodeLocation.WORKING_COPY) {
       projectDirectory = getXCodeCompileDirectory();
-    } else if(sourceCodeLocation == XCodeContext.SourceCodeLocation.ORIGINAL) {
+    }
+    else if (sourceCodeLocation == XCodeContext.SourceCodeLocation.ORIGINAL) {
       projectDirectory = getXCodeSourceDirectory();
-    } else {
+    }
+    else {
       throw new IllegalStateException("Invalid source code location: '" + sourceCodeLocation + "'");
     }
 
-    return new XCodeContext(projectName, getBuildActions(), projectDirectory, System.out, codeSignIdentity,
-          provisioningProfile, target);
+    HashMap<String, String> managedSettings = new HashMap<String, String>();
+    if (codeSignIdentity != null && !codeSignIdentity.trim().isEmpty())
+      managedSettings.put(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name(), codeSignIdentity);
+
+    if (provisioningProfile != null)
+      managedSettings.put(Settings.ManagedSetting.PROVISIONING_PROFILE.name(), provisioningProfile);
+
+    HashMap<String, String> managedOptions = new HashMap<String, String>();
+
+    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), projectName + ".xcodeproj");
+
+    if (configuration != null && !configuration.trim().isEmpty())
+      managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), configuration);
+    if (sdk != null && !sdk.trim().isEmpty())
+      managedOptions.put(Options.ManagedOption.SDK.getOptionName(), sdk);
+    if (target != null && !target.trim().isEmpty())
+      managedOptions.put(Options.ManagedOption.TARGET.getOptionName(), target);
+
+    return new XCodeContext(getBuildActions(), projectDirectory, System.out, new Settings(settings, managedSettings),
+          new Options(options, managedOptions));
   }
 
   protected List<String> getBuildActions()
@@ -97,12 +140,13 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     return (buildActions == null || buildActions.isEmpty()) ? DEFAULT_BUILD_ACTIONS : Collections
       .unmodifiableList(buildActions);
   }
-  
+
   /**
    * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
    * to it.
    */
-  protected PListAccessor getInfoPListAccessor(XCodeContext.SourceCodeLocation location, String configuration, String sdk)
+  protected PListAccessor getInfoPListAccessor(XCodeContext.SourceCodeLocation location, String configuration,
+        String sdk)
         throws MojoExecutionException, XCodeException
   {
     File plistFile = getPListFile(location, configuration, sdk);
@@ -112,32 +156,34 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     }
     return new PListAccessor(plistFile);
   }
-  
-  protected File getPListFile(XCodeContext.SourceCodeLocation location, String configuration, String sdk) throws XCodeException {
 
-    
-    XCodeContext context = getXCodeContext(location);
-    
-    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, getLog(), configuration, sdk, EffectiveBuildSettings.INFOPLIST_FILE);
-    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, getLog(), configuration, sdk, EffectiveBuildSettings.SRC_ROOT));
+  protected File getPListFile(XCodeContext.SourceCodeLocation location, String configuration, String sdk)
+        throws XCodeException
+  {
+
+    XCodeContext context = getXCodeContext(location, configuration, sdk);
+
+    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, getLog(),
+          EffectiveBuildSettings.INFOPLIST_FILE);
+    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, getLog(), EffectiveBuildSettings.SRC_ROOT));
 
     final File plistFile = new File(plistFileName);
 
-
-    if(! plistFile.isAbsolute()) {
+    if (!plistFile.isAbsolute()) {
       return new File(srcRoot, plistFileName);
     }
-    
 
-    if(FileUtils.isChild(srcRoot, plistFile))
+    if (FileUtils.isChild(srcRoot, plistFile))
       return plistFile;
-    
-    throw new IllegalStateException("Plist file " + plistFile + " is not located inside the xcode project " + srcRoot +  ".");
-    
+
+    throw new IllegalStateException("Plist file " + plistFile + " is not located inside the xcode project " + srcRoot
+          + ".");
+
   }
-  
-  protected String getProductName(final String configuration, final String sdk) throws MojoExecutionException {
-    
+
+  protected String getProductName(final String configuration, final String sdk) throws MojoExecutionException
+  {
+
     final String productName;
 
     if (this.productName != null) {
@@ -145,17 +191,20 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
       getLog().info("Production name obtained from pom file");
     }
     else {
-      
+
       try {
-        productName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY), getLog(), configuration, sdk, EffectiveBuildSettings.PRODUCT_NAME);
+        productName = EffectiveBuildSettings.getBuildSetting(
+              getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(),
+              EffectiveBuildSettings.PRODUCT_NAME);
         getLog().info("Product name obtained from effective build settings file");
-        
-      } catch(final XCodeException ex) {
+
+      }
+      catch (final XCodeException ex) {
         throw new MojoExecutionException("Cannot get product name: " + ex.getMessage(), ex);
       }
     }
 
-    if(productName == null || productName.trim().length() == 0)
+    if (productName == null || productName.trim().length() == 0)
       throw new MojoExecutionException("Invalid product name. Was null or empty.");
 
     return productName;

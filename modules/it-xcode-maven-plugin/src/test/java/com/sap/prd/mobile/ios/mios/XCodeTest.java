@@ -65,17 +65,18 @@ public abstract class XCodeTest
 
   private static File localRepo = null;
   private static String activeProfiles = null;
-  
+
   @Rule
   public static TemporaryFolder tmpFolder = new TemporaryFolder();
 
   @BeforeClass
-  public static void setup() throws IOException, XmlPullParserException {
+  public static void setup() throws IOException, XmlPullParserException
+  {
     prepareTestExecutionSettingsFile();
     prepareTestExecutionActiveProfiles();
     setupLocalRepo();
   }
-  
+
   //
   // Works only when called directly by a junit test method. Otherwise getStrackTrace()[2] below is missleading.
   //
@@ -83,12 +84,12 @@ public abstract class XCodeTest
   {
     return getClass().getName() + File.separator + Thread.currentThread().getStackTrace()[2].getMethodName();
   }
-  
+
   private static void prepareTestExecutionActiveProfiles()
   {
     String _activeProfiles = System.getProperty("com.sap.maven.integration-tests.active-profiles");
-    
-    if(_activeProfiles != null && !_activeProfiles.trim().isEmpty())
+
+    if (_activeProfiles != null && !_activeProfiles.trim().isEmpty())
     {
       activeProfiles = _activeProfiles.trim();
       System.out.println("[INFO] Using active profiles: " + activeProfiles);
@@ -104,27 +105,30 @@ public abstract class XCodeTest
     // Since the base directory for building the xcode-maven-plugin and the base directory used for the
     // integration tests differs the corresponding path must be absolute.
     //
-    
+
     String localRepoFilePath = System.getProperty("com.sap.maven.integration-tests.local-repo");
-    
-    if(localRepoFilePath == null || localRepoFilePath.isEmpty()) {
-      
+
+    if (localRepoFilePath == null || localRepoFilePath.isEmpty()) {
+
       localRepoFilePath = System.getProperty("user.home") + "/.m2/repository";
-      
-      System.out.println("[WARNING] Local Repository has not been provided. Please provide the local repo with \"-Dmaven.repo.local=\". " +
-      		"Defaulting to '" + localRepoFilePath + "'.");
+
+      System.out
+        .println("[WARNING] Local Repository has not been provided. Please provide the local repo with \"-Dmaven.repo.local=\". "
+              +
+              "Defaulting to '" + localRepoFilePath + "'.");
     }
-    
+
     localRepo = new File(localRepoFilePath);
-    
-    if(!localRepo.isAbsolute())
-      throw new RuntimeException("The path to the local repository '" + localRepoFilePath +"' is not absolute. " +
-      		"Integration tests will only work reliably if that path is absolute.");
-    
+
+    if (!localRepo.isAbsolute())
+      throw new RuntimeException("The path to the local repository '" + localRepoFilePath + "' is not absolute. " +
+            "Integration tests will only work reliably if that path is absolute.");
+
     System.out.println("[INFO] Using local repository '" + localRepo + "'.");
   }
 
-  private static void prepareTestExecutionSettingsFile() throws IOException, XmlPullParserException {
+  private static void prepareTestExecutionSettingsFile() throws IOException, XmlPullParserException
+  {
 
     //
     // The settings file used for integration tests must be the same than the settings file used for the previously performed
@@ -132,76 +136,77 @@ public abstract class XCodeTest
     // integration tests differs the corresponding path must be absolute.
     // For more details see the comment inside the configuration of the surefire plugin in the pom file of the integration tests.
     //
-    
+
     String userSettingsFilePath = System.getProperty("com.sap.maven.integration-tests.user-settings");
-    
-    if(userSettingsFilePath == null || userSettingsFilePath.isEmpty())
+
+    if (userSettingsFilePath == null || userSettingsFilePath.isEmpty())
     {
       userSettingsFilePath = System.getProperty("user.home") + "/.m2/settings.xml";
-      
+
       System.out.println("[WARNING] No settings file has been provided. Please provide the user settings file used " +
-      		"for integration tests with \"-Dcom.sap.maven.integration-tests.user-settings=\"." +
-      		"Defaulting to user settings file located at '" + userSettingsFilePath + "'");
+            "for integration tests with \"-Dcom.sap.maven.integration-tests.user-settings=\"." +
+            "Defaulting to user settings file located at '" + userSettingsFilePath + "'");
     }
     final File userSettingsFile = new File(userSettingsFilePath);
-    
-    if(!userSettingsFile.isAbsolute())
+
+    if (!userSettingsFile.isAbsolute())
       throw new RuntimeException("The path to the user settings file '" + userSettingsFilePath + "' is not absolute. " +
-      		"Integration tests will only work reliably if that path is absolute.");
-    
+            "Integration tests will only work reliably if that path is absolute.");
+
     System.out.println("[INFO] Using settings file '" + userSettingsFile + "' for integration tests");
-    
+
     final File testExecutionSettingsFile = getTestExectutionSettingsFile();
-        
-    if(testExecutionSettingsFile.exists())
+
+    if (testExecutionSettingsFile.exists())
       return;
-    
-    if(!testExecutionSettingsFile.getParentFile().exists() && !testExecutionSettingsFile.getParentFile().mkdirs())
-        throw new IOException("Cannot create " + testExecutionSettingsFile.getParentFile());
-      
+
+    if (!testExecutionSettingsFile.getParentFile().exists() && !testExecutionSettingsFile.getParentFile().mkdirs())
+      throw new IOException("Cannot create " + testExecutionSettingsFile.getParentFile());
+
     final Reader r = new InputStreamReader(new FileInputStream(userSettingsFile), "UTF-8");
     final Writer w = new OutputStreamWriter(new FileOutputStream(testExecutionSettingsFile), "UTF-8");
-    
+
     try {
-      
-        Settings settings = new SettingsXpp3Reader().read(r);
-        List<Mirror> mirrors = settings.getMirrors();  
-        
-        for(Mirror m : mirrors) {
 
-          StringBuilder newMirrorOf = new StringBuilder(256);
+      Settings settings = new SettingsXpp3Reader().read(r);
+      List<Mirror> mirrors = settings.getMirrors();
 
-          for(String mirror : m.getMirrorOf().split(",")) {
-            
-            if(newMirrorOf.length() > 0)
-              newMirrorOf.append(",");
-            
-            if("*".equals(mirror))
-              newMirrorOf.append("external:").append(mirror);
-            else
-              newMirrorOf.append(mirror);
-          }
-          
-          m.setMirrorOf(newMirrorOf.toString());
+      for (Mirror m : mirrors) {
+
+        StringBuilder newMirrorOf = new StringBuilder(256);
+
+        for (String mirror : m.getMirrorOf().split(",")) {
+
+          if (newMirrorOf.length() > 0)
+            newMirrorOf.append(",");
+
+          if ("*".equals(mirror))
+            newMirrorOf.append("external:").append(mirror);
+          else
+            newMirrorOf.append(mirror);
         }
-        
-        new SettingsXpp3Writer().write(w, settings);
-        System.out.println("[INFO] User settings file written to '" + testExecutionSettingsFile + "'.");
-        
-        
-    } finally {
+
+        m.setMirrorOf(newMirrorOf.toString());
+      }
+
+      new SettingsXpp3Writer().write(w, settings);
+      System.out.println("[INFO] User settings file written to '" + testExecutionSettingsFile + "'.");
+
+    }
+    finally {
       IOUtils.closeQuietly(r);
       IOUtils.closeQuietly(w);
     }
   }
- 
-  private static File getTestExectutionSettingsFile() throws IOException {
+
+  private static File getTestExectutionSettingsFile() throws IOException
+  {
     return new File(getTestsExecutionDirectory(), "settings.xml").getCanonicalFile();
   }
-  
+
   protected final static Map<String, String> THE_EMPTY_MAP = Collections.emptyMap();
   protected final static List<String> THE_EMPTY_LIST = Collections.emptyList();
-  
+
   protected static Verifier test(final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
@@ -210,21 +215,21 @@ public abstract class XCodeTest
           additionalSystemProperties, pomReplacements);
   }
 
-
   protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
-    return test(_verifier, testName, projectDirectory, Arrays.asList(new String[] {target}), additionalCommandLineOptions, additionalSystemProperties, pomReplacements);
+    return test(_verifier, testName, projectDirectory, Arrays.asList(new String[] { target }),
+          additionalCommandLineOptions, additionalSystemProperties, pomReplacements);
   }
-  
+
   protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         List<String> targets, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
   {
 
     final PrintStream originalOut = System.out;
-    
+
     if (additionalSystemProperties == null) {
       additionalSystemProperties = new HashMap<String, String>();
     }
@@ -257,26 +262,26 @@ public abstract class XCodeTest
       System.out
         .println("SystemProperties used during integration test for '" + testName + "/" + projectName + "': \n"
               + testSystemProperties);
-      
+
       final List<String> commandLineOptions = new ArrayList<String>();
-      
+
       {
         commandLineOptions.add("-s");
         commandLineOptions.add(getTestExectutionSettingsFile().getAbsolutePath());
       }
-      
-      if(localRepo != null)
+
+      if (localRepo != null)
       {
         commandLineOptions.add("-Dmaven.repo.local=" + localRepo.getAbsolutePath());
       }
-      
-      if(activeProfiles != null && !activeProfiles.trim().isEmpty())
+
+      if (activeProfiles != null && !activeProfiles.trim().isEmpty())
       {
         commandLineOptions.add("-P");
         commandLineOptions.add(activeProfiles);
-        
+
       }
-        
+
       if (additionalCommandLineOptions != null)
         commandLineOptions.addAll(additionalCommandLineOptions);
 
@@ -285,14 +290,14 @@ public abstract class XCodeTest
       verifier.setSystemProperties(testSystemProperties);
 
       verifier.deleteArtifacts("com.sap.production.ios.tests");
-      
-      if(targets.size() > 1) { 
+
+      if (targets.size() > 1) {
         verifier.setAutoclean(false);
         targets = new ArrayList<String>(targets);;
         targets.add(0, "clean");
       }
-      
-      for(String target : targets){
+
+      for (String target : targets) {
 
         verifier.executeGoal(target);
 
@@ -307,7 +312,7 @@ public abstract class XCodeTest
         else
           showLog(originalOut, projectName, logFile);
       }
-      
+
     }
     finally {
       verifier.resetStreams();
@@ -323,10 +328,11 @@ public abstract class XCodeTest
     return verifier;
   }
 
-  protected static File getTestsExecutionDirectory() {
+  protected static File getTestsExecutionDirectory()
+  {
     return new File(new File(".").getAbsoluteFile(), "target/tests/");
   }
-  
+
   protected static File getTestExecutionDirectory(final String testName, final String projectName)
   {
     return new File(
@@ -367,19 +373,18 @@ public abstract class XCodeTest
         throws IOException
   {
 
-    
-    if(!pomReplacements.keySet().contains(PROP_NAME_DYNAMIC_VERSION))
+    if (!pomReplacements.keySet().contains(PROP_NAME_DYNAMIC_VERSION))
       throw new IllegalStateException("Dynamic version not provided on pom replacements.");
-    
+
     String pom = IOUtils.toString(new FileInputStream(pomFile));
 
-    if(pom.indexOf("${" + PROP_NAME_DYNAMIC_VERSION +"}") == -1)
+    if (pom.indexOf("${" + PROP_NAME_DYNAMIC_VERSION + "}") == -1)
       throw new IllegalStateException("Dynamic version is not used in pom file.");
-    
+
     for (String key : pomReplacements.stringPropertyNames()) {
       pom = pom.replaceAll("\\$\\{" + key + "\\}", pomReplacements.getProperty(key));
     }
-    
+
     pom = pom.replaceAll("\\$\\{xcode.maven.plugin.version\\}", getMavenXcodePluginVersion());
 
     final Writer w = new FileWriter(pomFile);

@@ -54,7 +54,7 @@ public class XCodeProjectLayoutValidatorTest extends XCodeTest
           "MyLibrary");
   }
 
-  @Test(expected=XCodeRootFolderDoesNotExistException.class)
+  @Test(expected = XCodeRootFolderDoesNotExistException.class)
   public void xCodeRootFolderDoesNotExist() throws XCodeException, IOException
   {
     final File projectDirectoryMyLibrary = new File(new File(projectDirectory, "MyLibrary"), "src/xcode");
@@ -62,24 +62,22 @@ public class XCodeProjectLayoutValidatorTest extends XCodeTest
     XCodeProjectLayoutValidator.verifyXcodeFolder(projectDirectoryMyLibrary, "MyLibrary");
   }
 
-  
-  @Test(expected=XCodeProjectNotFoundException.class)
+  @Test(expected = XCodeProjectNotFoundException.class)
   public void xCodeFolderDoesNotExist() throws XCodeException, IOException
   {
     final File projectDirectoryMyLibrary = new File(new File(projectDirectory, "MyLibrary"), "src/xcode");
     FileUtils.deleteDirectory(new File(projectDirectoryMyLibrary, "MyLibrary.xcodeproj"));
     XCodeProjectLayoutValidator.verifyXcodeFolder(projectDirectoryMyLibrary, "MyLibrary");
   }
-  
-  @Test(expected=XCodeProjectFileDoesNotExistException.class)
+
+  @Test(expected = XCodeProjectFileDoesNotExistException.class)
   public void xCodeProjectFileDoesNotExist() throws XCodeException
   {
     final File projectDirectoryMyLibrary = new File(new File(projectDirectory, "MyLibrary"), "src/xcode");
     final File pbxprojFile = new File(new File(projectDirectoryMyLibrary, "MyLibrary.xcodeproj"), "project.pbxproj");
-    if(!pbxprojFile.delete())
-      throw new IllegalStateException("Could not delete "  + pbxprojFile);
+    if (!pbxprojFile.delete())
+      throw new IllegalStateException("Could not delete " + pbxprojFile);
     XCodeProjectLayoutValidator.verifyXcodeFolder(projectDirectoryMyLibrary, "MyLibrary");
-  }  
-  
-  
+  }
+
 }

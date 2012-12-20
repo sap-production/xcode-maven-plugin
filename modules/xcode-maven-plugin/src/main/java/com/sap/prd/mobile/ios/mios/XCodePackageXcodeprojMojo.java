@@ -65,7 +65,6 @@ import org.apache.maven.project.MavenProjectHelper;
 public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
 {
 
-
   public static final String XCODEPROJ_WITH_DEPS_CLASSIFIER = "xcodeproj-with-deps";
 
   /**
@@ -132,12 +131,10 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
    */
   private List<String> excludes;
 
-
   /**
    * @component
    */
   private MavenProjectHelper projectHelper;
-
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -159,10 +156,10 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
 
       includes.add(relativeSrcDirName); // src/xcode folder
       includes.add(relativeTargetDirName + "/xcode-deps/frameworks");
-      
+
       zip(Arrays.asList("zip", "-r", "-y", "-q", relativeTargetDirName + "/" + xprojZipFileName), includes, excludes);
-      
-      includes.clear();      
+
+      includes.clear();
 
       includes.add("pom.xml");
       includes.add("sync.info");
@@ -170,36 +167,37 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
       includes.add(relativeTargetDirName + "/headers");
       includes.add(relativeTargetDirName + "/libs");
       includes.add(relativeTargetDirName + "/xcode-deps");
-      
+
       Collection<String> myExcludes = excludes == null ? new ArrayList<String>() : new ArrayList<String>(excludes);
       myExcludes.add(relativeTargetDirName + "/xcode-deps/frameworks/*");
 
       if (additionalArchivePaths != null) {
         includes.addAll(additionalArchivePaths);
       }
-      
+
       zip(Arrays.asList("zip", "-r", "-g", "-q", relativeTargetDirName + "/" + xprojZipFileName), includes, myExcludes);
-      
+
       getLog().info("Packaged the Xcode project with all its dependencies into the zip file " + xprojZipFileName);
     }
     catch (IOException e) {
-      throw new MojoExecutionException("Could not package the Xcode project with all its dependencies into a zip file.", e);
+      throw new MojoExecutionException(
+            "Could not package the Xcode project with all its dependencies into a zip file.", e);
     }
-    
+
     projectHelper.attachArtifact(project, "zip", XCODEPROJ_WITH_DEPS_CLASSIFIER, new File(project.getBuild()
       .getDirectory(), xprojZipFileName));
-    
 
   }
-  
-  
-  private void zip(List<String> zipCommandParts, Collection<String> includes, Collection<String> excludes) throws IOException, MojoExecutionException {
+
+  private void zip(List<String> zipCommandParts, Collection<String> includes, Collection<String> excludes)
+        throws IOException, MojoExecutionException
+  {
 
     ArrayList<String> zipCmdCall = new ArrayList<String>();
 
     zipCmdCall.addAll(zipCommandParts);
     zipCmdCall.addAll(includes);
-    
+
     if (excludes != null && !excludes.isEmpty()) {
       zipCmdCall.add("-x");
       zipCmdCall.addAll(excludes);
@@ -212,6 +210,5 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
             "Could not package the Xcode project with all its dependencies into a zip file.");
     }
   }
-
 
 }

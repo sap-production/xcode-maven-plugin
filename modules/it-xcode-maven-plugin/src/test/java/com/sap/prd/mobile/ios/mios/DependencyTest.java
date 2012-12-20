@@ -30,7 +30,6 @@ import org.junit.Test;
 public class DependencyTest extends XCodeTest
 {
 
-
   @Test
   public void testTransitiveDependency() throws Exception
   {
@@ -40,13 +39,13 @@ public class DependencyTest extends XCodeTest
       .getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
-    
+
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    
+
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-    
+
     test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryB"),
           "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
@@ -102,6 +101,4 @@ public class DependencyTest extends XCodeTest
     assertFalse(new File(unpackDir, "src/xcode/packageExcludeTest/tmp").exists());
   }
 
-
 }
-

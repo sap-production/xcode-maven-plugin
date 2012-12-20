@@ -29,7 +29,7 @@ class XCodeInvalidVersionException extends XCodeException
 
   XCodeInvalidVersionException()
   {
-    this((String)null);
+    this((String) null);
   }
 
   XCodeInvalidVersionException(String message, Throwable cause)

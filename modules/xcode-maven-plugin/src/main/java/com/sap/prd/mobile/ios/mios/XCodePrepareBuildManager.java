@@ -73,17 +73,17 @@ class XCodePrepareBuildManager
         final Set<String> sdks) throws MojoExecutionException, XCodeException, IOException
   {
 
-    prepareRootFolders(project, configurations,  sdks);
-    
+    prepareRootFolders(project, configurations, sdks);
+
     final Iterator<Artifact> compileArtifacts = project.getCompileArtifacts().iterator();
-    
-    if(!compileArtifacts.hasNext()) {
+
+    if (!compileArtifacts.hasNext()) {
       log.info("No compile dependencies found.");
     }
-    
-    while(compileArtifacts.hasNext()) {
 
-      final Artifact mainArtifact = (Artifact)compileArtifacts.next();
+    while (compileArtifacts.hasNext()) {
+
+      final Artifact mainArtifact = (Artifact) compileArtifacts.next();
 
       log.info("Preparing dependency: " + mainArtifact.getId());
 
@@ -143,22 +143,23 @@ class XCodePrepareBuildManager
     }
   }
 
-  private static void prepareRootFolders(MavenProject project, Set<String> configurations, Set<String> sdks) throws IOException
+  private static void prepareRootFolders(MavenProject project, Set<String> configurations, Set<String> sdks)
+        throws IOException
   {
     mkdirs(FolderLayout.getFolderForExtractedMainArtifact(project));
     mkdirs(FolderLayout.getFolderForExtractedBundles(project));
     mkdirs(FolderLayout.getFolderForExtractedFrameworks(project));
-    
-    for(String configuration : configurations) {
-      
+
+    for (String configuration : configurations) {
+
       mkdirs(FolderLayout.getFolderForExtractedFatLibs(project, configuration));
-      
-      for(String sdk : sdks) {
+
+      for (String sdk : sdks) {
         mkdirs(FolderLayout.getFolderForExtractedHeaders(project, configuration, sdk));
         mkdirs(FolderLayout.getFolderForExtractedLibs(project, configuration, sdk));
       }
     }
-  } 
+  }
 
   private File resolveThinLib(MavenProject project, final String xcodeConfiguration, final String sdk,
         final Artifact primaryArtifact)
@@ -175,7 +176,6 @@ class XCodePrepareBuildManager
       return null;
     }
   }
-
 
   void provideThinLibs(Map<String, File> thinLibs, String xcodeConfiguration, Artifact mainArtifact,
         MavenProject project) throws IOException
@@ -227,15 +227,15 @@ class XCodePrepareBuildManager
     final File mainArtifactExtracted = FolderLayout.getFolderForExtractedPrimaryArtifact(project,
           primaryArtifact);
 
-    if(mainArtifactExtracted.exists())
+    if (mainArtifactExtracted.exists())
       com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(mainArtifactExtracted);
-    
+
     if (!mainArtifactExtracted.mkdirs())
       throw new IOException("Cannot create directory for expanded mainartefact of " + primaryArtifact.getGroupId()
             + ":" + primaryArtifact.getArtifactId() + " (" + mainArtifactExtracted + ").");
 
     unarchive("tar", primaryArtifact.getFile(), mainArtifactExtracted);
-    
+
     log.info("Main artifact extracted to '" + mainArtifactExtracted + "'.");
 
     File bundleFile = new File(mainArtifactExtracted, "bundles.txt");
@@ -260,11 +260,11 @@ class XCodePrepareBuildManager
           primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
 
     if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion())) {
-        FileUtils.copyFile(source, target);
-      }
+      FileUtils.copyFile(source, target);
+    }
     else {
-        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
-      }
+      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
+    }
   }
 
   private File resolveFatLib(MavenProject project, final String xcodeConfiguration, final Artifact primaryArtifact)
@@ -293,7 +293,7 @@ class XCodePrepareBuildManager
     else {
       com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
     }
-    
+
     final FatLibAnalyzer lipoHelper = new FatLibAnalyzer(target);
 
     //
@@ -410,5 +410,5 @@ class XCodePrepareBuildManager
           sourceFile.getCanonicalPath(),
           destinationFolder.getCanonicalPath());
   }
-  
+
 }

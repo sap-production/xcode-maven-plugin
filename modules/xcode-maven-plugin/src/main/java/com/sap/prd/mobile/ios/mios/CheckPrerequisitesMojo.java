@@ -42,9 +42,9 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public class CheckPrerequisitesMojo extends AbstractXCodeMojo
 {
-  
+
   public final static String MIN_XCODE_VERSION = "4.4";
-  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -77,8 +77,9 @@ public class CheckPrerequisitesMojo extends AbstractXCodeMojo
     }
     throw new MojoExecutionException("Could not get xcodebuild version");
   }
-  
-  private String getBuildVersion(String output) throws MojoExecutionException {
+
+  private String getBuildVersion(String output) throws MojoExecutionException
+  {
     Pattern buildPattern = Pattern.compile("Build version (\\w+)", Pattern.CASE_INSENSITIVE);
     Matcher buildMatcher = buildPattern.matcher(output);
     if (buildMatcher.find()) {
@@ -86,12 +87,13 @@ public class CheckPrerequisitesMojo extends AbstractXCodeMojo
     }
     throw new MojoExecutionException("Could not get xcodebuild build version");
   }
-  
+
   private void checkVersions(DefaultArtifactVersion version, String buildVersion) throws MojoExecutionException
   {
     DefaultArtifactVersion minXcodeVersion = new DefaultArtifactVersion(MIN_XCODE_VERSION);
     if (version.compareTo(minXcodeVersion) < 0) {
-      throw new MojoExecutionException("Xcode " + MIN_XCODE_VERSION + " (or higher) is required (installed: " + version + " " + buildVersion + ")");
+      throw new MojoExecutionException("Xcode " + MIN_XCODE_VERSION + " (or higher) is required (installed: " + version
+            + " " + buildVersion + ")");
     }
   }
 }

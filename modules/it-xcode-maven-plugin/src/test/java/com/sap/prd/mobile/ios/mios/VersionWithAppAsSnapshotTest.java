@@ -35,12 +35,14 @@ public class VersionWithAppAsSnapshotTest extends XCodeTest
         testName = null;
 
   private static Verifier appVerifier = null;
-  
+
   @BeforeClass
-  public static void __setup() throws Exception {
+  public static void __setup() throws Exception
+  {
 
     dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    testName = VersionWithAppAsSnapshotTest.class.getName() +  File.separator + Thread.currentThread().getStackTrace()[1].getMethodName();
+    testName = VersionWithAppAsSnapshotTest.class.getName() + File.separator
+          + Thread.currentThread().getStackTrace()[1].getMethodName();
 
     remoteRepositoryDirectory = getRemoteRepositoryDirectory(VersionWithAppAsSnapshotTest.class.getName());
 
@@ -52,29 +54,34 @@ public class VersionWithAppAsSnapshotTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward-with-app-as-snapshot/MyLibrary"), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
-    
+
     appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward-with-app-as-snapshot/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
-          null, pomReplacements);    
+          null, pomReplacements);
 
     appTestBaseDir = new File(appVerifier.getBasedir());
   }
 
   @Test
   public void testCFBundeShortVersionInInfoPlist() throws Exception
-  {    
-    final File infoPList = new File(appTestBaseDir, "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
-    assertEquals("CFBundleShortVersion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.", dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING));
+  {
+    final File infoPList = new File(appTestBaseDir,
+          "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
+    assertEquals("CFBundleShortVersion in file '" + infoPList + "' is not the expected version '" + dynamicVersion
+          + "'.", dynamicVersion,
+          new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING));
   }
 
   @Test
   public void testCFBundeVersionInInfoPlist() throws Exception
   {
-    final File infoPList = new File(appTestBaseDir, "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
-    
+    final File infoPList = new File(appTestBaseDir,
+          "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
+
     // inside the pom of the test case here "-SNAPSHOT" is appended. This appendix must be removed before the version
     // is put into the plist.
-    assertEquals("CFBundleVersion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.", dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_VERSION));
+    assertEquals("CFBundleVersion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.",
+          dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_VERSION));
   }
 }

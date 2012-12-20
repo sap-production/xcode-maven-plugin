@@ -52,7 +52,6 @@ public class VersionInfoPListManager
     }
   }
 
-
   private void createVersionInfoPlistFile(final String groupId, final String artifactId, final String version,
         Properties versionInfo, List<Dependency> dependencies, File file)
         throws MojoExecutionException
@@ -85,30 +84,30 @@ public class VersionInfoPListManager
     }
   }
 
-   void addDependencyToPlist(List<Dependency> dependencies, PListAccessor plistAccessor, String path) throws IOException
+  void addDependencyToPlist(List<Dependency> dependencies, PListAccessor plistAccessor, String path) throws IOException
   {
 
-      for (int i = 0; i < dependencies.size(); i++) {
+    for (int i = 0; i < dependencies.size(); i++) {
 
-        String _path = path + i;
-        Dependency dep = dependencies.get(i);
+      String _path = path + i;
+      Dependency dep = dependencies.get(i);
 
-        plistAccessor.addDictToArray("coordinates", _path);
-        plistAccessor.addStringValueToDict("groupId", dep.getCoordinates().getGroupId(), _path
-              + ":coordinates");
-        plistAccessor.addStringValueToDict("artifactId", dep.getCoordinates().getArtifactId(), _path
-              + ":coordinates");
-        plistAccessor.addStringValueToDict("version", dep.getCoordinates().getVersion(), _path
-              + ":coordinates");
+      plistAccessor.addDictToArray("coordinates", _path);
+      plistAccessor.addStringValueToDict("groupId", dep.getCoordinates().getGroupId(), _path
+            + ":coordinates");
+      plistAccessor.addStringValueToDict("artifactId", dep.getCoordinates().getArtifactId(), _path
+            + ":coordinates");
+      plistAccessor.addStringValueToDict("version", dep.getCoordinates().getVersion(), _path
+            + ":coordinates");
 
-        plistAccessor.addDictToArray("scm", _path);
-        plistAccessor.addStringValueToDict("connection", dep.getScm().getConnection(), _path + ":scm");
-        plistAccessor.addStringValueToDict("revision", dep.getScm().getRevision(), _path + ":scm");
-        addDependencyToPlist(dep.getDependencies(), plistAccessor, _path + ":dependencies:");
+      plistAccessor.addDictToArray("scm", _path);
+      plistAccessor.addStringValueToDict("connection", dep.getScm().getConnection(), _path + ":scm");
+      plistAccessor.addStringValueToDict("revision", dep.getScm().getRevision(), _path + ":scm");
+      addDependencyToPlist(dep.getDependencies(), plistAccessor, _path + ":dependencies:");
 
     }
   }
- 
+
   private static String getDepotPath(String fullDepotPath)
   {
     if (fullDepotPath.endsWith(THREEDOTS)) {

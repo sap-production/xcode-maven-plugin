@@ -56,8 +56,6 @@ public class XCodeIpaPackageMojo extends BuildContextAwareMojo
     if (sdks == null || sdks.size() == 0)
       throw new MojoExecutionException("Invalid sdks: \"" + sdks + "\".");
 
-
-
     for (final String configuration : configurations) {
       for (final String sdk : sdks) {
 
@@ -77,7 +75,6 @@ public class XCodeIpaPackageMojo extends BuildContextAwareMojo
         prepareIpaFileForDeployment(project, configuration, sdk, ipaFile);
       }
     }
-
 
   }
 

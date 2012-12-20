@@ -19,6 +19,7 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +30,8 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 
 /**
- * Packages all the artifacts for Xcode libraries and prepares the generated artifacts for deployment.
+ * Packages all the artifacts for Xcode libraries and prepares the generated artifacts for
+ * deployment.
  * 
  * @goal xcode-package
  * 
@@ -64,14 +66,26 @@ public class XCodePackageMojo extends BuildContextAwareMojo
 
     try {
 
-      new XCodePackageManager(getLog(), archiverManager, projectHelper).packageArtifacts(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY),
-            getConfigurations(),
-            getSDKs(), project, bundles);
+      File projectRootDir = null;
+      for (String configuration : getConfigurations()) {
+        for (String sdk : getSDKs()) {
+          XCodeContext context = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);
+
+          projectRootDir = context.getProjectRootDirectory(); // TODO improve, but should be each time the same directory.
+
+          new XCodePackageManager(getLog(), archiverManager, projectHelper).packageHeaders(context, project, getLog());
+          final File buildDir = XCodeBuildLayout.getBuildDir(projectRootDir);
+          XCodePackageManager.attachLibrary(context, buildDir, project, projectHelper, getLog());
+        }
+      }
+
+      new XCodePackageManager(getLog(), archiverManager, projectHelper).packageArtifacts(projectRootDir, project,
+            bundles);
     }
     catch (IOException ex) {
       throw new MojoExecutionException("", ex);
     }
-    catch(XCodeException ex) {
+    catch (XCodeException ex) {
       throw new MojoExecutionException(ex.getMessage(), ex);
     }
   }

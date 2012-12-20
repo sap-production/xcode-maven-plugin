@@ -46,10 +46,10 @@ public class ScriptRunner
 
   private static File copyScript(String script, File workingDirectory) throws IOException
   {
-    if(!workingDirectory.exists())
-      if(!workingDirectory.mkdirs())
+    if (!workingDirectory.exists())
+      if (!workingDirectory.mkdirs())
         throw new IOException("Cannot create directory '" + workingDirectory + "'.");
-    
+
     final File scriptFile = new File(workingDirectory, getScriptFileName(script));
     scriptFile.deleteOnExit();
 

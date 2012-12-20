@@ -71,7 +71,8 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
         if (alreadyUpdatedPlists.contains(infoPlistFile)) {
           getLog().debug("PList file '" + infoPlistFile.getName()
                 + "' was already updated for another configuration. This file will be skipped.");
-        } else {
+        }
+        else {
           changeAppId(infoPlistAccessor, appIdSuffix, getLog());
           alreadyUpdatedPlists.add(infoPlistFile);
         }
@@ -100,7 +101,8 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
     }
   }
 
-  private static void appendAppIdSuffix(PListAccessor infoPlistAccessor, String appIdSuffix, Log log) throws IOException
+  private static void appendAppIdSuffix(PListAccessor infoPlistAccessor, String appIdSuffix, Log log)
+        throws IOException
   {
     String newAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER) + "." + appIdSuffix;
     infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, newAppId);

@@ -29,7 +29,7 @@ abstract class UpdateVersionInPListTask
   protected File plistFile;
   protected String version;
   protected Log log;
-  
+
   final UpdateVersionInPListTask setPListFile(File plistFile)
   {
     this.plistFile = plistFile;
@@ -47,46 +47,52 @@ abstract class UpdateVersionInPListTask
     this.log = log;
     return this;
   }
-  
-  void execute() throws XCodeException {
 
-    if(version == null || version.isEmpty()) {
+  void execute() throws XCodeException
+  {
+
+    if (version == null || version.isEmpty()) {
       throw new IllegalArgumentException("No version provided: '" + version + "'.");
     }
-    
-    if(plistFile == null) {
+
+    if (plistFile == null) {
       throw new IllegalArgumentException("No PlistFile provided.");
     }
-    
-    if(!plistFile.exists())
+
+    if (!plistFile.exists())
       throw new IllegalArgumentException("PlistFile '" + plistFile + "' does not exist.");
-    
-    if(!plistFile.isFile()) {
+
+    if (!plistFile.isFile()) {
       throw new IllegalArgumentException("PlistFile '" + plistFile + "' is not a file.");
     }
   }
-  
-  protected void updateProperty(File plistFile, String key, String newValue) throws XCodeException {
+
+  protected void updateProperty(File plistFile, String key, String newValue) throws XCodeException
+  {
 
     try {
-      
+
       final PListAccessor infoPlistAccessor = new PListAccessor(plistFile);
-      
+
       final String oldValue = infoPlistAccessor.getStringValue(key);
 
-      if(oldValue == null) {
-      
+      if (oldValue == null) {
+
         infoPlistAccessor.addStringValue(key, newValue);
-        log.info(key + " was not present in PList '" + infoPlistAccessor.getPlistFile() + ". Entry has been added with value '" + newValue + "'.");
+        log.info(key + " was not present in PList '" + infoPlistAccessor.getPlistFile()
+              + ". Entry has been added with value '" + newValue + "'.");
         return;
-        
-      } else if(oldValue.equals(newValue)) {
-        log.info(key + " in PList '" + infoPlistAccessor.getPlistFile() + "' file is already up-to-date (" + oldValue + "). No update needed.");
+
+      }
+      else if (oldValue.equals(newValue)) {
+        log.info(key + " in PList '" + infoPlistAccessor.getPlistFile() + "' file is already up-to-date (" + oldValue
+              + "). No update needed.");
         return;
       }
-             
+
       infoPlistAccessor.updateStringValue(key, newValue);
-      log.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set " + key + " from old value " + oldValue  + " to new value '" + version + "'.");
+      log.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set " + key + " from old value "
+            + oldValue + " to new value '" + version + "'.");
     }
     catch (IOException e) {
       throw new XCodeException(e.getMessage(), e);

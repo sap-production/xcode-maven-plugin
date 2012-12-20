@@ -25,10 +25,11 @@ import org.junit.Test;
 
 public class RemoveTrailingCharactersVersionTransformerTest
 {
-  private final static RemoveTrailingCharactersVersionTransformer cfBundleShortVersionStringTransformer = new RemoveTrailingCharactersVersionTransformer(3);
-  private final static RemoveTrailingCharactersVersionTransformer cfBundleVersionTransformer = new RemoveTrailingCharactersVersionTransformer(-1);
+  private final static RemoveTrailingCharactersVersionTransformer cfBundleShortVersionStringTransformer = new RemoveTrailingCharactersVersionTransformer(
+        3);
+  private final static RemoveTrailingCharactersVersionTransformer cfBundleVersionTransformer = new RemoveTrailingCharactersVersionTransformer(
+        -1);
 
-  
   @Test
   public void testCFBundleShortVersionStringThreeDotVersion() throws Exception
   {
@@ -45,15 +46,14 @@ public class RemoveTrailingCharactersVersionTransformerTest
   {
     assertEquals("1.0.3", cfBundleShortVersionStringTransformer.transform("1..3"));
   }
-  
-  
-  @Test(expected=NumberFormatException.class)
+
+  @Test(expected = NumberFormatException.class)
   public void testCFBundleShortVersionStringVersionWithNegativeVersionPart() throws Exception
   {
     // Such a version will not be accepted as valid CFBundleShortVersionString by apple !!!
     cfBundleShortVersionStringTransformer.transform("1.-2.3");
   }
-  
+
   @Test
   public void testCFBundleShortVersionStringLongVersion() throws Exception
   {
@@ -62,63 +62,74 @@ public class RemoveTrailingCharactersVersionTransformerTest
   }
 
   @Test
-  public void testCFBundleShortVersionStringTwoDotSnapshotVersion() {
+  public void testCFBundleShortVersionStringTwoDotSnapshotVersion()
+  {
     assertEquals("1.2.0", cfBundleShortVersionStringTransformer.transform("1.2-SNAPSHOT"));
   }
 
-  
   @Test
-  public void testCFBundleShortVersionStringThreeDotSnapshotVersion() {
+  public void testCFBundleShortVersionStringThreeDotSnapshotVersion()
+  {
     assertEquals("1.2.3", cfBundleShortVersionStringTransformer.transform("1.2.3-SNAPSHOT"));
   }
-  
+
   @Test
-  public void testCFBundleShortVersionStringTruncateVersion() {
+  public void testCFBundleShortVersionStringTruncateVersion()
+  {
     assertEquals("1.2.3", cfBundleShortVersionStringTransformer.transform("1.2.3.4"));
   }
 
   @Test
-  public void testCFBundleShortVersionStringTruncateSnapshotVersion() {
+  public void testCFBundleShortVersionStringTruncateSnapshotVersion()
+  {
     assertEquals("1.2.3", cfBundleShortVersionStringTransformer.transform("1.2.3.4-SNAPSHOT"));
   }
 
   @Test
-  public void testCFBundleShortVersionStringShortVersion() {
+  public void testCFBundleShortVersionStringShortVersion()
+  {
     assertEquals("1.2.0", cfBundleShortVersionStringTransformer.transform("1.2"));
   }
 
   @Test
-  public void testCFBundleShortVersionStringVersionWithoutDot() {
+  public void testCFBundleShortVersionStringVersionWithoutDot()
+  {
     assertEquals("1.0.0", cfBundleShortVersionStringTransformer.transform("1"));
   }
 
   @Test
-  public void testCFBundleShortVersionStringEmptyVersion() {
+  public void testCFBundleShortVersionStringEmptyVersion()
+  {
     assertEquals("0.0.0", cfBundleShortVersionStringTransformer.transform(""));
   }
 
-  @Test(expected= NullPointerException.class)
-  public void tesCFBundleShortVersionStringNullVersion() {
+  @Test(expected = NullPointerException.class)
+  public void tesCFBundleShortVersionStringNullVersion()
+  {
     cfBundleShortVersionStringTransformer.transform(null);
   }
-  
+
   @Test
-  public void testCFBundleShortVersionStringVersionEndsWithDot() {
+  public void testCFBundleShortVersionStringVersionEndsWithDot()
+  {
     assertEquals("1.0.0", cfBundleShortVersionStringTransformer.transform("1."));
   }
-  
+
   @Test
-  public void testCFBundleShortVersionStringVersionWithAlpha() {
+  public void testCFBundleShortVersionStringVersionWithAlpha()
+  {
     assertEquals("1.0.0", cfBundleShortVersionStringTransformer.transform("1.alpha-1.2"));
   }
 
   @Test
-  public void testCFBundleShortVersionStringVersionWithAlphaAppendix() {
+  public void testCFBundleShortVersionStringVersionWithAlphaAppendix()
+  {
     assertEquals("1.1.0", cfBundleShortVersionStringTransformer.transform("1.1-alpha-1.2"));
   }
-  
+
   @Test
-  public void testCFBundleVersionDoNotTruncateVersion() {
+  public void testCFBundleVersionDoNotTruncateVersion()
+  {
     assertEquals("1.2.3.4", cfBundleVersionTransformer.transform("1.2.3.4"));
-  }  
+  }
 }

@@ -71,7 +71,6 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
     if (sdks == null || sdks.size() == 0)
       throw new MojoExecutionException("Invalid sdks: \"" + sdks + "\".");
 
-
     for (final String configuration : configurations) {
       for (final String sdk : sdks) {
 
@@ -93,7 +92,8 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
         final String ipaClassifier = getIpaClassifier(configuration, sdk);
 
         try {
-          PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);
+          PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.WORKING_COPY,
+                configuration, sdk);
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION), ipaClassifier,

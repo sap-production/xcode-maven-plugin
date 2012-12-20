@@ -38,7 +38,7 @@ public class FileUtilsTest
 
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
-  
+
   @Test
   public void testGetDelta() throws Exception
   {
@@ -52,7 +52,7 @@ public class FileUtilsTest
   {
     FileUtils.getDelta(new File("/home/abc"), new File("/home/def"));
   }
-  
+
   @Test
   public void testIsChild() throws Exception
   {
@@ -64,25 +64,23 @@ public class FileUtilsTest
     assertFalse(FileUtils.isChild(new File("/abc/def"), new File("/abc/ghi/def")));
   }
 
-  
-
   @Test
   public void testCreateSymbolicLink() throws Exception
   {
     File source = prepareFile();
     File target = tmpFolder.newFile("target");
 
-    FileUtils.createSymbolicLink(source, target);    
+    FileUtils.createSymbolicLink(source, target);
 
-    Assert.assertTrue(checkForSymbolicLink(target));   
+    Assert.assertTrue(checkForSymbolicLink(target));
   }
-  
+
   @Test
   public void testIsSymbolicLinkForNullFile() throws Exception
   {
     assertFalse(FileUtils.isSymbolicLink(null));
   }
-  
+
   @Test
   public void testIsSymbolicLinkWithSymbolicLink() throws Exception
   {
@@ -98,8 +96,9 @@ public class FileUtilsTest
     File file = prepareFile();
     assertFalse(FileUtils.isSymbolicLink(file));
   }
-  
-  private static boolean checkForSymbolicLink(final File f) throws IOException {
+
+  private static boolean checkForSymbolicLink(final File f) throws IOException
+  {
 
     ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
     PrintStream stream = new PrintStream(byteOs);
@@ -113,8 +112,9 @@ public class FileUtilsTest
       IOUtils.closeQuietly(stream);
     }
   }
-  
-  private File prepareFile() throws IOException {
+
+  private File prepareFile() throws IOException
+  {
     File file = tmpFolder.newFile("source");
     org.apache.commons.io.FileUtils.writeStringToFile(file, "abc");
     return file;

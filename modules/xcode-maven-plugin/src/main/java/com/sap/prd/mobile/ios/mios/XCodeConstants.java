@@ -20,8 +20,8 @@
 package com.sap.prd.mobile.ios.mios;
 
 /**
- * Xcode specific constants 
- *
+ * Xcode specific constants
+ * 
  */
 abstract class XCodeConstants
 {

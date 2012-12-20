@@ -34,16 +34,18 @@ import org.apache.commons.io.IOUtils;
 public class FileUtils
 {
 
-  public static void mkdirs(final File f) throws IOException {
-    
+  public static void mkdirs(final File f) throws IOException
+  {
+
     if (!f.exists() && !f.mkdirs())
-     throw new IOException("Could not create folder '" + f + "'.");
+      throw new IOException("Could not create folder '" + f + "'.");
   }
-  
-  public static void deleteDirectory(final File directory) throws IOException {
-    org.codehaus.plexus.util.FileUtils.deleteDirectory(directory);  
+
+  public static void deleteDirectory(final File directory) throws IOException
+  {
+    org.codehaus.plexus.util.FileUtils.deleteDirectory(directory);
   }
-  
+
   /**
    * 
    * @param parent
@@ -61,15 +63,14 @@ public class FileUtils
     final List<String> _parent = split(parent.getAbsoluteFile());
     final List<String> _child = split(child.getAbsoluteFile());
 
-
-    if(! isChild(_parent, _child))
+    if (!isChild(_parent, _child))
       throw new IllegalStateException("Child directory '" + child + "' is not a child of the base directory '"
-              + parent + "'.");
+            + parent + "'.");
 
     StringBuilder path = new StringBuilder();
 
     int index = getNumberOfCommonElements(_parent, _child);
-    
+
     for (int size = _child.size(); index < size; index++) {
 
       if (path.length() != 0)
@@ -83,11 +84,11 @@ public class FileUtils
   private static int getNumberOfCommonElements(List<String> _parent, List<String> _child)
   {
     int index = 0;
-    
-    for(int size = Math.min(_parent.size(), _child.size()); index < size; index++)
-      if(! _parent.get(index).equals(_child.get(index)))
+
+    for (int size = Math.min(_parent.size(), _child.size()); index < size; index++)
+      if (!_parent.get(index).equals(_child.get(index)))
         break;
-    
+
     return index;
   }
 
@@ -215,28 +216,32 @@ public class FileUtils
       super(msg);
     }
   }
-  
+
   public static boolean isSymbolicLink(File file) throws IOException
   {
-    if(file == null || !file.exists())
+    if (file == null || !file.exists())
       return false;
-    
+
     PrintStream printStream = new PrintStream(new ByteArrayOutputStream());
     try {
       int result = Forker.forkProcess(printStream, file.getParentFile(), "test", "-L", file.getName());
       return result == 0;
-    } finally {
+    }
+    finally {
       IOUtils.closeQuietly(printStream);
     }
   }
-  
-  
-  public static void createSymbolicLink(final File source, final File target) throws IOException {
-    System.out.println("[INFO] Creating symbolic link. Source:" + source.getAbsolutePath() + ", target: " + target.getAbsolutePath() + ".");
+
+  public static void createSymbolicLink(final File source, final File target) throws IOException
+  {
+    System.out.println("[INFO] Creating symbolic link. Source:" + source.getAbsolutePath() + ", target: "
+          + target.getAbsolutePath() + ".");
     target.getParentFile().mkdirs();
-    int returnValue = Forker.forkProcess(System.out, null, "ln", "-sf", source.getAbsolutePath(), target.getAbsolutePath());
+    int returnValue = Forker.forkProcess(System.out, null, "ln", "-sf", source.getAbsolutePath(),
+          target.getAbsolutePath());
     if (returnValue != 0) {
-      throw new RuntimeException("Cannot create symbolic link from '" + source + "' to '"  +target + "'. Return value:" + returnValue);
+      throw new RuntimeException("Cannot create symbolic link from '" + source + "' to '" + target + "'. Return value:"
+            + returnValue);
     }
   }
 
@@ -244,14 +249,15 @@ public class FileUtils
   {
     return isChild(split(parent.getAbsoluteFile()), split(child.getAbsoluteFile()));
   }
-  
-  private static boolean isChild(List<String> parent, List<String> child) {
 
-    if(child.size() < parent.size())
+  private static boolean isChild(List<String> parent, List<String> child)
+  {
+
+    if (child.size() < parent.size())
       return false;
 
     for (int index = 0, size = parent.size(); index < size; index++)
-      if (! parent.get(index).equals(child.get(index)))
+      if (!parent.get(index).equals(child.get(index)))
         return false;
 
     return true;

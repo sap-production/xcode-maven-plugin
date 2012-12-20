@@ -37,24 +37,24 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
-  {    
+  {
     final File baseDirectory = project.getBasedir();
     final File checkoutDirectory = getCheckoutDirectory();
     final String buildDirPath = getProjectBuildDirectory();
-    
+
     getLog().info("Base directory: " + baseDirectory);
     getLog().info("Checkout directory: " + checkoutDirectory);
     getLog().info("BuildDirPath: " + buildDirPath);
-    
-    
+
     final File originalLibDir = new File(project.getBuild().getDirectory(), FolderLayout.LIBS_DIR_NAME);
     final File copyOfLibDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.LIBS_DIR_NAME);
-    
+
     final File originalHeadersDir = new File(project.getBuild().getDirectory(), FolderLayout.HEADERS_DIR_NAME);
     final File copyOfHeadersDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.HEADERS_DIR_NAME);
-    
+
     final File originalXcodeDepsDir = new File(project.getBuild().getDirectory(), FolderLayout.XCODE_DEPS_TARGET_FOLDER);
-    final File copyOfXcodeDepsDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.XCODE_DEPS_TARGET_FOLDER);
+    final File copyOfXcodeDepsDir = new File(checkoutDirectory, buildDirPath + "/"
+          + FolderLayout.XCODE_DEPS_TARGET_FOLDER);
 
     try {
 
@@ -66,23 +66,23 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
         @Override
         public boolean accept(File pathname)
         {
-          return ! (checkoutDirectory.getAbsoluteFile().equals(pathname.getAbsoluteFile()) || 
-                    originalLibDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
-                    originalHeadersDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) || 
-                    originalXcodeDepsDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()));
+          return !(checkoutDirectory.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
+                originalLibDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
+                originalHeadersDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
+          originalXcodeDepsDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()));
         }
-        
+
       });
 
-      if(originalLibDir.exists())
+      if (originalLibDir.exists())
         com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalLibDir, copyOfLibDir);
-      
-      if(originalHeadersDir.exists())
+
+      if (originalHeadersDir.exists())
         com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir, copyOfHeadersDir);
-      
-      if(originalXcodeDepsDir.exists())
+
+      if (originalXcodeDepsDir.exists())
         com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalXcodeDepsDir, copyOfXcodeDepsDir);
-       
+
     }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
@@ -90,19 +90,22 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
   }
 
   /**
-  // Return the part of the path between project base directory and project build directory.
-  // Assumption is: project build directory is located below project base directory. 
-  **/
-  private String getProjectBuildDirectory() {
-    return com.sap.prd.mobile.ios.mios.FileUtils.getDelta(project.getBasedir(), new File(project.getBuild().getDirectory()));
+   * // Return the part of the path between project base directory and project build directory. //
+   * Assumption is: project build directory is located below project base directory.
+   **/
+  private String getProjectBuildDirectory()
+  {
+    return com.sap.prd.mobile.ios.mios.FileUtils.getDelta(project.getBasedir(), new File(project.getBuild()
+      .getDirectory()));
   }
+
   private void copy(final File source, final File targetDirectory, final FileFilter excludes) throws IOException
   {
 
     for (final File sourceFile : source.listFiles()) {
       final File destFile = new File(targetDirectory, sourceFile.getName());
       if (sourceFile.isDirectory()) {
-        
+
         if (excludes.accept(sourceFile)) {
           copy(sourceFile, destFile, excludes);
         }
