@@ -32,10 +32,12 @@ public class OptionsAndSettingsTest extends XCodeTest
         testName = null;
 
   @BeforeClass
-  public static void __setup() throws Exception {
+  public static void __setup() throws Exception
+  {
 
     dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    testName = OptionsAndSettingsTest.class.getName() +  File.separator + Thread.currentThread().getStackTrace()[1].getMethodName();
+    testName = OptionsAndSettingsTest.class.getName() + File.separator
+          + Thread.currentThread().getStackTrace()[1].getMethodName();
 
     remoteRepositoryDirectory = getRemoteRepositoryDirectory(OptionsAndSettingsTest.class.getName());
 
@@ -48,7 +50,7 @@ public class OptionsAndSettingsTest extends XCodeTest
     test(testName, new File(getTestRootDirectory(), "optionsAndSettings/MyLibrary"), "compile",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
   }
-  
+
   @Test
   public void testStraightForward() throws Exception
   {

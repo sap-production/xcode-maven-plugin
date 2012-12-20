@@ -29,20 +29,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Context object for Xcode build to hold relevant data:
- * * projectName
- * * Set of configurations
- * * Set of SDKs
- * * List of buildActions
- * projectRootDirectory
- * codeSignIdentity
- * output stream
- * xcode options
+ * Context object for Xcode build to hold relevant data: * projectName * Set of configurations * Set
+ * of SDKs * List of buildActions projectRootDirectory codeSignIdentity output stream xcode options
  * xcode settings
  */
 class XCodeContext
 {
-  enum SourceCodeLocation {ORIGINAL, WORKING_COPY};
+  enum SourceCodeLocation
+  {
+    ORIGINAL, WORKING_COPY
+  };
 
   private final static String ls = System.getProperty("line.separator");
 
@@ -63,24 +59,27 @@ class XCodeContext
 
     raiseExceptionIfBuildActionsAreInvalid("buildActions", buildActions);
 
-    if(projectRootDirectory == null || !projectRootDirectory.canRead())
-      throw new IllegalArgumentException("ProjectRootDirectory '" + projectRootDirectory + "' is null or cannot be read.");
+    if (projectRootDirectory == null || !projectRootDirectory.canRead())
+      throw new IllegalArgumentException("ProjectRootDirectory '" + projectRootDirectory
+            + "' is null or cannot be read.");
 
     this.buildActions = Collections.unmodifiableList(new ArrayList<String>(buildActions));
     this.projectRootDirectory = new File(projectRootDirectory, "");
     setOut(out);
-    
-    if(settings == null) {
+
+    if (settings == null) {
       Map<String, String> userSettings = new HashMap<String, String>(), managedSettings = new HashMap<String, String>();
       this.settings = new Settings(userSettings, managedSettings);
-  } else {
+    }
+    else {
       this.settings = settings;
     }
-    
-    if(options == null) {
+
+    if (options == null) {
       Map<String, String> userOptions = new HashMap<String, String>(), managedOptions = new HashMap<String, String>();
       this.options = new Options(userOptions, managedOptions);
-    } else {
+    }
+    else {
       this.options = options;
     }
   }
@@ -117,15 +116,16 @@ class XCodeContext
     this.out = out;
   }
 
-  public String getSDK() {
+  public String getSDK()
+  {
     return getOptions().getAllOptions().get(Options.ManagedOption.SDK.getOptionName());
   }
 
-  public String getConfiguration() {
+  public String getConfiguration()
+  {
     return getOptions().getAllOptions().get(Options.ManagedOption.CONFIGURATION.getOptionName());
   }
 
-  
   public String getProvisioningProfile()
   {
     return getSettings().getAllSettings().get(Settings.ManagedSetting.PROVISIONING_PROFILE.name());
@@ -136,15 +136,17 @@ class XCodeContext
     return getOptions().getAllOptions().get(Options.ManagedOption.TARGET.getOptionName());
   }
 
-    public Options getOptions() {
-        return options;
-    }
+  public Options getOptions()
+  {
+    return options;
+  }
 
-    public Settings getSettings() {
-        return settings;
-    }
+  public Settings getSettings()
+  {
+    return settings;
+  }
 
-    @Override
+  @Override
   public String toString()
   {
     final StringBuilder sb = new StringBuilder();
@@ -159,42 +161,42 @@ class XCodeContext
   }
 
   @Override
-    public int hashCode()
-    {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((buildActions == null) ? 0 : buildActions.hashCode());
-      result = prime * result + ((options == null) ? 0 : options.hashCode());
-      result = prime * result + ((projectRootDirectory == null) ? 0 : projectRootDirectory.hashCode());
-      result = prime * result + ((settings == null) ? 0 : settings.hashCode());
-      return result;
-    }
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((buildActions == null) ? 0 : buildActions.hashCode());
+    result = prime * result + ((options == null) ? 0 : options.hashCode());
+    result = prime * result + ((projectRootDirectory == null) ? 0 : projectRootDirectory.hashCode());
+    result = prime * result + ((settings == null) ? 0 : settings.hashCode());
+    return result;
+  }
 
-    @Override
-    public boolean equals(Object obj)
-    {
-      if (this == obj) return true;
-      if (obj == null) return false;
-      if (getClass() != obj.getClass()) return false;
-      XCodeContext other = (XCodeContext) obj;
-      if (buildActions == null) {
-        if (other.buildActions != null) return false;
-      }
-      else if (!buildActions.equals(other.buildActions)) return false;
-      if (options == null) {
-        if (other.options != null) return false;
-      }
-      else if (!options.equals(other.options)) return false;
-      if (projectRootDirectory == null) {
-        if (other.projectRootDirectory != null) return false;
-      }
-      else if (!projectRootDirectory.equals(other.projectRootDirectory)) return false;
-      if (settings == null) {
-        if (other.settings != null) return false;
-      }
-      else if (!settings.equals(other.settings)) return false;
-      return true;
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    XCodeContext other = (XCodeContext) obj;
+    if (buildActions == null) {
+      if (other.buildActions != null) return false;
     }
+    else if (!buildActions.equals(other.buildActions)) return false;
+    if (options == null) {
+      if (other.options != null) return false;
+    }
+    else if (!options.equals(other.options)) return false;
+    if (projectRootDirectory == null) {
+      if (other.projectRootDirectory != null) return false;
+    }
+    else if (!projectRootDirectory.equals(other.projectRootDirectory)) return false;
+    if (settings == null) {
+      if (other.settings != null) return false;
+    }
+    else if (!settings.equals(other.settings)) return false;
+    return true;
+  }
 
   private static void raiseExceptionIfBuildActionsAreInvalid(final String key, final Collection<String> buildActions)
   {
@@ -208,12 +210,14 @@ class XCodeContext
         throw new InvalidBuildActionException("Build action array contains an invalid element (" + buildAction + ").");
     }
   }
-  
-  static class InvalidBuildActionException extends IllegalArgumentException {
-    
+
+  static class InvalidBuildActionException extends IllegalArgumentException
+  {
+
     private static final long serialVersionUID = 6635006296438188082L;
 
-    InvalidBuildActionException(String message) {
+    InvalidBuildActionException(String message)
+    {
       super(message);
     }
   }

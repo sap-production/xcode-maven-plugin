@@ -40,15 +40,16 @@ public class UpdateVersionInPListTaskTest
 {
 
   private final static DefaultLog log = new DefaultLog(new ConsoleLogger(ConsoleLogger.LEVEL_DEBUG, "MyLogger"));
-  
+
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
-  
+
   private File infoPListMaster = new File("src/test/resources/MyApp-Info.plist");
   private File infoPlist = null;
-  
+
   @Before
-  public void setup() throws IOException {
+  public void setup() throws IOException
+  {
 
     infoPlist = tmpFolder.newFile(infoPListMaster.getName());
     FileUtils.copyFile(infoPListMaster, infoPlist);
@@ -56,31 +57,34 @@ public class UpdateVersionInPListTaskTest
 
   @Test
   public void testUpdateCFBundleShortVersionString() throws Exception
-  {    
+  {
     final String newVersion = "1.2." + System.currentTimeMillis();
-    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newVersion).setLog(log).execute();
+    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newVersion).setLog(log)
+      .execute();
     assertVersion("CFBundleShortVersionString", newVersion, infoPlist);
   }
 
   @Test
   public void testUpdateCFBundleShortVersionStringWithSnapshotVersion() throws Exception
-  {    
+  {
     final String newVersion = "1.2." + System.currentTimeMillis();
     final String newSnapshotVersion = newVersion + "-SNAPSHOT";
-    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newSnapshotVersion).setLog(log).execute();
+    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newSnapshotVersion)
+      .setLog(log).execute();
     assertVersion("CFBundleShortVersionString", newVersion, infoPlist);
   }
 
   public void testUpdateCFBundleShortVersionStringWithFourDotVersion() throws Exception
-  {    
+  {
     final String newVersion = "1.2.3." + System.currentTimeMillis();
-    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newVersion).setLog(log).execute();
+    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newVersion).setLog(log)
+      .execute();
     assertVersion("CFBundleVersion", "1.2.3", infoPlist);
   }
-  
+
   @Test
   public void testUpdateCFBundleVersion() throws Exception
-  {    
+  {
     final String newVersion = "1.2." + System.currentTimeMillis();
     new UpdateCFBundleVersionInPListTask().setPListFile(infoPlist).setVersion(newVersion).setLog(log).execute();
     assertVersion("CFBundleVersion", newVersion, infoPlist);
@@ -88,42 +92,46 @@ public class UpdateVersionInPListTaskTest
 
   @Test
   public void testUpdateCFBundleVersionWithSnapshotVersion() throws Exception
-  {    
+  {
     final String newVersionWithoutSnapshot = "1.2." + System.currentTimeMillis();
     final String newVersionWithSnapshot = newVersionWithoutSnapshot + "-SNAPSHOT";
-    new UpdateCFBundleVersionInPListTask().setPListFile(infoPlist).setVersion(newVersionWithSnapshot).setLog(log).execute();
+    new UpdateCFBundleVersionInPListTask().setPListFile(infoPlist).setVersion(newVersionWithSnapshot).setLog(log)
+      .execute();
     assertVersion("CFBundleVersion", newVersionWithoutSnapshot, infoPlist);
   }
 
-  
-  private static void assertVersion(final String key, final String version, final File infoPList) throws IOException {
+  private static void assertVersion(final String key, final String version, final File infoPList) throws IOException
+  {
 
     //<key>CFBundleVersion</key>
     //<string>1.2.3</string>
-    
+
     final BufferedReader br = new BufferedReader(new FileReader(infoPList));
 
     String versionInPlist = null;
-    
+
     try {
-      for(String line; (line = br.readLine()) != null; ) {
-        if(!line.trim().equals("<key>" + key + "</key>")) {
+      for (String line; (line = br.readLine()) != null;) {
+        if (!line.trim().equals("<key>" + key + "</key>")) {
           continue;
-        } 
+        }
         else {
           versionInPlist = br.readLine();
           break;
         }
       }
-      
-      if(versionInPlist != null) {      
-        assertEquals("Version update in plist file did not succeed.", "<string>" + version + "</string>", versionInPlist.trim());
-      } else {
+
+      if (versionInPlist != null) {
+        assertEquals("Version update in plist file did not succeed.", "<string>" + version + "</string>",
+              versionInPlist.trim());
+      }
+      else {
         fail(key + " not found in plist.");
       }
 
-    } finally {
-        IOUtils.closeQuietly(br);
-    }    
+    }
+    finally {
+      IOUtils.closeQuietly(br);
+    }
   }
 }

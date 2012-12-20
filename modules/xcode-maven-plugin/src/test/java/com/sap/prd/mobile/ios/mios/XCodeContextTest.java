@@ -40,7 +40,6 @@ public class XCodeContextTest
 
   private static File projectDirectory;
 
-
   @BeforeClass
   public static void setup()
   {
@@ -67,7 +66,6 @@ public class XCodeContextTest
     final XCodeContext xCodeContext = new XCodeContext(Arrays.asList("clean",
           "build"), projectDirectory, System.out, settings, options);
 
-    
     assertEquals(projectName, xCodeContext.getProjectName());
     assertArrayEquals(new String[] { "clean", "build" }, xCodeContext.getBuildActions().toArray());
     assertEquals("MyCodeSignIdentity", xCodeContext.getCodeSignIdentity());
@@ -106,7 +104,8 @@ public class XCodeContextTest
     Options options = new Options(null, managedOptions);
     try {
       new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null, options);
-    } catch(Options.IllegalOptionException ex) {
+    }
+    catch (Options.IllegalOptionException ex) {
 
       assertEquals(Options.ManagedOption.PROJECT, ex.getViolated());
       throw ex;
@@ -118,12 +117,12 @@ public class XCodeContextTest
   {
     try {
       new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null, null);
-    } catch(Options.IllegalOptionException ex) {
+    }
+    catch (Options.IllegalOptionException ex) {
       assertEquals(Options.ManagedOption.PROJECT, ex.getViolated());
       throw ex;
     }
-   }
-
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testXCodeContextWithoutPrintStream()
@@ -140,7 +139,8 @@ public class XCodeContextTest
     managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLibrary.xcodeproj");
     Options options = new Options(null, managedOptions);
 
-    final XCodeContext xCodeContext = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory,System.out, null, options);
+    final XCodeContext xCodeContext = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out,
+          null, options);
     Assert.assertNull(xCodeContext.getCodeSignIdentity());
   }
 
@@ -156,13 +156,14 @@ public class XCodeContextTest
     HashMap<String, String> managedSettings = new HashMap<String, String>();
     managedSettings.put(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name(), "");
     Settings settings = new Settings(null, managedSettings);
-    
-    XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, settings, options);
-    
+
+    XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, settings,
+          options);
+
     assertEquals("", context.getCodeSignIdentity());
-    
+
   }
-  
+
   @Test
   public void testProvisioningProfileIsNull() throws Exception
   {
@@ -172,10 +173,11 @@ public class XCodeContextTest
     managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLibrary.xcodeproj");
     Options options = new Options(null, managedOptions);
 
-    final XCodeContext xCodeContext = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null, options);
+    final XCodeContext xCodeContext = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out,
+          null, options);
     Assert.assertNull(xCodeContext.getProvisioningProfile());
   }
-  
+
   @Test
   public void testIsImmutable() throws Exception
   {
@@ -190,7 +192,7 @@ public class XCodeContextTest
     HashMap<String, String> managedSettings = new HashMap<String, String>();
     managedSettings.put(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name(), "");
     Settings settings = new Settings(userSettings, managedSettings);
-    
+
     List<String> buildActions = new ArrayList<String>(Arrays.asList("clean", "build"));
 
     File _projectDir = new File(projectDirectory.getParentFile().getCanonicalFile(), "MyLib2");

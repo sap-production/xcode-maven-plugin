@@ -44,13 +44,16 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
     final String sdk = "iphoneos";
     String productName = getProductName(getPrimaryFmwkConfiguration(), sdk);
     String builtProductsDirName = null;
-    
+
     try {
-      builtProductsDirName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, getPrimaryFmwkConfiguration(), sdk), getLog(), EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
-    } catch(XCodeException ex) {
+      builtProductsDirName = EffectiveBuildSettings.getBuildSetting(
+            getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, getPrimaryFmwkConfiguration(), sdk),
+            getLog(), EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+    }
+    catch (XCodeException ex) {
       throw new MojoExecutionException(ex.getMessage(), ex);
     }
-    
+
     File builtProductsDir = new File(builtProductsDirName);
     String fmwkDirName = productName + ".framework";
     File fmwkDir = new File(builtProductsDir, fmwkDirName);

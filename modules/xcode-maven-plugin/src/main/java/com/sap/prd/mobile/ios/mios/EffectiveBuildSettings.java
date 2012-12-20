@@ -43,51 +43,55 @@ class EffectiveBuildSettings
   static final String INFOPLIST_FILE = "INFOPLIST_FILE";
   static final String PUBLIC_HEADERS_FOLDER_PATH = "PUBLIC_HEADERS_FOLDER_PATH";
   static final String BUILT_PRODUCTS_DIR = "BUILT_PRODUCTS_DIR";
-  
+
   private final static Map<XCodeContext, Properties> buildSettings = new HashMap<XCodeContext, Properties>();
-  
+
   static String getBuildSetting(XCodeContext context, Log log, String key) throws XCodeException
   {
     String buildSetting = getBuildSettings(context, log).getProperty(key);
     debug(log, "Build settings for context '" + context + "'. Key: '" + key + "' resolved to: " + buildSetting);
     return buildSetting;
   }
-  
-  private static synchronized Properties getBuildSettings(final XCodeContext context, final Log log) throws XCodeException {
-    
+
+  private static synchronized Properties getBuildSettings(final XCodeContext context, final Log log)
+        throws XCodeException
+  {
+
     Properties _buildSettings = buildSettings.get(context);
-    
-    if(_buildSettings == null) {
+
+    if (_buildSettings == null) {
       _buildSettings = extractBuildSettings(context);
       buildSettings.put(context, _buildSettings);
       log.info("Build settings for context: " + context + " loaded:" + toString(_buildSettings));
-    }else{
+    }
+    else {
       debug(log, "Build settings for key: '" + context + " found in cache.");
     }
-      
+
     return _buildSettings;
   }
-  
+
   private static String toString(Properties buildSettings)
   {
     String ls = System.getProperty("line.separator");
     StringBuilder sb = new StringBuilder(ls);
-    
-    for(Map.Entry<?, ?> e : buildSettings.entrySet()) {
+
+    for (Map.Entry<?, ?> e : buildSettings.entrySet()) {
       sb.append(e.getKey()).append("=").append(e.getValue()).append(ls);
     }
     return sb.toString();
   }
 
-  private static Properties extractBuildSettings(final XCodeContext context) throws  XCodeException
-  { 
+  private static Properties extractBuildSettings(final XCodeContext context) throws XCodeException
+  {
     List<String> buildActions = Collections.emptyList();
     Options options = context.getOptions();
     Map<String, String> managedOptions = new HashMap<String, String>(options.getManagedOptions());
     managedOptions.put(Options.ManagedOption.SHOWBUILDSETTINGS.getOptionName(), null);
 
-    XCodeContext showBuildSettingsContext = new XCodeContext(buildActions, context.getProjectRootDirectory(), context.getOut(), context.getSettings(), new Options(options.getUserOptions(), managedOptions));
-    
+    XCodeContext showBuildSettingsContext = new XCodeContext(buildActions, context.getProjectRootDirectory(),
+          context.getOut(), context.getSettings(), new Options(options.getUserOptions(), managedOptions));
+
     final CommandLineBuilder cmdLineBuilder = new CommandLineBuilder(showBuildSettingsContext);
     PrintStream out = null;
     ByteArrayOutputStream os = null;
@@ -99,7 +103,7 @@ class EffectiveBuildSettings
             cmdLineBuilder.createBuildCall());
 
       if (returnValue != 0) {
-        if(out != null)
+        if (out != null)
           out.flush();
         throw new XCodeException("Could not execute xcodebuild -showBuildSettings command for configuration "
               + context.getConfiguration() + " and sdk " + context.getSDK() + ": " + new String(os.toByteArray()));
@@ -110,15 +114,17 @@ class EffectiveBuildSettings
       prop.load(new ByteArrayInputStream(os.toByteArray()));
       return prop;
 
-    } catch(IOException ex) {
+    }
+    catch (IOException ex) {
       throw new XCodeException("Cannot extract build properties: " + ex.getMessage(), ex);
     }
     finally {
       IOUtils.closeQuietly(out);
     }
   }
-  
-  private static void debug(Log log, String message) {
+
+  private static void debug(Log log, String message)
+  {
     log.debug(EffectiveBuildSettings.class.getName() + ": " + message);
   }
 }

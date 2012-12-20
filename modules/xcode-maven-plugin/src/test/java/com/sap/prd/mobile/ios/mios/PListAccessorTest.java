@@ -114,7 +114,7 @@ public class PListAccessorTest extends XCodeTest
     assertNull(plist.getStringValue("foo"));
   }
 
-  @Test(expected=IllegalStateException.class)
+  @Test(expected = IllegalStateException.class)
   public void writeStringToNonExistingKey() throws IOException
   {
     plist.updateStringValue("foo", "com.sap.myapp.internal");
@@ -125,12 +125,12 @@ public class PListAccessorTest extends XCodeTest
     appId = plist.getStringValue("foo");
     assertEquals("com.sap.myapp.internal", appId);
   }
-  
+
   @Test
   public void testAddEntry() throws Exception
   {
-   plist.addStringValue("hugo", "test");
-   assertEquals("test", plist.getStringValue("hugo"));
+    plist.addStringValue("hugo", "test");
+    assertEquals("test", plist.getStringValue("hugo"));
   }
 
 }

@@ -33,13 +33,12 @@ public class FatLibAnalyzerTest
   public void testRetrieveArchitectures() throws Exception
   {
     Set<String> architectures = createFatLibAnalyzer().getArchitectures();
-    
+
     assertTrue(architectures.size() == 2);
     assertTrue(architectures.contains("armv7"));
     assertTrue(architectures.contains("i386"));
   }
 
-  
   @Test
   public void testContainsI386() throws Exception
   {
@@ -51,7 +50,7 @@ public class FatLibAnalyzerTest
   {
     assertTrue(createFatLibAnalyzer().containsArmv());
   }
-  
+
   private static FatLibAnalyzer createFatLibAnalyzer()
   {
     return new FatLibAnalyzer(new File(".", "src/test/resources/libMyLibrary.a"));

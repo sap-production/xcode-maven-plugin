@@ -69,7 +69,7 @@ public class UpdateVersionInPomMojo extends BuildContextAwareMojo
       Model model = readPom(pom);
 
       String oldVersion = model.getVersion();
-      
+
       if (oldVersion != null && oldVersion.equals(version))
       {
         getLog().info("! XCode version matches pom version. No update needed.");
@@ -133,13 +133,15 @@ public class UpdateVersionInPomMojo extends BuildContextAwareMojo
 
         String _version = null;
 
-        String infoPListFileName = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(), EffectiveBuildSettings.INFOPLIST_FILE);
-        if(infoPListFileName == null || infoPListFileName.isEmpty())
+        String infoPListFileName = EffectiveBuildSettings.getBuildSetting(
+              getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(),
+              EffectiveBuildSettings.INFOPLIST_FILE);
+        if (infoPListFileName == null || infoPListFileName.isEmpty())
           throw new XCodeException("Cannot retrieve info plist file from Build settings.");
-        
+
         final File sourceDir = getXCodeSourceDirectory();
         getLog().info("Xcode source directory is: '" + sourceDir + "'.");
-        
+
         File infoPList = new File(sourceDir, infoPListFileName);
         getLog().info("InfoPList file is: '" + infoPList + "'.");
 

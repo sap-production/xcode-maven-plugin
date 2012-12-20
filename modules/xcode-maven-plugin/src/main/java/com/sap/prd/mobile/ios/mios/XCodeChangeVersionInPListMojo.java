@@ -28,13 +28,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 /**
- * Updates the properties CFBundleVersion and CFBundleShortVersionString inside the plist file(s) that is/are denoted for
- * the given configurations and sdks. The version is updated with a version derived from the maven project version.
- * For CFBundleVersion all version parts containing only numbers are retained. The leading numbers of the first
- * version part containing characters are also retained. Any subsequent version part is ommited.
+ * Updates the properties CFBundleVersion and CFBundleShortVersionString inside the plist file(s)
+ * that is/are denoted for the given configurations and sdks. The version is updated with a version
+ * derived from the maven project version. For CFBundleVersion all version parts containing only
+ * numbers are retained. The leading numbers of the first version part containing characters are
+ * also retained. Any subsequent version part is ommited.
  * 
- * For CFBundleShortVersion the same strategy as described for CFBundleVersion applies. Additionally the version is truncated
- * so that it consists of three numbers separated by two dots.
+ * For CFBundleShortVersion the same strategy as described for CFBundleVersion applies. Additionally
+ * the version is truncated so that it consists of three numbers separated by two dots.
  * 
  * @goal change-versions-in-plist
  * @since 1.7.0
@@ -42,19 +43,21 @@ import org.apache.maven.plugin.MojoFailureException;
 public class XCodeChangeVersionInPListMojo extends BuildContextAwareMojo
 {
   /**
-   * If this parameter is set to <code>true</code> no version will be transferred into the Xcode project.
+   * If this parameter is set to <code>true</code> no version will be transferred into the Xcode
+   * project.
+   * 
    * @parameter expression="${xcode.skipVersionUpdate}" default-value="false"
    */
   private boolean skipVersionUpdate;
-  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    if(skipVersionUpdate) {
+    if (skipVersionUpdate) {
       getLog().info("Update of versions in info plist will be skipped.");
       return;
     }
-    
+
     final Collection<File> alreadyUpdatedPlists = new HashSet<File>();
 
     Collection<UpdateVersionInPListTask> updateTasks = new HashSet<UpdateVersionInPListTask>(Arrays.asList(
@@ -73,19 +76,22 @@ public class XCodeChangeVersionInPListMojo extends BuildContextAwareMojo
         if (alreadyUpdatedPlists.contains(infoPlistFile)) {
           getLog().debug("Version in PList file '" + infoPlistFile.getName()
                 + "' was already updated for another configuration. This file will be skipped.");
-        } else {
-          
-          try { 
-            
+        }
+        else {
+
+          try {
+
             ensurePListFileIsWritable(infoPlistFile);
-            
-            for(UpdateVersionInPListTask updateVersionInPListTask : updateTasks) {
-              updateVersionInPListTask.setPListFile(infoPlistFile).setVersion(project.getVersion()).setLog(getLog()).execute();
+
+            for (UpdateVersionInPListTask updateVersionInPListTask : updateTasks) {
+              updateVersionInPListTask.setPListFile(infoPlistFile).setVersion(project.getVersion()).setLog(getLog())
+                .execute();
             }
-            
+
             alreadyUpdatedPlists.add(infoPlistFile);
 
-          } catch(XCodeException ex) {
+          }
+          catch (XCodeException ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
           }
         }
@@ -94,7 +100,7 @@ public class XCodeChangeVersionInPListMojo extends BuildContextAwareMojo
   }
 
   private void ensurePListFileIsWritable(File pListFile) throws XCodeException
-  {    
+  {
     if (!pListFile.canWrite()) {
       if (!pListFile.setWritable(true, true))
         throw new XCodeException("Could not make plist file '" + pListFile + "' writable.");

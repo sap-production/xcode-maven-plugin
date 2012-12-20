@@ -44,7 +44,7 @@ public class XCodeDSymTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-    
+
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"),
           "deploy", THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);

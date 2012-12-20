@@ -166,7 +166,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     }
 
     final File versionsPlistFile = new File(project.getBuild().getDirectory(), "versions.plist");
-    if (versionsPlistFile.exists()){
+    if (versionsPlistFile.exists()) {
       versionsPlistFile.delete();
     }
     try {
@@ -230,9 +230,9 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           final ExecResult originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
 
           FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);
-          getLog().info("Versions.xml file copied from: '" + versionsXmlInBuild + " ' to ' "+ versionsXmlInApp);
+          getLog().info("Versions.xml file copied from: '" + versionsXmlInBuild + " ' to ' " + versionsXmlInApp);
           FileUtils.copyFile(versionsPListInBuild, versionsPListInApp);
-          getLog().info("Versions.plist file copied from: '" + versionsPListInBuild + " ' to ' "+ versionsPListInApp);
+          getLog().info("Versions.plist file copied from: '" + versionsPListInBuild + " ' to ' " + versionsPListInApp);
 
           sign(rootDir, configuration, sdk);
 
@@ -247,11 +247,14 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     }
   }
 
-
   private void sign(File rootDir, String configuration, String sdk) throws IOException, XCodeException
   {
-    String csi = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(), EffectiveBuildSettings.CODE_SIGN_IDENTITY);
-    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(), EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
+    String csi = EffectiveBuildSettings.getBuildSetting(
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(),
+          EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(),
+          EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
     CodeSignManager.sign(csi, appFolder, true);
   }
 

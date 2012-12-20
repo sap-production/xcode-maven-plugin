@@ -75,7 +75,7 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
           throw new MojoExecutionException(e.getMessage(), e);
         }
         catch (XCodeException e) {
-          throw new MojoExecutionException(e.getMessage(), e);          
+          throw new MojoExecutionException(e.getMessage(), e);
         }
       }
     }
@@ -90,7 +90,9 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
 
     final String fixedProductName = getFixedProductName(productName);
 
-    String generateDSym = EffectiveBuildSettings.getBuildSetting(getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, config, sdk), getLog(), EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
+    String generateDSym = EffectiveBuildSettings.getBuildSetting(
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, config, sdk), getLog(),
+          EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
     if (generateDSym == null || generateDSym.equalsIgnoreCase("YES")) {
 

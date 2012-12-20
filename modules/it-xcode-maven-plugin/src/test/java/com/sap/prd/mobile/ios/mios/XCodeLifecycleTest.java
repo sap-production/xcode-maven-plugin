@@ -35,7 +35,7 @@ import org.apache.maven.it.Verifier;
 import org.junit.Test;
 
 public class XCodeLifecycleTest extends XCodeTest
-{  
+{
   @Test
   public void testDontUseSymbolicLinksForSnapshotDependencies() throws Exception
   {
@@ -47,17 +47,19 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." +  String.valueOf(System.currentTimeMillis()));
-    
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
+
     test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
 
-    Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward-with-snapshot-dependency/MyApp"), "deploy",
+    Verifier verifier = test(testName, new File(getTestRootDirectory(),
+          "straight-forward-with-snapshot-dependency/MyApp"), "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
-    
-    assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
+
+    assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir()
+          + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
   }
 
   @Test
@@ -81,7 +83,7 @@ public class XCodeLifecycleTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
-    
+
     try {
       test(verifier, testName, projectDirectory, "deploy", THE_EMPTY_LIST, additionalSystemProperties,
             pomReplacements);
@@ -119,7 +121,7 @@ public class XCodeLifecycleTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-    
+
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
@@ -150,7 +152,7 @@ public class XCodeLifecycleTest extends XCodeTest
   {
     final String testName = getTestName();
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    
+
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -179,7 +181,7 @@ public class XCodeLifecycleTest extends XCodeTest
   {
     final String testName = getTestName();
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    
+
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -187,7 +189,7 @@ public class XCodeLifecycleTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-    
+
     test(testName, new File(getTestRootDirectory(), "deviant-source-directory-2/MyLibrary"), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
 
@@ -205,21 +207,22 @@ public class XCodeLifecycleTest extends XCodeTest
   public void testInitializeTwice() throws Exception
   {
     final String testName = getTestName();
-  
+
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
-  
+
     prepareRemoteRepository(remoteRepositoryDirectory);
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
-    
+
     test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "install",
           THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
-    
-    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), Arrays.asList(new String[] {"initialize", "initialize"}),
-          THE_EMPTY_LIST, 
+
+    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
+          Arrays.asList(new String[] { "initialize", "initialize" }),
+          THE_EMPTY_LIST,
           THE_EMPTY_MAP, pomReplacements);
   }
 }

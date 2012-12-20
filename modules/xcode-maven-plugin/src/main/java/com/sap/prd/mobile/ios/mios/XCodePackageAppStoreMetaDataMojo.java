@@ -40,7 +40,6 @@ import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 public class XCodePackageAppStoreMetaDataMojo extends BuildContextAwareMojo
 {
 
-
   /**
    * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
    * @required
@@ -54,7 +53,7 @@ public class XCodePackageAppStoreMetaDataMojo extends BuildContextAwareMojo
 
   /**
    * The folders which contains additional metatdata needed for the upload of the app into AppStore.
-   *  
+   * 
    * @parameter expression="${xcode.appStoreMetadataDirectory}"
    *            default-value="${project.basedir}/src/AppStoreMetadata";
    */
@@ -115,8 +114,9 @@ public class XCodePackageAppStoreMetaDataMojo extends BuildContextAwareMojo
     String bundleIdentifier = null;
     for (String configuration : getConfigurations()) {
       try {
-        
-        PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.ORIGINAL, configuration, "iphoneos");
+
+        PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.ORIGINAL, configuration,
+              "iphoneos");
         String _bundleIdentifier = plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
 
         if (bundleIdentifier == null)

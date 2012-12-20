@@ -45,11 +45,11 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
   {
     final String testName = getTestName();
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    
+
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
-    
+
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
@@ -72,8 +72,8 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
           THE_EMPTY_MAP, pomReplacements);
 
     File versionFileAppExpected = new File("src/test/resources/MyApp-1.0.0-without-dependent-info-versions.xml")
-      .getAbsoluteFile();    
-    
+      .getAbsoluteFile();
+
     File versionFileApp = new File(remoteRepositoryDirectory,
           Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion
                 + "-versions.xml");
@@ -83,7 +83,8 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
           versionFileAppExpected);
 
     try {
-      Assert.assertEquals(IOUtil.toString(expectedVersionFileApp, "UTF-8").replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion),
+      Assert.assertEquals(
+            IOUtil.toString(expectedVersionFileApp, "UTF-8").replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion),
             IOUtil.toString(actualVersionFileApp, "UTF-8"));
     }
     finally {

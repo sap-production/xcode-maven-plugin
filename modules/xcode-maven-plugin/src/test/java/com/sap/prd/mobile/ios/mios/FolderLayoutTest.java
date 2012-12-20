@@ -47,7 +47,8 @@ public class FolderLayoutTest
 
     final File f = new File(".").getAbsoluteFile();
     assertEquals(new File(f, "headers/Release-iphoneos/groupId/artifactId"),
-          FolderLayout.getFolderForExtractedHeadersWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId"));
+          FolderLayout
+            .getFolderForExtractedHeadersWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId"));
   }
 
   @Test

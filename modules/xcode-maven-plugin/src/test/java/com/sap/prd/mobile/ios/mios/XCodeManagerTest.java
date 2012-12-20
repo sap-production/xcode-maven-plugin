@@ -72,7 +72,8 @@ public class XCodeManagerTest extends XCodeTest
     managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
     managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "iphoneos");
     Options options = new Options(null, managedOptions);
-    final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), new File(projectDirectory, "MyLibrary/src/xcode"), System.out, null, options);
+    final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), new File(projectDirectory,
+          "MyLibrary/src/xcode"), System.out, null, options);
 
     Log log = EasyMock.createMock(Log.class);
     MavenProject mavenProject = EasyMock.createMock(MavenProject.class);
@@ -81,7 +82,7 @@ public class XCodeManagerTest extends XCodeTest
     EasyMock.expect(mavenProject.getBuild()).andStubReturn(build);
     EasyMock.expect(build.getDirectory()).andStubReturn("");
 
-    EasyMock.expect(mavenProject.getCompileArtifacts()).andStubReturn(Arrays.asList((Artifact)null));
+    EasyMock.expect(mavenProject.getCompileArtifacts()).andStubReturn(Arrays.asList((Artifact) null));
 
     EasyMock.replay(build, mavenProject);
 
@@ -109,17 +110,18 @@ public class XCodeManagerTest extends XCodeTest
     EasyMock.expect(mavenProject.getBuild()).andStubReturn(build);
     EasyMock.expect(build.getDirectory()).andStubReturn("");
 
-    EasyMock.expect(mavenProject.getCompileArtifacts()).andStubReturn(Arrays.asList((Artifact)null));
+    EasyMock.expect(mavenProject.getCompileArtifacts()).andStubReturn(Arrays.asList((Artifact) null));
 
     EasyMock.replay(build, mavenProject);
 
     Map<String, String> managedOptions = new HashMap<String, String>();
     managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "NON-EXISTNG_CONFIGURATION");
     managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "iphoneos");
-    
+
     Options options = new Options(null, managedOptions);
-    final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null, options);
-    new XCodeManager(log). callXcodeBuild(context);
+    final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null,
+          options);
+    new XCodeManager(log).callXcodeBuild(context);
 
   }
 
@@ -134,7 +136,7 @@ public class XCodeManagerTest extends XCodeTest
     EasyMock.expect(mavenProject.getBuild()).andStubReturn(build);
     EasyMock.expect(build.getDirectory()).andStubReturn("");
 
-    EasyMock.expect(mavenProject.getCompileArtifacts()).andStubReturn(Arrays.asList((Artifact)null));
+    EasyMock.expect(mavenProject.getCompileArtifacts()).andStubReturn(Arrays.asList((Artifact) null));
 
     EasyMock.replay(build, mavenProject);
 
@@ -142,7 +144,7 @@ public class XCodeManagerTest extends XCodeTest
     managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
     managedOptions.put(Options.ManagedOption.SDK.getOptionName(), "iphoneos");
     managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLibrary.xcodeproj");
-    
+
     Options options = new Options(null, managedOptions);
     final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, new PrintStream(
           new ByteArrayOutputStream()) {

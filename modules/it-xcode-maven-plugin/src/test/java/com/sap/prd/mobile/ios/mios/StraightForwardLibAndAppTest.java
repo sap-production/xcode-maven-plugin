@@ -47,20 +47,23 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   private static File remoteRepositoryDirectory = null, appTestBaseDir = null;
   private static String dynamicVersion = null,
         myLibArtifactFilePrefix = null,
-        testName = null, 
-        myAppVersionRepoDir = null, 
+        testName = null,
+        myAppVersionRepoDir = null,
         myAppArtifactFilePrefix = null;
 
   private static Verifier appVerifier = null;
-  
+
   private static File extractedIpaFolder = null, appstoreFolder = null, archiveArtifactsDir;
-  
+
   @BeforeClass
-  public static void __setup() throws Exception {
+  public static void __setup() throws Exception
+  {
 
     dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    myLibArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion;
-    testName = StraightForwardLibAndAppTest.class.getName() +  File.separator + Thread.currentThread().getStackTrace()[1].getMethodName();
+    myLibArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + dynamicVersion + "/MyLibrary-"
+          + dynamicVersion;
+    testName = StraightForwardLibAndAppTest.class.getName() + File.separator
+          + Thread.currentThread().getStackTrace()[1].getMethodName();
 
     remoteRepositoryDirectory = getRemoteRepositoryDirectory(StraightForwardLibAndAppTest.class.getName());
 
@@ -76,14 +79,13 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     additionalSystemProperties.put("xcode.app.defaultSdks", "iphoneos");
     additionalSystemProperties.put("archive.dir", "archive");
 
-    
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
-    
+
     appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
-          additionalSystemProperties, pomReplacements);    
+          additionalSystemProperties, pomReplacements);
 
     myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
     myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
@@ -105,61 +107,65 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     appTestBaseDir = new File(appVerifier.getBasedir());
 
     archiveArtifactsDir = new File(appTestBaseDir, "archive/artifacts/com.sap.ondevice.production.ios.tests/MyApp");
-}
+  }
 
   @Test
   public void testExistsHeaders() throws Exception
   {
-    String[] configurations = new String[] {"Release", "Debug"};
-    String[] sdks = new String[] {"iphoneos", "iphonesimulator"};
-    
-    for(String configuration : configurations) {
+    String[] configurations = new String[] { "Release", "Debug" };
+    String[] sdks = new String[] { "iphoneos", "iphonesimulator" };
+
+    for (String configuration : configurations) {
       for (String sdk : sdks) {
-        File headersTarFile = new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-" + configuration + "-" + sdk + ".headers.tar");
-        assertTrue("Headers tar file '" + headersTarFile + "' for sdk '" + sdk + "' and configuration '" + configuration + "' does not exist.", headersTarFile.exists());
-    
+        File headersTarFile = new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-" + configuration + "-"
+              + sdk + ".headers.tar");
+        assertTrue("Headers tar file '" + headersTarFile + "' for sdk '" + sdk + "' and configuration '"
+              + configuration + "' does not exist.", headersTarFile.exists());
+
       }
     }
   }
-  
+
   @Test
   public void testExistsBundles() throws Exception
   {
-    String[] bundles = new String[] {"MyLibrary", "MyLibrary.raw", "Resources~Another"};
-    
-    for(String bundle : bundles) {
-    
+    String[] bundles = new String[] { "MyLibrary", "MyLibrary.raw", "Resources~Another" };
+
+    for (String bundle : bundles) {
+
       File _bundle = new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-" + bundle + ".xcode-bundle-zip");
       assertTrue("Bundle file '" + _bundle + "' for bundle'" + bundle + "' does not exist.", _bundle.exists());
     }
   }
-  
+
   @Test
   public void testFatLibrariesExists() throws Exception
   {
-    String[] configurations = new String[] {"Release", "Debug"};
-    
-    for(String configuration : configurations) {
+    String[] configurations = new String[] { "Release", "Debug" };
+
+    for (String configuration : configurations) {
       File fatLib = new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-Release-fat-binary.a");
-      assertTrue("Fat library '" + fatLib + "' for configuration '" + configuration + "' does not exist.", fatLib.exists());
+      assertTrue("Fat library '" + fatLib + "' for configuration '" + configuration + "' does not exist.",
+            fatLib.exists());
     }
   }
-  
+
   @Test
   public void testVersionsFile() throws Exception
   {
     File versionFileLib = new File(remoteRepositoryDirectory, myLibArtifactFilePrefix + "-versions.xml");
     assertTrue(versionFileLib.exists());
-    compareFilesContainingDynamicVersions(dynamicVersion, new File(".", "src/test/resources/MyLibrary-versions.xml").getAbsoluteFile(), versionFileLib);    
+    compareFilesContainingDynamicVersions(dynamicVersion,
+          new File(".", "src/test/resources/MyLibrary-versions.xml").getAbsoluteFile(), versionFileLib);
   }
-  
+
   @Test
   public void testVersionFile() throws Exception
   {
     File versionFileApp = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-versions.xml");
     assertTrue(versionFileApp.exists());
     File versionsTestFile = new File("src/test/resources/MyApp-versions.xml");
-    compareFilesContainingDynamicVersions(dynamicVersion, versionsTestFile, versionFileApp);    
+    compareFilesContainingDynamicVersions(dynamicVersion, versionsTestFile, versionFileApp);
   }
 
   @Test
@@ -168,12 +174,12 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     // we built only the Xcode config Release for iphoneos SDK. All other combinations must not exist:
     assertTrue(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-Release-iphoneos.ipa").exists());
   }
-  
+
   @Test
   public void testIpaDebugIPhoneOsDoesNotExist() throws Exception
   {
     // we built only the Xcode config Release for iphoneos SDK. All other combinations must not exist:
-    assertFalse(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-Debug-iphoneos.ipa").exists());    
+    assertFalse(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-Debug-iphoneos.ipa").exists());
   }
 
   @Test
@@ -187,23 +193,25 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   public void testIpaDebugIPhoneSimulatorDoesNotExist() throws Exception
   {
     // we built only the Xcode config Release for iphoneos SDK. All other combinations must not exist:
-    assertFalse(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-Debug-iphonesimulator.ipa").exists());    
+    assertFalse(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-Debug-iphonesimulator.ipa").exists());
   }
 
   @Test
   public void testResourceRulesExistsInsideIPA() throws Exception
   {
     File resourceRulesPlistFile = new File(extractedIpaFolder, "Payload/MyApp.app/ResourceRules.plist");
-    assertTrue("ResourceRules pList file '" + resourceRulesPlistFile + "' does not exist.", resourceRulesPlistFile.isFile());    
+    assertTrue("ResourceRules pList file '" + resourceRulesPlistFile + "' does not exist.",
+          resourceRulesPlistFile.isFile());
   }
 
   @Test
   public void testAppNameInAppStoreUploadFile() throws Exception
   {
     File[] files = appstoreFolder.listFiles();
-    assertTrue("MyApp.app folder is missing in AppstoreUploadFile.", files.length == 1 && files[0].getName().equals("MyApp.app"));    
+    assertTrue("MyApp.app folder is missing in AppstoreUploadFile.",
+          files.length == 1 && files[0].getName().equals("MyApp.app"));
   }
-  
+
   @Test
   public void testVersionsFileXMLInApplicationFile() throws Exception
   {
@@ -228,18 +236,17 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     compareFilesContainingDynamicVersions(dynamicVersion, versionsTestPListFile, versionsPListInAppZip);
   }
 
-  
   @Test
   public void testVerifyCodesignIdentityInIpa() throws Exception
   {
     CodeSignManager.verify(new File(extractedIpaFolder, "Payload/MyApp.app"));
-    CodeSignManager.verify(new File(appstoreFolder, "MyApp.app"));    
+    CodeSignManager.verify(new File(appstoreFolder, "MyApp.app"));
   }
 
   @Test
   public void testVerifyCodesignIdentityInAppstoreFolder() throws Exception
   {
-    CodeSignManager.verify(new File(appstoreFolder, "MyApp.app"));    
+    CodeSignManager.verify(new File(appstoreFolder, "MyApp.app"));
   }
 
   @Test
@@ -254,10 +261,11 @@ public class StraightForwardLibAndAppTest extends XCodeTest
 
     final String otaFileNameSuffix = appIdSuffix == null ? "-iphoneos-ota.htm" : "-" + appIdSuffix
           + "-iphoneos-ota.htm";
-    compareFilesContainingDynamicVersions(dynamicVersion, new File("src/test/resources/MyApp-Release-1.0.0" + otaFileNameSuffix),
-          otaHtmlFileActualRelease);    
+    compareFilesContainingDynamicVersions(dynamicVersion, new File("src/test/resources/MyApp-Release-1.0.0"
+          + otaFileNameSuffix),
+          otaHtmlFileActualRelease);
   }
-  
+
   @Test
   public void testOTAPointerFile() throws Exception
   {
@@ -267,92 +275,108 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     FileInputStream fis = new FileInputStream(otaArchiveHtmlFile);
     try {
       String otaArchiveHtmlContent = IOUtils.toString(fis, "UTF-8");
-      assertFalse("${LOCATION} has not been replaced in OTA archive HTML file", otaArchiveHtmlContent.contains("${LOCATION}"));
-      assertTrue("OTA HTML location has not been written into OTA archive HTML file", otaArchiveHtmlContent.contains("target/remoteRepo/com.sap.prd.mobile.ios.mios.StraightForwardLibAndAppTest/com/sap/ondevice/production/ios/tests/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-Release-iphoneos-ota.htm"));
-    } finally {
+      assertFalse("${LOCATION} has not been replaced in OTA archive HTML file",
+            otaArchiveHtmlContent.contains("${LOCATION}"));
+      assertTrue(
+            "OTA HTML location has not been written into OTA archive HTML file",
+            otaArchiveHtmlContent
+              .contains("target/remoteRepo/com.sap.prd.mobile.ios.mios.StraightForwardLibAndAppTest/com/sap/ondevice/production/ios/tests/MyApp/"
+                    + dynamicVersion + "/MyApp-" + dynamicVersion + "-Release-iphoneos-ota.htm"));
+    }
+    finally {
       IOUtils.closeQuietly(fis);
-    } 
+    }
   }
 
   @Test
   public void testRedirectFileAppStoreMetadata() throws Exception
   {
-    assertRedirectFileExists("MyApp-AppStoreMetaData.zip.htm");    
+    assertRedirectFileExists("MyApp-AppStoreMetaData.zip.htm");
   }
-  
+
   @Test
   public void testRedirectFileOtaHtm() throws Exception
   {
-    assertRedirectFileExists("MyApp-Release-iphoneos-ota.htm");    
+    assertRedirectFileExists("MyApp-Release-iphoneos-ota.htm");
   }
-  
+
   @Test
   public void testRedirectFiledSYM() throws Exception
   {
-    assertRedirectFileExists("MyApp-Release-iphoneos-app.dSYM.zip.htm");    
+    assertRedirectFileExists("MyApp-Release-iphoneos-app.dSYM.zip.htm");
   }
-  
+
   @Test
   public void testRedirectFileAppZipHtm() throws Exception
   {
-    assertRedirectFileExists("MyApp-Release-iphoneos-app.zip.htm");    
+    assertRedirectFileExists("MyApp-Release-iphoneos-app.zip.htm");
   }
-  
-  
+
   @Test
   public void testRedirectFileIpaHtm() throws Exception
   {
-    assertRedirectFileExists("MyApp-Release-iphoneos.ipa.htm");    
+    assertRedirectFileExists("MyApp-Release-iphoneos.ipa.htm");
   }
-  
+
   @Test
   public void testRedirectFileVersionsXmlHtm() throws Exception
   {
-    assertRedirectFileExists("MyApp-versions.xml.htm");    
+    assertRedirectFileExists("MyApp-versions.xml.htm");
   }
-  
+
   @Test
   public void testRedirectFilePomHtm() throws Exception
-  { 
+  {
     assertRedirectFileExists("MyApp.pom.htm");
   }
-  
+
   @Test
   public void testAppStoreMetadataExists() throws Exception
   {
-    assertTrue(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-AppStoreMetadata.zip").exists());    
+    assertTrue(new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-AppStoreMetadata.zip").exists());
   }
-  
+
   @Test
   public void testLibaryProvidedWithSymbolicLink() throws Exception
-  {       
-    assertTrue(FileUtils.isSymbolicLink(new File(appVerifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
+  {
+    assertTrue(FileUtils.isSymbolicLink(new File(appVerifier.getBasedir()
+          + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
 
   }
-  
+
   @Test
   public void testCFBundeShortVersionInInfoPlist() throws Exception
-  {    
-    final File infoPList = new File(appTestBaseDir, "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
-    assertEquals("CFBundleShortVersion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.", dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING));
+  {
+    final File infoPList = new File(appTestBaseDir,
+          "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
+    assertEquals("CFBundleShortVersion in file '" + infoPList + "' is not the expected version '" + dynamicVersion
+          + "'.", dynamicVersion,
+          new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING));
   }
 
   @Test
   public void testCFBundeVersionInInfoPlist() throws Exception
   {
-    final File infoPList = new File(appTestBaseDir, "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
-    assertEquals("CFBundleVErsion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.", dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_VERSION));
+    final File infoPList = new File(appTestBaseDir,
+          "target/checkout/src/xcode/build/Release-iphoneos/MyApp.app/Info.plist");
+    assertEquals("CFBundleVErsion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.",
+          dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_VERSION));
   }
 
-  private static void assertRedirectFileExists(final String name) {
+  private static void assertRedirectFileExists(final String name)
+  {
     assertTrue("Redirect file '" + name + "' does not exist.", new File(archiveArtifactsDir, name).isFile());
   }
-  
-  private static void compareFilesContainingDynamicVersions(final String dynamicVersion, File template, File versionFileLib) throws FileNotFoundException, IOException {
-    String toBeTestedAgainst = IOUtils.toString(new FileInputStream(template)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion);
-    Assert.assertEquals(toBeTestedAgainst, IOUtils.toString(new FileInputStream(versionFileLib)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion));
+
+  private static void compareFilesContainingDynamicVersions(final String dynamicVersion, File template,
+        File versionFileLib) throws FileNotFoundException, IOException
+  {
+    String toBeTestedAgainst = IOUtils.toString(new FileInputStream(template)).replaceAll("\\$\\{dynamicVersion\\}",
+          dynamicVersion);
+    Assert.assertEquals(toBeTestedAgainst,
+          IOUtils.toString(new FileInputStream(versionFileLib)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion));
   }
-  
+
   @SuppressWarnings("resource")
   private static String extractAppIdSuffixFromLogFile(File logFile) throws IOException
   {
@@ -368,9 +392,10 @@ public class StraightForwardLibAndAppTest extends XCodeTest
           return matcher.group(1);
         }
       }
-    } finally {
+    }
+    finally {
       IOUtils.closeQuietly(reader);
     }
     return null;
-  }  
+  }
 }

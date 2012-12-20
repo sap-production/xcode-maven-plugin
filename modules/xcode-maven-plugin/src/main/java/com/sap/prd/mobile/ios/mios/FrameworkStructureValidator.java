@@ -68,7 +68,6 @@ public class FrameworkStructureValidator
     return errorMsgs;
   }
 
-
   private void validateSubdirExistence(String... subDirNames)
   {
     for (String subDirName : subDirNames) {
@@ -104,9 +103,6 @@ public class FrameworkStructureValidator
       errorMsgs.add("Could not validate the symbolic link from '" + from + "' to '" + to + "': " + ioe.getMessage());
     }
 
-
   }
-
-
 
 }

@@ -226,7 +226,6 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return new File(getXCodeCompileDirectory(), project.getArtifactId() + ".xcodeproj/project.pbxproj");
   }
 
-
   /**
    * Calls a shell script in order to zip a folder. We have to call a shell script as Java cannot
    * zip symbolic links.

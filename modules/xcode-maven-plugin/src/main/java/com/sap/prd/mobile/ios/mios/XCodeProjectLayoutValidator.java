@@ -47,7 +47,7 @@ class XCodeProjectLayoutValidator
     }
 
     final String xcodeProjectFolderName = projectName + XCodeConstants.XCODE_PROJECT_EXTENTION;
-    
+
     final Collection<File> xcodeProjectFolders = Arrays.asList(xcodeFolder.listFiles(new FileFilter() {
 
       @Override
@@ -66,7 +66,7 @@ class XCodeProjectLayoutValidator
                   + xcodeProjectFolderName
                   + "\". This folder is expected to hold the xcode project configuration. The xcode project must have the same name as the maven artifactId");
     }
-    
+
     for (final File xcodeProjectFolder : xcodeProjectFolders)
 
       if (xcodeProjectFolder.listFiles(new FileFilter() {
@@ -77,7 +77,8 @@ class XCodeProjectLayoutValidator
           return f.getName().equals(XCodeConstants.XCODE_CONFIGURATION_FILE_NAME);
         }
       }).length != 1)
-        throw new XCodeProjectFileDoesNotExistException("Folder \"" + xcodeProjectFolders + "\" is expected to contain the file \""
+        throw new XCodeProjectFileDoesNotExistException("Folder \"" + xcodeProjectFolders
+              + "\" is expected to contain the file \""
               + XCodeConstants.XCODE_CONFIGURATION_FILE_NAME + "\" but that file does not exist.");
   }
 

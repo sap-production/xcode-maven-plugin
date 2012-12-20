@@ -23,81 +23,89 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-class CommandLineBuilder {
+class CommandLineBuilder
+{
 
-    private final static String XCODEBUILD = "xcodebuild";
+  private final static String XCODEBUILD = "xcodebuild";
 
-    private XCodeContext xcodeContext;
+  private XCodeContext xcodeContext;
 
-    public CommandLineBuilder(XCodeContext ctx) {
-        this.xcodeContext = ctx;
-    }
-
-    String[] createBuildCall() {
-        List<String> result = new ArrayList<String>();
-        result.add(XCODEBUILD);
-        appendOptions(xcodeContext, result);
-        for (String buildAction : xcodeContext.getBuildActions()) {
-            appendValue(result, buildAction);
-        }
-        appendSettings(xcodeContext.getSettings(), result);
-        return result.toArray(new String[result.size()]);
-    }
-
-  private static void appendOptions(XCodeContext xcodeContext, List<String> result) {
-      Map<String, String> options = xcodeContext.getOptions().getAllOptions();
-      for (Map.Entry<String, String> entry : options.entrySet()) {
-        appendOption(result, entry.getKey(), entry.getValue());
-      }
+  public CommandLineBuilder(XCodeContext ctx)
+  {
+    this.xcodeContext = ctx;
   }
 
-  private static void appendOption(List<String> result, String key, String value) {
-
-     CommandLineBuilder.appendKey(result, key);
-     if(value != null)
-       CommandLineBuilder.appendValue(result, value);
-   }
-  
-
-  private static void appendSettings(Settings settings, List<String> result) {
-
-       for (Map.Entry<String, String> entry : settings.getAllSettings().entrySet()) {
-          appendSetting(result, entry.getKey(), entry.getValue());
-      }
+  String[] createBuildCall()
+  {
+    List<String> result = new ArrayList<String>();
+    result.add(XCODEBUILD);
+    appendOptions(xcodeContext, result);
+    for (String buildAction : xcodeContext.getBuildActions()) {
+      appendValue(result, buildAction);
+    }
+    appendSettings(xcodeContext.getSettings(), result);
+    return result.toArray(new String[result.size()]);
   }
 
-  private static void appendSetting(List<String> result, String key, String value) {
-      result.add(key + "=" + value);
+  private static void appendOptions(XCodeContext xcodeContext, List<String> result)
+  {
+    Map<String, String> options = xcodeContext.getOptions().getAllOptions();
+    for (Map.Entry<String, String> entry : options.entrySet()) {
+      appendOption(result, entry.getKey(), entry.getValue());
+    }
   }
 
+  private static void appendOption(List<String> result, String key, String value)
+  {
 
-    
-    static void appendKey(List<String> result, String key) {
-        check("key", key);
-        result.add("-" + key);
-    }
+    CommandLineBuilder.appendKey(result, key);
+    if (value != null)
+      CommandLineBuilder.appendValue(result, value);
+  }
 
-    static void appendValue(List<String> result, String value) {
-        check("value", value);
-        result.add(value);
-    }
+  private static void appendSettings(Settings settings, List<String> result)
+  {
 
-    static void check(final String name, final String forCheck) {
-        if (forCheck == null || forCheck.isEmpty())
-            throw new IllegalStateException("Invalid " + name + ": '" + forCheck + "'. Was null or empty.");
+    for (Map.Entry<String, String> entry : settings.getAllSettings().entrySet()) {
+      appendSetting(result, entry.getKey(), entry.getValue());
     }
+  }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder(256);
-        boolean first = true;
-        for (String part : createBuildCall()) {
-            if (!first)
-                sb.append(" ");
-            else
-                first = false;
-            sb.append(part);
-        }
-        return sb.toString();
+  private static void appendSetting(List<String> result, String key, String value)
+  {
+    result.add(key + "=" + value);
+  }
+
+  static void appendKey(List<String> result, String key)
+  {
+    check("key", key);
+    result.add("-" + key);
+  }
+
+  static void appendValue(List<String> result, String value)
+  {
+    check("value", value);
+    result.add(value);
+  }
+
+  static void check(final String name, final String forCheck)
+  {
+    if (forCheck == null || forCheck.isEmpty())
+      throw new IllegalStateException("Invalid " + name + ": '" + forCheck + "'. Was null or empty.");
+  }
+
+  @Override
+  public String toString()
+  {
+    final StringBuilder sb = new StringBuilder(256);
+    boolean first = true;
+    for (String part : createBuildCall()) {
+      if (!first)
+        sb.append(" ");
+      else
+        first = false;
+      sb.append(part);
     }
+    return sb.toString();
+  }
 }

@@ -23,7 +23,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 /**
- * Appends a suffix to the artifactId. No actions are taken if the suffix is not specified or has zero length.
+ * Appends a suffix to the artifactId. No actions are taken if the suffix is not specified or has
+ * zero length.
  * 
  * @goal change-artifact-id
  * 

@@ -23,57 +23,69 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-final class Options {
+final class Options
+{
 
-  enum ManagedOption {
-    PROJECT(true,false), CONFIGURATION(false, false), SDK(false, false), TARGET(false, false), SHOWBUILDSETTINGS("showBuildSettings", false, true),
-    DRY_RUN("dry-run",false, true), SHOWSDKS(false, true), VERSION(false, true), LIST(false, true), USAGE(false, true), HELP(false, true), LICENSE(false, true);
+  enum ManagedOption
+  {
+    PROJECT(true, false), CONFIGURATION(false, false), SDK(false, false), TARGET(false, false), SHOWBUILDSETTINGS(
+          "showBuildSettings", false, true),
+    DRY_RUN("dry-run", false, true), SHOWSDKS(false, true), VERSION(false, true), LIST(false, true), USAGE(false, true), HELP(
+          false, true), LICENSE(false, true);
 
-    static ManagedOption forName(String name) {
+    static ManagedOption forName(String name)
+    {
       for (ManagedOption value : values()) {
-        if(value.name().equals(name)) {
+        if (value.name().equals(name)) {
           return value;
         }
       }
       return null;
     }
-    
+
     private String name;
     private final boolean required;
     private final boolean emptyValue;
 
-    ManagedOption(boolean required, boolean emptyValue) {
+    ManagedOption(boolean required, boolean emptyValue)
+    {
       this(null, required, emptyValue);
     }
-    ManagedOption(String name, boolean required, boolean emptyValue) {
+
+    ManagedOption(String name, boolean required, boolean emptyValue)
+    {
       this.name = name;
       this.required = required;
       this.emptyValue = emptyValue;
     }
 
-    boolean isRequired() {
+    boolean isRequired()
+    {
       return required;
     }
 
-    String getOptionName() {
+    String getOptionName()
+    {
       return name == null ? name().toLowerCase() : name;
     }
 
-    boolean hasEmptyValue() {
+    boolean hasEmptyValue()
+    {
       return emptyValue;
     }
   }
 
   private final Map<String, String> userOptions, managedOptions;
 
-  Options(Map<String, String> userOptions, Map<String, String> managedOptions) {
+  Options(Map<String, String> userOptions, Map<String, String> managedOptions)
+  {
 
-    if(userOptions == null)
+    if (userOptions == null)
       this.userOptions = Collections.emptyMap();
     else
       this.userOptions = Collections.unmodifiableMap(new HashMap<String, String>(userOptions));
-    
-    if(managedOptions == null)
+
+    if (managedOptions == null)
       this.managedOptions = Collections.emptyMap();
     else
       this.managedOptions = Collections.unmodifiableMap(new HashMap<String, String>(managedOptions));
@@ -82,14 +94,18 @@ final class Options {
     validateUserOptions(this.userOptions);
   }
 
-  Map<String, String> getUserOptions() {
+  Map<String, String> getUserOptions()
+  {
     return userOptions;
   }
-  
-  Map<String, String> getManagedOptions() {
+
+  Map<String, String> getManagedOptions()
+  {
     return managedOptions;
   }
-  Map<String, String> getAllOptions() {
+
+  Map<String, String> getAllOptions()
+  {
     final Map<String, String> result = new HashMap<String, String>();
 
     result.putAll(getUserOptions());
@@ -97,28 +113,34 @@ final class Options {
 
     return result;
   }
+
   /**
-    * @param userOptions to be validated.
-    * @return the passed in userOptions if validation passed without exception
-    * @throws IllegalArgumentException if the userOptions contain a key of an XCode option that is managed by
-    *            the plugin.
-    */
-   private final static Map<String, String> validateUserOptions(Map<String, String> userOptions) {
+   * @param userOptions
+   *          to be validated.
+   * @return the passed in userOptions if validation passed without exception
+   * @throws IllegalArgumentException
+   *           if the userOptions contain a key of an XCode option that is managed by the plugin.
+   */
+  private final static Map<String, String> validateUserOptions(Map<String, String> userOptions)
+  {
 
-     for(ManagedOption option : ManagedOption.values()) {
-       if(userOptions.keySet().contains(option.getOptionName()))
-         throw new IllegalOptionException(option, "XCode Option '" + option.getOptionName() + "' is managed by the plugin and cannot be modified by the user.");
-     }
+    for (ManagedOption option : ManagedOption.values()) {
+      if (userOptions.keySet().contains(option.getOptionName()))
+        throw new IllegalOptionException(option, "XCode Option '" + option.getOptionName()
+              + "' is managed by the plugin and cannot be modified by the user.");
+    }
 
-     return userOptions;
-   }
+    return userOptions;
+  }
 
-   private final static Map<String, String> validateManagedOptions(Map<String, String> managedOptions) {
+  private final static Map<String, String> validateManagedOptions(Map<String, String> managedOptions)
+  {
 
-     for(ManagedOption option : ManagedOption.values()) {
+    for (ManagedOption option : ManagedOption.values()) {
 
-       if(option.isRequired() && !managedOptions.containsKey(option.getOptionName()))
-         throw new IllegalOptionException(option, "Required option '" + option.getOptionName() + "' was not available inside the managed options.");
+      if (option.isRequired() && !managedOptions.containsKey(option.getOptionName()))
+        throw new IllegalOptionException(option, "Required option '" + option.getOptionName()
+              + "' was not available inside the managed options.");
 
       if (!managedOptions.containsKey(option.getOptionName()))
         continue;
@@ -132,25 +154,27 @@ final class Options {
         throw new IllegalOptionException(option, "Invalid option: " + option.getOptionName()
               + " must not be provided with a value.");
 
-     }
+    }
 
-     for(String key : managedOptions.keySet()) {
-       if(ManagedOption.forName(key.toUpperCase()) == null)
-         throw new IllegalArgumentException("Option '" + key + "' is not managed by the plugin. This option must not be provided as managed option.");
-     }
+    for (String key : managedOptions.keySet()) {
+      if (ManagedOption.forName(key.toUpperCase()) == null)
+        throw new IllegalArgumentException("Option '" + key
+              + "' is not managed by the plugin. This option must not be provided as managed option.");
+    }
 
-     return managedOptions;
-   }
+    return managedOptions;
+  }
 
   @Override
   public String toString()
   {
-      final String ls = System.getProperty("line.separator");
-      StringBuffer buffer = new StringBuffer();
-      for (Map.Entry<String, String> entry : getAllOptions().entrySet()){
-          buffer.append(" -").append(entry.getKey()).append(" ").append(entry.getValue() == null ? "" : entry.getValue()).append(ls);
-      }
-      return buffer.toString();
+    final String ls = System.getProperty("line.separator");
+    StringBuffer buffer = new StringBuffer();
+    for (Map.Entry<String, String> entry : getAllOptions().entrySet()) {
+      buffer.append(" -").append(entry.getKey()).append(" ").append(entry.getValue() == null ? "" : entry.getValue())
+        .append(ls);
+    }
+    return buffer.toString();
   }
 
   @Override
@@ -181,18 +205,21 @@ final class Options {
     return true;
   }
 
-  static class IllegalOptionException extends IllegalArgumentException {
+  static class IllegalOptionException extends IllegalArgumentException
+  {
 
     private static final long serialVersionUID = -3298815948503432790L;
 
     private ManagedOption violated;
 
-    IllegalOptionException(ManagedOption vialated, String message) {
+    IllegalOptionException(ManagedOption vialated, String message)
+    {
       super(message);
       this.violated = vialated;
     }
-    
-    ManagedOption getViolated() {
+
+    ManagedOption getViolated()
+    {
       return violated;
     }
   }

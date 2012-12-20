@@ -53,7 +53,8 @@ class XCodeManager
     final int returnValue = Forker.forkProcess(ctx.getOut(), ctx.getProjectRootDirectory(),
           commandLineBuilder.createBuildCall());
     if (returnValue != 0) {
-      throw new XCodeException("Could not execute xcodebuild for configuration " + ctx.getOptions().getAllOptions().get(Options.ManagedOption.CONFIGURATION.getOptionName()));
+      throw new XCodeException("Could not execute xcodebuild for configuration "
+            + ctx.getOptions().getAllOptions().get(Options.ManagedOption.CONFIGURATION.getOptionName()));
     }
   }
 }

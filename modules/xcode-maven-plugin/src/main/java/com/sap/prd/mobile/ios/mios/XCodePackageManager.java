@@ -59,7 +59,8 @@ class XCodePackageManager
    * 
    * @param buildDir
    */
-  void packageArtifacts(final File compileDir, final MavenProject project, final Set<String> bundles) throws IOException, XCodeException
+  void packageArtifacts(final File compileDir, final MavenProject project, final Set<String> bundles)
+        throws IOException, XCodeException
   {
 
     File mainArtifact = createMainArtifactFile(project);
@@ -108,7 +109,8 @@ class XCodePackageManager
 
   private String getBundleReference(MavenProject project, String escapedBundleName)
   {
-    return GAVUtil.toColonNotation(project.getGroupId(), project.getArtifactId(), project.getVersion(), ZIPPED_BUNDLE_SUFFIX,
+    return GAVUtil.toColonNotation(project.getGroupId(), project.getArtifactId(), project.getVersion(),
+          ZIPPED_BUNDLE_SUFFIX,
           escapedBundleName);
   }
 
@@ -151,20 +153,21 @@ class XCodePackageManager
     log.info("Main artifact file '" + mainArtifactTarFile + "' attached for " + project.getArtifact());
   }
 
-
-
   void packageHeaders(final XCodeContext xcodeContext, MavenProject project,
         Log log) throws IOException, XCodeException
   {
 
-    String publicHeaderPath = EffectiveBuildSettings.getBuildSetting(xcodeContext, log, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
-    
-    final File headerDir = new File(XCodeBuildLayout.getAppFolder(xcodeContext.getProjectRootDirectory(), xcodeContext.getConfiguration(), xcodeContext.getSDK()), publicHeaderPath);
+    String publicHeaderPath = EffectiveBuildSettings.getBuildSetting(xcodeContext, log,
+          EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
+
+    final File headerDir = new File(XCodeBuildLayout.getAppFolder(xcodeContext.getProjectRootDirectory(),
+          xcodeContext.getConfiguration(), xcodeContext.getSDK()), publicHeaderPath);
 
     if (!headerDir.canRead())
       return;
 
-    final File headersFile = new File(new File(new File(project.getBuild().getDirectory()), xcodeContext.getConfiguration() + "-" + xcodeContext.getSDK()),
+    final File headersFile = new File(new File(new File(project.getBuild().getDirectory()),
+          xcodeContext.getConfiguration() + "-" + xcodeContext.getSDK()),
           "headers.tar");
 
     try {
@@ -183,7 +186,6 @@ class XCodePackageManager
 
   }
 
-  
   private void prepareHeaderFileForDeployment(final MavenProject mavenProject, final String configuration,
         final String sdk, final File headersFile)
   {
@@ -222,7 +224,8 @@ class XCodePackageManager
         final MavenProject project, final MavenProjectHelper projectHelper, Log log)
   {
 
-    final File fatBinary = XCodeBuildLayout.getBinary(buildDir, xcodeContext.getConfiguration(), xcodeContext.getSDK(), project.getArtifactId());
+    final File fatBinary = XCodeBuildLayout.getBinary(buildDir, xcodeContext.getConfiguration(), xcodeContext.getSDK(),
+          project.getArtifactId());
 
     if (!fatBinary.exists())
       throw new RuntimeException(fatBinary + " should be attached but does not exist.");

@@ -69,7 +69,7 @@ public class AppIDUpdateTest extends XCodeTest
 
     File infoPlistFile = new File(projectDirectory, "MyApp/src/xcode/MyApp-Info.plist");
 
-    PListAccessor plistAccessor = new PListAccessor(infoPlistFile);   
+    PListAccessor plistAccessor = new PListAccessor(infoPlistFile);
 
     assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.tip.production.inhouse.epdist",
           plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
