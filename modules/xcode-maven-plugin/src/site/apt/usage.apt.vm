@@ -151,4 +151,83 @@ Usage
 * Building an App
 
   Here is an example how to build an app: {{{./examples/AppBuildExample.html}Example of an App build}}
-  
+ 
+* Providing settings and options
+
+  Xcode settings and options can be provided inside the configuration section of the xcode-maven-plugin.
+
++-------------
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0  http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>my.package</groupId>
+  <artifactId>MyLibrary</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>xcode-lib</packaging>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.sap.prd.mobile.ios.mios</groupId>
+        <artifactId>xcode-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <options>
+            <optionKey>optionValue</optionKey>
+          </options>
+          <settings>
+            <settingsKey>settingsValue</settingsKey>
+          </settings>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
++-------------
+
+  Some settings and options are managed by the plugin. Those settings and options cannot be provided inside the plugin configuration.
+
+  * Managed Settings
+
+    * <<<CODE_SIGN_IDENTITY>>> Can be provided from outside as property "xcode.codeSignIdentity"
+    
+    * <<<PROVISIONING_PROFILE>>> Can be provided from outside as property "xcode.provisioningProfile"
+    
+    * <<<DSTROOT>>> Is set to"build"
+    
+    * <<<SYMROOT>>> Is set to "build"
+    
+    * <<<SHARED_PRECOMPS_DIR>>> Is set to "build"
+    
+    * <<<OBJROOT>>> Is set to "build"
+
+  * Managed Options
+
+    * <<<project>>> Is always the maven artifactId
+
+    * <<<configuration>>> Can be provided as dedicated entry in the configuration section of the plugin. See pom.xml example above.
+
+    * <<<sdk>>> Can be provided as dedicated entry in the configuration section of the plugin. See pom.xml example above.
+
+    * <<<target>>> Can be provided as dedicated entry in the configuration section of the plugin. See pom.xml example above.
+
+    * <<<showBuildSettings>>> Not supported by the plugin.
+ 
+    * <<<dry-run>>> Not supported by the plugin.
+
+    * <<<showsdks>>> Not supported by the plugin.
+
+    * <<<version>>> Not supported by the plugin.
+
+    * <<<list>>> Not supported by the plugin.
+
+    * <<<usage>>> Not supported by the plugin.
+
+    * <<<help>>> Not supported by the plugin.
+
+    * <<<license>>> Not supported by the plugin.  
