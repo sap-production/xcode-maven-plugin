@@ -25,18 +25,18 @@ die() {
     exit 1
 }
 
-ROOT_DIR=$1
-SUBFOLDER=$2
-ZIP_FILENAME=$3
-ARCHIVE_FOLDER=$4
+ROOT_DIR="$1"
+SUBFOLDER="$2"
+ZIP_FILENAME="$3"
+ARCHIVE_FOLDER="$4"
 
-echo Zipping the subfolder $SUBFOLDER of the dir $ROOT_DIR into the file $ZIP_FILENAME
+echo Zipping the subfolder "$SUBFOLDER" of the dir "$ROOT_DIR" into the file "$ZIP_FILENAME"
 
-cd $ROOT_DIR || die "Cannot cd into directory $ROOT_DIR containing the application"
+cd "$ROOT_DIR" || die "Cannot cd into directory $ROOT_DIR containing the application"
 
-rm -f $ZIP_FILENAME
+rm -f "$ZIP_FILENAME"
 
-if [ -z $ARCHIVE_FOLDER ]; then
+if [ -z "$ARCHIVE_FOLDER" ]; then
   rm -f "$ZIP_FILENAME"
   zip -y -r "$ZIP_FILENAME" "$SUBFOLDER" || die "Error while creating the zip file"
 else 
