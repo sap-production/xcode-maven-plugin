@@ -25,10 +25,10 @@ die() {
     exit 1
 }
 
-ROOT_DIR="$1"
-SUBFOLDER="$2"
-ZIP_FILENAME="$3"
-ARCHIVE_FOLDER="$4"
+ROOT_DIR=$1
+SUBFOLDER=$2
+ZIP_FILENAME=$3
+ARCHIVE_FOLDER=$4
 
 echo Zipping the subfolder "$SUBFOLDER" of the dir "$ROOT_DIR" into the file "$ZIP_FILENAME"
 
