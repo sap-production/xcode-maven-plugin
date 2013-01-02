@@ -55,6 +55,14 @@ class CommandLineBuilder
     return result.toArray(new String[result.size()]);
   }
   
+  String[] createTestCall()
+  {
+	List<String> result = createBaseCall();
+	appendValue(result, "build");
+	appendEnv(result, "TEST_AFTER_BUILD", "YES");
+	return result.toArray(new String[result.size()]);
+  }
+  
   String[] createShowBuildSettingsCall()
   {
     List<String> result = createBaseCall();

@@ -49,6 +49,14 @@ public class CommandLineBuilderTest
   }
 
   @Test
+  public void testCommandlineBuilderTestCommand() throws Exception
+  {
+	  CommandLineBuilder commandLineBuilder = new CommandLineBuilder("Release", "mysdk", new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out));
+	  assertArrayEquals(new String[] { "xcodebuild", "-project", "MyLib.xcodeproj", "-configuration", "Release", "-sdk",
+			  "mysdk", "DSTROOT=build", "SYMROOT=build", "SHARED_PRECOMPS_DIR=build", "OBJROOT=build", "build", "TEST_AFTER_BUILD=YES" }, commandLineBuilder.createTestCall());
+  }
+  
+  @Test
   public void testCodeSignIdentity() throws Exception
   {
     XCodeContext context = new XCodeContext("MyLib", Arrays.asList("clean", "build"), projectDirectory, System.out, "MyCodeSignIdentity", null, null);

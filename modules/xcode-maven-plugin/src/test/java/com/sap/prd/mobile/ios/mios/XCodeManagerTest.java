@@ -82,7 +82,7 @@ public class XCodeManagerTest extends XCodeTest
     // dependency resolution. We build here a project without any
     // predecessor.
 
-    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos");
+    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos", false);
   }
 
   //
@@ -107,7 +107,7 @@ public class XCodeManagerTest extends XCodeTest
     EasyMock.replay(build, mavenProject);
 
     final XCodeContext context = new XCodeContext("MyLibrary", Arrays.asList("clean", "build"), projectDirectory, System.out);
-    new XCodeManager(log). callXcodeBuild(context, "NON-EXISTNG_CONFIGURATION", "iphoneos");
+    new XCodeManager(log). callXcodeBuild(context, "NON-EXISTNG_CONFIGURATION", "iphoneos", false);
 
   }
 
@@ -136,7 +136,7 @@ public class XCodeManagerTest extends XCodeTest
         setError();
       }
     });
-    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos");
+    new XCodeManager(log).callXcodeBuild(context, "Release", "iphoneos", false);
 
   }
 }

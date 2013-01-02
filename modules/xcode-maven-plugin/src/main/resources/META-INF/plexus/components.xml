@@ -82,6 +82,9 @@
               <compile>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild
               </compile>
+              <test>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodetest
+              </test>
               <package>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:attach-version-info,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcode-package,

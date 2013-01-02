@@ -40,20 +40,40 @@ class XCodeManager
    * @throws IOException
    * @throws {@link XCodeException}
    */
-  void callXcodeBuild(XCodeContext ctx, String configuration, final String sdk) throws IOException,
+  void callXcodeBuild(XCodeContext ctx, String configuration, final String sdk, boolean test) throws IOException,
         XCodeException
   {
     final CommandLineBuilder commandLineBuilder = new CommandLineBuilder(configuration, sdk, ctx);
+    final String[] commandLine;
+    if (test) {
+    	commandLine = commandLineBuilder.createTestCall();
+    } else {
+    	commandLine = commandLineBuilder.createBuildCall();
+    }
 
     //
     //TODO The command line printed into the log is not 100% accurate. We have a problem with
     // quotation marks.
-    log.info("Executing xcode command: '" + commandLineBuilder.toString() + "'.");
+    log.info("Executing xcode command: '" + join(" ", commandLine) + "'.");
 
     final int returnValue = Forker.forkProcess(ctx.getOut(), ctx.getProjectRootDirectory(),
-          commandLineBuilder.createBuildCall());
+          commandLine);
     if (returnValue != 0) {
       throw new XCodeException("Could not execute xcodebuild for configuration " + configuration);
     }
+  }
+  
+  private String join(String glue, String[] arg)
+  {
+	boolean first = true;
+	StringBuilder result = new StringBuilder();
+	
+	for (String item : arg) {
+	  if (first) {
+		result.append(glue);
+	  }
+	  result.append(item);
+	}
+	return result.toString();
   }
 }

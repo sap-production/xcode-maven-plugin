@@ -33,24 +33,24 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public class XCodeBuildMojo extends BuildContextAwareMojo
 {
+  protected XCodeManager xcodeMgr = new XCodeManager(getLog());
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
     
     try {
-      XCodeManager xcodeMgr = new XCodeManager(getLog());
       XCodeContext ctx = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY);
       getLog().info(ctx.toString());
 
       if (getPackagingType() == PackagingType.FRAMEWORK) {
         // we do not provide a sdk for frameworks as the target should assure that all required sdks are built
-        xcodeMgr.callXcodeBuild(ctx, getPrimaryFmwkConfiguration(), null);
+    	  callXcodeBuild(ctx, getPrimaryFmwkConfiguration(), null);
       }
       else { 
         for (String configuration : getConfigurations()) {
           for (final String sdk : getSDKs()) {
-            xcodeMgr.callXcodeBuild(ctx, configuration, sdk);
+            callXcodeBuild(ctx, configuration, sdk);
           }
         }
       }
@@ -61,5 +61,11 @@ public class XCodeBuildMojo extends BuildContextAwareMojo
     catch (XCodeException ex) {
       throw new MojoExecutionException("XCodeBuild failed due to " + ex.getMessage(), ex);
     }
+  }
+
+  protected void callXcodeBuild(XCodeContext ctx, String configuration,
+			String sdk) throws XCodeException, IOException
+  {
+	  xcodeMgr.callXcodeBuild(ctx, configuration, sdk, false);
   }
 }

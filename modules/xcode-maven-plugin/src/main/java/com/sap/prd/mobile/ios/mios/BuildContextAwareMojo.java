@@ -74,11 +74,23 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * @parameter expression="${product.name}"
    */
   private String productName;
+  
+  /**
+   * The name of the project file to be used. The default is the POM artifact-id.
+   * @parameter projectName expression="${xcode.projectName}"
+   * @since 1.7.1
+   */
+  protected String xcodeProjectName;
 
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation)
   {
-    final String projectName = project.getArtifactId();
     File projectDirectory = null;
+    String projectName = xcodeProjectName;
+    
+    if (null == projectName) {
+    	projectName = project.getArtifactId();
+    }
+    getLog().info("Setting projectName = <" + projectName + ">");
 
     if(sourceCodeLocation == XCodeContext.SourceCodeLocation.WORKING_COPY) {
       projectDirectory = getXCodeCompileDirectory();
