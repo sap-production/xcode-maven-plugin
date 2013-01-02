@@ -108,6 +108,9 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
         if (excludes.accept(sourceFile)) {
           copy(sourceFile, destFile, excludes);
+          if (sourceFile.canExecute()) {
+              destFile.setExecutable(true);
+          }
         }
         else {
           getLog().info("File '" + sourceFile + "' ommited.");
