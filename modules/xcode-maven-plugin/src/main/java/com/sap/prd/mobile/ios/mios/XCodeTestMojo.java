@@ -26,7 +26,7 @@ public class XCodeTestMojo extends XCodeBuildMojo
 	try {
       xcodeMgr.callXcodeBuild(ctx, configuration, sdk, true);
 	} finally {
-		out.close();
+		out.flush();
 		ctx.setOut(origOut);
 	}
   }
