@@ -108,9 +108,6 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
         if (excludes.accept(sourceFile)) {
           copy(sourceFile, destFile, excludes);
-          if (sourceFile.canExecute()) {
-              destFile.setExecutable(true);
-          }
         }
         else {
           getLog().info("File '" + sourceFile + "' ommited.");
@@ -118,7 +115,10 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       }
       else {
         FileUtils.copyFile(sourceFile, destFile);
-        getLog().debug("File '" + sourceFile + "' copied to '" + destFile + "'.");
+        if (sourceFile.canExecute()) {
+            destFile.setExecutable(true);
+        }
+        getLog().debug((destFile.canExecute() ? "Executable" : "File '") + sourceFile + "' copied to '" + destFile + "'.");
       }
     }
   }
