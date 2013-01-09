@@ -47,7 +47,6 @@ public class PreDeployMojo extends AbstractXCodeMojo
    * The folder used for hudson archiving
    * 
    * @parameter expression="${archive.dir}" default-value="${project.build.directory}"
-   * @readonly
    */
   private File archiveFolder;
 
