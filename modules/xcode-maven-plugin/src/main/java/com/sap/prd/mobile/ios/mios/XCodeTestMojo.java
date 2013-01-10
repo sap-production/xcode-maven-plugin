@@ -12,7 +12,7 @@ import au.com.rayh.XcodeBuildOutputParser;
  * Run the build with tests.
  * @author John Bito <jwbito@gmail.com>
  *
- * @goal xcodetest
+ * @goal test
  * @requiresDependencyResolution
  */
 public class XCodeTestMojo extends XCodeBuildMojo 
@@ -20,7 +20,7 @@ public class XCodeTestMojo extends XCodeBuildMojo
   @Override
   protected void callXcodeBuild(XCodeContext ctx, String configuration,
 		String sdk) throws XCodeException, IOException {
-    File destDir = new File(new File("target"), "surefile-reports"); //TODO Can these values come from Maven?
+    File destDir = new File(new File("target"), "surefire-reports"); //TODO Can these values come from Maven?
     destDir.mkdirs();
 	PrintStream origOut = ctx.getOut(),
 			  out = new PrintStream(new XcodeBuildOutputParser(destDir, origOut).getOutputStream());
