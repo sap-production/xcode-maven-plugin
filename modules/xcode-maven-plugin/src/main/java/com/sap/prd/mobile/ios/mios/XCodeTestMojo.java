@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import au.com.rayh.XcodeBuildOutputParser;
+import au.com.rayh.XCodeBuildOutputParser;
 
 /**
  * Run the build with tests.
