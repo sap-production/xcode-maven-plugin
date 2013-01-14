@@ -80,6 +80,7 @@
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:copy-sources
               </process-sources>
               <compile>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:set-default-doxygen-configuration,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:xcodebuild
               </compile>
               <package>
