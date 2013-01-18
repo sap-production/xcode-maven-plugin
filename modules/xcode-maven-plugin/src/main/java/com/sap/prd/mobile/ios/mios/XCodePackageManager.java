@@ -221,11 +221,10 @@ class XCodePackageManager
   }
 
   static void attachLibrary(final XCodeContext xcodeContext, File buildDir,
-        final MavenProject project, final MavenProjectHelper projectHelper, Log log)
+        final MavenProject project, final MavenProjectHelper projectHelper, Log log) throws XCodeException
   {
 
-    final File fatBinary = XCodeBuildLayout.getBinary(buildDir, xcodeContext.getConfiguration(), xcodeContext.getSDK(),
-          project.getArtifactId());
+    final File fatBinary = XCodeBuildLayout.getBinary(xcodeContext, log);
 
     if (!fatBinary.exists())
       throw new RuntimeException(fatBinary + " should be attached but does not exist.");

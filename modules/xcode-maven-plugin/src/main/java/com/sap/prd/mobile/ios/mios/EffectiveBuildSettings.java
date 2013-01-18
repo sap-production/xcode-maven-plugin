@@ -45,6 +45,7 @@ class EffectiveBuildSettings
   static final String PUBLIC_HEADERS_FOLDER_PATH = "PUBLIC_HEADERS_FOLDER_PATH";
   static final String BUILT_PRODUCTS_DIR = "BUILT_PRODUCTS_DIR";
   static final String CONFIGURATION_BUILD_DIR = "CONFIGURATION_BUILD_DIR";
+  static final String EXECUTABLE_NAME = "EXECUTABLE_NAME";
 
   private final static Map<XCodeContext, Properties> buildSettings = new HashMap<XCodeContext, Properties>();
 
