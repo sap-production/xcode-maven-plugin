@@ -23,7 +23,7 @@ public class XCodeTestMojo extends XCodeBuildMojo
     File destDir = new File(new File("target"), "surefire-reports"); //TODO Can these values come from Maven?
     destDir.mkdirs();
 	PrintStream origOut = ctx.getOut(),
-			  out = new PrintStream(new XcodeBuildOutputParser(destDir, origOut).getOutputStream());
+			  out = new PrintStream(new XCodeBuildOutputParser(destDir, origOut).getOutputStream());
 	ctx.setOut(out);
 	try {
       xcodeMgr.callXcodeBuild(ctx, configuration, sdk, true);
