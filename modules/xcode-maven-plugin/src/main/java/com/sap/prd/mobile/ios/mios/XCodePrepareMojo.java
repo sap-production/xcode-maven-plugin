@@ -85,13 +85,18 @@ public class XCodePrepareMojo extends AbstractXCodeMojo
    * @since 1.5.2
    */
   protected boolean preferFatLibs;
+  
+  /**
+   * @parameter expression="${xcode.useSymbolicLinks}" default-value="false"
+   */
+  private boolean useSymbolicLinks;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
     try {
-      new XCodePrepareBuildManager(getLog(), archiverManager, repoSession, repoSystem, projectRepos).setPreferFalLibs(
+      new XCodePrepareBuildManager(getLog(), archiverManager, repoSession, repoSystem, projectRepos, useSymbolicLinks).setPreferFalLibs(
             preferFatLibs).prepareBuild(
             project, getConfigurations(), getSDKs());
     }

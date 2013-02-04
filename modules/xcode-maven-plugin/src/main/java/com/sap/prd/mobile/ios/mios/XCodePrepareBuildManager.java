@@ -51,16 +51,18 @@ class XCodePrepareBuildManager
   private final Log log;
   private final ArchiverManager archiverManager;
   private final XCodeDownloadManager downloadManager;
+  private final boolean useSymbolicLinks;
 
   private boolean preferFatLibs;
 
   XCodePrepareBuildManager(final Log log, final ArchiverManager archiverManager,
         final RepositorySystemSession repoSystemSession, final RepositorySystem repoSystem,
-        final List<RemoteRepository> projectRepos)
+        final List<RemoteRepository> projectRepos, final boolean useSymbolicLinks)
   {
     this.log = log;
     this.archiverManager = archiverManager;
     this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
+    this.useSymbolicLinks = useSymbolicLinks;
   }
 
   public XCodePrepareBuildManager setPreferFalLibs(boolean preferFatLibs)
@@ -259,9 +261,9 @@ class XCodePrepareBuildManager
           sdk,
           primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
 
-    if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion())) {
-      FileUtils.copyFile(source, target);
-    }
+    if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion()) || !useSymbolicLinks()) {
+        FileUtils.copyFile(source, target);
+      }
     else {
       com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
     }
@@ -287,7 +289,7 @@ class XCodePrepareBuildManager
     final File target = new File(FolderLayout.getFolderForExtractedFatLibsWithGA(project, xcodeConfiguration,
           primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
 
-    if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion())) {
+    if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion()) || !useSymbolicLinks()) {
       FileUtils.copyFile(source, target);
     }
     else {
@@ -313,6 +315,9 @@ class XCodePrepareBuildManager
     }
   }
 
+  private boolean useSymbolicLinks() {
+    return this.useSymbolicLinks;
+  }
   private void prepareHeaders(MavenProject project, String xcodeConfiguration,
         final String sdk, final Artifact primaryArtifact) throws MojoExecutionException, SideArtifactNotFoundException
   {

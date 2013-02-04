@@ -35,6 +35,15 @@ import org.apache.maven.plugin.MojoFailureException;
 public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 {
 
+  /**
+   * @parameter expression="${xcode.useSymbolicLinks}" default-value="false"
+   */
+  private boolean useSymbolicLinks;
+  
+  private boolean useSymbolicLinks() {
+    return useSymbolicLinks;
+  }
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -74,17 +83,31 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       });
 
-      if (originalLibDir.exists())
-        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalLibDir, copyOfLibDir);
+      if(originalLibDir.exists()) {
+        if(useSymbolicLinks()) {
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalLibDir, copyOfLibDir);
+        } else {
+          FileUtils.copyDirectory(originalLibDir, copyOfLibDir);
+        }
+      }
 
-      if (originalHeadersDir.exists())
-        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir, copyOfHeadersDir);
+      if(originalHeadersDir.exists()) {
+        if(useSymbolicLinks) {
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir, copyOfHeadersDir);
+        } else {
+          FileUtils.copyDirectory(originalHeadersDir, copyOfHeadersDir);
+        }
+      }
 
-      if (originalXcodeDepsDir.exists())
-        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalXcodeDepsDir, copyOfXcodeDepsDir);
+      if(originalXcodeDepsDir.exists()) {
+        if(useSymbolicLinks) {
+          com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalXcodeDepsDir, copyOfXcodeDepsDir);
+        } else {
+          FileUtils.copyDirectory(originalXcodeDepsDir, copyOfXcodeDepsDir);
+        }
+      }
 
-    }
-    catch (IOException e) {
+    }    catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
   }
