@@ -29,22 +29,22 @@ How to handle ambiguous developer identities
 
 * Purpose of this page
  
-   This page described how developers can deal with ambiguous developer identities when working in the local development environment.
-   In case a developer is member of several projects she might have several developer identities located in the keychain.
-   Typically all identities starts with "iPhone Developer" and this name is also used inside the xcode project configuration. When
-   codesigning is performed as part of the xcodebuild the build fails since the codesign identity is ambiguous.
+   This page describes how developers can deal with ambiguous developer identities when working in the local development environment.
+   In case a developer is member of several projects he or she might have several developer identities located in the keychain.
+   Typically all identities start with "iPhone Developer" and this name is also used inside the Xcode project configuration. When
+   codesign is performed using the command line tool (xcodebuild), the build fails since the codesign identity is ambiguous.
    
 * How to deal with several developer identities
  
    First of all it needs to be checked if there is a strong reason for having more than one identity.
    
-   In case several developer identities are needed and exists inside the keychain all starting with "iPhone Developer" the full qualified name needs
-   to be provided. The full qualified name is displayed inside the keychain and looks typically "<<<iPhone Developer: <FirstName> <LastName> (<hash>)>>>".
+   In case several developer identities are needed and exist inside the keychain all starting with "iPhone Developer", the full qualified name must be 
+   be specified. The full qualified name is displayed inside the keychain and looks typically like "<<<iPhone Developer: <FirstName> <LastName> (<hash>)>>>".
    The hash is different for each certificate and ensures that the certificates are unique.
    The full qualified name can be handed over to xcodebuild, e.g.: <<<xcodebuild clean build -configuration Release -sdk iphoneos CODE_SIGN_IDENTITY="iPhone Developer: Jane Doe (V48YT59D7Z)">>>.
    When using the xcode-maven-plugin the codesign identity can be provided on command line with <<<-Dxcode.codeSignIdentity>>>, e.g. <<<mvn clean install -Dxcode.codeSignIdentity="iPhone Developer: Jane Doe (V48YT59D7Z)" >>>
    
-   Do not denote your full qualified identity inside the xcode project itself. This causes the build to fail for other developers.
+   Do not denote your full qualified identity inside the Xcode project itself. This causes the build to fail for other developers if you are working in a team on the same source base.
 
 
 
