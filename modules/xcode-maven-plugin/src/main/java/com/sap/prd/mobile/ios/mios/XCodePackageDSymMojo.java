@@ -90,12 +90,11 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
 
     final String fixedProductName = getFixedProductName(productName);
     
-    final File dsymRoot = new File(XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), config, sdk), productName + ".app.dSYM");
-    
+    final File root = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), config, sdk);
+    final File dsymRoot = new File(root, productName + ".app.dSYM");
+  
     if (dsymRoot.canRead()) {
     	  
-      final File root = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), config, sdk);
-
       Archiver archiver = archiverManager.getArchiver("zip");
 
       File destination = new File(new File(new File(project.getBuild().getDirectory()), config + "-" + sdk),
