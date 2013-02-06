@@ -89,22 +89,19 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
     final String productName = getProductName(config, sdk);
 
     final String fixedProductName = getFixedProductName(productName);
-
-    String generateDSym = EffectiveBuildSettings.getBuildSetting(
-          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, config, sdk), getLog(),
-          EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
-
-    if (generateDSym == null || generateDSym.equalsIgnoreCase("YES")) {
-
-      final File root = new File(XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), config, sdk), productName
-            + ".app.dSYM");
+    
+    final File dsymRoot = new File(XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), config, sdk), productName + ".app.dSYM");
+    
+    if (dsymRoot.canRead()) {
+    	  
+      final File root = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), config, sdk);
 
       Archiver archiver = archiverManager.getArchiver("zip");
 
       File destination = new File(new File(new File(project.getBuild().getDirectory()), config + "-" + sdk),
             fixedProductName + ".app.dSYM.zip");
 
-      archiver.addDirectory(root, new String[] { "**/*" }, null);
+      archiver.addDirectory(root, new String[] { productName + ".app.dSYM/**/*" }, null);
       archiver.setDestFile(destination);
       archiver.createArchive();
       getLog().info("dSYM packaged (" + destination + ")");
@@ -112,7 +109,7 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
       prepareDSymFileForDeployment(project, config, sdk, destination);
     }
     else {
-      getLog().info("dSYM packaging skipped.Generate Debug Symbols is not enabled for configuration " + config + " .");
+      getLog().info("dSYM packaging skipped. " +  productName + ".app.dSYM does not exists for configuration '" + config + "' and sdk ' " + sdk + "' .");
     }
 
   }
