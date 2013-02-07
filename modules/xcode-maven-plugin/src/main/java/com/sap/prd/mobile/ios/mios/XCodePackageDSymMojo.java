@@ -108,28 +108,35 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
       prepareDSymFileForDeployment(project, config, sdk, destination);
     }
     else {
-
-      if (shouldExistDSym(sdk, config)) {
-        throw new XCodeException(
-              "DSym file should be created but could not be found at the expected location: '"
-                    + dsymRoot
-                    + "'. In case you prefere not to have dSym files set xcode property '"
-                    + EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS + "' to 'NO'.");
-      }
-
-      getLog().info("dSYM packaging skipped. " +  productName + ".app.dSYM does not exists for configuration '" + config + "' and sdk ' " + sdk + "' .");
-    }
-
+			if (shouldExistDSym(sdk, config)) {
+				throw new XCodeException(
+						"DSym file should be created but could not be found at the expected location: '"
+								+ dsymRoot
+								+ "'. In case you prefere not to have dSym files set Xcode properties '"
+								+ EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS
+								+ "' and '"
+								+ EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT
+								+ "' accordingly.");
+			}
+		}
   }
 
-  private boolean shouldExistDSym(final String sdk, final String config) throws XCodeException
-  {
-    final String generateDSym = EffectiveBuildSettings.getBuildSetting(
-          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, config, sdk), getLog(),
-          EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
+	private boolean shouldExistDSym(final String sdk, final String config)
+			throws XCodeException {
+		final String generateDSym = EffectiveBuildSettings.getBuildSetting(
+				getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
+						config, sdk), getLog(),
+				EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
-    return generateDSym == null || generateDSym.equalsIgnoreCase("YES");
-  }
+		final String debugFormat = EffectiveBuildSettings.getBuildSetting(
+				getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
+						config, sdk), getLog(),
+				EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT);
+
+		return (generateDSym == null || generateDSym.equalsIgnoreCase("YES")
+				&& (debugFormat != null && debugFormat
+						.equalsIgnoreCase("dwarf-with-dsym")));
+	}
 
   private void prepareDSymFileForDeployment(final MavenProject mavenProject, final String configuration,
         final String sdk, final File dSymFile)
