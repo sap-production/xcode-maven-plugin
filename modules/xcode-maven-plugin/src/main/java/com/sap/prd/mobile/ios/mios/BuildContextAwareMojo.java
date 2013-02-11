@@ -23,9 +23,12 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
@@ -35,6 +38,9 @@ import org.apache.maven.plugin.MojoExecutionException;
  */
 public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 {
+
+  private static final String PREFIX_XCODE_OPTIONS = "xcode.options.";
+  private static final String PREFIX_XCODE_SETTINGS = "xcode.settings.";
 
   protected final static List<String> DEFAULT_BUILD_ACTIONS = Collections.unmodifiableList(Arrays.asList("clean",
         "build"));
@@ -96,6 +102,13 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * @since 1.6.2
    */
   private Map<String, String> options;
+  
+  /**
+   * @parameter expression="${session}"
+   * @required
+   * @readonly
+   */
+   private MavenSession session;
 
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,
         String configuration, String sdk)
@@ -131,8 +144,20 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     if (target != null && !target.trim().isEmpty())
       managedOptions.put(Options.ManagedOption.TARGET.getOptionName(), target);
 
-    return new XCodeContext(getBuildActions(), projectDirectory, System.out, new Settings(settings, managedSettings),
-          new Options(options, managedOptions));
+    Map<String, String> _settings = new HashMap<String, String>(settings == null ? new HashMap<String, String>() : settings);
+    
+    for(String key : getKeys(PREFIX_XCODE_SETTINGS)) {
+      _settings.put(key.substring(PREFIX_XCODE_SETTINGS.length()), getProperty(key));
+    }
+
+    Map<String, String> _options = new HashMap<String, String>(options == null ? new HashMap<String, String>(): options);
+    
+    for(String key : getKeys(PREFIX_XCODE_OPTIONS)) {
+      _options.put(key.substring(PREFIX_XCODE_OPTIONS.length()), getProperty(key));
+    }
+
+    return new XCodeContext(getBuildActions(), projectDirectory, System.out, new Settings(_settings, managedSettings),
+          new Options(_options, managedOptions));
   }
 
   protected List<String> getBuildActions()
@@ -209,4 +234,35 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 
     return productName;
   }
+  
+  @SuppressWarnings("unchecked")
+  Set<String> getKeys(String prefix) {
+    
+    Set<String> result = new HashSet<String>();
+    
+    @SuppressWarnings("rawtypes")
+    final Set keys = new HashSet();
+    keys.addAll(session.getUserProperties().keySet());
+    keys.addAll(project.getProperties().keySet());
+    
+    for(Object key : keys) {
+      if(((String)key).startsWith(prefix))
+        result.add((String)key);
+    }
+
+    return result;
+  }
+  
+  private String getProperty(String key)
+  {
+    String value = session.getUserProperties().getProperty(key);
+
+    if(value == null)
+    {
+      value = project.getProperties().getProperty(key);
+    }
+
+    return value;
+  }
+  
 }
