@@ -70,7 +70,7 @@ public abstract class XCodeTest
   public static TemporaryFolder tmpFolder = new TemporaryFolder();
 
   @BeforeClass
-  public static void setup() throws IOException, XmlPullParserException
+  public final static void setup() throws IOException, XmlPullParserException
   {
     prepareTestExecutionSettingsFile();
     prepareTestExecutionActiveProfiles();
