@@ -21,11 +21,14 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.plexus.util.cli.CommandLineException;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.codehaus.plexus.util.cli.Commandline;
+import org.codehaus.plexus.util.cli.StreamConsumer;
 
 class Forker
 {
@@ -35,72 +38,57 @@ class Forker
 
     if (out == null)
       throw new IllegalArgumentException("Print stream for log handling was not provided.");
-
+    
     if (args == null || args.length == 0)
       throw new IllegalArgumentException("No arguments has been provided.");
-
+    
     for (final String arg : args)
       if (arg == null || arg.isEmpty())
         throw new IllegalArgumentException("Invalid argument '" + arg + "' provided with arguments '"
               + Arrays.asList(args) + "'.");
 
-    final ProcessBuilder builder = new ProcessBuilder(args);
+    final boolean[] troubleWithOutputStream = {false};
 
-    if (executionDirectory != null)
-      builder.directory(executionDirectory);
+    final StreamConsumer streamConsumer = new StreamConsumer() {
 
-    builder.redirectErrorStream(true);
+      
+      @Override
+      public void consumeLine(String line)
+      {
+        if (out.checkError())
+            troubleWithOutputStream[0] = true;
 
-    InputStream is = null;
+        if(!troubleWithOutputStream[0])
+            out.println(line);
 
-    //
-    // TODO: check if there is any support for forking processes in
-    // maven/plexus
-    //
+        if (out.checkError())
+          troubleWithOutputStream[0] = true;
+      }
+    };
 
     try {
 
-      final Process process = builder.start();
+        final String command = StringUtils.join(args, " ");
 
-      is = process.getInputStream();
+        System.out.println("Executing command: " + command);
+        
+        final Commandline cl = new Commandline(command);
 
-      handleLog(is, out);
+        if(executionDirectory != null) {
+            cl.setWorkingDirectory(executionDirectory);
+        }
 
-      return process.waitFor();
+        final int returnValue = CommandLineUtils.executeCommandLine(cl, streamConsumer, streamConsumer);
 
+        if(troubleWithOutputStream[0])
+          throw new IOException("Cannot handle log output. PrintStream that should be used for log handling is damaged.");
+
+        out.flush();
+        
+        return returnValue;
+    
+    } catch(CommandLineException ex) {
+      throw new IOException(ex);
     }
-    catch (InterruptedException e) {
-      throw new RuntimeException(
-            e.getClass().getName()
-                  + " caught during while waiting for a forked process. This exception is not expected to be caught at that time.",
-            e);
-    }
-    finally {
-      //
-      // Exception raised during close operation below are not reported.
-      // That is actually bad.
-      // We do not have any logging facility here and we cannot throw the
-      // exception since this would swallow any
-      // other exception raised in the try block.
-      // May be we should revisit that ...
-      //
-      IOUtils.closeQuietly(is);
-    }
-  }
-
-  private static void handleLog(final InputStream is, final PrintStream out) throws IOException
-  {
-
-    if (out.checkError())
-      throw new IOException("Cannot handle log output. PrintStream that should be used for log handling is damaged.");
-
-    byte[] buff = new byte[1024];
-    for (int i; (i = is.read(buff)) != -1;) {
-      out.write(buff, 0, i);
-      if (out.checkError())
-        throw new IOException("Cannot handle log output from xcodebuild. Underlying PrintStream indicates problems.");
-    }
-
-    out.flush();
   }
 }

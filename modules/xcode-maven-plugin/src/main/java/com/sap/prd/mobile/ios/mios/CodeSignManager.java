@@ -78,7 +78,7 @@ public class CodeSignManager
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream ps = new PrintStream(baos);
     try {
-      int exitValue = Forker.forkProcess(ps, null, "bash", "-c", cmdStr);
+      int exitValue = Forker.forkProcess(ps, null, "bash", "-c", "\"" + cmdStr + "\"");
       return new ExecResult(cmdStr, baos.toString("UTF-8"), exitValue);
     }
     finally {
