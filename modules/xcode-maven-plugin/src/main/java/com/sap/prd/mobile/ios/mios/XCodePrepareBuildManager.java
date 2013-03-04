@@ -137,7 +137,7 @@ class XCodePrepareBuildManager
                 + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
         }
       }
-      else if ("xcode-framework".equals(mainArtifact.getType())) {
+      else if (PackagingType.FRAMEWORK.getMavenPackaging().equals(mainArtifact.getType())) {
         prepareFramework(project, mainArtifact);
       }
       else
