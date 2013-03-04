@@ -346,9 +346,6 @@ class XCodePrepareBuildManager
       final File target = FolderLayout.getFolderForExtractedFrameworkswithGA(project,
             primaryArtifact.getGroupId(), primaryArtifact.getArtifactId());
 
-      createDirectory(target);
-      unarchive("zip", source, target);
-
       try {
         extractFileWithShellScript(source, target, new File(project.getBuild().getDirectory()));
       }
