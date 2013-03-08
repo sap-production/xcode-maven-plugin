@@ -27,6 +27,7 @@
   <version>${dynamicVersion}</version>
   <packaging>xcode-app</packaging>
     <build>
+      <sourceDirectory>abc</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>com.sap.prd.mobile.ios.mios</groupId>
@@ -36,9 +37,6 @@
             </plugin>
         </plugins>
     </build>
-  <properties>
-    <xcode.sourceDirectory>abc</xcode.sourceDirectory>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>com.sap.ondevice.production.ios.tests</groupId>
