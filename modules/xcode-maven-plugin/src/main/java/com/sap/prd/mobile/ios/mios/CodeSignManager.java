@@ -35,14 +35,22 @@ public class CodeSignManager
     checkExitValue(exec);
   }
 
-  public static void sign(String codeSignIdentity, File appFolder, boolean force) throws IOException
+  public static void sign(String codeSignIdentity, String keychain, File appFolder, boolean force) throws IOException
   {
-    String[] cmd = new String[] { "/usr/bin/codesign", "--preserve-metadata", "-s", "\"" + codeSignIdentity + "\"",
-        "\"" + appFolder.getAbsolutePath() + "\"" };
+    String[] cmd = new String[] { "/usr/bin/codesign", "--preserve-metadata", "-s", "\"" + codeSignIdentity + "\""};
+
+    if(!StringUtils.isEmpty(keychain)) {
+      cmd = (String[])ArrayUtils.add(cmd, "--keychain");
+      cmd = (String[])ArrayUtils.add(cmd, keychain);
+    }
+
     if (force)
     {
       cmd = (String[]) ArrayUtils.add(cmd, "-f");
     }
+    
+    cmd = (String[])ArrayUtils.add(cmd, "\"" + appFolder.getAbsolutePath() + "\"" );
+    
     ExecResult exec = exec(cmd);
     checkExitValue(exec);
   }

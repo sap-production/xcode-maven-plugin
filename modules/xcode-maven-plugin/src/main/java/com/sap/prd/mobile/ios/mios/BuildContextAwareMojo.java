@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -109,6 +110,11 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * @readonly
    */
    private MavenSession session;
+   
+   /**
+    * @parameter expression="${xcode.keychain}" default-value="~/Library/Keychains/login.keychain"
+    */
+   private String keychain;
 
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,
         String configuration, String sdk)
@@ -132,6 +138,8 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 
     if (provisioningProfile != null)
       managedSettings.put(Settings.ManagedSetting.PROVISIONING_PROFILE.name(), provisioningProfile);
+    if(!StringUtils.isEmpty(keychain))
+      managedSettings.put(Settings.ManagedSetting.OTHER_CODE_SIGN_FLAGS.name(), "--keychain " + keychain.replaceAll("~", System.getProperty("user.home")));
 
     HashMap<String, String> managedOptions = new HashMap<String, String>();
 

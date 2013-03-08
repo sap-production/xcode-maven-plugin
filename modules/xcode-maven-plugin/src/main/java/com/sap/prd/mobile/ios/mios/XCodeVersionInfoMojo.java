@@ -120,6 +120,11 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
    */
   private boolean failOnMissingSyncInfo;
 
+  /**
+   * @parameter expression="${xcode.keychain}" default-value="~/Library/Keychains/login.keychain"
+   */
+  private String keychain;  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -255,7 +260,10 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     File appFolder = new File(EffectiveBuildSettings.getBuildSetting(
           getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(),
           EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
-    CodeSignManager.sign(csi, appFolder, true);
+    
+    String keychain = this.keychain.replaceAll("~", System.getProperty("user.home"));
+    
+    CodeSignManager.sign(csi, keychain, appFolder, true);
   }
 
   private List<Dependency> getDependencies() throws JAXBException, SAXException, IOException
