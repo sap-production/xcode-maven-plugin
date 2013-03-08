@@ -35,23 +35,13 @@ class Forker
 
   static int forkProcess(final PrintStream out, final File executionDirectory, final String... args) throws IOException
   {
-
     if (out == null)
       throw new IllegalArgumentException("Print stream for log handling was not provided.");
-    
-    if (args == null || args.length == 0)
-      throw new IllegalArgumentException("No arguments has been provided.");
-    
-    for (final String arg : args)
-      if (arg == null || arg.isEmpty())
-        throw new IllegalArgumentException("Invalid argument '" + arg + "' provided with arguments '"
-              + Arrays.asList(args) + "'.");
 
     final boolean[] troubleWithOutputStream = {false};
 
-    final StreamConsumer streamConsumer = new StreamConsumer() {
+    int returnCode = forkProcess(new StreamConsumer() {
 
-      
       @Override
       public void consumeLine(String line)
       {
@@ -64,29 +54,41 @@ class Forker
         if (out.checkError())
           troubleWithOutputStream[0] = true;
       }
-    };
+    }, executionDirectory, args);
+
+    if(troubleWithOutputStream[0])
+      throw new IOException("Cannot handle log output. PrintStream that should be used for log handling is damaged.");
+
+    out.flush();
+
+    return returnCode;
+  }
+
+  private static int forkProcess(StreamConsumer streamConsumer, final File executionDirectory, final String... args) throws IOException
+  {
+
+    if (args == null || args.length == 0)
+      throw new IllegalArgumentException("No arguments has been provided.");
+
+    for (final String arg : args)
+      if (arg == null || arg.isEmpty())
+        throw new IllegalArgumentException("Invalid argument '" + arg + "' provided with arguments '"
+              + Arrays.asList(args) + "'.");
 
     try {
 
         final String command = StringUtils.join(args, " ");
 
-        System.out.println("Executing command: " + command);
-        
+        streamConsumer.consumeLine("Executing command: " + command);
+
         final Commandline cl = new Commandline(command);
 
         if(executionDirectory != null) {
             cl.setWorkingDirectory(executionDirectory);
         }
 
-        final int returnValue = CommandLineUtils.executeCommandLine(cl, streamConsumer, streamConsumer);
+        return CommandLineUtils.executeCommandLine(cl, streamConsumer, streamConsumer);
 
-        if(troubleWithOutputStream[0])
-          throw new IOException("Cannot handle log output. PrintStream that should be used for log handling is damaged.");
-
-        out.flush();
-        
-        return returnValue;
-    
     } catch(CommandLineException ex) {
       throw new IOException(ex);
     }
