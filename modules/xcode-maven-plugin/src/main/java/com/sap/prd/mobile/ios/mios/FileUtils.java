@@ -231,17 +231,21 @@ public class FileUtils
       IOUtils.closeQuietly(printStream);
     }
   }
+  
+  
+  public static void createSymbolicLink(final File theLink, final String target) throws IOException {
 
-  public static void createSymbolicLink(final File source, final File target) throws IOException
-  {
-    System.out.println("[INFO] Creating symbolic link. Source:" + source.getAbsolutePath() + ", target: "
-          + target.getAbsolutePath() + ".");
-    target.getParentFile().mkdirs();
-    int returnValue = Forker.forkProcess(System.out, null, "ln", "-sf", source.getAbsolutePath(),
-          target.getAbsolutePath());
+    if(target == null || target.trim().isEmpty())
+      throw new IllegalArgumentException("Invalid target provided: '" + target + "'.");
+
+    if(!theLink.getAbsoluteFile().getParentFile().exists() && !theLink.getAbsoluteFile().getParentFile().mkdirs())
+      throw new IOException("Cannot created directory: '" + theLink.getAbsoluteFile().getParentFile() + "'.");
+
+    System.out.println("[INFO] Creating symbolic link '" + theLink.getAbsoluteFile() + "' pointing to:'" + target + "'.");
+
+    int returnValue = Forker.forkProcess(System.out, theLink.getParentFile(), "ln", "-sf", target, theLink.getName());
     if (returnValue != 0) {
-      throw new RuntimeException("Cannot create symbolic link from '" + source + "' to '" + target + "'. Return value:"
-            + returnValue);
+      throw new RuntimeException("Cannot create symbolic link '" + theLink + "'pointing to '"  + target + "'. Return value:" + returnValue);
     }
   }
 

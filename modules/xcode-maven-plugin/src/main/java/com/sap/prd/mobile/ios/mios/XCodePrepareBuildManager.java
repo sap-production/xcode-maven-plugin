@@ -265,8 +265,9 @@ class XCodePrepareBuildManager
         FileUtils.copyFile(source, target);
       }
     else {
-      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
-    }
+        String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(source.getAbsolutePath(), target.getAbsolutePath(), "/");
+        com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(target, relativePath);
+      }
   }
 
   private File resolveFatLib(MavenProject project, final String xcodeConfiguration, final Artifact primaryArtifact)
@@ -293,7 +294,8 @@ class XCodePrepareBuildManager
       FileUtils.copyFile(source, target);
     }
     else {
-      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
+      String relativePath = com.sap.prd.mobile.ios.mios.FileUtils.getRelativePath(target.getAbsolutePath(), source.getAbsolutePath(), "/");
+      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(target, relativePath);
     }
 
     final FatLibAnalyzer lipoHelper = new FatLibAnalyzer(target);
