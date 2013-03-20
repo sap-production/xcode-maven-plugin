@@ -13,7 +13,7 @@
   <parent>
     <groupId>com.sap.ondevice.production.ios.tests</groupId>
     <artifactId>aggregator</artifactId>
-    <version>1.0.0</version>
+    <version>${dynamicVersion}</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

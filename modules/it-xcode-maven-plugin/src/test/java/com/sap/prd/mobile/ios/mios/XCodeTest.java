@@ -46,6 +46,8 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.Verifier;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
@@ -379,7 +381,7 @@ public abstract class XCodeTest
     String pom = IOUtils.toString(new FileInputStream(pomFile));
 
     if (pom.indexOf("${" + PROP_NAME_DYNAMIC_VERSION + "}") == -1)
-      throw new IllegalStateException("Dynamic version is not used in pom file.");
+      throw new IllegalStateException("Dynamic version is not used in pom file (" + pomFile + ").");
 
     for (String key : pomReplacements.stringPropertyNames()) {
       pom = pom.replaceAll("\\$\\{" + key + "\\}", pomReplacements.getProperty(key));
@@ -393,6 +395,25 @@ public abstract class XCodeTest
     }
     finally {
       IOUtils.closeQuietly(w);
+    }
+    
+    InputStream is = null;
+    try {
+      is = new FileInputStream(pomFile);
+      Model model = new MavenXpp3Reader().read(is);
+      List<String> modules = model.getModules();
+      
+      if(modules != null && !modules.isEmpty()) {
+
+        for(String module : modules) {
+          rewritePom(new File(pomFile.getParent(), module), pomReplacements);
+        }
+      }
+    }
+    catch (XmlPullParserException e) {
+      throw new RuntimeException(e);
+    } finally {
+      IOUtils.closeQuietly(is);
     }
   }
 

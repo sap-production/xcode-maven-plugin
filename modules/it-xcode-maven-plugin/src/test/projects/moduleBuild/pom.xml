@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.sap.ondevice.production.ios.tests</groupId>
   <artifactId>aggregator</artifactId>
-  <version>1.0.0</version>
+  <version>${dynamicVersion}</version>
   <packaging>pom</packaging>
   <modules>
     <module>MyLibrary/pom.xml</module>
@@ -11,7 +11,7 @@
   <parent>
     <groupId>com.sap.prd.mobile.ios.mios</groupId>
     <artifactId>ios-parent</artifactId>
-    <version>1.8.0</version>
+    <version>${xcode.maven.plugin.version}</version>
   </parent>
   <build>
     <plugins>
@@ -30,5 +30,38 @@
       </plugin>
     </plugins>
   </build>
-
+  <distributionManagement>
+    <repository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>myRepo</id>
+      <name>My Repository</name>
+      <url>file:${deployrepo.directory}</url>
+      <layout>default</layout>
+    </repository>
+    <snapshotRepository>
+      <uniqueVersion>true</uniqueVersion>
+      <id>mySnapshotRepo</id>
+      <name>My Snapshot Repository</name>
+      <url>file:${deployrepo.directory}</url>
+      <layout>default</layout>
+    </snapshotRepository>
+  </distributionManagement>
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+      <id>myRepo</id>
+      <name>myRepo</name>
+      <url>file:${deployrepo.directory}</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
 </project>
