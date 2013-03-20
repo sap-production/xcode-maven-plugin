@@ -26,6 +26,14 @@
       </plugin>
     </plugins>
   </build>
+
+  <parent>
+    <groupId>com.sap.ondevice.production.ios.tests</groupId>
+    <artifactId>aggregator</artifactId>
+    <version>1.0.0</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
   <dependencies>
     <dependency>
       <groupId>com.sap.ondevice.production.ios.tests</groupId>
