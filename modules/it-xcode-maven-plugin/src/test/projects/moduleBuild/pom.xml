@@ -1,0 +1,11 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.sap.ondevice.production.ios.tests</groupId>
+  <artifactId>aggregator</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>MyLibrary/pom.xml</module>
+    <module>MyApp/pom.xml</module>
+  </modules>
+</project>

@@ -1,0 +1,33 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.sap.ondevice.production.ios.tests</groupId>
+  <artifactId>MyLibrary</artifactId>
+  <version>1.0.1</version>
+  <packaging>xcode-lib</packaging>
+  <parent>
+     <groupId>com.sap.prd.mobile.ios.mios</groupId>
+     <artifactId>ios-parent</artifactId>
+     <version>1.8.0</version>
+  </parent>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.sap.prd.mobile.ios.mios</groupId>
+        <artifactId>xcode-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <sdks>
+            <sdk>iphoneos</sdk>
+          </sdks>
+          <configurations>
+            <configuration>Release</configuration>
+          </configurations>
+	</configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
