@@ -27,7 +27,6 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.transfer.TransferCancelledException;
 import org.sonatype.aether.transfer.TransferEvent;
 import org.sonatype.aether.transfer.TransferListener;
@@ -40,7 +39,7 @@ import org.sonatype.aether.transfer.TransferListener;
  * @goal pre-deploy
  * 
  */
-public class PreDeployMojo extends AbstractXCodeMojo
+public class PreDeployMojo extends DeployMojo
 {
 
   /**
@@ -49,14 +48,6 @@ public class PreDeployMojo extends AbstractXCodeMojo
    * @parameter expression="${archive.dir}" default-value="${project.build.directory}"
    */
   private File archiveFolder;
-
-  /**
-   * The current repository/network configuration of Maven.
-   * 
-   * @parameter default-value="${repositorySystemSession}"
-   * @readonly
-   */
-  protected RepositorySystemSession repoSession;
 
   private final static String HTML_TEMPLATE = "<html><head><meta http-equiv=\"refresh\" content=\"0; URL=$LOCATION\">" +
         "<body>You will be redirected within the next few seconds.<br />" +
@@ -84,17 +75,16 @@ public class PreDeployMojo extends AbstractXCodeMojo
       //     here is loaded by another class loader than the DefaultRepositorySystemSession used by the actual class.
       //     Hence we are in different runtime packages and the downcast is not possible.
 
-      final TransferListener transferListener = (TransferListener) this.repoSession.getClass()
-        .getMethod("getTransferListener", new Class[0]).invoke(this.repoSession, new Object[0]);
+      final TransferListener transferListener = getTransferListener();
 
-      TransferListener prepareIpaPointerFileTransferListener = new PrepareIpaPointerFileTransferListener(
+      final TransferListener prepareIpaPointerFileTransferListener = new PrepareIpaPointerFileTransferListener(
             transferListener);
 
       this.repoSession.getClass().getMethod("setTransferListener", new Class[] { TransferListener.class })
         .invoke(this.repoSession, prepareIpaPointerFileTransferListener);
 
       getLog().info(
-            "TransferListener '" + prepareIpaPointerFileTransferListener.getClass().getName() + "' has been set.");
+            "TransferListener '" + prepareIpaPointerFileTransferListener.getClass().getName() + "' has been set. The previously used transfere listener was: '" + transferListener + "'.");
     }
     catch (RuntimeException e) {
       throw e;
@@ -121,6 +111,10 @@ public class PreDeployMojo extends AbstractXCodeMojo
     PrepareIpaPointerFileTransferListener(TransferListener forward)
     {
       this.forward = forward;
+    }
+    
+    TransferListener getForward() {
+      return this.forward;
     }
 
     @Override
