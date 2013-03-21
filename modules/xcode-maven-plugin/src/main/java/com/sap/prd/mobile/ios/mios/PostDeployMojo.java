@@ -32,7 +32,7 @@ import org.sonatype.aether.transfer.TransferListener;
  * @goal post-deploy
  * 
  */
-public class PostDeployMojo extends DeployMojo
+public class PostDeployMojo extends AbstractDeployMojo
 {
 
   @Override
@@ -53,15 +53,11 @@ public class PostDeployMojo extends DeployMojo
         final TransferListener forward = ((PreDeployMojo.PrepareIpaPointerFileTransferListener) transferListener)
           .getForward();
 
-        this.repoSession.getClass().getMethod("setTransferListener", new Class[] { TransferListener.class })
-          .invoke(this.repoSession, forward);
-
-        getLog().info(
-              "TransferListener '" + forward + "' has been set.");
+        setTransferListener(forward);
       }
       else {
         getLog().info(
-              "Found transfere listener wit type '" + transferListener.getClass().getName()
+              "Found transfere listener '" + toString(transferListener)
                     + "'. Will not replace this transfere listener since it is not an instance of '"
                     + PreDeployMojo.PrepareIpaPointerFileTransferListener.class.getName() + "'.");
       }

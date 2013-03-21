@@ -30,7 +30,7 @@ import org.sonatype.aether.transfer.TransferListener;
  * deployed successfully a pointer file is written. This pointer file redirects to XXX
  * 
  */
-abstract class DeployMojo extends AbstractXCodeMojo 
+abstract class AbstractDeployMojo extends AbstractXCodeMojo 
 {
   /**
    * The current repository/network configuration of Maven.
@@ -50,5 +50,21 @@ abstract class DeployMojo extends AbstractXCodeMojo
 
     return (TransferListener) this.repoSession.getClass()
       .getMethod("getTransferListener", new Class[0]).invoke(this.repoSession, new Object[0]);
+  }
+
+  protected void setTransferListener(TransferListener transferListener) throws SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+
+    this.repoSession.getClass().getMethod("setTransferListener", new Class[] { TransferListener.class })
+    . invoke(this.repoSession, transferListener);
+
+    getLog().info(
+          "TransferListener '" + toString(transferListener) + "' has been set.");
+  }
+  
+  protected String toString(TransferListener listener) {
+
+    if(listener == null)
+      return "<null>";
+    return listener.getClass().getName() + "@" + System.identityHashCode(listener);
   }
 }
