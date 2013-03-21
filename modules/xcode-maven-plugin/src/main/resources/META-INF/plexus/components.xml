@@ -92,8 +92,9 @@
                 org.apache.maven.plugins:maven-install-plugin:install
               </install>
               <deploy>
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,              
-                org.apache.maven.plugins:maven-deploy-plugin:deploy
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,
+                org.apache.maven.plugins:maven-deploy-plugin:deploy,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:post-deploy
               </deploy>
             </phases>
           </lifecycle>
@@ -105,7 +106,7 @@
                 org.apache.maven.plugins:maven-clean-plugin:clean
               </clean>
             </phases>
-          </lifecycle>          
+          </lifecycle>
         </lifecycles>
       </configuration>
     </component>
@@ -141,8 +142,9 @@
                 org.apache.maven.plugins:maven-install-plugin:install
               </install>
               <deploy>
-                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,              
-                org.apache.maven.plugins:maven-deploy-plugin:deploy
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,
+                org.apache.maven.plugins:maven-deploy-plugin:deploy,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:post-deploy
               </deploy>
             </phases>
           </lifecycle>
@@ -154,7 +156,7 @@
                 org.apache.maven.plugins:maven-clean-plugin:clean
               </clean>
             </phases>
-          </lifecycle>          
+          </lifecycle>
         </lifecycles>
       </configuration>
     </component>
@@ -197,7 +199,8 @@
               </install>
               <deploy>
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:pre-deploy,
-                org.apache.maven.plugins:maven-deploy-plugin:deploy
+                org.apache.maven.plugins:maven-deploy-plugin:deploy,
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:post-deploy
               </deploy>
             </phases>
           </lifecycle>
