@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.sap.ondevice.production.ios.tests</groupId>
+  <artifactId>MyApp</artifactId>
+  <version>1.0.0</version>
+  <packaging>xcode-app</packaging>
+  <parent>
+    <groupId>com.sap.ondevice.production.ios.tests</groupId>
+    <artifactId>aggregator</artifactId>
+    <version>${dynamicVersion}</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.sap.ondevice.production.ios.tests</groupId>
+      <artifactId>MyLibrary</artifactId>
+      <version>1.0.1</version>
+      <type>xcode-lib</type>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
+
