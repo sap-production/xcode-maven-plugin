@@ -21,6 +21,8 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
 
+import org.apache.maven.plugin.logging.Log;
+
 /**
  * Helper methods for Xcode build to retrieve certain directories
  * 
@@ -35,10 +37,11 @@ class XCodeBuildLayout
   // are relevant for distiguishing build artifacts.
   //
 
-  static File getBinary(final File buildDir, final String configuration, final String sdk, final String projectName)
+  static File getBinary(final XCodeContext context, Log log) throws XCodeException
   {
-
-    return new File(buildDir, configuration + "-" + sdk + "/lib" + projectName + ".a");
+    return new File(new File(EffectiveBuildSettings.getBuildSetting(context, log,
+          EffectiveBuildSettings.BUILT_PRODUCTS_DIR)),
+          EffectiveBuildSettings.getBuildSetting(context, log, EffectiveBuildSettings.EXECUTABLE_NAME));
   }
 
   static File getBundleDirectory(final File srcDir, final String bundleName)
