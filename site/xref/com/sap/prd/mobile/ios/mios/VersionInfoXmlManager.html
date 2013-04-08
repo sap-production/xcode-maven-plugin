@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-<title>VersionInfoManager xref</title>
+<title>VersionInfoXmlManager xref</title>
 <link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
 </head>
 <body>
-<div id="overview"><a href="../../../../../../../apidocs/com/sap/prd/mobile/ios/mios/VersionInfoManager.html">View Javadoc</a></div><pre>
+<div id="overview"><a href="../../../../../../../apidocs/com/sap/prd/mobile/ios/mios/VersionInfoXmlManager.html">View Javadoc</a></div><pre>
 
 <a class="jxr_linenumber" name="1" href="#1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="2" href="#2">2</a>   <em class="jxr_comment"> * #%L</em>
@@ -69,7 +69,7 @@
 <a class="jxr_linenumber" name="59" href="#59">59</a>  <em class="jxr_javadoccomment"> * added.</em>
 <a class="jxr_linenumber" name="60" href="#60">60</a>  <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="61" href="#61">61</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="62" href="#62">62</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/VersionInfoManager.html">VersionInfoManager</a>
+<a class="jxr_linenumber" name="62" href="#62">62</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/VersionInfoXmlManager.html">VersionInfoXmlManager</a>
 <a class="jxr_linenumber" name="63" href="#63">63</a>  {
 <a class="jxr_linenumber" name="64" href="#64">64</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String THREEDOTS = <span class="jxr_string">"..."</span>;
 <a class="jxr_linenumber" name="65" href="#65">65</a>  
@@ -309,7 +309,7 @@
 <a class="jxr_linenumber" name="299" href="#299">299</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getSchemaVersion(<strong class="jxr_keyword">final</strong> File f) <strong class="jxr_keyword">throws</strong> SAXException, IOException
 <a class="jxr_linenumber" name="300" href="#300">300</a>   {
 <a class="jxr_linenumber" name="301" href="#301">301</a> 
-<a class="jxr_linenumber" name="302" href="#302">302</a>     <strong class="jxr_keyword">class</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/VersionInfoManager.html">StopParsingException</a> <strong class="jxr_keyword">extends</strong> SAXException
+<a class="jxr_linenumber" name="302" href="#302">302</a>     <strong class="jxr_keyword">class</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/VersionInfoXmlManager.html">StopParsingException</a> <strong class="jxr_keyword">extends</strong> SAXException
 <a class="jxr_linenumber" name="303" href="#303">303</a>     {
 <a class="jxr_linenumber" name="304" href="#304">304</a>       <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = -7499102356648608429L;
 <a class="jxr_linenumber" name="305" href="#305">305</a>     };
@@ -338,7 +338,7 @@
 <a class="jxr_linenumber" name="328" href="#328">328</a>             result[0] = atts.getValue(<span class="jxr_string">"schemaVersion"</span>);
 <a class="jxr_linenumber" name="329" href="#329">329</a> 
 <a class="jxr_linenumber" name="330" href="#330">330</a>             <strong class="jxr_keyword">if</strong> (result[0] != <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="331" href="#331">331</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/VersionInfoManager.html">StopParsingException</a>();
+<a class="jxr_linenumber" name="331" href="#331">331</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/VersionInfoXmlManager.html">StopParsingException</a>();
 <a class="jxr_linenumber" name="332" href="#332">332</a>           }
 <a class="jxr_linenumber" name="333" href="#333">333</a> 
 <a class="jxr_linenumber" name="334" href="#334">334</a>           <strong class="jxr_keyword">if</strong> (localName.equals(<span class="jxr_string">"repository"</span>)) {

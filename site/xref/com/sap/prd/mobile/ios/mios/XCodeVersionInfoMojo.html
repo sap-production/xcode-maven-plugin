@@ -79,7 +79,7 @@
 <a class="jxr_linenumber" name="69" href="#69">69</a>  <em class="jxr_javadoccomment"> * @goal attach-version-info</em>
 <a class="jxr_linenumber" name="70" href="#70">70</a>  <em class="jxr_javadoccomment"> * @requiresDependencyResolution</em>
 <a class="jxr_linenumber" name="71" href="#71">71</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="72" href="#72">72</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/XCodeVersionInfoMojo.html">XCodeVersionInfoMojo</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/AbstractXCodeMojo.html">AbstractXCodeMojo</a>
+<a class="jxr_linenumber" name="72" href="#72">72</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/XCodeVersionInfoMojo.html">XCodeVersionInfoMojo</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/BuildContextAwareMojo.html">BuildContextAwareMojo</a>
 <a class="jxr_linenumber" name="73" href="#73">73</a>  {
 <a class="jxr_linenumber" name="74" href="#74">74</a>  
 <a class="jxr_linenumber" name="75" href="#75">75</a>    <em class="jxr_javadoccomment">/**</em>
@@ -151,14 +151,14 @@
 <a class="jxr_linenumber" name="141" href="#141">141</a> 
 <a class="jxr_linenumber" name="142" href="#142">142</a>     getLog().info(<span class="jxr_string">"Sync info file found: '"</span> + syncInfoFile.getAbsolutePath() + <span class="jxr_string">"'. Creating versions.xml file."</span>);
 <a class="jxr_linenumber" name="143" href="#143">143</a> 
-<a class="jxr_linenumber" name="144" href="#144">144</a>     <strong class="jxr_keyword">final</strong> File versionsFile = <strong class="jxr_keyword">new</strong> File(project.getBuild().getDirectory(), <span class="jxr_string">"versions.xml"</span>);
+<a class="jxr_linenumber" name="144" href="#144">144</a>     <strong class="jxr_keyword">final</strong> File versionsXmlFile = <strong class="jxr_keyword">new</strong> File(project.getBuild().getDirectory(), <span class="jxr_string">"versions.xml"</span>);
 <a class="jxr_linenumber" name="145" href="#145">145</a> 
 <a class="jxr_linenumber" name="146" href="#146">146</a>     FileOutputStream os = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="147" href="#147">147</a> 
 <a class="jxr_linenumber" name="148" href="#148">148</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="149" href="#149">149</a>       os = <strong class="jxr_keyword">new</strong> FileOutputStream(versionsFile);
+<a class="jxr_linenumber" name="149" href="#149">149</a>       os = <strong class="jxr_keyword">new</strong> FileOutputStream(versionsXmlFile);
 <a class="jxr_linenumber" name="150" href="#150">150</a> 
-<a class="jxr_linenumber" name="151" href="#151">151</a>       <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/VersionInfoManager.html">VersionInfoManager</a>().createVersionInfoFile(project.getGroupId(), project.getArtifactId(),
+<a class="jxr_linenumber" name="151" href="#151">151</a>       <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/VersionInfoXmlManager.html">VersionInfoXmlManager</a>().createVersionInfoFile(project.getGroupId(), project.getArtifactId(),
 <a class="jxr_linenumber" name="152" href="#152">152</a>             project.getVersion(), syncInfoFile, getDependencies(), os);
 <a class="jxr_linenumber" name="153" href="#153">153</a> 
 <a class="jxr_linenumber" name="154" href="#154">154</a>     }
@@ -175,91 +175,123 @@
 <a class="jxr_linenumber" name="165" href="#165">165</a>       IOUtils.closeQuietly(os);
 <a class="jxr_linenumber" name="166" href="#166">166</a>     }
 <a class="jxr_linenumber" name="167" href="#167">167</a> 
-<a class="jxr_linenumber" name="168" href="#168">168</a>     <strong class="jxr_keyword">if</strong> (getPackagingType() == PackagingType.APP)
-<a class="jxr_linenumber" name="169" href="#169">169</a>     {
-<a class="jxr_linenumber" name="170" href="#170">170</a>       <strong class="jxr_keyword">try</strong>
-<a class="jxr_linenumber" name="171" href="#171">171</a>       {
-<a class="jxr_linenumber" name="172" href="#172">172</a>         copyVersionsXmlAndSign();
-<a class="jxr_linenumber" name="173" href="#173">173</a>       }
-<a class="jxr_linenumber" name="174" href="#174">174</a>       <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="175" href="#175">175</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(e.getMessage(), e);
-<a class="jxr_linenumber" name="176" href="#176">176</a>       }
-<a class="jxr_linenumber" name="177" href="#177">177</a>       <strong class="jxr_keyword">catch</strong> (ExecutionResultVerificationException e) {
-<a class="jxr_linenumber" name="178" href="#178">178</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(e.getMessage(), e);
-<a class="jxr_linenumber" name="179" href="#179">179</a>       }
-<a class="jxr_linenumber" name="180" href="#180">180</a>     }
-<a class="jxr_linenumber" name="181" href="#181">181</a> 
-<a class="jxr_linenumber" name="182" href="#182">182</a>     projectHelper.attachArtifact(project, <span class="jxr_string">"xml"</span>, <span class="jxr_string">"versions"</span>, versionsFile);
-<a class="jxr_linenumber" name="183" href="#183">183</a> 
-<a class="jxr_linenumber" name="184" href="#184">184</a>     getLog().info(<span class="jxr_string">"versions.xml '"</span> + versionsFile + <span class="jxr_string">" attached as additional artifact."</span>);
-<a class="jxr_linenumber" name="185" href="#185">185</a>   }
-<a class="jxr_linenumber" name="186" href="#186">186</a> 
-<a class="jxr_linenumber" name="187" href="#187">187</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> copyVersionsXmlAndSign() <strong class="jxr_keyword">throws</strong> IOException, ExecutionResultVerificationException
-<a class="jxr_linenumber" name="188" href="#188">188</a>   {
-<a class="jxr_linenumber" name="189" href="#189">189</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String configuration : getConfigurations())
-<a class="jxr_linenumber" name="190" href="#190">190</a>     {
-<a class="jxr_linenumber" name="191" href="#191">191</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String sdk : getSDKs())
-<a class="jxr_linenumber" name="192" href="#192">192</a>       {
-<a class="jxr_linenumber" name="193" href="#193">193</a>         <strong class="jxr_keyword">if</strong> (sdk.startsWith(<span class="jxr_string">"iphoneos"</span>))
-<a class="jxr_linenumber" name="194" href="#194">194</a>         {
-<a class="jxr_linenumber" name="195" href="#195">195</a>           File versionsXmlInBuild = <strong class="jxr_keyword">new</strong> File(project.getBuild().getDirectory(), <span class="jxr_string">"versions.xml"</span>);
-<a class="jxr_linenumber" name="196" href="#196">196</a>           File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, sdk);
-<a class="jxr_linenumber" name="197" href="#197">197</a>           String productName = EffectiveBuildSettings.getProductName(<strong class="jxr_keyword">this</strong>.project, configuration, sdk);
-<a class="jxr_linenumber" name="198" href="#198">198</a>           File appFolder = <strong class="jxr_keyword">new</strong> File(rootDir, productName + <span class="jxr_string">".app"</span>);
-<a class="jxr_linenumber" name="199" href="#199">199</a>           File versionsXmlInApp = <strong class="jxr_keyword">new</strong> File(appFolder, <span class="jxr_string">"versions.xml"</span>);
-<a class="jxr_linenumber" name="200" href="#200">200</a> 
-<a class="jxr_linenumber" name="201" href="#201">201</a>           CodeSignManager.verify(appFolder);
-<a class="jxr_linenumber" name="202" href="#202">202</a>           <strong class="jxr_keyword">final</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">ExecResult</a> originalCodesignEntitlementsInfo = <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">CodeSignManager</a>
-<a class="jxr_linenumber" name="203" href="#203">203</a>             .getCodesignEntitlementsInformation(appFolder);
-<a class="jxr_linenumber" name="204" href="#204">204</a>           <strong class="jxr_keyword">final</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">ExecResult</a> originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
+<a class="jxr_linenumber" name="168" href="#168">168</a>     <strong class="jxr_keyword">final</strong> File versionsPlistFile = <strong class="jxr_keyword">new</strong> File(project.getBuild().getDirectory(), <span class="jxr_string">"versions.plist"</span>);
+<a class="jxr_linenumber" name="169" href="#169">169</a>     <strong class="jxr_keyword">if</strong> (versionsPlistFile.exists()) {
+<a class="jxr_linenumber" name="170" href="#170">170</a>       versionsPlistFile.delete();
+<a class="jxr_linenumber" name="171" href="#171">171</a>     }
+<a class="jxr_linenumber" name="172" href="#172">172</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="173" href="#173">173</a>       <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/VersionInfoPListManager.html">VersionInfoPListManager</a>().createVersionInfoPlistFile(project.getGroupId(), project.getArtifactId(),
+<a class="jxr_linenumber" name="174" href="#174">174</a>             project.getVersion(), syncInfoFile, getDependencies(), versionsPlistFile);
+<a class="jxr_linenumber" name="175" href="#175">175</a>     }
+<a class="jxr_linenumber" name="176" href="#176">176</a>     <strong class="jxr_keyword">catch</strong> (JAXBException e) {
+<a class="jxr_linenumber" name="177" href="#177">177</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(e.getMessage(), e);
+<a class="jxr_linenumber" name="178" href="#178">178</a>     }
+<a class="jxr_linenumber" name="179" href="#179">179</a>     <strong class="jxr_keyword">catch</strong> (SAXException e) {
+<a class="jxr_linenumber" name="180" href="#180">180</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(e.getMessage(), e);
+<a class="jxr_linenumber" name="181" href="#181">181</a>     }
+<a class="jxr_linenumber" name="182" href="#182">182</a>     <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="183" href="#183">183</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(e.getMessage(), e);
+<a class="jxr_linenumber" name="184" href="#184">184</a>     }
+<a class="jxr_linenumber" name="185" href="#185">185</a> 
+<a class="jxr_linenumber" name="186" href="#186">186</a>     <strong class="jxr_keyword">if</strong> (getPackagingType() == PackagingType.APP)
+<a class="jxr_linenumber" name="187" href="#187">187</a>     {
+<a class="jxr_linenumber" name="188" href="#188">188</a>       <strong class="jxr_keyword">try</strong>
+<a class="jxr_linenumber" name="189" href="#189">189</a>       {
+<a class="jxr_linenumber" name="190" href="#190">190</a>         copyVersionsFilesAndSign();
+<a class="jxr_linenumber" name="191" href="#191">191</a>       }
+<a class="jxr_linenumber" name="192" href="#192">192</a>       <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="193" href="#193">193</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(e.getMessage(), e);
+<a class="jxr_linenumber" name="194" href="#194">194</a>       }
+<a class="jxr_linenumber" name="195" href="#195">195</a>       <strong class="jxr_keyword">catch</strong> (ExecutionResultVerificationException e) {
+<a class="jxr_linenumber" name="196" href="#196">196</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(e.getMessage(), e);
+<a class="jxr_linenumber" name="197" href="#197">197</a>       }
+<a class="jxr_linenumber" name="198" href="#198">198</a>       <strong class="jxr_keyword">catch</strong> (XCodeException e) {
+<a class="jxr_linenumber" name="199" href="#199">199</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(e.getMessage(), e);
+<a class="jxr_linenumber" name="200" href="#200">200</a>       }
+<a class="jxr_linenumber" name="201" href="#201">201</a>     }
+<a class="jxr_linenumber" name="202" href="#202">202</a> 
+<a class="jxr_linenumber" name="203" href="#203">203</a>     projectHelper.attachArtifact(project, <span class="jxr_string">"xml"</span>, <span class="jxr_string">"versions"</span>, versionsXmlFile);
+<a class="jxr_linenumber" name="204" href="#204">204</a>     getLog().info(<span class="jxr_string">"versions.xml '"</span> + versionsXmlFile + <span class="jxr_string">" attached as additional artifact."</span>);
 <a class="jxr_linenumber" name="205" href="#205">205</a> 
-<a class="jxr_linenumber" name="206" href="#206">206</a>           FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);
+<a class="jxr_linenumber" name="206" href="#206">206</a>   }
 <a class="jxr_linenumber" name="207" href="#207">207</a> 
-<a class="jxr_linenumber" name="208" href="#208">208</a>           sign(rootDir, configuration, sdk);
-<a class="jxr_linenumber" name="209" href="#209">209</a> 
-<a class="jxr_linenumber" name="210" href="#210">210</a>           <strong class="jxr_keyword">final</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">ExecResult</a> resignedCodesignEntitlementsInfo = <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">CodeSignManager</a>
-<a class="jxr_linenumber" name="211" href="#211">211</a>             .getCodesignEntitlementsInformation(appFolder);
-<a class="jxr_linenumber" name="212" href="#212">212</a>           <strong class="jxr_keyword">final</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">ExecResult</a> resignedSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
-<a class="jxr_linenumber" name="213" href="#213">213</a>           CodeSignManager.verify(appFolder);
-<a class="jxr_linenumber" name="214" href="#214">214</a>           CodeSignManager.verify(originalCodesignEntitlementsInfo, resignedCodesignEntitlementsInfo);
-<a class="jxr_linenumber" name="215" href="#215">215</a>           CodeSignManager.verify(originalSecurityCMSMessageInfo, resignedSecurityCMSMessageInfo);
-<a class="jxr_linenumber" name="216" href="#216">216</a>         }
-<a class="jxr_linenumber" name="217" href="#217">217</a>       }
-<a class="jxr_linenumber" name="218" href="#218">218</a>     }
-<a class="jxr_linenumber" name="219" href="#219">219</a>   }
-<a class="jxr_linenumber" name="220" href="#220">220</a> 
-<a class="jxr_linenumber" name="221" href="#221">221</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> sign(File rootDir, String configuration, String sdk) <strong class="jxr_keyword">throws</strong> IOException
-<a class="jxr_linenumber" name="222" href="#222">222</a>   {
-<a class="jxr_linenumber" name="223" href="#223">223</a>     <a href="../../../../../../com/sap/prd/mobile/ios/mios/EffectiveBuildSettings.html">EffectiveBuildSettings</a> settings = <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/EffectiveBuildSettings.html">EffectiveBuildSettings</a>(<strong class="jxr_keyword">this</strong>.project, configuration, sdk);
-<a class="jxr_linenumber" name="224" href="#224">224</a>     String csi = settings.getBuildSetting(EffectiveBuildSettings.CODE_SIGN_IDENTITY);
-<a class="jxr_linenumber" name="225" href="#225">225</a>     File appFolder = <strong class="jxr_keyword">new</strong> File(settings.getBuildSetting(EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
-<a class="jxr_linenumber" name="226" href="#226">226</a>     CodeSignManager.sign(csi, appFolder, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="227" href="#227">227</a>   }
-<a class="jxr_linenumber" name="228" href="#228">228</a> 
-<a class="jxr_linenumber" name="229" href="#229">229</a>   <strong class="jxr_keyword">private</strong> List&lt;Dependency&gt; getDependencies() <strong class="jxr_keyword">throws</strong> JAXBException, SAXException, IOException
-<a class="jxr_linenumber" name="230" href="#230">230</a>   {
+<a class="jxr_linenumber" name="208" href="#208">208</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> copyVersionsFilesAndSign() <strong class="jxr_keyword">throws</strong> IOException, ExecutionResultVerificationException, XCodeException,
+<a class="jxr_linenumber" name="209" href="#209">209</a>         MojoExecutionException
+<a class="jxr_linenumber" name="210" href="#210">210</a>   {
+<a class="jxr_linenumber" name="211" href="#211">211</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String configuration : getConfigurations())
+<a class="jxr_linenumber" name="212" href="#212">212</a>     {
+<a class="jxr_linenumber" name="213" href="#213">213</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String sdk : getSDKs())
+<a class="jxr_linenumber" name="214" href="#214">214</a>       {
+<a class="jxr_linenumber" name="215" href="#215">215</a>         <strong class="jxr_keyword">if</strong> (sdk.startsWith(<span class="jxr_string">"iphoneos"</span>))
+<a class="jxr_linenumber" name="216" href="#216">216</a>         {
+<a class="jxr_linenumber" name="217" href="#217">217</a>           File versionsXmlInBuild = <strong class="jxr_keyword">new</strong> File(project.getBuild().getDirectory(), <span class="jxr_string">"versions.xml"</span>);
+<a class="jxr_linenumber" name="218" href="#218">218</a>           File versionsPListInBuild = <strong class="jxr_keyword">new</strong> File(project.getBuild().getDirectory(), <span class="jxr_string">"versions.plist"</span>);
+<a class="jxr_linenumber" name="219" href="#219">219</a> 
+<a class="jxr_linenumber" name="220" href="#220">220</a>           File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, sdk);
+<a class="jxr_linenumber" name="221" href="#221">221</a> 
+<a class="jxr_linenumber" name="222" href="#222">222</a>           String productName = getProductName(configuration, sdk);
+<a class="jxr_linenumber" name="223" href="#223">223</a>           File appFolder = <strong class="jxr_keyword">new</strong> File(rootDir, productName + <span class="jxr_string">".app"</span>);
+<a class="jxr_linenumber" name="224" href="#224">224</a>           File versionsXmlInApp = <strong class="jxr_keyword">new</strong> File(appFolder, <span class="jxr_string">"versions.xml"</span>);
+<a class="jxr_linenumber" name="225" href="#225">225</a>           File versionsPListInApp = <strong class="jxr_keyword">new</strong> File(appFolder, <span class="jxr_string">"versions.plist"</span>);
+<a class="jxr_linenumber" name="226" href="#226">226</a> 
+<a class="jxr_linenumber" name="227" href="#227">227</a>           CodeSignManager.verify(appFolder);
+<a class="jxr_linenumber" name="228" href="#228">228</a>           <strong class="jxr_keyword">final</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">ExecResult</a> originalCodesignEntitlementsInfo = <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">CodeSignManager</a>
+<a class="jxr_linenumber" name="229" href="#229">229</a>             .getCodesignEntitlementsInformation(appFolder);
+<a class="jxr_linenumber" name="230" href="#230">230</a>           <strong class="jxr_keyword">final</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">ExecResult</a> originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
 <a class="jxr_linenumber" name="231" href="#231">231</a> 
-<a class="jxr_linenumber" name="232" href="#232">232</a>     List&lt;Dependency&gt; result = <strong class="jxr_keyword">new</strong> ArrayList&lt;Dependency&gt;();
-<a class="jxr_linenumber" name="233" href="#233">233</a> 
-<a class="jxr_linenumber" name="234" href="#234">234</a>     <strong class="jxr_keyword">for</strong> (@SuppressWarnings(<span class="jxr_string">"rawtypes"</span>)
-<a class="jxr_linenumber" name="235" href="#235">235</a>     <strong class="jxr_keyword">final</strong> Iterator it = project.getDependencyArtifacts().iterator(); it.hasNext();) {
+<a class="jxr_linenumber" name="232" href="#232">232</a>           FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);
+<a class="jxr_linenumber" name="233" href="#233">233</a>           getLog().info(<span class="jxr_string">"Versions.xml file copied from: '"</span> + versionsXmlInBuild + <span class="jxr_string">" ' to ' "</span> + versionsXmlInApp);
+<a class="jxr_linenumber" name="234" href="#234">234</a>           FileUtils.copyFile(versionsPListInBuild, versionsPListInApp);
+<a class="jxr_linenumber" name="235" href="#235">235</a>           getLog().info(<span class="jxr_string">"Versions.plist file copied from: '"</span> + versionsPListInBuild + <span class="jxr_string">" ' to ' "</span> + versionsPListInApp);
 <a class="jxr_linenumber" name="236" href="#236">236</a> 
-<a class="jxr_linenumber" name="237" href="#237">237</a>       <strong class="jxr_keyword">final</strong> Artifact mainArtifact = (Artifact) it.next();
+<a class="jxr_linenumber" name="237" href="#237">237</a>           sign(rootDir, configuration, sdk);
 <a class="jxr_linenumber" name="238" href="#238">238</a> 
-<a class="jxr_linenumber" name="239" href="#239">239</a>       <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="240" href="#240">240</a>         org.sonatype.aether.artifact.Artifact sideArtifact = <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/XCodeDownloadManager.html">XCodeDownloadManager</a>(projectRepos, repoSystem,
-<a class="jxr_linenumber" name="241" href="#241">241</a>               repoSession).resolveSideArtifact(mainArtifact, <span class="jxr_string">"versions"</span>, <span class="jxr_string">"xml"</span>);
-<a class="jxr_linenumber" name="242" href="#242">242</a>         getLog().info(<span class="jxr_string">"Version information retrieved for artifact: "</span> + mainArtifact);
-<a class="jxr_linenumber" name="243" href="#243">243</a> 
-<a class="jxr_linenumber" name="244" href="#244">244</a>         result.add(VersionInfoManager.parseDependency(sideArtifact.getFile()));
-<a class="jxr_linenumber" name="245" href="#245">245</a>       }
-<a class="jxr_linenumber" name="246" href="#246">246</a>       <strong class="jxr_keyword">catch</strong> (SideArtifactNotFoundException e) {
-<a class="jxr_linenumber" name="247" href="#247">247</a>         getLog().info(<span class="jxr_string">"Could not retrieve version information for artifact:"</span> + mainArtifact);
-<a class="jxr_linenumber" name="248" href="#248">248</a>       }
-<a class="jxr_linenumber" name="249" href="#249">249</a>     }
-<a class="jxr_linenumber" name="250" href="#250">250</a>     <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="251" href="#251">251</a>   }
-<a class="jxr_linenumber" name="252" href="#252">252</a> }
+<a class="jxr_linenumber" name="239" href="#239">239</a>           <strong class="jxr_keyword">final</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">ExecResult</a> resignedCodesignEntitlementsInfo = <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">CodeSignManager</a>
+<a class="jxr_linenumber" name="240" href="#240">240</a>             .getCodesignEntitlementsInformation(appFolder);
+<a class="jxr_linenumber" name="241" href="#241">241</a>           <strong class="jxr_keyword">final</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/CodeSignManager.html">ExecResult</a> resignedSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
+<a class="jxr_linenumber" name="242" href="#242">242</a>           CodeSignManager.verify(appFolder);
+<a class="jxr_linenumber" name="243" href="#243">243</a>           CodeSignManager.verify(originalCodesignEntitlementsInfo, resignedCodesignEntitlementsInfo);
+<a class="jxr_linenumber" name="244" href="#244">244</a>           CodeSignManager.verify(originalSecurityCMSMessageInfo, resignedSecurityCMSMessageInfo);
+<a class="jxr_linenumber" name="245" href="#245">245</a>         }
+<a class="jxr_linenumber" name="246" href="#246">246</a>       }
+<a class="jxr_linenumber" name="247" href="#247">247</a>     }
+<a class="jxr_linenumber" name="248" href="#248">248</a>   }
+<a class="jxr_linenumber" name="249" href="#249">249</a> 
+<a class="jxr_linenumber" name="250" href="#250">250</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> sign(File rootDir, String configuration, String sdk) <strong class="jxr_keyword">throws</strong> IOException, XCodeException
+<a class="jxr_linenumber" name="251" href="#251">251</a>   {
+<a class="jxr_linenumber" name="252" href="#252">252</a>     String csi = EffectiveBuildSettings.getBuildSetting(
+<a class="jxr_linenumber" name="253" href="#253">253</a>           getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(),
+<a class="jxr_linenumber" name="254" href="#254">254</a>           EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+<a class="jxr_linenumber" name="255" href="#255">255</a>     File appFolder = <strong class="jxr_keyword">new</strong> File(EffectiveBuildSettings.getBuildSetting(
+<a class="jxr_linenumber" name="256" href="#256">256</a>           getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(),
+<a class="jxr_linenumber" name="257" href="#257">257</a>           EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
+<a class="jxr_linenumber" name="258" href="#258">258</a>     CodeSignManager.sign(csi, appFolder, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="259" href="#259">259</a>   }
+<a class="jxr_linenumber" name="260" href="#260">260</a> 
+<a class="jxr_linenumber" name="261" href="#261">261</a>   <strong class="jxr_keyword">private</strong> List&lt;Dependency&gt; getDependencies() <strong class="jxr_keyword">throws</strong> JAXBException, SAXException, IOException
+<a class="jxr_linenumber" name="262" href="#262">262</a>   {
+<a class="jxr_linenumber" name="263" href="#263">263</a> 
+<a class="jxr_linenumber" name="264" href="#264">264</a>     List&lt;Dependency&gt; result = <strong class="jxr_keyword">new</strong> ArrayList&lt;Dependency&gt;();
+<a class="jxr_linenumber" name="265" href="#265">265</a> 
+<a class="jxr_linenumber" name="266" href="#266">266</a>     <strong class="jxr_keyword">for</strong> (@SuppressWarnings(<span class="jxr_string">"rawtypes"</span>)
+<a class="jxr_linenumber" name="267" href="#267">267</a>     <strong class="jxr_keyword">final</strong> Iterator it = project.getDependencyArtifacts().iterator(); it.hasNext();) {
+<a class="jxr_linenumber" name="268" href="#268">268</a> 
+<a class="jxr_linenumber" name="269" href="#269">269</a>       <strong class="jxr_keyword">final</strong> Artifact mainArtifact = (Artifact) it.next();
+<a class="jxr_linenumber" name="270" href="#270">270</a> 
+<a class="jxr_linenumber" name="271" href="#271">271</a>       <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="272" href="#272">272</a>         org.sonatype.aether.artifact.Artifact sideArtifact = <strong class="jxr_keyword">new</strong> <a href="../../../../../../com/sap/prd/mobile/ios/mios/XCodeDownloadManager.html">XCodeDownloadManager</a>(projectRepos, repoSystem,
+<a class="jxr_linenumber" name="273" href="#273">273</a>               repoSession).resolveSideArtifact(mainArtifact, <span class="jxr_string">"versions"</span>, <span class="jxr_string">"xml"</span>);
+<a class="jxr_linenumber" name="274" href="#274">274</a>         getLog().info(<span class="jxr_string">"Version information retrieved for artifact: "</span> + mainArtifact);
+<a class="jxr_linenumber" name="275" href="#275">275</a> 
+<a class="jxr_linenumber" name="276" href="#276">276</a>         result.add(VersionInfoXmlManager.parseDependency(sideArtifact.getFile()));
+<a class="jxr_linenumber" name="277" href="#277">277</a>       }
+<a class="jxr_linenumber" name="278" href="#278">278</a>       <strong class="jxr_keyword">catch</strong> (SideArtifactNotFoundException e) {
+<a class="jxr_linenumber" name="279" href="#279">279</a>         getLog().info(<span class="jxr_string">"Could not retrieve version information for artifact:"</span> + mainArtifact);
+<a class="jxr_linenumber" name="280" href="#280">280</a>       }
+<a class="jxr_linenumber" name="281" href="#281">281</a>     }
+<a class="jxr_linenumber" name="282" href="#282">282</a>     <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="283" href="#283">283</a>   }
+<a class="jxr_linenumber" name="284" href="#284">284</a> }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>

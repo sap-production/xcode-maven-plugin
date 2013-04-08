@@ -124,7 +124,7 @@
 <a class="jxr_linenumber" name="114" href="#114">114</a>     assertNull(plist.getStringValue(<span class="jxr_string">"foo"</span>));
 <a class="jxr_linenumber" name="115" href="#115">115</a>   }
 <a class="jxr_linenumber" name="116" href="#116">116</a> 
-<a class="jxr_linenumber" name="117" href="#117">117</a>   @Test(expected=IllegalStateException.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="117" href="#117">117</a>   @Test(expected = IllegalStateException.<strong class="jxr_keyword">class</strong>)
 <a class="jxr_linenumber" name="118" href="#118">118</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> writeStringToNonExistingKey() <strong class="jxr_keyword">throws</strong> IOException
 <a class="jxr_linenumber" name="119" href="#119">119</a>   {
 <a class="jxr_linenumber" name="120" href="#120">120</a>     plist.updateStringValue(<span class="jxr_string">"foo"</span>, <span class="jxr_string">"com.sap.myapp.internal"</span>);
@@ -135,12 +135,12 @@
 <a class="jxr_linenumber" name="125" href="#125">125</a>     appId = plist.getStringValue(<span class="jxr_string">"foo"</span>);
 <a class="jxr_linenumber" name="126" href="#126">126</a>     assertEquals(<span class="jxr_string">"com.sap.myapp.internal"</span>, appId);
 <a class="jxr_linenumber" name="127" href="#127">127</a>   }
-<a class="jxr_linenumber" name="128" href="#128">128</a>   
+<a class="jxr_linenumber" name="128" href="#128">128</a> 
 <a class="jxr_linenumber" name="129" href="#129">129</a>   @Test
 <a class="jxr_linenumber" name="130" href="#130">130</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testAddEntry() <strong class="jxr_keyword">throws</strong> Exception
 <a class="jxr_linenumber" name="131" href="#131">131</a>   {
-<a class="jxr_linenumber" name="132" href="#132">132</a>    plist.addStringValue(<span class="jxr_string">"hugo"</span>, <span class="jxr_string">"test"</span>);
-<a class="jxr_linenumber" name="133" href="#133">133</a>    assertEquals(<span class="jxr_string">"test"</span>, plist.getStringValue(<span class="jxr_string">"hugo"</span>));
+<a class="jxr_linenumber" name="132" href="#132">132</a>     plist.addStringValue(<span class="jxr_string">"hugo"</span>, <span class="jxr_string">"test"</span>);
+<a class="jxr_linenumber" name="133" href="#133">133</a>     assertEquals(<span class="jxr_string">"test"</span>, plist.getStringValue(<span class="jxr_string">"hugo"</span>));
 <a class="jxr_linenumber" name="134" href="#134">134</a>   }
 <a class="jxr_linenumber" name="135" href="#135">135</a> 
 <a class="jxr_linenumber" name="136" href="#136">136</a> }
