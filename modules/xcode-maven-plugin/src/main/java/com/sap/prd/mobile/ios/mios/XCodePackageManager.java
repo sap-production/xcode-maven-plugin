@@ -153,8 +153,7 @@ class XCodePackageManager
     log.info("Main artifact file '" + mainArtifactTarFile + "' attached for " + project.getArtifact());
   }
 
-  void packageHeaders(final XCodeContext xcodeContext, MavenProject project,
-        Log log) throws IOException, XCodeException
+  void packageHeaders(final XCodeContext xcodeContext, MavenProject project) throws IOException, XCodeException
   {
 
     String publicHeaderPath = EffectiveBuildSettings.getBuildSetting(xcodeContext, log,

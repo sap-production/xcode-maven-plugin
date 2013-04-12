@@ -73,7 +73,7 @@ public class XCodePackageMojo extends BuildContextAwareMojo
 
           projectRootDir = context.getProjectRootDirectory(); // TODO improve, but should be each time the same directory.
 
-          new XCodePackageManager(getLog(), archiverManager, projectHelper).packageHeaders(context, project, getLog());
+          new XCodePackageManager(getLog(), archiverManager, projectHelper).packageHeaders(context, project);
           final File buildDir = XCodeBuildLayout.getBuildDir(projectRootDir);
           XCodePackageManager.attachLibrary(context, buildDir, project, projectHelper, getLog());
         }
