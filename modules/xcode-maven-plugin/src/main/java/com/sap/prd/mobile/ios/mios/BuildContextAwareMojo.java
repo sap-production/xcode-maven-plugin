@@ -236,7 +236,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
   }
   
   @SuppressWarnings("unchecked")
-  Set<String> getKeys(String prefix) {
+  protected Set<String> getKeys(String prefix) {
     
     Set<String> result = new HashSet<String>();
     
@@ -253,7 +253,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     return result;
   }
   
-  private String getProperty(String key)
+  protected String getProperty(String key)
   {
     String value = session.getUserProperties().getProperty(key);
 
