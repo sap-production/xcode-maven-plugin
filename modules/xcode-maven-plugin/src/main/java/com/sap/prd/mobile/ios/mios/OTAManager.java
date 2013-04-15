@@ -19,9 +19,12 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.Map;
 
 import com.sap.prd.mobile.ios.ota.lib.OtaBuildHtmlGenerator;
 import com.sap.prd.mobile.ios.ota.lib.OtaBuildHtmlGenerator.Parameters;
@@ -35,9 +38,12 @@ class OTAManager
   private final String bundleVersion;
   private final String ipaClassifier;
   private final String otaClassifier;
+  private final String buildHtmltemplate;
+  private final Map<String, String> initParams;
 
   public OTAManager(URL miosOtaServiceUrl, String title, String bundleIdentifier,
-        String bundleVersion, String ipaClassifier, String otaClassifier)
+        String bundleVersion, String ipaClassifier, String otaClassifier, String buildHtmltemplate,
+        Map<String, String> initParams)
   {
     super();
     this.miosOtaServiceUrl = miosOtaServiceUrl;
@@ -46,6 +52,8 @@ class OTAManager
     this.bundleVersion = bundleVersion;
     this.ipaClassifier = ipaClassifier;
     this.otaClassifier = otaClassifier;
+    this.buildHtmltemplate = buildHtmltemplate;
+    this.initParams = initParams;
   }
 
   boolean generateOtaHTML()
@@ -60,8 +68,13 @@ class OTAManager
 
     try {
       Parameters parameters = new Parameters(miosOtaServiceUrl, title, bundleIdentifier, bundleVersion,
-            ipaClassifier, otaClassifier);
-      OtaBuildHtmlGenerator.getInstance().generate(printWriter, parameters);
+            ipaClassifier, otaClassifier, initParams);
+      if (isEmpty(buildHtmltemplate)) {
+        OtaBuildHtmlGenerator.getInstance().generate(printWriter, parameters);
+      }
+      else {
+        OtaBuildHtmlGenerator.getNewInstance(buildHtmltemplate).generate(printWriter, parameters);
+      }
       printWriter.flush();
     }
     finally {
