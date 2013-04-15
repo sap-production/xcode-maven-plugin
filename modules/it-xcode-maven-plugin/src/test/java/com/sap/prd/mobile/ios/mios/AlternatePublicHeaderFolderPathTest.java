@@ -100,7 +100,7 @@ public class AlternatePublicHeaderFolderPathTest extends XCodeTest
   }
 
   @Test
-  public void testExistsHeaders() throws Exception
+  public void testHeadersWithPrefix() throws Exception
   {
     File headersTar = new File(remoteRepositoryDirectory, "com/sap/ondevice/production/ios/tests/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion + "-Release-iphoneos.headers.tar");
 
@@ -114,7 +114,10 @@ public class AlternatePublicHeaderFolderPathTest extends XCodeTest
     } finally {
       IOUtils.closeQuietly(out);
     }
-      String toc = new String(byteOs.toByteArray());
-      Assert.assertTrue(toc.contains("include/PrintOutObject.h"));
+      final String toc = new String(byteOs.toByteArray());
+      final String expectedContent = "include/PrintOutObject.h";
+      Assert.assertTrue("Table of content of the headers tar file '" + headersTar
+          + "' does not contain the expected content '" + expectedContent + "'. Table of content is: " + toc,
+          toc.contains(expectedContent));
   }
 }

@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
@@ -153,17 +154,14 @@ class XCodePackageManager
     log.info("Main artifact file '" + mainArtifactTarFile + "' attached for " + project.getArtifact());
   }
 
-  void packageHeaders(final XCodeContext xcodeContext, MavenProject project) throws IOException, XCodeException
+  void packageHeaders(final XCodeContext xcodeContext, MavenProject project, String relativeAlternatePublicHeaderFolderPath) throws IOException, XCodeException
   {
+    final File publicHeaderFolderPath = getPublicHeaderFolderPath(xcodeContext, relativeAlternatePublicHeaderFolderPath);
 
-    String publicHeaderPath = EffectiveBuildSettings.getBuildSetting(xcodeContext, log,
-          EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
-
-    final File headerDir = new File(XCodeBuildLayout.getAppFolder(xcodeContext.getProjectRootDirectory(),
-          xcodeContext.getConfiguration(), xcodeContext.getSDK()), publicHeaderPath);
-
-    if (!headerDir.canRead())
+    if (!publicHeaderFolderPath.canRead()) {
+      log.warn("Public header folder path '" + publicHeaderFolderPath + "' cannot be read. Unable to package headers.");
       return;
+    }
 
     final File headersFile = new File(new File(new File(project.getBuild().getDirectory()),
           xcodeContext.getConfiguration() + "-" + xcodeContext.getSDK()),
@@ -171,14 +169,14 @@ class XCodePackageManager
 
     try {
 
-      archive("tar", headerDir, headersFile, new String[] { "**/*.h" }, null);
+      archive("tar", publicHeaderFolderPath, headersFile, new String[] { "**/*.h" }, null);
       log.info("header tar file created (" + headersFile + ")");
     }
     catch (XCodeException ex) {
-      throw new RuntimeException("Could not archive header directory '" + headerDir + "'", ex);
+      throw new RuntimeException("Could not archive header directory '" + publicHeaderFolderPath + "'", ex);
     }
     catch (NoSuchArchiverException ex) {
-      throw new RuntimeException("Could not archive header directory '" + headerDir + "'", ex);
+      throw new RuntimeException("Could not archive header directory '" + publicHeaderFolderPath + "'", ex);
     }
 
     prepareHeaderFileForDeployment(project, xcodeContext.getConfiguration(), xcodeContext.getSDK(), headersFile);
@@ -252,5 +250,42 @@ class XCodePackageManager
             ex);
     }
   }
+  
+  private File getPublicHeaderFolderPath(final XCodeContext context, String relativeAlternatePublicHeaderFolderPath) throws XCodeException {
+
+    final String relativePublicHeaderFolderPathInXcodeProject = EffectiveBuildSettings.getBuildSetting(context, log,
+          EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
+
+    final String relativePublicHeaderFolderPath;
+
+    if (StringUtils.isEmpty(relativeAlternatePublicHeaderFolderPath)) {
+
+      relativePublicHeaderFolderPath = relativePublicHeaderFolderPathInXcodeProject;
+
+      log.info(
+            "Using public header folder path as it is configured in the xcode project: '"
+                  + relativePublicHeaderFolderPathInXcodeProject + "'.");
+
+    }
+    else {
+
+      relativePublicHeaderFolderPath = relativeAlternatePublicHeaderFolderPath;
+      
+      if (!com.sap.prd.mobile.ios.mios.FileUtils.isChild(new File(relativeAlternatePublicHeaderFolderPath), new File(relativePublicHeaderFolderPathInXcodeProject)))
+        throw new XCodeException(
+              "Public header folder path configured on the level of xcode-maven-plugin configuration ("
+                    + relativeAlternatePublicHeaderFolderPath
+                    + ") is not a parent folder of the public header path configured inside the xcode project ("
+                    + relativePublicHeaderFolderPathInXcodeProject + ").");
+
+      log.info(
+            "Using public header folder path as it is defined inside the xcode-maven-plugin (" + relativeAlternatePublicHeaderFolderPath
+            + "). In the xcode project '" + relativePublicHeaderFolderPathInXcodeProject
+            + "' is configured as public header folder path.");
+    }
+
+    return new File(EffectiveBuildSettings.getBuildSetting(context, log, EffectiveBuildSettings.BUILT_PRODUCTS_DIR) + "/" + relativePublicHeaderFolderPath);
+  }
+
 
 }
