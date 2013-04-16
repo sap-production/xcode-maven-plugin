@@ -154,9 +154,13 @@ class XCodePackageManager
     log.info("Main artifact file '" + mainArtifactTarFile + "' attached for " + project.getArtifact());
   }
 
-  void packageHeaders(final XCodeContext xcodeContext, MavenProject project, String relativeAlternatePublicHeaderFolderPath) throws IOException, XCodeException
+  void packageHeaders(final XCodeContext xcodeContext, MavenProject project,
+        String relativeAlternatePublicHeaderFolderPath) throws IOException, XCodeException
   {
-    final File publicHeaderFolderPath = getPublicHeaderFolderPath(xcodeContext, relativeAlternatePublicHeaderFolderPath);
+    final File publicHeaderFolderPath = getPublicHeaderFolderPath(log,
+          EffectiveBuildSettings.getBuildSetting(xcodeContext, log, EffectiveBuildSettings.BUILT_PRODUCTS_DIR),
+          EffectiveBuildSettings.getBuildSetting(xcodeContext, log, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH),
+          relativeAlternatePublicHeaderFolderPath);
 
     if (!publicHeaderFolderPath.canRead()) {
       log.warn("Public header folder path '" + publicHeaderFolderPath + "' cannot be read. Unable to package headers.");
@@ -250,12 +254,12 @@ class XCodePackageManager
             ex);
     }
   }
-  
-  private File getPublicHeaderFolderPath(final XCodeContext context, String relativeAlternatePublicHeaderFolderPath) throws XCodeException {
 
-    final String relativePublicHeaderFolderPathInXcodeProject = EffectiveBuildSettings.getBuildSetting(context, log,
-          EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
+  static File getPublicHeaderFolderPath(final Log log, String builtProductDirInsideXcodeProject, String publicHeaderFolderPathInsideXcodeProject, String relativeAlternatePublicHeaderFolderPath)
+        throws XCodeException
+  {
 
+    final String relativePublicHeaderFolderPathInXcodeProject = publicHeaderFolderPathInsideXcodeProject;
     final String relativePublicHeaderFolderPath;
 
     if (StringUtils.isEmpty(relativeAlternatePublicHeaderFolderPath)) {
@@ -263,29 +267,30 @@ class XCodePackageManager
       relativePublicHeaderFolderPath = relativePublicHeaderFolderPathInXcodeProject;
 
       log.info(
-            "Using public header folder path as it is configured in the xcode project: '"
-                  + relativePublicHeaderFolderPathInXcodeProject + "'.");
+        "Using public header folder path as it is configured in the xcode project: '"
+              + relativePublicHeaderFolderPathInXcodeProject + "'.");
 
     }
     else {
 
       relativePublicHeaderFolderPath = relativeAlternatePublicHeaderFolderPath;
-      
-      if (!com.sap.prd.mobile.ios.mios.FileUtils.isChild(new File(relativeAlternatePublicHeaderFolderPath), new File(relativePublicHeaderFolderPathInXcodeProject)))
-        throw new XCodeException(
+
+      if (!com.sap.prd.mobile.ios.mios.FileUtils.isChild(new File(
+            com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativeAlternatePublicHeaderFolderPath)), new File(
+            com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativePublicHeaderFolderPathInXcodeProject))))
+        throw new InvalidAlternatePublicHeaderPathException(
               "Public header folder path configured on the level of xcode-maven-plugin configuration ("
                     + relativeAlternatePublicHeaderFolderPath
                     + ") is not a parent folder of the public header path configured inside the xcode project ("
                     + relativePublicHeaderFolderPathInXcodeProject + ").");
 
       log.info(
-            "Using public header folder path as it is defined inside the xcode-maven-plugin (" + relativeAlternatePublicHeaderFolderPath
-            + "). In the xcode project '" + relativePublicHeaderFolderPathInXcodeProject
-            + "' is configured as public header folder path.");
+        "Using public header folder path as it is defined inside the xcode-maven-plugin ("
+              + relativeAlternatePublicHeaderFolderPath
+              + "). In the xcode project '" + relativePublicHeaderFolderPathInXcodeProject
+              + "' is configured as public header folder path.");
     }
 
-    return new File(EffectiveBuildSettings.getBuildSetting(context, log, EffectiveBuildSettings.BUILT_PRODUCTS_DIR) + "/" + relativePublicHeaderFolderPath);
+    return new File(builtProductDirInsideXcodeProject, com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativePublicHeaderFolderPath));
   }
-
-
 }

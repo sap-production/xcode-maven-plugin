@@ -60,6 +60,10 @@ public class XCodePackageMojo extends BuildContextAwareMojo
    * 
    * The path to the public headers relative to the 
    * built products directory (BUILT_PRODUCTS_DIR).
+   * The path specified here needs to be defined in the same way than
+   * the PUBLIC_HEADER_FOLDER_PATH inside the xcode project.
+   * The folder provided here must be a parent folder of the
+   * folder defined in the xcode project as PUBLIC_HEADER_FOLDER_PATH.
    */
   private String relativeAlternatePublicHeaderFolderPath;
 
