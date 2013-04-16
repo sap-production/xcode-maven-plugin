@@ -108,7 +108,8 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION),
                 ipaClassifier, otaClassifier, buildHtmlTemplate, getInitParameters());
-
+          otaManager.setLogger(getLog());
+          
           if (otaManager.generateOtaHTML()) {
 
             PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(otaHtmlFile), "UTF-8"));

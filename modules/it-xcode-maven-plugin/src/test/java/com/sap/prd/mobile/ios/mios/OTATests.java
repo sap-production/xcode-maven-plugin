@@ -19,47 +19,38 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.junit.Test;
 
 public class OTATests extends XCodeTest
 {
+
   @Test
   public void testOTAUrlIsSetToEmpty() throws Exception
   {
-    final String testName = getTestName();
-
-    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
-
-    prepareRemoteRepository(remoteRepositoryDirectory);
-
-    Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0" + String.valueOf(System.currentTimeMillis()));
+    PreparationResult prep = prepareTest();
 
     Map<String, String> additionalSystemProperties = new HashMap<String, String>();
     additionalSystemProperties.put("mios.ota-service.url", "");
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
-    
-    final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
-    Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
-    try {
-      verifier = test(verifier, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
-            "deploy", THE_EMPTY_LIST, additionalSystemProperties, pomReplacements, new NullProjectModifier());
 
-    }
-    catch (VerificationException e) {
-      //
-      // This exception is expected.
-      // Below we check for the reason in the log file.
-      //
-    }
+    Verifier verifier = runTest(prep, additionalSystemProperties, Collections.<String> emptyList());
 
     verifier.verifyTextInLog("Unable to convert '' to an URL");
     verifier.verifyTextInLog("java.net.MalformedURLException: no protocol");
@@ -67,6 +58,114 @@ public class OTATests extends XCodeTest
 
   @Test
   public void testOTAUrlIsNotUrl() throws Exception
+  {
+    PreparationResult prep = prepareTest();
+
+    Map<String, String> additionalSystemProperties = new HashMap<String, String>();
+    String otaWrongURL = "htp://apple-ota.wdf.sap.corp:8080/ota-service/HTML";
+    additionalSystemProperties.put("mios.ota-service.url", otaWrongURL);
+
+    Verifier verifier = runTest(prep, additionalSystemProperties, Collections.<String> emptyList());
+
+    verifier.verifyTextInLog("java.net.MalformedURLException: unknown protocol: htp");
+    verifier.verifyTextInLog("Unable to convert '" + otaWrongURL + "' to an URL");
+  }
+
+  @Test
+  public void testOTABasicWorks() throws Exception
+  {
+    PreparationResult prep = prepareTest();
+
+    Map<String, String> additionalSystemProperties = new HashMap<String, String>();
+    String otaCorrectURL = "http://apple-ota.wdf.sap.corp:8080/ota-service/HTML";
+    additionalSystemProperties.put("mios.ota-service.url", otaCorrectURL);
+
+    Verifier verifier = runTest(prep, additionalSystemProperties, Collections.<String> emptyList());
+
+    verifier.verifyErrorFreeLog();
+    verifier.verifyTextInLog(":generate-ota-html (default-generate-ota-html) @ MyApp");
+    verifier.verifyTextInLog("[INFO] OTA HTML file");
+    verifier.verifyTextInLog("/MyApp.htm' created for configuration");
+    verifier.verifyTextInLog("-Release-iphoneos-ota.htm' written for ");
+
+    String version = prep.pomReplacements.getProperty(PROP_NAME_DYNAMIC_VERSION);
+    String artifactPath = verifier.getArtifactPath("com.sap.ondevice.production.ios.tests", "MyApp",
+          version, "htm");
+    artifactPath = artifactPath.replace(".htm", "-Release-iphoneos-ota.htm"); //not classifier support
+    assertFalse(isEmpty(artifactPath));
+    System.out.println(artifactPath);
+
+    assertFileContains(new File(artifactPath),
+          "src=\"http://apple-ota.wdf.sap.corp:8080/ota-service/HTML?" +
+                "title=MyApp&" +
+                "bundleIdentifier=com.sap.tip.production.inhouse.epdist&" +
+                "bundleVersion=" + version + "&" +
+                "ipaClassifier=Release-iphoneos&" +
+                "otaClassifier=Release-iphoneos-ota\"",
+
+          "<script language=\"javascript\" type=\"text/javascript\">" //new template with js referer param 
+    );
+  }
+
+  @Test
+  public void testOTACustomTemplateWorks() throws Exception
+  {
+    PreparationResult prep = prepareTest();
+
+    Map<String, String> additionalSystemProperties = new HashMap<String, String>();
+    String otaCorrectURL = "http://apple-ota.wdf.sap.corp:8080/ota-service/HTML";
+    additionalSystemProperties.put("mios.ota-service.url", otaCorrectURL);
+    additionalSystemProperties.put("mios.ota-service.buildHtmlTemplate", new File(".").getAbsolutePath()
+          + "/src/test/resources/otaBuildTemplate2.html");
+
+    List<String> addCommandLineParams = new ArrayList<String>();
+    addCommandLineParams.add("-Dmios.ota-service.pKey1=pValue1");
+    addCommandLineParams.add("-Dmios.ota-service.pKey2=pValue2");
+
+    Verifier verifier = runTest(prep, additionalSystemProperties, addCommandLineParams);
+
+    verifier.verifyErrorFreeLog();
+    verifier.verifyTextInLog(":generate-ota-html (default-generate-ota-html) @ MyApp");
+    verifier.verifyTextInLog("[INFO] OTA HTML file");
+    verifier.verifyTextInLog("/MyApp.htm' created for configuration");
+    verifier.verifyTextInLog("-Release-iphoneos-ota.htm' written for ");
+
+    String version = prep.pomReplacements.getProperty(PROP_NAME_DYNAMIC_VERSION);
+    String artifactPath = verifier.getArtifactPath("com.sap.ondevice.production.ios.tests", "MyApp",
+          version, "htm");
+    artifactPath = artifactPath.replace(".htm", "-Release-iphoneos-ota.htm"); //not classifier support
+    assertFalse(isEmpty(artifactPath));
+    System.out.println(artifactPath);
+
+    assertFileContains(new File(artifactPath),
+          "src=\"http://apple-ota.wdf.sap.corp:8080/ota-service/HTML?" +
+                "title=MyApp&" +
+                "bundleIdentifier=com.sap.tip.production.inhouse.epdist&" +
+                "bundleVersion=" + version + "&" +
+                "ipaClassifier=Release-iphoneos&" +
+                "otaClassifier=Release-iphoneos-ota\"",
+
+          "My Custom Template!",
+          "XX MyValue1=pValue1 XX",
+          "YY MyValue2=pValue2 YY");
+  }
+
+  private void assertFileContains(File file, String... expectedStrings) throws FileNotFoundException, IOException
+  {
+    String content;
+    FileInputStream fis = new FileInputStream(file);
+    try {
+      content = IOUtils.toString(fis);
+    }
+    finally {
+      IOUtils.closeQuietly(fis);
+    }
+    for (String expected : expectedStrings) {
+      assertTrue("'" + expected + "' not contained in '" + content + "'", content.contains(expected));
+    }
+  }
+
+  private PreparationResult prepareTest() throws IOException
   {
     final String testName = getTestName();
 
@@ -78,20 +177,38 @@ public class OTATests extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
 
-    Map<String, String> additionalSystemProperties = new HashMap<String, String>();
-    String otaWrongURL = "htp://apple-ota.wdf.sap.corp:8080/ota-service/HTML";
-    additionalSystemProperties.put("mios.ota-service.url", otaWrongURL);
+    return new PreparationResult(testName, pomReplacements);
+  }
 
-    test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
-    
+  private static class PreparationResult
+  {
+
+    private final String testName;
+    private final Properties pomReplacements;
+
+    public PreparationResult(String testName, Properties pomReplacements)
+    {
+      this.testName = testName;
+      this.pomReplacements = pomReplacements;
+    }
+
+  }
+
+  private Verifier runTest(PreparationResult prep, Map<String, String> additionalSystemProperties,
+        List<String> addCommandLineOptions) throws IOException,
+        Exception
+  {
+    test(prep.testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy", THE_EMPTY_LIST,
+          THE_EMPTY_MAP, prep.pomReplacements, new NullProjectModifier());
+
     final File projectDirectory = new File(getTestRootDirectory(), "straight-forward/MyApp");
 
-    Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
+    Verifier verifier = new Verifier(getTestExecutionDirectory(prep.testName, projectDirectory.getName())
+      .getAbsolutePath());
 
     try {
-      test(verifier, testName, projectDirectory, "deploy",
-            THE_EMPTY_LIST,
-            additionalSystemProperties, pomReplacements, new NullProjectModifier());
+      test(verifier, prep.testName, projectDirectory, "deploy",
+            addCommandLineOptions, additionalSystemProperties, prep.pomReplacements, new NullProjectModifier());
     }
     catch (VerificationException ex) {
       //
@@ -99,9 +216,7 @@ public class OTATests extends XCodeTest
       // Below we check for the reason in the log file.
       //
     }
-
-    verifier.verifyTextInLog("java.net.MalformedURLException: unknown protocol: htp");
-    verifier.verifyTextInLog("Unable to convert '" + otaWrongURL + "' to an URL");
-
+    return verifier;
   }
+
 }
