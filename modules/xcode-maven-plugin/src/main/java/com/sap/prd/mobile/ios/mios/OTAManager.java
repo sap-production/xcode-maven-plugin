@@ -73,7 +73,7 @@ class OTAManager
         OtaBuildHtmlGenerator.getInstance().generate(printWriter, parameters);
       }
       else {
-        OtaBuildHtmlGenerator.getNewInstance(buildHtmltemplate).generate(printWriter, parameters);
+        OtaBuildHtmlGenerator.getInstance(buildHtmltemplate).generate(printWriter, parameters);
       }
       printWriter.flush();
     }
