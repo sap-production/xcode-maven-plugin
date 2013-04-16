@@ -26,6 +26,8 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Map;
 
+import org.apache.maven.plugin.logging.Log;
+
 import com.sap.prd.mobile.ios.ota.lib.OtaBuildHtmlGenerator;
 import com.sap.prd.mobile.ios.ota.lib.OtaBuildHtmlGenerator.Parameters;
 
@@ -40,6 +42,7 @@ class OTAManager
   private final String otaClassifier;
   private final String buildHtmltemplate;
   private final Map<String, String> initParams;
+  private Log log = null;
 
   public OTAManager(URL miosOtaServiceUrl, String title, String bundleIdentifier,
         String bundleVersion, String ipaClassifier, String otaClassifier, String buildHtmltemplate,
@@ -69,16 +72,30 @@ class OTAManager
     try {
       Parameters parameters = new Parameters(miosOtaServiceUrl, title, bundleIdentifier, bundleVersion,
             ipaClassifier, otaClassifier, initParams);
+      OtaBuildHtmlGenerator generator;
       if (isEmpty(buildHtmltemplate)) {
-        OtaBuildHtmlGenerator.getInstance().generate(printWriter, parameters);
+        generator = OtaBuildHtmlGenerator.getInstance();
       }
       else {
-        OtaBuildHtmlGenerator.getNewInstance(buildHtmltemplate).generate(printWriter, parameters);
+        generator = OtaBuildHtmlGenerator.getNewInstance(buildHtmltemplate);
       }
+      log("Using OTA build HTML template "+generator.getTemplateName()+" (requested: "+buildHtmltemplate+")");
+      generator.generate(printWriter, parameters);
       printWriter.flush();
     }
     finally {
       printWriter.flush();
     }
+  }
+
+  private void log(String message)
+  {
+    if(log != null) log.info(message);
+  }
+
+  public void setLogger(Log log)
+  {
+    this.log  = log;
+  
   }
 }
