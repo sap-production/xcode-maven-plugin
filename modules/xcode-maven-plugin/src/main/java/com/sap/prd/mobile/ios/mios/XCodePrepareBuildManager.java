@@ -52,17 +52,20 @@ class XCodePrepareBuildManager
   private final ArchiverManager archiverManager;
   private final XCodeDownloadManager downloadManager;
   private final boolean useSymbolicLinks;
-
+  private Map<String, String> additionalPackagingTypes;
+  
   private boolean preferFatLibs;
+
 
   XCodePrepareBuildManager(final Log log, final ArchiverManager archiverManager,
         final RepositorySystemSession repoSystemSession, final RepositorySystem repoSystem,
-        final List<RemoteRepository> projectRepos, final boolean useSymbolicLinks)
+        final List<RemoteRepository> projectRepos, final boolean useSymbolicLinks, final Map<String, String> additionalPackagingTypes)
   {
     this.log = log;
     this.archiverManager = archiverManager;
     this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
     this.useSymbolicLinks = useSymbolicLinks;
+    this.additionalPackagingTypes = additionalPackagingTypes;
   }
 
   public XCodePrepareBuildManager setPreferFalLibs(boolean preferFatLibs)
@@ -95,8 +98,10 @@ class XCodePrepareBuildManager
       else if (PackagingType.FRAMEWORK.getMavenPackaging().equals(mainArtifact.getType())) {
         prepareFramework(project, mainArtifact);
       }
-      else
-        continue;
+      else  if (additionalPackagingTypes.keySet().contains(mainArtifact.getType())){
+    	  log.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + additionalPackagingTypes.get(mainArtifact.getType()));
+      }
+      else continue;
     }
   }
 
