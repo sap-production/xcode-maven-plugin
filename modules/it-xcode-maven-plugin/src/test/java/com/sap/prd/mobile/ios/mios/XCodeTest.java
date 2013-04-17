@@ -45,6 +45,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -68,6 +69,15 @@ public abstract class XCodeTest
   private static File localRepo = null;
   private static String activeProfiles = null;
 
+  /**
+   * If VM is started in debug mode the forked Maven processes are started in debug mode as well and
+   * stay suspended until the developer connects.
+   */
+  private static boolean debug = java.lang.management.ManagementFactory
+    .getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
+  private static int debugPort = 8000;
+  private static boolean debugSuspend = true;
+
   @Rule
   public static TemporaryFolder tmpFolder = new TemporaryFolder();
 
@@ -85,6 +95,35 @@ public abstract class XCodeTest
   protected String getTestName()
   {
     return getClass().getName() + File.separator + Thread.currentThread().getStackTrace()[2].getMethodName();
+  }
+
+  /**
+   * Enables/disables test debugging as Remote Java Application on port 8000. VM will be suspended
+   * until connected.
+   * 
+   * @param enable
+   *          true enables, false disables debugging
+   */
+  protected static void setDebugging(boolean enable)
+  {
+    setDebugging(enable, 8000, true);
+  }
+
+  /**
+   * Enables/disables test debugging as Remote Java Application.
+   * 
+   * @param enable
+   *          true enables, false disables debugging
+   * @param port
+   *          debug port to be used
+   * @param suspend
+   *          if true VM will be suspended until connected
+   */
+  protected static void setDebugging(boolean enable, int port, boolean suspend)
+  {
+    debug = enable;
+    debugPort = port;
+    debugSuspend = suspend;
   }
 
   private static void prepareTestExecutionActiveProfiles()
@@ -216,7 +255,8 @@ public abstract class XCodeTest
     return test(null, testName, projectDirectory, target, additionalCommandLineOptions,
           additionalSystemProperties, pomReplacements);
   }
-
+  
+  
   protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
         Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
@@ -225,9 +265,11 @@ public abstract class XCodeTest
           additionalCommandLineOptions, additionalSystemProperties, pomReplacements);
   }
 
+
   protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         List<String> targets, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, Properties pomReplacements) throws Exception
+        Map<String, String> additionalSystemProperties, Properties pomReplacements)
+        throws Exception
   {
 
     final PrintStream originalOut = System.out;
@@ -267,6 +309,12 @@ public abstract class XCodeTest
 
       final List<String> commandLineOptions = new ArrayList<String>();
 
+      HashMap<Object, Object> envVars = new HashMap<Object, Object>();
+      if (debug) {
+        envVars.put("MAVEN_OPTS", "-Xdebug -Xnoagent -Xrunjdwp:server=y,transport=dt_socket,address=" + debugPort
+              + ",suspend=" + (debugSuspend ? "y" : "n"));
+      }
+
       {
         commandLineOptions.add("-s");
         commandLineOptions.add(getTestExectutionSettingsFile().getAbsolutePath());
@@ -301,7 +349,7 @@ public abstract class XCodeTest
 
       for (String target : targets) {
 
-        verifier.executeGoal(target);
+        verifier.executeGoal(target, envVars);
 
         verifier.verifyErrorFreeLog();
 
@@ -396,23 +444,24 @@ public abstract class XCodeTest
     finally {
       IOUtils.closeQuietly(w);
     }
-    
+
     InputStream is = null;
     try {
       is = new FileInputStream(pomFile);
       Model model = new MavenXpp3Reader().read(is);
       List<String> modules = model.getModules();
-      
-      if(modules != null && !modules.isEmpty()) {
 
-        for(String module : modules) {
+      if (modules != null && !modules.isEmpty()) {
+
+        for (String module : modules) {
           rewritePom(new File(pomFile.getParent(), module), pomReplacements);
         }
       }
     }
     catch (XmlPullParserException e) {
       throw new RuntimeException(e);
-    } finally {
+    }
+    finally {
       IOUtils.closeQuietly(is);
     }
   }

@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -43,12 +45,19 @@ import org.apache.maven.project.MavenProjectHelper;
 public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
 {
 
+  final static String PARAMETER_PREFIX = "mios.ota-service";
   final static String OTA_CLASSIFIER_APPENDIX = "-ota";
   final static String OTA_HTML_FILE_APPENDIX = "htm";
+
   /**
    * @parameter expression="${mios.ota-service.url}"
    */
   private URL miosOtaServiceUrl;
+
+  /**
+   * @parameter expression="${mios.ota-service.buildHtmlTemplate}"
+   */
+  private String buildHtmlTemplate;
 
   /**
    * @component
@@ -94,11 +103,13 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
         try {
           PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.WORKING_COPY,
                 configuration, sdk);
+          
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
-                plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION), ipaClassifier,
-                otaClassifier);
-
+                plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION),
+                ipaClassifier, otaClassifier, buildHtmlTemplate, getInitParameters());
+          otaManager.setLogger(getLog());
+          
           if (otaManager.generateOtaHTML()) {
 
             PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(otaHtmlFile), "UTF-8"));
@@ -133,6 +144,17 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
       }
     }
 
+  }
+
+  private Map<String, String> getInitParameters()
+  {
+    Map<String, String> result = new HashMap<String, String>();
+    Set<String> keys = this.getKeys(PARAMETER_PREFIX+".");
+    for(String key : keys) {
+      String value = this.getProperty(key);
+      result.put(key.substring((PARAMETER_PREFIX+".").length()),  value);
+    }
+    return result;
   }
 
   /**
