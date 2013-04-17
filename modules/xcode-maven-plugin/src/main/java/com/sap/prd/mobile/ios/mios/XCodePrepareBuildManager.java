@@ -90,52 +90,7 @@ class XCodePrepareBuildManager
       log.info("Preparing dependency: " + mainArtifact.getId());
 
       if (PackagingType.LIB.getMavenPackaging().equals(mainArtifact.getType())) {
-
-        for (final String xcodeConfiguration : configurations) {
-
-          Map<String, File> thinLibs = new HashMap<String, File>();
-
-          for (final String sdk : sdks) {
-
-            thinLibs.put(sdk, resolveThinLib(project, xcodeConfiguration, sdk, mainArtifact));
-
-            try {
-              prepareHeaders(project, xcodeConfiguration, sdk, mainArtifact);
-            }
-            catch (SideArtifactNotFoundException e) {
-              log.info("Headers not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId()
-                    + ":"
-                    + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
-            }
-          }
-
-          File fatLib = resolveFatLib(project, xcodeConfiguration, mainArtifact);
-
-          if (thinLibs.values().contains(null)) {
-
-            if (fatLib != null) {
-              provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
-            }
-            else {
-              throw new XCodeException("Neither all thin libs nor fat lib available for " + mainArtifact.getId() + ".");
-            }
-          }
-          else {
-
-            if (preferFatLibs && fatLib != null)
-              provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
-            else
-              provideThinLibs(thinLibs, xcodeConfiguration, mainArtifact, project);
-          }
-        }
-
-        try {
-          prepareBundles(project, mainArtifact);
-        }
-        catch (SideArtifactNotFoundException e) {
-          log.info("Bundle not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId() + ":"
-                + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
-        }
+        prepareLibrary(project, configurations, sdks, mainArtifact);
       }
       else if (PackagingType.FRAMEWORK.getMavenPackaging().equals(mainArtifact.getType())) {
         prepareFramework(project, mainArtifact);
@@ -144,6 +99,57 @@ class XCodePrepareBuildManager
         continue;
     }
   }
+
+private void prepareLibrary(final MavenProject project,
+		Set<String> configurations, final Set<String> sdks,
+		final Artifact mainArtifact) throws MojoExecutionException,
+		IOException, XCodeException {
+	for (final String xcodeConfiguration : configurations) {
+
+	  Map<String, File> thinLibs = new HashMap<String, File>();
+
+	  for (final String sdk : sdks) {
+
+	    thinLibs.put(sdk, resolveThinLib(project, xcodeConfiguration, sdk, mainArtifact));
+
+	    try {
+	      prepareHeaders(project, xcodeConfiguration, sdk, mainArtifact);
+	    }
+	    catch (SideArtifactNotFoundException e) {
+	      log.info("Headers not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId()
+	            + ":"
+	            + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
+	    }
+	  }
+
+	  File fatLib = resolveFatLib(project, xcodeConfiguration, mainArtifact);
+
+	  if (thinLibs.values().contains(null)) {
+
+	    if (fatLib != null) {
+	      provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
+	    }
+	    else {
+	      throw new XCodeException("Neither all thin libs nor fat lib available for " + mainArtifact.getId() + ".");
+	    }
+	  }
+	  else {
+
+	    if (preferFatLibs && fatLib != null)
+	      provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
+	    else
+	      provideThinLibs(thinLibs, xcodeConfiguration, mainArtifact, project);
+	  }
+	}
+
+	try {
+	  prepareBundles(project, mainArtifact);
+	}
+	catch (SideArtifactNotFoundException e) {
+	  log.info("Bundle not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId() + ":"
+	        + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
+	}
+}
 
   private static void prepareRootFolders(MavenProject project, Set<String> configurations, Set<String> sdks)
         throws IOException
