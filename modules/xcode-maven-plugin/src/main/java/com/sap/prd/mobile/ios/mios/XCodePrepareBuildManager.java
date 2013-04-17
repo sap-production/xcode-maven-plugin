@@ -99,8 +99,36 @@ class XCodePrepareBuildManager
         prepareFramework(project, mainArtifact);
       }
       else  if (additionalPackagingTypes.keySet().contains(mainArtifact.getType())){
-    	  log.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + additionalPackagingTypes.get(mainArtifact.getType()));
+        log.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + additionalPackagingTypes.get(mainArtifact.getType()));
+
+        PackagingTypeAction packagingTypeAction = PackagingTypeAction.valueOf(additionalPackagingTypes.get(mainArtifact.getType()));
+
+        if(packagingTypeAction == PackagingTypeAction.UNPACK) {
+           final File f = FolderLayout.getFolderForExtractedAdditionlUnpackedArtifactsWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId());
+           if(!f.exists() && !f.mkdirs())
+             throw new IllegalStateException("Cannot create directory " + f);
+           
+           final File unpackMe = mainArtifact.getFile();
+           unarchive("zip", unpackMe, f);
+
+        } else if(packagingTypeAction == PackagingTypeAction.COPY) {
+          final File f = FolderLayout.getFolderForCopiedAdditionlUnpackedArtifactsWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId());
+          if(!f.exists() && !f.mkdirs())
+            throw new IllegalStateException("Cannot create directory " + f);
+
+          final File copyMe = mainArtifact.getFile();
+          FileUtils.copyFile(copyMe, new File(f, copyMe.getName()));
+
+        } else if(packagingTypeAction == PackagingTypeAction.BUNDLE) {
+          final File f = new File(FolderLayout.getFolderForAdditionlBundlesWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId()), mainArtifact.getArtifactId() + ".bundle");
+          if(!f.exists() && !f.mkdirs()) {
+            throw new IllegalStateException("Cannot create directory " + f);
+          }
+          final File unpackMe = mainArtifact.getFile();
+          unarchive("zip", unpackMe, f);
       }
+      }
+    
       else continue;
     }
   }

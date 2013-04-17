@@ -55,6 +55,22 @@ class FolderLayout
     return new File(new File(new File(project.getBuild().getDirectory()), XCODE_DEPS_TARGET_FOLDER), "frameworks");
   }
 
+  static File getFolderForExtractedAdditionalUnpackedArtifacts(MavenProject project)
+  {
+    return new File(new File(new File(project.getBuild().getDirectory()), XCODE_DEPS_TARGET_FOLDER), "additional-unpacked-artifacts");
+  }
+
+  static File getFolderForExtractedAdditionalBundles(MavenProject project)
+  {
+    return new File(new File(new File(project.getBuild().getDirectory()), XCODE_DEPS_TARGET_FOLDER), "additional-bundles");
+  }
+
+  
+  static File getFolderForCopiedAdditionalUnpackedArtifacts(MavenProject project)
+  {
+    return new File(new File(new File(project.getBuild().getDirectory()), XCODE_DEPS_TARGET_FOLDER), "additional-copied-artifacts");
+  }
+
   static File getFolderForExtractedFatLibs(MavenProject project, final String configuration)
   {
     return new File(project.getBuild().getDirectory() + "/" + XCODE_DEPS_TARGET_FOLDER + "/" + LIBS_DIR_NAME + "/"
@@ -89,6 +105,23 @@ class FolderLayout
     return new File(new File(getFolderForExtractedFrameworks(project), groupId), artifactId);
   }
 
+  static File getFolderForExtractedAdditionlUnpackedArtifactsWithGA(MavenProject project, final String groupId, final String artifactId)
+  {
+    return new File(new File(getFolderForExtractedAdditionalUnpackedArtifacts(project), groupId), artifactId);
+  }
+
+  static File getFolderForAdditionlBundlesWithGA(MavenProject project, final String groupId, final String artifactId)
+  {
+    return new File(new File(getFolderForExtractedAdditionalBundles(project), groupId), artifactId);
+  }
+
+  
+  static File getFolderForCopiedAdditionlUnpackedArtifactsWithGA(MavenProject project, final String groupId, final String artifactId)
+  {
+    return new File(new File(getFolderForExtractedAdditionalUnpackedArtifacts(project), groupId), artifactId);
+  }
+
+  
   static File getFolderForExtractedMainArtifact(MavenProject project)
   {
     return new File(new File(project.getBuild().getDirectory()), "main.artifact");
