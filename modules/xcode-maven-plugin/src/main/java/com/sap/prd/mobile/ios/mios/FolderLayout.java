@@ -118,7 +118,7 @@ class FolderLayout
   
   static File getFolderForCopiedAdditionlUnpackedArtifactsWithGA(MavenProject project, final String groupId, final String artifactId)
   {
-    return new File(new File(getFolderForExtractedAdditionalUnpackedArtifacts(project), groupId), artifactId);
+    return new File(new File(getFolderForCopiedAdditionalUnpackedArtifacts(project), groupId), artifactId);
   }
 
   
