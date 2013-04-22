@@ -37,7 +37,7 @@ public class DependencyToZipToCopyTest extends XCodeTest
 
     final File testSourceDirApp = new File(getTestRootDirectory(), "straight-forward/MyApp");
     final File alternateTestSourceDirApp = new File(getTestRootDirectory(), "straight-forward-copy-zip");
-    
+
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
