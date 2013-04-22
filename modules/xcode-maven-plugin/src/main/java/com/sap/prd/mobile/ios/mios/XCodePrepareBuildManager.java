@@ -105,7 +105,12 @@ class XCodePrepareBuildManager
         packagingTypeAction.perform(archiverManager, project, mainArtifact);
       }
 
-      else continue;
+      else {
+
+        log.warn("Unknown dependency type detected: '" + mainArtifact.getType() + "'. The corresponding dependency '"
+              + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId() + ":" + mainArtifact.getVersion()
+              + "' will be ignored.");
+      }
     }
   }
 
