@@ -47,11 +47,11 @@ public class XCodeDSymTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"),
           "deploy", THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements);
+          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     test(testName, new File(
           getTestRootDirectory(), "straight-forward/MyApp"),
-          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     final String configuration = "Release";
 

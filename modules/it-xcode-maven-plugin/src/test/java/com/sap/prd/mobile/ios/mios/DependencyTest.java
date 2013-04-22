@@ -47,13 +47,13 @@ public class DependencyTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryB"),
-          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     test(testName, new File(getTestRootDirectory(), "dependencies/MyLibraryA"),
-          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     test(testName, new File(getTestRootDirectory(), "dependencies/MyApp"),
-          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
+          "deploy", THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     final String configuration = "Release";
 

@@ -17,36 +17,12 @@
  * limitations under the License.
  * #L%
  */
+package com.sap.prd.mobile.ios.mios;
 
+public class NullProjectModifier extends ProjectModifier
+{
 
-#import "MyAppAppDelegate.h"
-#import "MyAppViewController.h"
-#import "PrintOutObject.h"
-
-@implementation MyAppAppDelegate
-
-@synthesize window;
-@synthesize viewController;
-
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
-    
-    // Override point for customization after app launch    
-    [window addSubview:viewController.view];
-    [window makeKeyAndVisible];
-	
-
-	[PrintOutObject printout:@"Some Value is printed ..."];
-		
-	return YES;
+  public void execute() throws Exception
+  {
+  }
 }
-
-
-- (void)dealloc {
-    [viewController release];
-    [window release];
-    [super dealloc];
-}
-
-
-@end

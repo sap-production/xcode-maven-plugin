@@ -97,6 +97,21 @@ public class FileUtilsTest
     assertFalse(FileUtils.isSymbolicLink(file));
   }
 
+  @Test
+  public void testAddLeadingSlash() {
+    assertEquals("/abc/def", FileUtils.ensureLeadingSlash("abc/def"));
+  }
+
+  @Test
+  public void testNoDoubleLeadingSlash() {
+    assertEquals("/abc/def", FileUtils.ensureLeadingSlash("/abc/def"));
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void testNullPointer() {
+    FileUtils.ensureLeadingSlash(null);
+  }
+
   private static boolean checkForSymbolicLink(final File f) throws IOException
   {
 

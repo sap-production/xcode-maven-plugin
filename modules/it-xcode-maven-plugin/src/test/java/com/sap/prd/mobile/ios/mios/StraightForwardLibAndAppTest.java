@@ -24,11 +24,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -81,12 +83,12 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     additionalSystemProperties.put("xcode.useSymbolicLinks", Boolean.TRUE.toString());
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements);
-
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+    
     appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
-          additionalSystemProperties, pomReplacements);
+          additionalSystemProperties, pomReplacements, new NullProjectModifier());
 
     myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
     myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
@@ -363,6 +365,34 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     assertEquals("CFBundleVErsion in file '" + infoPList + "' is not the expected version '" + dynamicVersion + "'.",
           dynamicVersion, new PListAccessor(infoPList).getStringValue(PListAccessor.KEY_BUNDLE_VERSION));
   }
+
+  @Test
+  public void testHeaders() throws Exception
+  {
+    File headersTar = new File(remoteRepositoryDirectory, "com/sap/ondevice/production/ios/tests/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion + "-Release-iphoneos.headers.tar");
+
+    Assert.assertTrue("Headers tar file '" + headersTar + "' does not exist", headersTar.exists());
+    
+    ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
+    PrintStream out =new PrintStream(byteOs);
+
+    try {
+      Forker.forkProcess(out, null, new String[] {"tar", "-tf", headersTar.getAbsolutePath()});
+    } finally {
+      IOUtils.closeQuietly(out);
+    }
+      final String toc = new String(byteOs.toByteArray());
+      final String expectedContent = "PrintOutObject.h";
+      final String notExpectedContent = "include/PrintOutObject.h";
+      Assert.assertTrue("Table of content of the headers tar file '" + headersTar
+          + "' does not contain the expected content '" + expectedContent + "'. Table of content is: " + toc,
+          toc.contains(expectedContent));
+      Assert.assertFalse("Table of content of the headers tar file '" + headersTar
+            + "' does contain not expected content '" + notExpectedContent + "'. Table of content is: " + toc,
+            toc.contains(notExpectedContent));
+
+  }
+  
 
   private static void assertRedirectFileExists(final String name)
   {

@@ -263,4 +263,9 @@ public class FileUtils
     return true;
 
   }
+  
+  public static String ensureLeadingSlash(final String path)
+  {
+    return path.startsWith("/") ? path : "/" + path;
+  }
 }

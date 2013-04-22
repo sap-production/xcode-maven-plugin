@@ -17,36 +17,16 @@
  * limitations under the License.
  * #L%
  */
+package com.sap.prd.mobile.ios.mios;
 
+import java.io.File;
 
-#import "MyAppAppDelegate.h"
-#import "MyAppViewController.h"
-#import "PrintOutObject.h"
-
-@implementation MyAppAppDelegate
-
-@synthesize window;
-@synthesize viewController;
-
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
-    
-    // Override point for customization after app launch    
-    [window addSubview:viewController.view];
-    [window makeKeyAndVisible];
-	
-
-	[PrintOutObject printout:@"Some Value is printed ..."];
-		
-	return YES;
+abstract class ProjectModifier
+{
+  protected File testExecutionDirectory = null;
+  
+  final void setTestExecutionDirectory(File testExecutionDirectory) {
+    this.testExecutionDirectory = testExecutionDirectory;
+  }
+  abstract void execute() throws Exception;
 }
-
-
-- (void)dealloc {
-    [viewController release];
-    [window release];
-    [super dealloc];
-}
-
-
-@end
