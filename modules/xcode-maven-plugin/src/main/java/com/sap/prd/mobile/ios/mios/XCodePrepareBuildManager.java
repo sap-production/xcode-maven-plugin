@@ -99,12 +99,12 @@ class XCodePrepareBuildManager
         prepareFramework(project, mainArtifact);
       }
       else  if (additionalPackagingTypes.keySet().contains(mainArtifact.getType())){
-        log.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + additionalPackagingTypes.get(mainArtifact.getType()));
 
-        PackagingTypeAction packagingTypeAction = PackagingTypeAction.valueOf(additionalPackagingTypes.get(mainArtifact.getType()));
+        final PackagingTypeAction packagingTypeAction = PackagingTypeAction.valueOf(additionalPackagingTypes.get(mainArtifact.getType()));
+        log.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + packagingTypeAction);
         packagingTypeAction.perform(archiverManager, project, mainArtifact);
       }
-    
+
       else continue;
     }
   }
