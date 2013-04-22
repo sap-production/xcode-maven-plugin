@@ -17,13 +17,24 @@
  * limitations under the License.
  * #L%
  */
+package com.sap.prd.mobile.ios.mios;
 
+import java.io.File;
 
-#import <UIKit/UIKit.h>
+import org.apache.commons.io.FileUtils;
 
-@interface MyAppViewController : UIViewController {
-    
+class FileCopyProjectModifier extends ProjectModifier
+{
+    private final File alternateTestSourceDirectory;
+    private final String path;
+  
+    FileCopyProjectModifier(File alternateTestSourceDirectory, String path) {
+      this.alternateTestSourceDirectory = alternateTestSourceDirectory;
+      this.path = path;
+    }
+    @Override
+    void execute() throws Exception
+    {
+      FileUtils.copyFile(new File(alternateTestSourceDirectory, path), new File(testExecutionDirectory, path));
+    }
 }
-
-@end
-

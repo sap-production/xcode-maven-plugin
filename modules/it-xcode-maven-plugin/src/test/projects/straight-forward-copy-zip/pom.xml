@@ -31,10 +31,10 @@
             <plugin>
                 <groupId>com.sap.prd.mobile.ios.mios</groupId>
                 <artifactId>xcode-maven-plugin</artifactId>
+                <version>${xcode.maven.plugin.version}</version>
                 <configuration>
-                    <preferFatLibs>false</preferFatLibs>
                     <additionalPackagingTypes>
-                        <html5>BUNDLE</html5>
+                        <html5>COPY</html5>
                     </additionalPackagingTypes>
                 </configuration>
                 <extensions>true</extensions>
@@ -50,44 +50,12 @@
     <dependencies>
         <dependency>
             <groupId>com.sap.ondevice.production.ios.tests</groupId>
-            <artifactId>MyZip</artifactId>
+            <artifactId>MyZipWithDep</artifactId>
             <version>1.0.0</version>
             <type>html5</type>
         </dependency>
     </dependencies>
-  <distributionManagement>
-    <repository>
-      <uniqueVersion>false</uniqueVersion>
-      <id>myRepo</id>
-      <name>My Repository</name>
-      <url>file:${deployrepo.directory}</url>
-      <layout>default</layout>
-    </repository>
-    <snapshotRepository>
-      <uniqueVersion>true</uniqueVersion>
-      <id>mySnapshotRepo</id>
-      <name>My Snapshot Repository</name>
-      <url>file:${deployrepo.directory}</url>
-      <layout>default</layout>
-    </snapshotRepository>
-  </distributionManagement>
   <repositories>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>warn</checksumPolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-        <checksumPolicy>fail</checksumPolicy>
-      </snapshots>
-      <id>myRepo</id>
-      <name>myRepo</name>
-      <url>file:${deployrepo.directory}</url>
-      <layout>default</layout>
-    </repository>
     <repository>
         <releases>
             <enabled>true</enabled>

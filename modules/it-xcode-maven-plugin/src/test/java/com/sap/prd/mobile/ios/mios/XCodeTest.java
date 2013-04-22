@@ -292,10 +292,10 @@ public abstract class XCodeTest
 
     prepareTestExectutionFolder(projectDirectory, testExecutionFolder);
 
-    rewritePom(new File(testExecutionFolder, "pom.xml"), pomReplacements);
-
     modifier.setTestExecutionDirectory(testExecutionFolder);
     modifier.execute();
+    
+    rewritePom(new File(testExecutionFolder, "pom.xml"), pomReplacements);
 
     try {
 
