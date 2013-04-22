@@ -84,7 +84,7 @@ public class StraightForwardLibAndAppTest extends XCodeTest
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
-    
+
     appVerifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
@@ -369,30 +369,31 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   @Test
   public void testHeaders() throws Exception
   {
-    File headersTar = new File(remoteRepositoryDirectory, "com/sap/ondevice/production/ios/tests/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion + "-Release-iphoneos.headers.tar");
+    File headersTar = new File(remoteRepositoryDirectory, "com/sap/ondevice/production/ios/tests/MyLibrary/"
+          + dynamicVersion + "/MyLibrary-" + dynamicVersion + "-Release-iphoneos.headers.tar");
 
     Assert.assertTrue("Headers tar file '" + headersTar + "' does not exist", headersTar.exists());
-    
+
     ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
-    PrintStream out =new PrintStream(byteOs);
+    PrintStream out = new PrintStream(byteOs);
 
     try {
-      Forker.forkProcess(out, null, new String[] {"tar", "-tf", headersTar.getAbsolutePath()});
-    } finally {
+      Forker.forkProcess(out, null, new String[] { "tar", "-tf", headersTar.getAbsolutePath() });
+    }
+    finally {
       IOUtils.closeQuietly(out);
     }
-      final String toc = new String(byteOs.toByteArray());
-      final String expectedContent = "PrintOutObject.h";
-      final String notExpectedContent = "include/PrintOutObject.h";
-      Assert.assertTrue("Table of content of the headers tar file '" + headersTar
+    final String toc = new String(byteOs.toByteArray());
+    final String expectedContent = "PrintOutObject.h";
+    final String notExpectedContent = "include/PrintOutObject.h";
+    Assert.assertTrue("Table of content of the headers tar file '" + headersTar
           + "' does not contain the expected content '" + expectedContent + "'. Table of content is: " + toc,
           toc.contains(expectedContent));
-      Assert.assertFalse("Table of content of the headers tar file '" + headersTar
-            + "' does contain not expected content '" + notExpectedContent + "'. Table of content is: " + toc,
-            toc.contains(notExpectedContent));
+    Assert.assertFalse("Table of content of the headers tar file '" + headersTar
+          + "' does contain not expected content '" + notExpectedContent + "'. Table of content is: " + toc,
+          toc.contains(notExpectedContent));
 
   }
-  
 
   private static void assertRedirectFileExists(final String name)
   {
@@ -404,7 +405,9 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   {
     String toBeTestedAgainst = IOUtils.toString(new FileInputStream(template)).replaceAll("\\$\\{dynamicVersion\\}",
           dynamicVersion);
-    Assert.assertEquals(toBeTestedAgainst,
+    Assert.assertEquals(String.format("File content different: '%s' vs. '%s'",
+          template.getAbsolutePath(), versionFileLib.getAbsolutePath()),
+          toBeTestedAgainst,
           IOUtils.toString(new FileInputStream(versionFileLib)).replaceAll("\\$\\{dynamicVersion\\}", dynamicVersion));
   }
 
