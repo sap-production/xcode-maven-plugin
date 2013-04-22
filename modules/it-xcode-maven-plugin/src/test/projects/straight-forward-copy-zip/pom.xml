@@ -42,7 +42,7 @@
             <plugin>
                 <groupId>com.sap.prd.types</groupId>
                 <artifactId>types-maven-plugin</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>0.0.1</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
@@ -73,5 +73,23 @@
         <layout>default</layout>
       </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+        <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+        </snapshots>
+        <id>zipRepo-plugin</id>
+        <name>zipRepo-plugin</name>
+        <url>file:${ziprepo.directory}</url>
+        <layout>default</layout>
+      </pluginRepository>
+  </pluginRepositories>
 </project>
 
