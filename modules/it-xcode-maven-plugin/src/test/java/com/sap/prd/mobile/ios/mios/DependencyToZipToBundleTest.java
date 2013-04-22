@@ -35,6 +35,9 @@ public class DependencyToZipToBundleTest extends XCodeTest
 
     final String testName = getTestName();
 
+    final File testSourceDirApp = new File(getTestRootDirectory(), "straight-forward/MyApp");
+    final File alternateTestSourceDirApp = new File(getTestRootDirectory(), "straight-forward-unpack-bundle");
+
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -46,11 +49,10 @@ public class DependencyToZipToBundleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
     pomReplacements.setProperty(PROP_NAME_ZIP_REPO_DIR, zipRepository.getAbsolutePath());
 
-
-    test(testName, new File(getTestRootDirectory(), "bundle-zip/MyApp"),
+    test(testName, testSourceDirApp,
           "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:" + getMavenXcodePluginVersion() + ":prepare-xcode-build",
           THE_EMPTY_LIST,
-          null, pomReplacements, new NullProjectModifier());
+          null, pomReplacements, new FileCopyProjectModifier(alternateTestSourceDirApp, "pom.xml"));
 
     File tmp = new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/additional-bundles/"
           + Constants.GROUP_ID + "/MyZip/MyZip.bundle/dummy.txt");
