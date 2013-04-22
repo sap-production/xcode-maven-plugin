@@ -12,7 +12,7 @@
       <groupId>com.sap.ondevice.production.ios.tests</groupId>
       <artifactId>MyZip</artifactId>
       <version>1.0.0</version>
-      <packaging>zip</packaging>
+      <type>html5</type>
     </dependency>
   </dependencies>
 </project>
