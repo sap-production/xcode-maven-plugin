@@ -253,7 +253,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     return result;
   }
   
-  private String getProperty(String key)
+  String getProperty(String key)
   {
     String value = session.getUserProperties().getProperty(key);
 
