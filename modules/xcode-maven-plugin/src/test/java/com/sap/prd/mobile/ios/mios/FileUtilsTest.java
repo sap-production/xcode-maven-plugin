@@ -111,7 +111,18 @@ public class FileUtilsTest
   public void testNullPointer() {
     FileUtils.ensureLeadingSlash(null);
   }
+  
+  @Test
+  public void testFileAppendix() {
+    assertEquals("zip", FileUtils.getAppendix(new File("MyFile.zip")));
+  }
 
+  @Test
+  public void testNoFileAppendix() {
+    assertNull(FileUtils.getAppendix(new File("MyFile")));
+  }
+
+  
   private static boolean checkForSymbolicLink(final File f) throws IOException
   {
 

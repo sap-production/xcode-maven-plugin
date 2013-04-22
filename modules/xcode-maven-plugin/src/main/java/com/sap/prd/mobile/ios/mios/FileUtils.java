@@ -34,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 public class FileUtils
 {
 
+  private final static String DOT = ".";
   public static void mkdirs(final File f) throws IOException
   {
 
@@ -267,5 +268,17 @@ public class FileUtils
   public static String ensureLeadingSlash(final String path)
   {
     return path.startsWith("/") ? path : "/" + path;
+  }
+  
+  public static String getAppendix(final File f) {
+    
+    final String fileName = f.getName();
+    int indexOfLastDot = fileName.lastIndexOf(DOT);
+    
+    if(indexOfLastDot < 0) {
+      return null;
+    }
+    
+    return fileName.substring(indexOfLastDot + DOT.length());
   }
 }
