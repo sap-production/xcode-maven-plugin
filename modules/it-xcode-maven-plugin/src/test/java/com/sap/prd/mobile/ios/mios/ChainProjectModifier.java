@@ -2,7 +2,6 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class ChainProjectModifier extends ProjectModifier
