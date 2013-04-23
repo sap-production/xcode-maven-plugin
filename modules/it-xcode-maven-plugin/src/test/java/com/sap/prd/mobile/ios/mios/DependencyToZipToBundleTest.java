@@ -49,10 +49,12 @@ public class DependencyToZipToBundleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
     pomReplacements.setProperty(PROP_NAME_ZIP_REPO_DIR, zipRepository.getAbsolutePath());
 
+    final ProjectModifier projectModifier = new ChainProjectModifier(new FileCopyProjectModifier(alternateTestSourceDirApp, "pom.xml"));
+    
     test(testName, testSourceDirApp,
           "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:" + getMavenXcodePluginVersion() + ":prepare-xcode-build",
           THE_EMPTY_LIST,
-          null, pomReplacements, new FileCopyProjectModifier(alternateTestSourceDirApp, "pom.xml"));
+          null, pomReplacements, projectModifier);
 
     File tmp = new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/additional-bundles/"
           + Constants.GROUP_ID + "/MyZip/MyZip.bundle/dummy.txt");
