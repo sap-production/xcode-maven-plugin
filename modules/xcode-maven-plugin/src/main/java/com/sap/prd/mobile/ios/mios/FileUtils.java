@@ -30,6 +30,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.UnArchiver;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 
 public class FileUtils
 {
@@ -281,4 +285,21 @@ public class FileUtils
     
     return fileName.substring(indexOfLastDot + DOT.length());
   }
+
+  static void unarchive(final ArchiverManager archiverManager, final String archiverId, final File source, final File destinationDirectory)
+  {
+    try {
+      UnArchiver unarchiver = archiverManager.getUnArchiver(archiverId);
+      unarchiver.setSourceFile(source);
+      unarchiver.setDestDirectory(destinationDirectory);
+      unarchiver.extract();
+    }
+    catch (NoSuchArchiverException e) {
+      throw new RuntimeException(e);
+    }
+    catch (ArchiverException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }

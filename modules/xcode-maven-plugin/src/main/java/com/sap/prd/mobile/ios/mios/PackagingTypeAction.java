@@ -42,8 +42,8 @@ public enum PackagingTypeAction
         throw new IllegalStateException("Cannot create directory " + f);
       
       final File unpackMe = mainArtifact.getFile();
-      
-      unarchive(archiverManager, unpackMe, f);
+      final String archiverId = com.sap.prd.mobile.ios.mios.FileUtils.getAppendix(unpackMe);
+      com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, archiverId, unpackMe, f);
     }
   },
   COPY() {
@@ -66,25 +66,10 @@ public enum PackagingTypeAction
         throw new IllegalStateException("Cannot create directory " + f);
       }
       final File unpackMe = mainArtifact.getFile();
-      unarchive(archiverManager, unpackMe, f);
+      final String archiverId = com.sap.prd.mobile.ios.mios.FileUtils.getAppendix(unpackMe);
+      com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, archiverId, unpackMe, f);
     }
   };
 
   public abstract void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact) throws IOException;
-
-  private static void unarchive(ArchiverManager archiverManager, final File source, final File destinationDirectory)
-  {
-    try {
-      UnArchiver unarchiver = archiverManager.getUnArchiver(com.sap.prd.mobile.ios.mios.FileUtils.getAppendix(source));
-      unarchiver.setSourceFile(source);
-      unarchiver.setDestDirectory(destinationDirectory);
-      unarchiver.extract();
-    }
-    catch (NoSuchArchiverException e) {
-      throw new RuntimeException(e);
-    }
-    catch (ArchiverException e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

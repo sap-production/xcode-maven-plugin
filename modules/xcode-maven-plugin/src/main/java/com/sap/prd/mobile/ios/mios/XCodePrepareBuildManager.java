@@ -104,7 +104,6 @@ class XCodePrepareBuildManager
         log.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + packagingTypeAction);
         packagingTypeAction.perform(archiverManager, project, mainArtifact);
       }
-
       else {
 
         log.warn("Unknown dependency type detected: '" + mainArtifact.getType() + "'. The corresponding dependency '"
@@ -235,7 +234,7 @@ private void prepareLibrary(final MavenProject project,
             + ".bundle");
 
       createDirectory(target);
-      unarchive("zip", source, target);
+      com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "zip", source, target);
 
       log.info("Bundle unarchived from " + source + " to " + target);
 
@@ -256,7 +255,7 @@ private void prepareLibrary(final MavenProject project,
       throw new IOException("Cannot create directory for expanded mainartefact of " + primaryArtifact.getGroupId()
             + ":" + primaryArtifact.getArtifactId() + " (" + mainArtifactExtracted + ").");
 
-    unarchive("tar", primaryArtifact.getFile(), mainArtifactExtracted);
+    com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "tar", primaryArtifact.getFile(), mainArtifactExtracted);
 
     log.info("Main artifact extracted to '" + mainArtifactExtracted + "'.");
 
@@ -367,7 +366,7 @@ private void prepareLibrary(final MavenProject project,
             primaryArtifact.getGroupId(), primaryArtifact.getArtifactId());
 
       createDirectory(target);
-      unarchive("zip", source, target);
+      com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "zip", source, target);
 
       try {
         extractFileWithShellScript(source, target, new File(project.getBuild().getDirectory()));
@@ -388,7 +387,7 @@ private void prepareLibrary(final MavenProject project,
 
   private void extractHeaders(final File headersDirectory, final File headers)
   {
-    unarchive("tar", headers, headersDirectory);
+    com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "tar", headers, headersDirectory);
   }
 
   /**
@@ -409,22 +408,6 @@ private void prepareLibrary(final MavenProject project,
 
     if (!directory.mkdirs())
       throw new MojoExecutionException("Cannot create directory (" + directory + ")");
-  }
-
-  private void unarchive(final String archiverType, final File source, final File destinationDirectory)
-  {
-    try {
-      UnArchiver unarchiver = archiverManager.getUnArchiver(archiverType);
-      unarchiver.setSourceFile(source);
-      unarchiver.setDestDirectory(destinationDirectory);
-      unarchiver.extract();
-    }
-    catch (NoSuchArchiverException e) {
-      throw new RuntimeException(e);
-    }
-    catch (ArchiverException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private void extractFileWithShellScript(File sourceFile, File destinationFolder, File tmpFolder) throws IOException
