@@ -34,7 +34,7 @@
                 <version>${xcode.maven.plugin.version}</version>
                 <configuration>
                     <additionalPackagingTypes>
-                        <html5>BUNDLE</html5>
+                        <html5>*****</html5>
                     </additionalPackagingTypes>
                 </configuration>
                 <extensions>true</extensions>
