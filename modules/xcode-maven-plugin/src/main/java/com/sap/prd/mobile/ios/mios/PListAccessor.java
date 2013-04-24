@@ -19,6 +19,8 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static org.apache.commons.io.IOUtils.closeQuietly;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,7 +71,12 @@ public class PListAccessor
 
       if (exitValue == 0)
       {
-        return new Scanner(p.getInputStream()).useDelimiter("\\Z").next();
+    	  InputStream is = p.getInputStream();
+    	  try {
+    	    return new Scanner(is).useDelimiter("\\Z").next();
+    	  } finally {
+    	    closeQuietly(is);
+    	  }
       }
 
       String errorMessage = "<n/a>";
