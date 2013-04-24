@@ -235,6 +235,11 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     return productName;
   }
   
+  /**
+   * Returns all keys of project properties and user properties matching the <code>prefix</code>. 
+   * @param prefix all keys if null
+   * @return
+   */
   @SuppressWarnings("unchecked")
   protected Set<String> getKeys(String prefix) {
     
@@ -244,6 +249,8 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     final Set keys = new HashSet();
     keys.addAll(session.getUserProperties().keySet());
     keys.addAll(project.getProperties().keySet());
+    
+    if(prefix == null) return keys;
     
     for(Object key : keys) {
       if(((String)key).startsWith(prefix))

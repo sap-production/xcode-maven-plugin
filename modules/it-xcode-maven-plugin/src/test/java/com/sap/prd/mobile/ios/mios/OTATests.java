@@ -119,8 +119,8 @@ public class OTATests extends XCodeTest
           + "/src/test/resources/otaBuildTemplate2.html");
 
     List<String> addCommandLineParams = new ArrayList<String>();
-    addCommandLineParams.add("-Dmios.ota-service.pKey1=pValue1");
-    addCommandLineParams.add("-Dmios.ota-service.pKey2=pValue2");
+    addCommandLineParams.add("-DpKey1=pValue1");
+    addCommandLineParams.add("-DpKey2=pValue2");
 
     Verifier verifier = runTest(prep, additionalSystemProperties, addCommandLineParams);
 
