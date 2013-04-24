@@ -22,6 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.maven.plugin.logging.Log;
@@ -68,8 +69,11 @@ class OTAManager
       return;
 
     try {
+      Map<String, String> propertiesWithEnv = new HashMap<String, String>();
+      propertiesWithEnv.putAll(System.getenv());
+      propertiesWithEnv.putAll(properties);
       Parameters parameters = new Parameters(miosOtaServiceUrl, title, bundleIdentifier, bundleVersion,
-            ipaClassifier, otaClassifier, properties);
+            ipaClassifier, otaClassifier, propertiesWithEnv);
       OtaBuildHtmlGenerator generator = OtaBuildHtmlGenerator.getInstance(buildHtmltemplate);
       log("Using OTA build HTML template "+generator.getTemplateName()+" (requested: "+buildHtmltemplate+")");
       generator.generate(printWriter, parameters);
