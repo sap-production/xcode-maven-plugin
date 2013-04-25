@@ -34,7 +34,7 @@ public enum PackagingTypeAction
 
     public void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact)
     {
-      final File f = FolderLayout.getFolderForExtractedAdditionlUnpackedArtifactsWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId());
+      final File f = FolderLayout.getFolderForAdditionalPackagingTypeWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId(), mainArtifact.getType());
       if(!f.exists() && !f.mkdirs())
         throw new IllegalStateException("Cannot create directory " + f);
       
@@ -46,7 +46,7 @@ public enum PackagingTypeAction
   COPY() {
     public void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact) throws IOException
     {
-      final File f = FolderLayout.getFolderForCopiedAdditionlUnpackedArtifactsWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId());
+      final File f = FolderLayout.getFolderForAdditionalPackagingTypeWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId(), mainArtifact.getType());
       if(!f.exists() && !f.mkdirs())
         throw new IllegalStateException("Cannot create directory " + f);
 
@@ -58,7 +58,7 @@ public enum PackagingTypeAction
   BUNDLE() {
     public void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact)
     {
-      final File f = new File(FolderLayout.getFolderForAdditionlBundlesWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId()), mainArtifact.getArtifactId() + ".bundle");
+      final File f = new File(FolderLayout.getFolderForAdditionalPackagingTypeWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId(), mainArtifact.getType()), mainArtifact.getArtifactId() + ".bundle");
       if(!f.exists() && !f.mkdirs()) {
         throw new IllegalStateException("Cannot create directory " + f);
       }
