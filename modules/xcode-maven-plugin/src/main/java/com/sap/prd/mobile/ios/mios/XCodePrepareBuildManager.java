@@ -35,10 +35,7 @@ import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.archiver.ArchiverException;
-import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
-import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -80,15 +77,15 @@ class XCodePrepareBuildManager
 
     prepareRootFolders(project, configurations, sdks);
 
-    final Iterator<Artifact> compileArtifacts = project.getCompileArtifacts().iterator();
+    final Iterator<Artifact> dependentArtifacts = project.getArtifacts().iterator();
 
-    if (!compileArtifacts.hasNext()) {
-      log.info("No compile dependencies found.");
+    if (!dependentArtifacts.hasNext()) {
+      log.info("No dependencies found.");
     }
 
-    while (compileArtifacts.hasNext()) {
+    while (dependentArtifacts.hasNext()) {
 
-      final Artifact mainArtifact = (Artifact) compileArtifacts.next();
+      final Artifact mainArtifact = (Artifact) dependentArtifacts.next();
 
       log.info("Preparing dependency: " + mainArtifact.getId());
 
