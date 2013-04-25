@@ -90,7 +90,7 @@ public class DependencyToZipToUnpackTest extends XCodeTest
           null, pomReplacements, projectModifier);
 
     File tmp = new File(getTestExecutionDirectory(testName, "MyApp"),
-          "target/xcode-deps/additional-unpacked-artifacts/"
+          "target/xcode-deps/html5/"
                 + Constants.GROUP_ID + "/MyZip/dummy.txt");
 
     Assert.assertTrue("File '" + tmp + "' not found", tmp.exists());

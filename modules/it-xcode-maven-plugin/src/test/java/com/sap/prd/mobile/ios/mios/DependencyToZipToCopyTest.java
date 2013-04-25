@@ -89,13 +89,13 @@ public class DependencyToZipToCopyTest extends XCodeTest
           THE_EMPTY_LIST,
           null, pomReplacements, projectModifier);
 
-    File tmp = new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/additional-copied-artifacts/"
+    File tmp = new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/html5/"
           + Constants.GROUP_ID + "/MyZip/MyZip-1.0.0.zip");
 
     Assert.assertTrue("File '" + tmp + "' not found", tmp.exists());
 
     File tmpWithDep = new File(getTestExecutionDirectory(testName, "MyApp"),
-          "target/xcode-deps/additional-copied-artifacts/"
+          "target/xcode-deps/html5/"
                 + Constants.GROUP_ID + "/MyZipWithDep/MyZipWithDep-1.0.0.zip");
 
     Assert.assertTrue("File '" + tmpWithDep + "' not found", tmpWithDep.exists());
