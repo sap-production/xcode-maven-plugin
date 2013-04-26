@@ -64,11 +64,12 @@
 			</item>
 		</menu>
 
-		<menu name="How to">
-			<item name="How to include maven metadata into a library" href="howto/IncludeMavenMetadataIntoALibrary.html" />
-			<item name="How to use generic ZIP bundles" href="howto/UseGenericZipBundles.html" />
-			<item name="How to handle ambiguous developer identities" href="howto/HandlingAmbiguousDeveloperIdentities.html" />
-		</menu>
+                <menu name="How to">
+                        <item name="How to include maven metadata into a library" href="howto/IncludeMavenMetadataIntoALibrary.html" />
+                        <item name="How to use generic ZIP bundles" href="howto/UseGenericZipBundles.html" />
+                        <item name="How to handle ambiguous developer identities" href="howto/HandlingAmbiguousDeveloperIdentities.html" />
+                        <item name="How to build the Cordova HelloWorld project" href="howto/BuildCordovaHelloWorldExample.html" />
+                </menu>
 
 		<menu ref="reports" />
 
