@@ -45,13 +45,24 @@ How to build the Cordova HelloWorld ExampleProject
 
    * downloads the {{{http://www.apache.org/dist/cordova/cordova-2.6.0-src.zip}Cordova sources v2.6.0}}.
 
-   * mavenizes the CordovaLib project.
+   * mavenizes the CordovaLib project (relocated the project sources to <<<src/xcode>>>, adds the pom file.).
 
    * builds the CordovaLib project with maven.
 
    * creates the HelloWorld project as described {{{http://cordova.apache.org/docs/en/2.6.0/guide_getting-started_ios_index.md.html#Getting%20Started%20with%20iOS_project_creation}here}}
 
-   * mavenizes the HelloWorld project. During this step the embedded CordovaLib project is removed.
+   * mavenizes the HelloWorld project. (Relocated the sources to <<<src/xcode>>>, adds the pom file. During this step the embedded CordovaLib project is removed).
 
    * Builds the HelloWorld project with maven.
 
+   []
+
+   After calling the script the
+   
+   * CordovaLib project is located inside <<<./projects/CordovaLib>>>
+
+   * HelloWorld project is located inside <<<./projects/HelloWorld>>>
+
+   []
+
+   As always: the best documentation is the source code. Please review the shell scripts and the pom files that can be found inside the mavenized projects.
