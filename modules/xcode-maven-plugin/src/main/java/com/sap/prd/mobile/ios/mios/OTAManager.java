@@ -22,6 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ class OTAManager
     this.ipaClassifier = ipaClassifier;
     this.otaClassifier = otaClassifier;
     this.buildHtmltemplate = buildHtmltemplate;
-    this.properties = properties;
+    this.properties = properties != null ? properties : Collections.<String, String> emptyMap();
   }
 
   boolean generateOtaHTML()
