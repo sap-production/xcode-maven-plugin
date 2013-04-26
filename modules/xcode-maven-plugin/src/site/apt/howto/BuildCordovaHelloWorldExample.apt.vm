@@ -37,7 +37,10 @@ How to build the Cordova HelloWorld ExampleProject
       
 * How it works
 
-   Unzip the {{{./BuildCordovaWithMaven.zip}attached zip file}} in an arbitrary folder, cd into the bin directory and run {./all.sh}.
+   Unzip the {{{./BuildCordovaWithMaven.zip}attached zip file}} in an arbitrary folder, cd into the bin directory and run <<<./all.sh>>>.
+
+   If you are behind a firewall adjust the HTTP_PROXY in file <<<bin/prepareCordova.sh>>>.
+
    This shell script 
 
    * downloads the {{{http://www.apache.org/dist/cordova/cordova-2.6.0-src.zip}Cordova sources v2.6.0}}.
