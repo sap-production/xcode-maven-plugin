@@ -77,7 +77,6 @@ class OTAManager
       OtaBuildHtmlGenerator generator = OtaBuildHtmlGenerator.getInstance(buildHtmltemplate);
       log("Using OTA build HTML template "+generator.getTemplateName()+" (requested: "+buildHtmltemplate+")");
       generator.generate(printWriter, parameters);
-      printWriter.flush();
     }
     finally {
       printWriter.flush();
