@@ -107,7 +107,7 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION),
-                ipaClassifier, otaClassifier, buildHtmlTemplate, getInitParameters());
+                ipaClassifier, otaClassifier, buildHtmlTemplate, getProperties());
           otaManager.setLogger(getLog());
           
           if (otaManager.generateOtaHTML()) {
@@ -146,13 +146,13 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
 
   }
 
-  private Map<String, String> getInitParameters()
+  private Map<String, String> getProperties()
   {
     Map<String, String> result = new HashMap<String, String>();
-    Set<String> keys = this.getKeys(PARAMETER_PREFIX+".");
+    Set<String> keys = this.getKeys(null);
     for(String key : keys) {
       String value = this.getProperty(key);
-      result.put(key.substring((PARAMETER_PREFIX+".").length()),  value);
+      result.put(key,  value);
     }
     return result;
   }
