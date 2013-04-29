@@ -1,0 +1,102 @@
+ ------
+ Release Notes
+ ------
+
+Release Notes
+
+  On this page you will find the release notes for each Xcode-Maven-Plugin release.
+ 
+%{toc|section=1|fromDepth=2|toDepth=2}
+
+===
+
+* 1.9.1
+
+** Features
+
+*** Support alternate public header path
+
+  Some Xcode libraries create a namespacing for their header files in the build process by 
+  putting the header files inside a directory structure according to the namespacing policy. 
+  In order to reflect the namespacing in the packaged header tar files created by the xcode-maven-plugin, 
+  it is required to provide a parent folder of the <<<PUBLIC_HEADER_FOLDER_PATH>>> as it is defined 
+  in the xcode project. With this alternate public header path the headers are packaged containing 
+  the remaining part of the folder structure below the alternate public header folder path. 
+  The alternate public header path has to be defined into the plugin configuration as 
+  <<<alternatePublicHeaderFolderPath>>> in the plugin configuration. This alternate public 
+  header path must be a parent folder of the public header path into Xcode. 
+
+*** OTA Service
+
+  The {{{http://velocity.apache.org/}Velocity}} template used to generate the over-the-air deployment HTML page is now configurable.
+  This way the Velocity template can be changed without the need to release and use a new version of 
+  the Xcode Maven plugin.
+  To specify a Velocity template path set an absolute path via the property <<<mios.ota-service.buildHtmlTemplate>>>.  
+  
+  E.g. <<<mvn clean install -Dmios.ota-service.buildHtmlTemplate=/Users/myuser/otaBuildTemplate.html>>>
+  
+  You can use any properties and environment variables inside the {{{http://velocity.apache.org/}Velocity}} template.
+
+*** Support of transitive archive (zip) components
+
+  You could now use archive components containing for example specific Html5 content - you 
+  could decide whether to copy, unpack or use as a bundle such a component. 
+
+===
+
+* 1.9.0
+
+  (use {{{#1.9.1}1.9.1}})
+  
+===
+
+* 1.8.1
+
+** Bug Fixes
+
+*** Wrong file pointers
+
+  During the deployment of files into a remote repository we listen to deploy actions and 
+  create pointer files pointing to the deployed artifacts. These pointer files resides on 
+  the build server and simplifies the retrieval of artifacts inside nexus. In case of multi 
+  module builds all pointer files pointed to the artifacts of the last project in the module. 
+  With this fix each pointer file points to the artifact it should point to. 
+
+===
+
+* 1.8.0
+
+** Features
+
+*** Xcode settings and options
+
+  Xcode settings and options can now be handed over from command line or from the settings.xml.
+  Settings and options provided this way supersedes settings and options provided in the xcodeproject
+  itself or in the projects pom file.
+  
+  Settings and options can be provided from the command line with <<<-Dxcode.settings.NAME=VALUE>>> 
+  or in this settings.xml in the properties section <<<<xcode.settings.NAME>VALUE</\>>>>. 
+  For options use prefix <<<xcode.options>>> accordingly. 
+
+** Bug Fixes
+
+*** Symbolic links do not work in local builds
+
+  With version 1.5.1 symbolic links for headers and libraries have been introduced inside target/headers 
+  and target/libs. When new dependencies are added to the project and mvn clean initialize is called, the 
+  binaries and the headers were symbolic linked inside the target folder. By linking this libraries in Xcode, 
+  the symbolic links are resolved which finally leads to paths pointing to locations outside the project. Usage 
+  of symbolic links is now disabled by default for local builds and can be switched on with property 
+  <<<xcode.useSymbolicLinks>>>. If the flag is set to true symbolic links are used.
+  
+  Into the central build, the <<<xcode.useSymbolicLinks>>> property is set to true for improving the build 
+  time and the required disk space. 
+
+*** Wrong packaging of dSYM bundles
+  
+  Fix packaging the dSYM bundle. The dSYM bundle is deployed as a zip archive in Nexus. This zip file was 
+  packaged with incorrect structure, i.e after unzipping you did not have folder named 
+  <<<\<your-product-name>.app.dSYM>>> and had to manually restore it in order to be able to analyze crash reports, 
+  received from customers. 
+
+===
