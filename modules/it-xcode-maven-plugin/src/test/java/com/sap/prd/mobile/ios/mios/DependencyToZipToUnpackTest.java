@@ -73,8 +73,7 @@ public class DependencyToZipToUnpackTest extends XCodeTest
           fis.close();
           fos = new FileOutputStream(pom);
           Plugin plugin = model.getBuild().getPlugins().get(0);
-          ((Xpp3Dom) plugin.getConfiguration()).getChild("additionalPackagingTypes").getChild("html5")
-            .setValue("UNPACK");
+          ((Xpp3Dom) plugin.getConfiguration()).getChild("additionalPackagingTypes").getChild("html5").setValue("UNPACK");
           new MavenXpp3Writer().write(fos, model);
         }
         finally {

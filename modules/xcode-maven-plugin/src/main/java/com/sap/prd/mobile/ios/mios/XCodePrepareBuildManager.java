@@ -49,20 +49,20 @@ class XCodePrepareBuildManager
   private final ArchiverManager archiverManager;
   private final XCodeDownloadManager downloadManager;
   private final boolean useSymbolicLinks;
-  private Map<String, String> additionalPackagingTypes;
+  private Set<PackagingTypeDescriptor> packagingTypeDescriptors;
   
   private boolean preferFatLibs;
 
 
   XCodePrepareBuildManager(final Log log, final ArchiverManager archiverManager,
         final RepositorySystemSession repoSystemSession, final RepositorySystem repoSystem,
-        final List<RemoteRepository> projectRepos, final boolean useSymbolicLinks, final Map<String, String> additionalPackagingTypes)
+        final List<RemoteRepository> projectRepos, final boolean useSymbolicLinks, final Set<PackagingTypeDescriptor> packagingTypeDescriptors)
   {
     this.log = log;
     this.archiverManager = archiverManager;
     this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
     this.useSymbolicLinks = useSymbolicLinks;
-    this.additionalPackagingTypes = additionalPackagingTypes;
+    this.packagingTypeDescriptors = packagingTypeDescriptors;
   }
 
   public XCodePrepareBuildManager setPreferFalLibs(boolean preferFatLibs)
@@ -95,11 +95,13 @@ class XCodePrepareBuildManager
       else if (PackagingType.FRAMEWORK.getMavenPackaging().equals(mainArtifact.getType())) {
         prepareFramework(project, mainArtifact);
       }
-      else  if (additionalPackagingTypes.keySet().contains(mainArtifact.getType())){
+      else  if (getPackagingTypeDescriptor(mainArtifact.getType()) != null){
 
-        final PackagingTypeAction packagingTypeAction = PackagingTypeAction.valueOf(additionalPackagingTypes.get(mainArtifact.getType()));
+        PackagingTypeDescriptor descriptor = getPackagingTypeDescriptor(mainArtifact.getType());
+        
+        final PackagingTypeAction packagingTypeAction = PackagingTypeAction.valueOf(descriptor.getAction());
         log.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + packagingTypeAction);
-        packagingTypeAction.perform(archiverManager, project, mainArtifact);
+        packagingTypeAction.perform(archiverManager, descriptor.getUnarchiverId(), project, mainArtifact);
       }
       else {
 
@@ -108,8 +110,20 @@ class XCodePrepareBuildManager
               + "' will be ignored.");
       }
     }
+    
   }
 
+  PackagingTypeDescriptor getPackagingTypeDescriptor(final String type) {
+    
+    for(PackagingTypeDescriptor descriptor : packagingTypeDescriptors) {
+      if(descriptor.getPackagingType().equals(type)) {
+        return descriptor;
+      }
+    }
+    return null;
+  }
+
+  
 private void prepareLibrary(final MavenProject project,
 		Set<String> configurations, final Set<String> sdks,
 		final Artifact mainArtifact) throws MojoExecutionException,
