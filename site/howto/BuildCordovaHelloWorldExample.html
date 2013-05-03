@@ -7,10 +7,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="Date-Creation-yyyymmdd" content="20121128" />
     <meta name="Date-Revision-yyyymmdd" content="20130503" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>Xcode Maven Plugin - 
-Generation of API Docs with Doxygen</title>
+    <title>Xcode Maven Plugin - Usage</title>
     <link rel="stylesheet" href="../css/apache-maven-fluido-1.3.0.min.css" />
     <link rel="stylesheet" href="../css/site.css" />
     <link rel="stylesheet" href="../css/print.css" media="print" />
@@ -137,7 +137,7 @@ Generation of API Docs with Doxygen</title>
             </li>
               </ul>
         </li>
-                                                                                                                              
+                                                                                                                    
       <li>
     
                           <a href="../examples/LibBuildExample.html" title="Libraries">
@@ -159,10 +159,12 @@ Generation of API Docs with Doxygen</title>
         Generation and Consumption Libraries with Bundles</a>
             </li>
                       
-      <li class="active">
+      <li>
     
-            <a href="#"><i class="none"></i>Generation of API Docs with Doxygen</a>
-          </li>
+                          <a href="../userguide/Generation of API Docs with Doxygen.html" title="Generation of API Docs with Doxygen">
+          <i class="none"></i>
+        Generation of API Docs with Doxygen</a>
+            </li>
                       
       <li>
     
@@ -232,12 +234,10 @@ Generation of API Docs with Doxygen</title>
         How to handle ambiguous developer identities</a>
             </li>
                   
-      <li>
+      <li class="active">
     
-                          <a href="../howto/BuildCordovaHelloWorldExample.html" title="How to build the Cordova HelloWorld project">
-          <i class="none"></i>
-        How to build the Cordova HelloWorld project</a>
-            </li>
+            <a href="#"><i class="none"></i>How to build the Cordova HelloWorld project</a>
+          </li>
                               <li class="nav-header">Project Documentation</li>
                                                                                                                                                           
       <li>
@@ -286,52 +286,7 @@ Generation of API Docs with Doxygen</title>
                         
         <div id="bodyColumn"  class="span10" >
                                   
-            <!-- #%L
-  Xcode Maven Plugin
-  %%
-  Copyright (C) 2012 SAP AG
-  %%
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-  
-       http://www.apache.org/licenses/LICENSE-2.0
-  
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  #L% -->
-
-
-
-
-	<p>This page gives you an overview how to enable Doxygen
-		documentation generation for XCode Projects for Libraries.</p>
-
-	<h1>Generation of Doxygen Documentation</h1>
-
-
-
-	<p>
-		API docs can be created and packaged with the maven-doxygen-plugin
-		together with the maven-assembly-plugin. In a first step the
-		maven-doxygen-plugin generates the api-doc. In a second step the
-		maven-assembly-plugin packages that documentation and attaches it as
-		side artifact.<br /> Both plugins are preconfigured inside the xcode
-		parent pom file.
-	</p>
-
-	<div class="section"><div class="section"><div class="section"><h4>Activation of doxygen generation<a name="Activation_of_doxygen_generation"></a></h4>
-
-	<p>
-		In order to activate the doxygen generation for your library project,
-		a flag file named &quot;generate-doxygen&quot; has to be present beside the
-		project pom file. <br /> <img src="images/generate-doxygen.png" style="border: 1px solid black" alt="" />
-	</p>
-</div></div></div>
-
+            <!-- ~ --><!-- #%L --><!-- xcode-maven-plugin --><!-- %% --><!-- Copyright (C) 2012 SAP AG --><!-- %% --><!-- Licensed under the Apache License, Version 2.0 (the "License"); --><!-- you may not use this file except in compliance with the License. --><!-- You may obtain a copy of the License at --><!--  --><!-- http://www.apache.org/licenses/LICENSE-2.0 --><!--  --><!-- Unless required by applicable law or agreed to in writing, software --><!-- distributed under the License is distributed on an "AS IS" BASIS, --><!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. --><!-- See the License for the specific language governing permissions and --><!-- limitations under the License. --><!-- #L% --><!-- ~ --><div class="section"><h2>How to build the Cordova HelloWorld ExampleProject<a name="How_to_build_the_Cordova_HelloWorld_ExampleProject"></a></h2><div class="section"><h3>Purpose of this page<a name="Purpose_of_this_page"></a></h3><p>This page explains how the <a class="externalLink" href="http://cordova.apache.org/docs/en/2.6.0/guide_getting-started_ios_index.md.html">HelloWorld project</a> provided on the Cordova homepage can be built with the xcode-maven-plugin.</p></div><div class="section"><h3>The big picture<a name="The_big_picture"></a></h3><p>Within the HelloWorld example provided on the Cordova homepage the CordovaLib project is embedded as source code into the HelloWorld project. The xcode-maven-plugin uses the dependency resolution mechanism provided by maven. With this approach there is no need for including dependent project on the level of the source code. Instead the dependent projects are built in there own cycle and consumed afterwards without there source code based project. This means: first we build the CordovaLib using the xcode-maven-plugin. As the result of that step the headers and the compiles library representing the CordovaLib are exposed in a binary repository. After that we build the HelloWorld project. The HelloWorld project declares a depenency to the CordovaLib on the level of the maven project. Before the HelloWorld project is compiled the headers and the binary representing the CordovaLib are materialized into the HelloWorldProject. In order to get this working we need to adjust the header search path and the library search path accordingly.</p></div><div class="section"><h3>How it works<a name="How_it_works"></a></h3><p>Unzip the <a href="./BuildCordovaWithMaven.zip">attached zip file</a> in an arbitrary folder, cd into the bin directory and run <tt>./all.sh</tt>.</p><p>If you are behind a firewall adjust the HTTP_PROXY in file <tt>bin/prepareCordova.sh</tt>.</p><p>This shell script </p><ul><li>downloads the <a class="externalLink" href="http://www.apache.org/dist/cordova/cordova-2.6.0-src.zip">Cordova sources v2.6.0</a>.</li><li>mavenizes the CordovaLib project.</li><li>builds the CordovaLib project with maven.</li><li>creates the HelloWorld project as described <a class="externalLink" href="http://cordova.apache.org/docs/en/2.6.0/guide_getting-started_ios_index.md.html#Getting%20Started%20with%20iOS_project_creation">here</a></li><li>mavenizes the HelloWorld project. During this step the embedded CordovaLib project is removed.</li><li>Builds the HelloWorld project with maven.</li></ul><p>After calling the script the</p><ul><li>CordovaLib project is located inside <tt>./projects/CordovaLib</tt></li><li>HelloWorld project is located inside <tt>./projects/HelloWorld</tt></li></ul><p>As always: the best documentation is the source code. Please review the shell scripts and the pom files that can be found inside the mavenized projects.</p></div></div>
                   </div>
             </div>
           </div>
