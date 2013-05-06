@@ -23,6 +23,7 @@ import static com.sap.prd.mobile.ios.mios.FileUtils.mkdirs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +63,14 @@ class XCodePrepareBuildManager
     this.archiverManager = archiverManager;
     this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
     this.useSymbolicLinks = useSymbolicLinks;
-    this.additionalPackagingTypes = additionalPackagingTypes;
+    
+    if(additionalPackagingTypes == null) {
+      this.additionalPackagingTypes = Collections.emptyMap();
+    } else {
+      this.additionalPackagingTypes = additionalPackagingTypes;
+    
+    }
+      
   }
 
   public XCodePrepareBuildManager setPreferFalLibs(boolean preferFatLibs)
