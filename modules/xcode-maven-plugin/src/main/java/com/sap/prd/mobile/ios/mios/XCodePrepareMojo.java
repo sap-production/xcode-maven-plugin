@@ -20,8 +20,12 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -93,18 +97,31 @@ public class XCodePrepareMojo extends AbstractXCodeMojo {
 	 */
 	private boolean useSymbolicLinks;
 
-	/**
-	 * @parameter
-	 */
-	private Map<String, String> additionalPackagingTypes;
+  /**
+   * @parameter
+   * @deprecated
+   */
+  private Map<String, String> additionalPackagingTypes;
+
+  /**
+   * @parameter
+   */
+	private Set<PackagingTypeDescriptor> packagingTypeDescriptors;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
+	  Set<PackagingTypeDescriptor> _packagingTypeDescriptors = new HashSet<PackagingTypeDescriptor>();
+	  if(packagingTypeDescriptors != null) {
+	    _packagingTypeDescriptors.addAll(packagingTypeDescriptors);
+	  }
+
+    handleLegacyDescriptors(_packagingTypeDescriptors);
+
 		try {
 			new XCodePrepareBuildManager(getLog(), archiverManager,
 					repoSession, repoSystem, projectRepos, useSymbolicLinks,
-					additionalPackagingTypes).setPreferFalLibs(preferFatLibs)
+					_packagingTypeDescriptors).setPreferFalLibs(preferFatLibs)
 					.prepareBuild(project, getConfigurations(), getSDKs());
 		} catch (XCodeException ex) {
 			throw new MojoExecutionException(
@@ -114,4 +131,43 @@ public class XCodePrepareMojo extends AbstractXCodeMojo {
 					"Cannot prepare build environment", ex);
 		}
 	}
+
+  private void handleLegacyDescriptors(Set<PackagingTypeDescriptor> _packagingTypeDescriptors)
+  {
+    if (additionalPackagingTypes == null || additionalPackagingTypes.isEmpty())
+      return;
+
+    getLog().warn(
+          "AdditionalPackagingTypes has been found: '" + additionalPackagingTypes
+                + "'. This property is deprecated. Use packagingTypeDescriptors instead.");
+
+    final Set<PackagingTypeDescriptor> descriptors = new TreeSet<PackagingTypeDescriptor>(
+          new Comparator<PackagingTypeDescriptor>() {
+
+            @Override
+            public int compare(PackagingTypeDescriptor o1, PackagingTypeDescriptor o2)
+            {
+              return o1.getPackagingType().compareTo(o2.getPackagingType());
+            }
+          });
+
+    if(packagingTypeDescriptors != null) {
+      descriptors.addAll(packagingTypeDescriptors);
+    }
+
+    for (Map.Entry<String, String> legacyDescriptor : additionalPackagingTypes.entrySet()) {
+      PackagingTypeDescriptor legacyDesc = new PackagingTypeDescriptor().setPackagingType(legacyDescriptor.getKey())
+        .setAction(legacyDescriptor.getValue());
+
+      if (descriptors.contains(legacyDesc)) {
+        getLog()
+          .warn("Descriptor '"
+                + legacyDesc
+                + " is defined in the deprectated way (additionalPackagingTypes) and also via packagingTypeDescriptors. Remove the definition via additionalPackagingTypes.");
+      }
+      else {
+        _packagingTypeDescriptors.add(legacyDesc);
+      }
+    }
+  }
 }

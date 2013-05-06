@@ -27,6 +27,7 @@ import java.util.Properties;
 import junit.framework.Assert;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -34,7 +35,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.junit.Test;
 
-public class DependencyToZipToBundleTest extends XCodeTest
+public class DependencyToZipToBundleTestWithUnarchiverID extends XCodeTest
 {
 
   @Test
@@ -73,7 +74,20 @@ public class DependencyToZipToBundleTest extends XCodeTest
           fis.close();
           fos = new FileOutputStream(pom);
           Plugin plugin = model.getBuild().getPlugins().get(0);
-          ((Xpp3Dom) plugin.getConfiguration()).getChild("additionalPackagingTypes").getChild("html5").setValue("BUNDLE");
+          Xpp3Dom config = ((Xpp3Dom) plugin.getConfiguration());
+          config.getChild("additionalPackagingTypes").getChild("html5").setValue("BUNDLE");
+          
+          Xpp3Dom packagingTypeDescriptors = new Xpp3Dom("packagingTypeDescriptors");
+          Xpp3Dom packagingTypeDescriptor = new Xpp3Dom("packagingTypeDescriptor");
+          Xpp3Dom packagingType = new Xpp3Dom("packagingType");
+          Xpp3Dom action = new Xpp3Dom("action");
+          packagingType.setValue("html5");
+          action.setValue("BUNDLE");
+
+          packagingTypeDescriptor.addChild(packagingType);
+          packagingTypeDescriptor.addChild(action);
+          packagingTypeDescriptors.addChild(packagingTypeDescriptor);
+          config.addChild(packagingTypeDescriptors);
           new MavenXpp3Writer().write(fos, model);
         }
         finally {
@@ -83,10 +97,12 @@ public class DependencyToZipToBundleTest extends XCodeTest
       }
     });
 
-    test(testName, testSourceDirApp,
+    Verifier verifier = test(testName, testSourceDirApp,
           "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:" + getMavenXcodePluginVersion() + ":prepare-xcode-build",
           THE_EMPTY_LIST,
           null, pomReplacements, projectModifier);
+
+    verifier.verifyTextInLog("[WARNING] Descriptor 'PackagingTypeDescriptor [packagingType=html5, unarchiver=null, action=BUNDLE] is defined in the deprectated way (additionalPackagingTypes) and also via packagingTypeDescriptors. Remove the definition via additionalPackagingTypes.");
 
     File tmp = new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/html5/"
           + Constants.GROUP_ID + "/MyZip/MyZip.bundle/dummy.txt");
