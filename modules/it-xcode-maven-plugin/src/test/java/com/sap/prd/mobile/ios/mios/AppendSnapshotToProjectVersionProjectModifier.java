@@ -20,35 +20,20 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 
-public class AppendSnapshotToProjectVersionProjectModifier extends ProjectModifier
+public class AppendSnapshotToProjectVersionProjectModifier extends AbstractProjectModifier
 {
 
   @Override
   public void execute() throws Exception
   {
     final File pom = new File(testExecutionDirectory, "pom.xml");
-    FileInputStream fis = null;
-    FileOutputStream fos = null;
 
-    try {
-      fis = new FileInputStream(pom);
-      final Model model = new MavenXpp3Reader().read(fis);
-      fis.close();
-      fos = new FileOutputStream(pom);
-      model.setVersion(model.getVersion() + "-SNAPSHOT");
-      new MavenXpp3Writer().write(fos,  model);
-    } finally {
-      IOUtils.closeQuietly(fis);
-      IOUtils.closeQuietly(fos);
-    }
+    final Model model = getModel(pom);
+    model.setVersion(model.getVersion() + "-SNAPSHOT");
+    persistModel(pom,  model);
   }
 
 }

@@ -23,8 +23,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,12 +30,9 @@ import java.util.Properties;
 
 import junit.framework.Assert;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.junit.Test;
 
 public class XCodeLifecycleTest extends XCodeTest
@@ -61,26 +56,16 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), "deploy",
           THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements, new ProjectModifier() {
+          THE_EMPTY_MAP, pomReplacements, new AbstractProjectModifier() {
 
             @Override
             void execute() throws Exception
             {
               final File pom = new File(testExecutionDirectory, "pom.xml");
-              FileInputStream fis = null;
-              FileOutputStream fos = null;
 
-              try {
-                fis = new FileInputStream(pom);
-                final Model model = new MavenXpp3Reader().read(fis);
-                fis.close();
-                model.getDependencies().get(0).setVersion(model.getDependencies().get(0).getVersion() + "-SNAPSHOT");
-                fos = new FileOutputStream(pom);
-                new MavenXpp3Writer().write(fos,  model);
-              } finally {
-                IOUtils.closeQuietly(fis);
-                IOUtils.closeQuietly(fos);
-              }
+              final Model model = getModel(pom);
+              model.getDependencies().get(0).setVersion(model.getDependencies().get(0).getVersion() + "-SNAPSHOT");
+              persistModel(pom, model);
             }
           });
     
@@ -180,7 +165,7 @@ public class XCodeLifecycleTest extends XCodeTest
     final File testSourceDirApp = new File(testRootDirectory, "straight-forward/MyApp");
     final File alternateTestSourceDirApp = new File(testRootDirectory, "deviant-source-directory/MyApp");
     
-    class RelocateProjectProjectModifier extends ProjectModifier {
+    class RelocateProjectProjectModifier extends AbstractProjectModifier {
 
       @Override
       void execute() throws Exception
@@ -188,20 +173,10 @@ public class XCodeLifecycleTest extends XCodeTest
         
         final String relocationTarget = "abc";
         final File pom = new File(testExecutionDirectory, "pom.xml");
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
 
-        try {
-          fis = new FileInputStream(pom);
-          final Model model = new MavenXpp3Reader().read(fis);
-          fis.close();
-          fos = new FileOutputStream(pom);
-          model.getProperties().setProperty("xcode.sourceDirectory", relocationTarget);
-          new MavenXpp3Writer().write(fos,  model);
-        } finally {
-          IOUtils.closeQuietly(fis);
-          IOUtils.closeQuietly(fos);
-        }
+        final Model model = getModel(pom);
+        model.getProperties().setProperty("xcode.sourceDirectory", relocationTarget);
+        persistModel(pom,  model);
 
         File src = new File(testExecutionDirectory,  "src/xcode");
         org.apache.commons.io.FileUtils.copyDirectory(src, new File(testExecutionDirectory, relocationTarget));
@@ -246,7 +221,7 @@ public class XCodeLifecycleTest extends XCodeTest
     final File testSourceDirApp = new File(testRootDirectory, "straight-forward/MyApp");
     final File alternateTestSourceDirApp = new File(testRootDirectory, "deviant-source-directory-2/MyApp");
 
-    class RelocateProjectProjectModifier extends ProjectModifier {
+    class RelocateProjectProjectModifier extends AbstractProjectModifier {
 
       @Override
       void execute() throws Exception
@@ -254,20 +229,10 @@ public class XCodeLifecycleTest extends XCodeTest
         
         final String relocationTarget = "";
         final File pom = new File(testExecutionDirectory, "pom.xml");
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
 
-        try {
-          fis = new FileInputStream(pom);
-          final Model model = new MavenXpp3Reader().read(fis);
-          fis.close();
-          fos = new FileOutputStream(pom);
-          model.getProperties().setProperty("xcode.sourceDirectory", relocationTarget);
-          new MavenXpp3Writer().write(fos,  model);
-        } finally {
-          IOUtils.closeQuietly(fis);
-          IOUtils.closeQuietly(fos);
-        }
+        final Model model = getModel(pom);
+        model.getProperties().setProperty("xcode.sourceDirectory", relocationTarget);
+        persistModel(pom, model);
 
         File src = new File(testExecutionDirectory,  "src/xcode");
         org.apache.commons.io.FileUtils.copyDirectory(src, new File(testExecutionDirectory, relocationTarget));

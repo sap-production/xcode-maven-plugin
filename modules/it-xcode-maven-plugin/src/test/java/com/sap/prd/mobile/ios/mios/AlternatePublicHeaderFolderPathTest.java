@@ -21,8 +21,6 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +31,6 @@ import junit.framework.Assert;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -70,31 +66,21 @@ public class AlternatePublicHeaderFolderPathTest extends XCodeTest
     additionalSystemProperties.put("xcode.useSymbolicLinks", Boolean.TRUE.toString());
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new ProjectModifier() {
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new AbstractProjectModifier() {
 
       @Override
       public void execute() throws Exception
       {
         final File pom = new File(testExecutionDirectory, "pom.xml");
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
 
-        try {
-          fis = new FileInputStream(pom);
-          final Model model = new MavenXpp3Reader().read(fis);
-          fis.close();
-          fos = new FileOutputStream(pom);
-          Plugin plugin = model.getBuild().getPlugins().get(0);
-          Xpp3Dom configuration =  (Xpp3Dom)plugin.getConfiguration();
-          Xpp3Dom alternatePublicHeaderFolderPath = new Xpp3Dom("alternatePublicHeaderFolderPath");
-          alternatePublicHeaderFolderPath.setValue("MyLibrary");
-          configuration.addChild(alternatePublicHeaderFolderPath);
-          
-          new MavenXpp3Writer().write(fos,  model);
-        } finally {
-          IOUtils.closeQuietly(fis);
-          IOUtils.closeQuietly(fos);
-          }
+        final Model model = getModel(pom);
+        Plugin plugin = model.getBuild().getPlugins().get(0);
+        Xpp3Dom configuration =  (Xpp3Dom)plugin.getConfiguration();
+        Xpp3Dom alternatePublicHeaderFolderPath = new Xpp3Dom("alternatePublicHeaderFolderPath");
+        alternatePublicHeaderFolderPath.setValue("MyLibrary");
+        configuration.addChild(alternatePublicHeaderFolderPath);
+
+          persistModel(pom, model);
         }
     });
   }
