@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20130507" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>Xcode Maven Plugin - Team list</title>
+    <title>Xcode Maven Plugin - Release Notes</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.3.0.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -85,12 +85,10 @@
         FAQ</a>
             </li>
                   
-      <li>
+      <li class="active">
     
-                          <a href="release-notes.html" title="Release Notes">
-          <i class="none"></i>
-        Release Notes</a>
-            </li>
+            <a href="#"><i class="none"></i>Release Notes</a>
+          </li>
                               <li class="nav-header">User Guide</li>
                                 
       <li>
@@ -240,48 +238,13 @@
         How to handle ambiguous developer identities</a>
             </li>
                               <li class="nav-header">Project Documentation</li>
-                                                                                                                                                                    
+                                                                                                                                                          
       <li>
     
                           <a href="project-info.html" title="Project Information">
-          <i class="icon-chevron-down"></i>
+          <i class="icon-chevron-right"></i>
         Project Information</a>
-                    <ul class="nav nav-list">
-                      
-      <li>
-    
-                          <a href="dependencies.html" title="Dependencies">
-          <i class="none"></i>
-        Dependencies</a>
-            </li>
-                      
-      <li class="active">
-    
-            <a href="#"><i class="none"></i>Project Team</a>
-          </li>
-                      
-      <li>
-    
-                          <a href="mail-lists.html" title="Mailing Lists">
-          <i class="none"></i>
-        Mailing Lists</a>
-            </li>
-                      
-      <li>
-    
-                          <a href="issue-tracking.html" title="Issue Tracking">
-          <i class="none"></i>
-        Issue Tracking</a>
-            </li>
-                      
-      <li>
-    
-                          <a href="license.html" title="Project License">
-          <i class="none"></i>
-        Project License</a>
-            </li>
-              </ul>
-        </li>
+                  </li>
                                                                                                                           
       <li>
     
@@ -322,22 +285,7 @@
                         
         <div id="bodyColumn"  class="span10" >
                                   
-            <div class="section"><h2>The Team<a name="The_Team"></a></h2><a name="The_Team"></a><p>A successful project requires many people to play many roles. Some members write code or documentation, while others are valuable as testers, submitting patches and suggestions.</p><p>The team is comprised of Members and Contributors. Members have direct access to the source of a project and actively evolve the code-base. Contributors improve the project through submission of patches and suggestions to the Members. The number of Contributors to the project is unbounded. Get involved today. All contributions to the project are greatly appreciated.</p><div class="section"><h3>Members<a name="Members"></a></h3><a name="Members"></a><p>The following is a list of developers with commit privileges that have directly contributed to the project in one way or another.</p><table border="0" class="table table-striped"><tr class="a"><th>Name</th><th>Email</th></tr><tr class="b"><td>Irina Kirilova</td><td><a class="externalLink" href="mailto:irina.kirilova@sap.com">irina.kirilova@sap.com</a></td></tr><tr class="a"><td>Marcus Holl</td><td><a class="externalLink" href="mailto:marcus.holl@sap.com">marcus.holl@sap.com</a></td></tr><tr class="b"><td>Alexander Link</td><td><a class="externalLink" href="mailto:alexander.link@sap.com">alexander.link@sap.com</a></td></tr><tr class="a"><td>Joern Gebhardt</td><td><a class="externalLink" href="mailto:joern.gebhardt@sap.com">joern.gebhardt@sap.com</a></td></tr></table></div><div class="section"><h3>Contributors<a name="Contributors"></a></h3><a name="Contributors"></a><p>There are no contributors listed for this project. Please check back again later.</p><script type="text/javascript">
-function offsetDate(id, offset) {
-    var now = new Date();
-    var nowTime = now.getTime();
-    var localOffset = now.getTimezoneOffset();
-    var developerTime = nowTime + ( offset * 60 * 60 * 1000 )+ ( localOffset * 60 * 1000 );
-    var developerDate = new Date(developerTime);
-
-    document.getElementById(id).innerHTML = developerDate;
-}
-
-function init(){
-}
-
-window.onLoad = init();
-</script></div></div>
+            <div class="section"><h2>Release Notes<a name="Release_Notes"></a></h2><p>On this page you will find the release notes for each Xcode-Maven-Plugin release.</p><ul><li><a href="#a1.9.2">1.9.2</a></li><li><a href="#a1.9.1">1.9.1</a></li><li><a href="#a1.9.0">1.9.0</a></li><li><a href="#a1.8.1">1.8.1</a></li><li><a href="#a1.8.0">1.8.0</a></li></ul><hr /><div class="section"><h3>1.9.2<a name="a1.9.2"></a></h3><div class="section"><h4>Features<a name="Features"></a></h4><p>No new features.</p></div><div class="section"><h4>Bug Fixes<a name="Bug_Fixes"></a></h4><div class="section"><h5>Dependencies with other types than xcode-lib or xcode-framework causes NullPointerExceptions<a name="Dependencies_with_other_types_than_xcode-lib_or_xcode-framework_causes_NullPointerExceptions"></a></h5><p>A NullPointerException was raised when dependencies with types other than xcode-lib or xcode-framework are provided within the maven project without defining how to handle these dependencies inside the configuration section of the xcode-maven-plugin (see below: Support of transitive archive (zip) components). </p><hr /></div></div></div><div class="section"><h3>1.9.1<a name="a1.9.1"></a></h3><div class="section"><h4>Features<a name="Features"></a></h4><div class="section"><h5>Support alternate public header path<a name="Support_alternate_public_header_path"></a></h5><p>Some Xcode libraries create a namespacing for their header files in the build process by putting the header files inside a directory structure according to the namespacing policy. In order to reflect the namespacing in the packaged header tar files created by the xcode-maven-plugin, it is required to provide a parent folder of the <tt>PUBLIC_HEADER_FOLDER_PATH</tt> as it is defined in the xcode project. With this alternate public header path the headers are packaged containing the remaining part of the folder structure below the alternate public header folder path. The alternate public header path has to be defined into the plugin configuration as <tt>alternatePublicHeaderFolderPath</tt> in the plugin configuration. This alternate public header path must be a parent folder of the public header path into Xcode. </p></div><div class="section"><h5>OTA Service<a name="OTA_Service"></a></h5><p>The <a class="externalLink" href="http://velocity.apache.org/">Velocity</a> template used to generate the over-the-air deployment HTML page is now configurable. This way the Velocity template can be changed without the need to release and use a new version of the Xcode Maven plugin. To specify a Velocity template path set an absolute path via the property <tt>mios.ota-service.buildHtmlTemplate</tt>. </p><p>E.g. <tt>mvn clean install -Dmios.ota-service.buildHtmlTemplate=/Users/myuser/otaBuildTemplate.html</tt></p><p>You can use any properties and environment variables inside the <a class="externalLink" href="http://velocity.apache.org/">Velocity</a> template.</p></div><div class="section"><h5>Support of transitive archive (zip) components<a name="Support_of_transitive_archive_zip_components"></a></h5><p>You could now use archive components containing for example specific Html5 content - you could decide whether to copy, unpack or use as a bundle such a component. </p><hr /></div></div></div><div class="section"><h3>1.9.0<a name="a1.9.0"></a></h3><p>(use <a href="#a1.9.1">1.9.1</a>)</p><hr /></div><div class="section"><h3>1.8.1<a name="a1.8.1"></a></h3><div class="section"><h4>Bug Fixes<a name="Bug_Fixes"></a></h4><div class="section"><h5>Wrong file pointers<a name="Wrong_file_pointers"></a></h5><p>During the deployment of files into a remote repository we listen to deploy actions and create pointer files pointing to the deployed artifacts. These pointer files resides on the build server and simplifies the retrieval of artifacts inside nexus. In case of multi module builds all pointer files pointed to the artifacts of the last project in the module. With this fix each pointer file points to the artifact it should point to. </p><hr /></div></div></div><div class="section"><h3>1.8.0<a name="a1.8.0"></a></h3><div class="section"><h4>Features<a name="Features"></a></h4><div class="section"><h5>Xcode settings and options<a name="Xcode_settings_and_options"></a></h5><p>Xcode settings and options can now be handed over from command line or from the settings.xml. Settings and options provided this way supersedes settings and options provided in the xcodeproject itself or in the projects pom file.</p><p>Settings and options can be provided from the command line with <tt>-Dxcode.settings.NAME=VALUE</tt> or in this settings.xml in the properties section <tt>&lt;xcode.settings.NAME&gt;VALUE&lt;/&gt;</tt>. For options use prefix <tt>xcode.options</tt> accordingly. </p></div></div><div class="section"><h4>Bug Fixes<a name="Bug_Fixes"></a></h4><div class="section"><h5>Symbolic links do not work in local builds<a name="Symbolic_links_do_not_work_in_local_builds"></a></h5><p>With version 1.5.1 symbolic links for headers and libraries have been introduced inside target/headers and target/libs. When new dependencies are added to the project and mvn clean initialize is called, the binaries and the headers were symbolic linked inside the target folder. By linking this libraries in Xcode, the symbolic links are resolved which finally leads to paths pointing to locations outside the project. Usage of symbolic links is now disabled by default for local builds and can be switched on with property <tt>xcode.useSymbolicLinks</tt>. If the flag is set to true symbolic links are used.</p><p>Into the central build, the <tt>xcode.useSymbolicLinks</tt> property is set to true for improving the build time and the required disk space. </p></div><div class="section"><h5>Wrong packaging of dSYM bundles<a name="Wrong_packaging_of_dSYM_bundles"></a></h5><p>Fix packaging the dSYM bundle. The dSYM bundle is deployed as a zip archive in Nexus. This zip file was packaged with incorrect structure, i.e after unzipping you did not have folder named <tt>&lt;your-product-name&gt;.app.dSYM</tt> and had to manually restore it in order to be able to analyze crash reports, received from customers. </p><hr /></div></div></div></div>
                   </div>
             </div>
           </div>
