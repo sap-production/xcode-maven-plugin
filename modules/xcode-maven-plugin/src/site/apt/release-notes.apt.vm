@@ -10,6 +10,22 @@ Release Notes
 
 ===
 
+* 1.9.2
+
+** Features
+
+   No new features.
+
+** Bug Fixes
+
+*** Dependencies with other types than xcode-lib or xcode-framework causes NullPointerExceptions
+
+  A NullPointerException was raised when dependencies with types other than xcode-lib or xcode-framework 
+  are provided within the maven project without defining how to handle these dependencies inside the 
+  configuration section of the xcode-maven-plugin (see below: Support of transitive archive (zip) components). 
+
+===
+
 * 1.9.1
 
 ** Features
