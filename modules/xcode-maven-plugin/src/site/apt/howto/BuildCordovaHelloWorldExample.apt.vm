@@ -29,7 +29,7 @@ How to build the Cordova HelloWorld ExampleProject
 
 * Purpose of this page
  
-   This page explains how the {{{http://cordova.apache.org/docs/en/2.6.0/guide_getting-started_ios_index.md.html}HelloWorld project}} provided on the Cordova homepage can be built with the xcode-maven-plugin.
+   This page explains how the {{{http://cordova.apache.org/docs/en/edge/guide_getting-started_ios_index.md.html}HelloWorld project}} provided on the Cordova homepage can be built with the xcode-maven-plugin.
 
 * The big picture
 
@@ -37,19 +37,19 @@ How to build the Cordova HelloWorld ExampleProject
       
 * How it works
 
-   Unzip the {{{./BuildCordovaWithMaven.zip}attached zip file}} in an arbitrary folder, cd into the bin directory and run <<<./all.sh>>>.
+   Unzip the {{{./BuildCordovaWithMaven.zip}attached zip file}} in an arbitrary folder, cd into the bin directory and run <<<./all.sh $\{CORODVA_VERSION\} >>>. CORDOVA_VERSION is the latest version of the cordova library.
 
    If you are behind a firewall adjust the HTTP_PROXY in file <<<bin/prepareCordova.sh>>>.
 
    This shell script 
 
-   * downloads the {{{http://www.apache.org/dist/cordova/cordova-2.6.0-src.zip}Cordova sources v2.6.0}}.
+   * downloads the {{{http://www.apache.org/dist/cordova/}Cordova sources}}.
 
    * mavenizes the CordovaLib project (relocated the project sources to <<<src/xcode>>>, adds the pom file.).
 
    * builds the CordovaLib project with maven.
 
-   * creates the HelloWorld project as described {{{http://cordova.apache.org/docs/en/2.6.0/guide_getting-started_ios_index.md.html#Getting%20Started%20with%20iOS_project_creation}here}}
+   * creates the HelloWorld project as described {{{http://cordova.apache.org/docs/en/edge/guide_getting-started_ios_index.md.html#Getting%20Started%20with%20iOS_project_creation}here}}
 
    * mavenizes the HelloWorld project. (Relocated the sources to <<<src/xcode>>>, adds the pom file. During this step the embedded CordovaLib project is removed).
 
