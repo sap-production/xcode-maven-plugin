@@ -27,240 +27,144 @@
 
 How to use generic ZIP bundles
 
-* Purpose of this page
- 
-   Sometimes resources are provided in a generic way as a ZIP file to ensure they can be consumed in various builds (e.g. iOS, Android, Windows 8,...).
-   This page explains what need to be done in order to get such ZIP artifacts resolved and what's the prefered way to work with them.
-   
-* The big picture
-  
-   Maven dependencies should be resolved to <Maven-Root>/target/xcode-deps.
- 
-   There are 3 ways you might want to handle dependencies to ZIP artifacts:
-   
-    * Copy the ZIP file to <Maven-Root>/target/xcode-deps
-	
-    * Unpack the ZIP file content to a folder in <Maven-Root>/target/xcode-deps
-	
-    * Unpack the ZIP file content as a bundle to <Maven-Root>/target/xcode-deps/bundles\
-   
-* How it works
+* Motivation
 
-   The {{{http://maven.apache.org/plugins/maven-dependency-plugin}maven-dependency-plugin}} can be used to copy or unpack artifacts to specific locations.
-   Use the {{{http://maven.apache.org/plugins/maven-dependency-plugin/examples/unpacking-artifacts.html}unpack goal}} to unpack the ZIP or the {{{http://maven.apache.org/plugins/maven-dependency-plugin/examples/copying-artifacts.html}copy goal}} to copy the ZIP.
+    The need is to consume content of a dedicated type provided as binary content in a maven repository. 
+    An example for this might be to consume java script files, technically provided as a zip archive.
+    In such as a scenario, consuming a dedicated archive might require to also consume archives or content 
+    required by the directly consumed component. For example, java script files might use other java script classes, 
+    contained in a dependent component. Here it is extremely useful to get all the dependent content just by 
+    establishing a dependency to the initially desired component. The know-how about the further dependent 
+    stuff is typically only available at the directly consumed component. 
+    It should be urgently avoided to force consumers to know about internal dependencies.
 
-** Example Project
+    In Maven dependencies are declared with a specific type. This type is mapped to a technical artifact suffix.
+    By default, type and suffix are identical - for example, a zip dependency is mapped to a .zip artifact. 
+    The definition of such a type additionally allows to declare the usage of a transitive dependency resolution. 
+    For example, there is a type "js" that is mapped to the suffix .zip and declares such a transitive resolution. 
+    As a result referring to an "js" artifact means to resolve the .zip file of the directly addressed maven coordinates 
+    including all js dependencies, declared by this component.
 
-   <<An example for the scenario described on that page can be found {{{./UseGenericZipBundlesExample2.zip}here}}.>>
-   
-   The example project contains two modules
-     
-	 * PrepareDemoZip builds two ZIP files with different classifiers (<resource1> and <resource2>)
-	 
-	 * UnpackZipExample consumes those two ZIP artifacts and
-	 
-	   ** Unpacks one ZIP artifact
-	  
-	   ** Unpacks one ZIP artifact as bundle
-	 
-	   ** Copies one ZIP artifact
-   
-   Simply unpack and run <<<mvn clean install>>> in the root folder. The ZIP artifacts are extracted to folder <modules/UnpackZipExample/target/xcode-deps/...>.
-   
-** Definitions in the pom.xml
+    Such a type definition is defined in a components.xml that typically comes with a maven plugin.
 
-  In the dependency section define the dependency to the artifact as usual. To only download the ZIP file without other side artifacts you should specify the type <<<zip>>> and the <<<classifier>>> if needed.
-   
+* Consuming (transitive) archive dependencies
+
+    [[1]] Provide a maven plugin for the desired type.
+
+    How artifacts should be handled is described by an artifact handler defined inside the components.xml of a maven plugin.
+
+    There are two properites that are important for our use case.
+
+        [[a]] <<extension>>. The extension defines the file appendix that represents the main artifact of the corresponding type.
+
+        [[a]] <<includesDependencies>>. Defines whether or not an artifact of the corresponding type includes its dependencies. 
+            This property needs to be set to <<<false>>> if transitive dependencies should be resolved.
+
+    The components.xml file looks typically like this:
+
 +-------------
+<component-set>
+  <components>
+    <component>
+      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+      <role-hint>js</role-hint> <!-- The type of the dependency as used inside the dependency section -->
+      <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
+      <configuration>
+        <extension>zip</extension> <!-- The file extension of the main artifact. -->
+        <language>java-script</language>
+        <addedToClasspath>false</addedToClasspath>
+        <includesDependencies>false</includesDependencies> <!-- Describes whether or not this artifact contains it dependencies. -->
+      </configuration>
+    </component>
+  </components>
+</component-set>
++-------------
+
+
+    [[1]] The plugin described in the last section needs to be incorporated into the pom of the project that makes use of the
+          dependency resolution for additional (transitive) archives.
+
++-------------
+<build>
 [...]
-  <dependencies>
-    <dependency>
-      <groupId>mios.demo.zip</groupId>
-      <artifactId>theirResources</artifactId>
-      <classifier>resources1</classifier>
-      <type>zip</type>
-      <version>1.0.0</version>
-    </dependency>
-  </dependencies>
-[...]
-+-------------
-
-  But it is also possible to only declare the dependency to the <<<pom>>>. In the maven-dependency-plugin section you have to specify the zip artifact again anyway. Only the pom.xml and the ZIP file is downloaded this way.
-  
-  This option is also useful if you want to unpack or copy several ZIP side artifacts. You have to specify the side artifacts only once in the plugin secion instead of redundantly in the dependency and plugin section.
-
-+-------------
-[...]
-  <dependencies>
-    <dependency>
-      <groupId>mios.demo.zip</groupId>
-      <artifactId>theirResources</artifactId>
-      <type>pom</type>
-      <version>1.0.0</version>
-    </dependency>
-  </dependencies>
-[...]
-+-------------
-
-*** Common Configuration and Rules
-
- * Artifacts have to be copied or unpacked to folder <<<$\{project.build.directory\}/xcode-deps/>>>! The structure below can be chosen arbitrarily.
-   The reason is the xcode project configuration that must refer to those folders per relative path to use the content.
-   Because the maven build will copy the whole environment into the target folder before the build execution it must be assured that the xcode project configuration works for the usage in the local IDE (directly the source location) and during the maven controlled build exection (done on the copy below the target folder). 
-   This requires that all refered content must be copied together with the sources. 
-   The xcode plugin already copies the content of the xcode-deps folder (as contract container for the xcode project for externally provided files) It does not know about arbitray folders managed by other maven plugins.\ Therefore the <<<xcode-deps>>> folder is the folder of the choice.
-
- * The unpack/copy execution should be done in the <<<\<phase>initialize</phase\>>>> since all dependencies are resolved and prepared there.
- 
- * In the <<<configuration>>> part of the plugin you have to specify the <<<groupId>>>, <<<artifactId>>>, <<<type>>> "zip" (and the <<<classifier>>> if needed) of the artifact to copy again. The version is not required since is already specified in the dependency section.
-
- * As described above, as <<<outputDirectory>>> you have to use <<<$\{project.build.directory\}/xcode-deps/>>> followed by an arbitrary structure. We recommend to use <<<bundles/\<groupId>/\<artifactId\>>>>.
-
-
-+-------------
+  <plugins>
   [...]
-  <build>
-    <plugins>
-	  [...]
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.5.1</version>
-        [...]
-        <executions>
-          <execution>
-            <id>executionId</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>[copy|unpack]</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-				
-                  <groupId>mios.demo.zip</groupId>
-                  <artifactId>theirResources</artifactId>
-                  <classifier>resources1</classifier>
-                  <type>zip</type>
-                  <!-- version>The version is fetched from the dependency declaration above </version -->
-				  
-                  <overWrite>true</overWrite>
-                  <outputDirectory>\${project.build.directory}/xcode-deps/[...]</outputDirectory>
-                  <!-- Only required for copy: -->
-				  <destFileName>[...]</destFileName>
-				  
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-        [...]
-      </plugin>
-    </plugins>
-  </build>
+    <plugin>
+      <groupId>THE_GROUP_ID</groupId>
+      <artifactId>THE_ARTIFACT_ID</artifactId>
+      <version>THE_VERSION</version>
+      <extensions>true</extensions> <!-- Important. If not present the artifact handler 
+                                         defined in the components.xml is not taken into account -->
+    </plugin>
+  [...]    
+  </plugins>
+</build>
+[...]
 +-------------
 
-
-*** How to configure Unpack
-
-  See "Common Configuration and Rules". Additional configuration steps are described here.
-
-  * In the <<<plugins>>> section add the <<<maven-dependency-plugin>>> with goal <<<unpack>>>.
-
-  * In the <<<outputDirectory>>> you have to specify the folder the ZIP shall be extracted to. The directory has to start with <<<$\{project.build.directory\}/xcode-deps/>>>!
-    If you want the ZIP to be extracted as a bundle simply add the extension <<<.bundle>>> to the output directory.
-  
-+-------------
-          [...]
-          <execution>
-	        [...]
-		    <goals>
-              <goal>unpack</goal>
-            </goals>
-			
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-				
-                  <groupId>mios.demo.zip</groupId>
-                  <artifactId>theirResources</artifactId>
-                  <classifier>resources2</classifier>
-                  <type>zip</type>
-				  
-                  <overWrite>true</overWrite>
-                  <outputDirectory>\${project.build.directory}/xcode-deps/bundles/mios.demo.zip/theirResources/resources2.bundle</outputDirectory>
-				  
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-			
-          </execution>
-          [...]
-+-------------
-
-
-   
-*** How to configure Copy
-
-  See "Common Configuration and Rules". Additional configuration steps are described here.
-
-  * In the <<<plugins>>> section add the <<<maven-dependency-plugin>>> with goal <<<copy>>>.
-  
-  * You can specify the target filename in the <<<destFileName>>> tag.
+    [[1]] Configure the way you want to consume the archive component. The way how a dependency type is handled is
+          defined inside the configuration section of the xcode-maven-plugin. Within the tag <<<additionalPackagingTypes>>>
+          the packaging type is mapped to a usage type:
 
 +-------------
-          [...]
-          <execution>
-	        [...]
-		    <goals>
-              <goal>copy</goal>
-            </goals>
-			
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-				
-                  <groupId>mios.demo.zip</groupId>
-                  <artifactId>theirResources</artifactId>
-                  <classifier>resources1</classifier>
-                  <type>zip</type>
-				  
-                  <overWrite>true</overWrite>
-                  <outputDirectory>\${project.build.directory}/xcode-deps/bundles/mios.demo.zip/theirResources</outputDirectory>
-                  <destFileName>resources1.zip</destFileName>
-				  
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-			
-          </execution>
-          [...]
+     <build>
+        <plugins>
+            <plugin>
+                <groupId>com.sap.prd.mobile.ios.mios</groupId>
+                <artifactId>xcode-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <configuration>
+                    <additionalPackagingTypes>
+                        <js>USAGE_TYPE</js>
+                    </additionalPackagingTypes>
+                </configuration>
+                <extensions>true</extensions>
+            </plugin>
+            .....
+        </plugins>
+    </build>
 +-------------
 
+    USAGE_TYPE could be as follows:
 
-** How to add the resources to your Xcode project
+        [[I]] COPY - the archive component will be copied locally after resolving the dependency.
 
-  * Open your Xcode project from the <<<src/xcode>>> folder.
+        [[I]] UNPACK - the archive component will be unpacked locally after resolving the dependency.
 
-  * Drag the bundle from the <<<target/xcode-deps/...>>> folder to the Xcode project.
-
-[UseGenericZipBundlesExample_1.png]
-
-  * Select <<<Create folder references for any added folders>>> to have the same structure as on the file system.
-   
-  * By selecting <<<Create groups for any added folders>>> the structure in XCode can be changed without changing the structure in the filesystem.
-
-[UseGenericZipBundlesExample_2.png]
-
-  * The imported bundle is now available in the Xcode project
-
-[UseGenericZipBundlesExample_3.png]
+        [[I]] BUNDLE - the archive component will be unpacked and represented as Bundle after resolving the dependency.
 
 
-*** The example project
+    [[1]] Add a dependency to the archive component you want to use into the dependencies section in your pom.xml.
 
-  * When you initially unpack the {{{./UseGenericZipBundlesExample2.zip}example project}} and open <<<modules/UnpackZipExample/src/xcode/DemoApp.xcodeproj>>> the resources2.bundle cannot be resolved
-  
-  * After calling (at least) <<<mvn initialize>>> the dependency to the bundle is resolved and the bundle is unpacked to the <<<target/xcode-deps>>> folder where the Xcode project expects it.
+    Example:
 
-[UseGenericZipBundlesExample_0.png]
++-------------
+<dependencies>
+  <dependency>
+    <groupId>GROUP_ID</groupId>
+    <artifactId>ARTIFACT_ID</artifactId>
+    <version>VERSION</version>
+    <type>js</type> <!-- The type is defined here -->
+  </dependency>
+</dependencies>
++-------------
+
+    ** Download the archive dependency locally
+
+    Open a Terminal and go to the folder containing the pom.xml of your project.
+    Run the following command:
+    <<<mvn initialize>>>
+
+    ** Result
+    As a result of the above command execution, you will get a folder named <<<target/xcode-deps/<type> >>> into your project, 
+    where the dependent archive component will be downloaded and processed according to the usage type you have defined.
+
+
+  For
+
+    *** <<COPY>> The archive is copied into <<<target/xcode-deps/<type> >>> "as it".
+ 
+    *** <<UNPACK>> The archive is unpacked into <<<target/xcode-deps/<type> >>>
+
+    *** <<BUNDLE>> The archive is unpacked into <<<target/xcode-deps/<type>/<artifactId>.bundle >>>. By convention folders with suffix ".bundle" are displayed as bundles.
+
