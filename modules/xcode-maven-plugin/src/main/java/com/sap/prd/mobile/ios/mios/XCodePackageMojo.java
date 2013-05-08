@@ -56,14 +56,23 @@ public class XCodePackageMojo extends BuildContextAwareMojo
   private Set<String> bundles;
   
   /**
-   * @parameter alias="alternatePublicHeaderFolderPath"
-   * 
    * The path to the public headers relative to the 
    * built products directory (BUILT_PRODUCTS_DIR).
    * The path specified here needs to be defined in the same way than
    * the PUBLIC_HEADER_FOLDER_PATH inside the xcode project.
    * The folder provided here must be a parent folder of the
    * folder defined in the xcode project as PUBLIC_HEADER_FOLDER_PATH.
+   * This parameter can be used in order to create a namespace for the
+   * headers of a project. In order to get a namespacing this parameter
+   * points to a parent folder of the public header folder path as
+   * defined in the xcode project. This causes the headers to be packaged
+   * with the directory structue between the directory denoted by this parameter
+   * and the directory denoted by the public header folder path inside the xcode
+   * project. That directory structure establishes a package like namespacing
+   * for the headers that are packaged.
+   *
+   * @parameter alias="alternatePublicHeaderFolderPath"
+   * @since 1.9.0
    */
   private String relativeAlternatePublicHeaderFolderPath;
 
