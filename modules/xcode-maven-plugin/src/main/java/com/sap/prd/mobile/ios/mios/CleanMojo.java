@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 
 /**
  * 
@@ -54,6 +55,13 @@ public class CleanMojo extends AbstractMojo
    * @readonly
    */
   private File baseDirectory;
+  
+  /**
+   * @parameter expression="${project}"
+   * @readonly
+   * @required
+   */
+  protected MavenProject project;  
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -77,8 +85,9 @@ public class CleanMojo extends AbstractMojo
         return;
       }
 
-      getLog().info("Delete '" + archiveDirectory + "'.");
-      FileUtils.deleteDirectory(archiveDirectory);
+      File projectArchiveFolder = PreDeployMojo.getProjectArchiveFolder(archiveDirectory, project);
+      getLog().info("Delete '" + projectArchiveFolder + "'.");
+      FileUtils.deleteDirectory(projectArchiveFolder);
     }
     catch (IOException e) {
       throw new MojoFailureException(e.getMessage(), e);

@@ -27,6 +27,7 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 import org.sonatype.aether.transfer.TransferCancelledException;
 import org.sonatype.aether.transfer.TransferEvent;
 import org.sonatype.aether.transfer.TransferListener;
@@ -53,6 +54,18 @@ public class PreDeployMojo extends AbstractDeployMojo
         "<body>You will be redirected within the next few seconds.<br />" +
         "In case this does not work click <a href=\"$LOCATION\">here</a></body></html>";
 
+  /**
+   * Returns the unique archive folder for this specific project
+   * (containing folders with groupId and artifactId)
+   * @param rootArchiveFolder
+   * @param project
+   * @return 
+   */
+  static File getProjectArchiveFolder(File rootArchiveFolder, MavenProject project)
+  {
+    return new File(new File(new File(rootArchiveFolder, "artifacts"), project.getGroupId()), project.getArtifactId());
+  }
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -133,8 +146,8 @@ public class PreDeployMojo extends AbstractDeployMojo
         final String url = event.getResource().getRepositoryUrl() + event.getResource().getResourceName();
         final String html = HTML_TEMPLATE.replaceAll("\\$LOCATION", url);
 
-        final File redirect = new File(new File(new File(new File(archiveFolder, "artifacts"), project.getGroupId()),
-              project.getArtifactId()), getArtifactRedirectHtmlFileName(url));
+        final File projectArchiveFolder = getProjectArchiveFolder(archiveFolder, project);
+        final File redirect = new File(projectArchiveFolder, getArtifactRedirectHtmlFileName(url));
 
         writeArtifactRedirectHtmlFile(redirect, url, html);
 
