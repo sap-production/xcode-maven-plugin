@@ -19,24 +19,37 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import org.sonatype.aether.artifact.Artifact;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
 
-
-public class SideArtifactNotFoundException extends XCodeException
+public abstract class ValidationCheck
 {
+  private XCodeContext context;
+  private Log log;
+  private MavenProject mavenProject;
 
-  private static final long serialVersionUID = -9102670897968423620L;
-
-  private final Artifact sideArtifact;
-
-  public SideArtifactNotFoundException(String message, Artifact sideArtifact)
+  protected MavenProject getMavenProject()
   {
-    super(message);
-    this.sideArtifact = sideArtifact;
+    return mavenProject;
+  }
+  void setMavenProject(MavenProject mavenProject)
+  {
+    this.mavenProject = mavenProject;
+  }
+  final void setXcodeContext(XCodeContext context) {
+    this.context = context;
+  }
+  final void setLog(Log log) {
+    this.log = log;
   }
 
-  public Artifact getSideArtifact()
-  {
-    return this.sideArtifact;
+  protected Log getLog() {
+    return this.log;
   }
+
+  protected XCodeContext getXcodeContext() {
+    return this.context;
+  }
+
+  public abstract void check() throws VerificationException;
 }

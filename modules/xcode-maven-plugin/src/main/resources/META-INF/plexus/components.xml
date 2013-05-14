@@ -194,6 +194,7 @@
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:generate-ota-html,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:package-metadata
               </package>
+              <verify>com.sap.prd.mobile.ios.mios:xcode-maven-plugin:validation-check</verify>
               <install>
                 org.apache.maven.plugins:maven-install-plugin:install
               </install>

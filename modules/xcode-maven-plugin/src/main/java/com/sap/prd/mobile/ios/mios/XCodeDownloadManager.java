@@ -46,17 +46,30 @@ class XCodeDownloadManager
     this.repoSession = repoSession;
   }
 
+  org.sonatype.aether.artifact.Artifact resolveArtifact(final org.sonatype.aether.artifact.Artifact artifact)
+        throws SideArtifactNotFoundException
+  {
+    return resolveSideArtifact(artifact, null, artifact.getExtension());
+  }
+
+  
+  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact mainArtifact, final String classifier,
+        final String type) throws SideArtifactNotFoundException {
+    return resolveSideArtifact(new DefaultArtifact(mainArtifact.getGroupId(), mainArtifact.getArtifactId(), null, null, mainArtifact.getVersion()), classifier, type);
+  }
+
+  
   /**
    * 
    * @return The requested artifact or <code>null</code> if the requested artifact does not exist
    *         inside the remote repositories
    * @throws SideArtifactNotFoundException
    */
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact mainArtifact, final String classifier,
+  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.sonatype.aether.artifact.Artifact mainArtifact, final String classifier,
         final String type)
         throws SideArtifactNotFoundException
   {
-    final DefaultArtifact sideArtifact = getSideArtifact(mainArtifact, classifier, type);
+    final org.sonatype.aether.artifact.Artifact sideArtifact = getSideArtifact(mainArtifact, classifier, type);
 
     final ArtifactRequest artifactRequest = new ArtifactRequest();
     artifactRequest.setRepositories(projectRepos);
@@ -90,7 +103,7 @@ class XCodeDownloadManager
     return resolveSideArtifact(artifact, artifact.getClassifier(), artifact.getType());
   }
 
-  private org.sonatype.aether.artifact.Artifact getResolvedSideArtifact(final DefaultArtifact sideArtifact,
+  private org.sonatype.aether.artifact.Artifact getResolvedSideArtifact(final org.sonatype.aether.artifact.Artifact sideArtifact,
         final ArtifactResult result) throws SideArtifactNotFoundException
   {
 
@@ -106,7 +119,7 @@ class XCodeDownloadManager
     return resolvedArtifact;
   }
 
-  private DefaultArtifact getSideArtifact(final Artifact mainArtifact, final String classifier,
+  private DefaultArtifact getSideArtifact(final org.sonatype.aether.artifact.Artifact mainArtifact, final String classifier,
         String type)
   {
     return new DefaultArtifact(mainArtifact.getGroupId(), mainArtifact.getArtifactId(), classifier,

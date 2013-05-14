@@ -22,7 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 /**
  * Root exception for all xcode related declared exceptions inside the xcode plugin.
  */
-class XCodeException extends Exception
+public class XCodeException extends Exception
 {
   private static final long serialVersionUID = -523126740513390698L;
 

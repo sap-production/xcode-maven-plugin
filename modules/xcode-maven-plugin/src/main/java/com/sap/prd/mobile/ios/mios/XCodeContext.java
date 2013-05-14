@@ -33,7 +33,7 @@ import java.util.Map;
  * of SDKs * List of buildActions projectRootDirectory codeSignIdentity output stream xcode options
  * xcode settings
  */
-class XCodeContext
+public class XCodeContext
 {
   enum SourceCodeLocation
   {

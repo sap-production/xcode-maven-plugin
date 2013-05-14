@@ -27,10 +27,10 @@ import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
 
-class Forker
+public class Forker
 {
 
-  static int forkProcess(final PrintStream out, final File executionDirectory, final String... args) throws IOException
+  public static int forkProcess(final PrintStream out, final File executionDirectory, final String... args) throws IOException
   {
 
     if (out == null)

@@ -33,22 +33,22 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
 
-class EffectiveBuildSettings
+public class EffectiveBuildSettings
 {
-  static final String PRODUCT_NAME = "PRODUCT_NAME";
-  static final String SRC_ROOT = "SRCROOT";
-  static final String GCC_GENERATE_DEBUGGING_SYMBOLS = "GCC_GENERATE_DEBUGGING_SYMBOLS";
-  static final String DEBUG_INFORMATION_FORMAT="DEBUG_INFORMATION_FORMAT";
-  static final String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
-  static final String CODESIGNING_FOLDER_PATH = "CODESIGNING_FOLDER_PATH";
-  static final String INFOPLIST_FILE = "INFOPLIST_FILE";
-  static final String PUBLIC_HEADERS_FOLDER_PATH = "PUBLIC_HEADERS_FOLDER_PATH";
-  static final String BUILT_PRODUCTS_DIR = "BUILT_PRODUCTS_DIR";
-  static final String CONFIGURATION_BUILD_DIR = "CONFIGURATION_BUILD_DIR";
+  public static final String PRODUCT_NAME = "PRODUCT_NAME";
+  public static final String SRC_ROOT = "SRCROOT";
+  public static final String GCC_GENERATE_DEBUGGING_SYMBOLS = "GCC_GENERATE_DEBUGGING_SYMBOLS";
+  public static final String DEBUG_INFORMATION_FORMAT="DEBUG_INFORMATION_FORMAT";
+  public static final String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
+  public static final String CODESIGNING_FOLDER_PATH = "CODESIGNING_FOLDER_PATH";
+  public static final String INFOPLIST_FILE = "INFOPLIST_FILE";
+  public static final String PUBLIC_HEADERS_FOLDER_PATH = "PUBLIC_HEADERS_FOLDER_PATH";
+  public static final String BUILT_PRODUCTS_DIR = "BUILT_PRODUCTS_DIR";
+  public static final String CONFIGURATION_BUILD_DIR = "CONFIGURATION_BUILD_DIR";
 
   private final static Map<XCodeContext, Properties> buildSettings = new HashMap<XCodeContext, Properties>();
 
-  static String getBuildSetting(XCodeContext context, Log log, String key) throws XCodeException
+  public static String getBuildSetting(XCodeContext context, Log log, String key) throws XCodeException
   {
     String buildSetting = getBuildSettings(context, log).getProperty(key);
     debug(log, "Build settings for context '" + context + "'. Key: '" + key + "' resolved to: " + buildSetting);
