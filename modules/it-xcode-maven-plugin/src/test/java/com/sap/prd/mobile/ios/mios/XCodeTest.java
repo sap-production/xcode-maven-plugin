@@ -250,24 +250,26 @@ public abstract class XCodeTest
 
   protected static Verifier test(final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier) throws Exception
+        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier)
+        throws Exception
   {
     return test(null, testName, projectDirectory, target, additionalCommandLineOptions,
           additionalSystemProperties, pomReplacements, modifier);
   }
-  
-  
+
   protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         final String target, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier) throws Exception
+        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier)
+        throws Exception
   {
-    return test(_verifier, testName, projectDirectory, Arrays.asList(new String[] {target}), additionalCommandLineOptions, additionalSystemProperties, pomReplacements, modifier);
+    return test(_verifier, testName, projectDirectory, Arrays.asList(new String[] { target }),
+          additionalCommandLineOptions, additionalSystemProperties, pomReplacements, modifier);
   }
-
 
   protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
         List<String> targets, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier) throws Exception
+        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier)
+        throws Exception
   {
 
     final PrintStream originalOut = System.out;
@@ -294,7 +296,7 @@ public abstract class XCodeTest
 
     modifier.setTestExecutionDirectory(testExecutionFolder);
     modifier.execute();
-    
+
     rewritePom(new File(testExecutionFolder, "pom.xml"), pomReplacements);
 
     try {
@@ -342,27 +344,18 @@ public abstract class XCodeTest
 
       verifier.deleteArtifacts("com.sap.production.ios.tests");
 
-      if (targets.size() > 1) {
-        verifier.setAutoclean(false);
-        targets = new ArrayList<String>(targets);;
-        targets.add(0, "clean");
-      }
+      verifier.executeGoals(targets, envVars);
 
-      for (String target : targets) {
+      verifier.verifyErrorFreeLog();
 
-        verifier.executeGoal(target, envVars);
+      final File logFile = new File(testExecutionFolder,
+            verifier.getLogFileName());
 
-        verifier.verifyErrorFreeLog();
-
-        final File logFile = new File(testExecutionFolder,
-              verifier.getLogFileName());
-
-        if (!logFile.exists())
-          originalOut.println("Log file '" + logFile
-                + "' does not exist.");
-        else
-          showLog(originalOut, projectName, logFile);
-      }
+      if (!logFile.exists())
+        originalOut.println("Log file '" + logFile
+              + "' does not exist.");
+      else
+        showLog(originalOut, projectName, logFile);
 
     }
     finally {
