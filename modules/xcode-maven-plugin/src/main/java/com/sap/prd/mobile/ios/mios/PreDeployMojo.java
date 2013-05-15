@@ -240,7 +240,20 @@ public class PreDeployMojo extends AbstractDeployMojo
       nthElement = 1;
       search = ".";
     }
-
+    else if (artifactFileName.endsWith("-fat-binary.a")) {
+      nthElement = 3;
+    }
+    else if (artifactFileName.endsWith(".a")) {
+      nthElement = 2;
+    }
+    else if (artifactFileName.endsWith(".headers.tar")) {
+      nthElement = 2;
+    }
+    else if (artifactFileName.endsWith(".tar")) {
+      nthElement = 1;
+      search = ".";
+    }
+    
     int idx = getNthIndexFromBack(artifactFileName, search, nthElement);
     if (idx >= 0) {
       String name = artifactId + artifactFileName.substring(idx);
