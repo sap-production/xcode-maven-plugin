@@ -69,6 +69,7 @@
                         <item name="How to use generic ZIP bundles" href="howto/UseGenericZipBundles.html" />
                         <item name="How to handle ambiguous developer identities" href="howto/HandlingAmbiguousDeveloperIdentities.html" />
                         <item name="How to build the Cordova HelloWorld project" href="howto/BuildCordovaHelloWorldExample.html" />
+						<item name="How to enable Over-The-Air Deployment" href="howto/EnableOTADeployment.html" />
                 </menu>
 
 		<menu ref="reports" />
