@@ -50,6 +50,9 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
   final static String OTA_HTML_FILE_APPENDIX = "htm";
 
   /**
+   * To enable the generation of Over-The-Air deployment HTML files you have to specify the URL to your 
+   * "HTML" OTA Service (e.g. <code>http://server/ota-service/HTML</code>).<br/>
+   * Here you find more information about the <a href="https://github.com/sap-production/OTAService">OTA Service Github Project</a>.<br/>
    * @parameter expression="${mios.ota-service.url}"
    */
   private URL miosOtaServiceUrl;
