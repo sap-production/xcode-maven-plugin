@@ -48,7 +48,8 @@ public class VerificationException extends Exception
   @Override
   public String getMessage()
   {
-    return super.getMessage() + getDetails() == null ? "" : "; Details: " + getDetails();
+    final String det = getDetails() == null ? "" : " Details: ";
+    return super.getMessage() + det + getDetails();
   }
 
   public String getDetails() {
