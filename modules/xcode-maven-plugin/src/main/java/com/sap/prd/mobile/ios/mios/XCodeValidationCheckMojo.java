@@ -24,8 +24,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -45,7 +47,16 @@ import com.sap.prd.mobile.ios.mios.XCodeContext.SourceCodeLocation;
 import com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Checks;
 
 /**
- * 
+ * Provides the possibility to perform validation checks.<br>
+ * The specific checks have to be implemented additionally and their GAVs have to be specified using the ${xcode.additionalClasspathElements} parameter.<br>
+ * The classpath for this goal will be extended by the jars found under the specified GAVs.
+ * The actual check classes and their severities are described in an additional xml document, defined in <code>xcode.verification.checks.definitionFile</code>.<br>
+ * <br>
+ * Example checks definition:
+ * <pre>&lt;checks&gt;
+ *   &lt;check severity="ERROR" class="com.my.MyValidationCheck1"/&gt;
+ *   &lt;check severity="WARNING" class="com.my.MyValidationCheck2"/&gt;
+ * &lt;/checks&gt;</pre>
  * @goal validation-check
  * 
  */
@@ -76,19 +87,21 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   protected List<RemoteRepository> projectRepos;
 
   /**
-   * Comma separated list of GAVs. The corresponding jar files are added to the classpath.
+   * Comma separated list of GAVs, containing the check implementations. The corresponding jar files are added to the classpath.
    * @parameter expression="${xcode.additionalClasspathElements}"
    */
   private String dependencies;
 
   /**
+   * Parameter, which conrols the validation goal execution. By default, the validation goal will be skipped.
    * @parameter expression="${xcode.verification.checks.skip}" default-value="true"
    * @readonly
    */
   private boolean skip;
 
   /**
-   * 
+   * The location where the check definition file is present. 
+   * Could be a file on the local file system or a remote located file, accessed via HTTP. 
    * @parameter expression="${xcode.verification.checks.definitionFile}"
    * @readonly
    */
@@ -117,12 +130,13 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   {
 
     String verificationCheckClassName = null;
+    Map<com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check, Exception> failedChecks = new HashMap<com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check, Exception>();
     try {
 
       if (getChecks().getCheck().isEmpty()) {
         getLog().warn("No checks configured in '" + checkDefinitionFile + "'.");
       }
-
+      failedChecks.clear();
       for (final com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check checkDesc : getChecks().getCheck()) {
         verificationCheckClassName = checkDesc.getClazz();
         final Class<?> clazz = Class.forName(verificationCheckClassName);
@@ -139,19 +153,10 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
               check.check();
             }
             catch (VerificationException ex) {
-              String severity = checkDesc.getSeverity();
-              final String message = "Verification check '" + check.getClass().getName() + " failed: "
-                    + ex.getMessage();
-              handleException(ex, severity, message);
+              failedChecks.put(checkDesc, ex);
             }
             catch (Exception ex) {
-              String severity = checkDesc.getSeverity();
-
-              final String message = "Cannot perform check: " + check.getClass().getName()
-                    + ". Error during test setup: " + ex.getMessage();
-
-              handleException(ex, severity, message);
-              
+              failedChecks.put(checkDesc, ex);              
             }
           }
         }
@@ -179,14 +184,41 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     catch (JAXBException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
+    finally {
+      handleExceptions(failedChecks);
+    }
+  }
+  
+  private void handleExceptions(Map<com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check, Exception> failedChecks)
+        throws MojoExecutionException
+  {
+    boolean mustFailedTheBuild = false;
+    for (com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check failedCheck : failedChecks.keySet()) {
+      handleException(failedCheck, failedChecks.get(failedCheck));
+      if (failedCheck.getSeverity().equalsIgnoreCase("ERROR")) {
+        mustFailedTheBuild = true;
+      }
+    }
+    if (mustFailedTheBuild) {
+      throw new MojoExecutionException("Validation checks failed. See the log file for details.");
+    }
   }
 
-  private void handleException(Exception ex, String severity, final String message) throws MojoExecutionException
+  private void handleException(com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check failedCheck, final Exception e)
+        throws MojoExecutionException
   {
-    if(severity.equalsIgnoreCase("WARNING")) {
+    final String message;
+    if (e instanceof VerificationException) {
+      message = "Verification check '" + failedCheck.getClazz() + " failed. " + e.getMessage();
+    }
+    else {
+      message = "Cannot perform check: " + failedCheck.getClazz() + ". Error during test setup " + e.getMessage();
+    }
+    if (failedCheck.getSeverity().equalsIgnoreCase("WARNING")) {
       getLog().warn(message);
-    } else {
-      throw new MojoExecutionException(message, ex);
+    }
+    else {
+      getLog().error(message);
     }
   }
 
