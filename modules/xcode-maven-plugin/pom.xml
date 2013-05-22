@@ -102,6 +102,10 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.sap.prd.mobile.ios.mios</groupId>
       <artifactId>versionschema</artifactId>
     </dependency>

@@ -20,18 +20,27 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
@@ -52,6 +61,50 @@ import com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Checks;
 public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 {
 
+  private final static String COLON = ":";
+  private enum Protocol {
+
+    HTTP() {
+
+      @Override
+      Reader getCheckDefinitions(String location) throws IOException
+      {
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpGet get = new HttpGet(getName() + COLON + location);
+
+        String response = httpClient.execute(get, new BasicResponseHandler());
+        return new StringReader(response);
+      }
+    }, FILE() {
+
+      @Override
+      Reader getCheckDefinitions(String location) throws IOException
+      {
+        final File f = new File(location);
+        if (!f.canRead()) {
+          throw new IOException("Cannot read checkDefintionFile '" + f + "'.");
+        }
+
+        return new InputStreamReader((new FileInputStream(f)), "UTF-8");
+      }
+    };
+    abstract Reader getCheckDefinitions(String location) throws IOException;
+
+    String getName() {
+      return name().toLowerCase(Locale.ENGLISH);
+    }
+    
+    static String getProtocols() {
+      final StringBuilder sb = new StringBuilder(16);
+      for(Protocol p : Protocol.values()) {
+        if(sb.length() != 0)
+          sb.append(", ");
+        sb.append(p.getName());
+      }
+      return sb.toString();
+    }
+  }
+  
   /**
    * The entry point to Aether, i.e. the component doing all the work.
    * 
@@ -92,7 +145,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
    * @parameter expression="${xcode.verification.checks.definitionFile}"
    * @readonly
    */
-  private File checkDefinitionFile;
+  private String checkDefinitionFile;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -246,15 +299,34 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   private Checks getChecks() throws IOException, MojoExecutionException, JAXBException
   {
 
-    if (checkDefinitionFile == null) {
+    if (checkDefinitionFile == null || checkDefinitionFile.trim().isEmpty()) {
       throw new MojoExecutionException("CheckDefinitionFile was not configured. Cannot perform verification checks");
     }
 
-    if (!checkDefinitionFile.canRead()) {
-      throw new IOException("Cannot read checkDefintionFile '" + checkDefinitionFile + "'.");
+    final int index = checkDefinitionFile.indexOf(COLON);
+
+    if(index <= 0) {
+      throw new MojoExecutionException("No protocol found: " + checkDefinitionFile + ". Provide a protocol "
+            + Protocol.getProtocols() + " for parameter" + "'xcode.verification.checks.definitionFile'"
+            + ". Provide a protocol, e.g. http://example.com/checkDefinitions.xml.");
     }
 
-    Unmarshaller unmarshaller = JAXBContext.newInstance(Checks.class).createUnmarshaller();
-    return (Checks) unmarshaller.unmarshal(checkDefinitionFile);
+    final String protocol = checkDefinitionFile.substring(0, index);
+    final String location = checkDefinitionFile.substring(index + COLON.length());
+
+    final Reader checkDefinitions;
+    try {
+      checkDefinitions = Protocol.valueOf(protocol.toUpperCase(Locale.ENGLISH)).getCheckDefinitions(location);
+    } catch(IllegalArgumentException ex) {
+      throw new MojoExecutionException("Invalid protocol provided: '" + protocol + "'. Supported values are:'" + Protocol.getProtocols() + "'.");
+    } catch(IOException ex) {
+      throw new IOException("Cannot get check definitions from '" + checkDefinitionFile + "'.", ex);
+    }
+
+    try {
+      return (Checks) JAXBContext.newInstance(Checks.class).createUnmarshaller().unmarshal(checkDefinitions);
+    } finally {
+      IOUtils.closeQuietly(checkDefinitions);
+    }
   }
 }
