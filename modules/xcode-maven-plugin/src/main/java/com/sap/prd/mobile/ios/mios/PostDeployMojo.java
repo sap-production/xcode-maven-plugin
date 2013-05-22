@@ -57,8 +57,8 @@ public class PostDeployMojo extends AbstractDeployMojo
       }
       else {
         getLog().info(
-              "Found transfere listener '" + toString(transferListener)
-                    + "'. Will not replace this transfere listener since it is not an instance of '"
+              "Found transfer listener '" + toString(transferListener)
+                    + "'. Will not replace this transfer listener since it is not an instance of '"
                     + PreDeployMojo.PrepareIpaPointerFileTransferListener.class.getName() + "'.");
       }
     }
