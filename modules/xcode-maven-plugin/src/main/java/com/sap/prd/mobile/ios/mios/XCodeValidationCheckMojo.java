@@ -209,11 +209,12 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
               failedChecks.put(checkDesc, ex);
             }
             catch (Exception ex) {
-              failedChecks.put(checkDesc, ex);              
+              failedChecks.put(checkDesc, ex);
             }
           }
         }
       }
+      handleExceptions(failedChecks);
     }
     catch (MojoExecutionException e) {
       throw e;
@@ -236,9 +237,6 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
     catch (JAXBException e) {
       throw new MojoExecutionException(e.getMessage(), e);
-    }
-    finally {
-      handleExceptions(failedChecks);
     }
   }
   
