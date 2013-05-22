@@ -87,12 +87,6 @@
         <version>1.2.3</version>
       </dependency>
       <dependency>
-        <groupId>com.sap.prd.components.mobile.ios.mios.build</groupId>
-        <artifactId>xcodeutils</artifactId>
-        <version>0.9.3</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
         <groupId>com.sap.prd.mobile.ios.ota</groupId>
         <artifactId>com.sap.prd.mobile.ios.ota.library</artifactId>
           <version>1.0.4</version>
