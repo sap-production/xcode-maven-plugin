@@ -17,7 +17,10 @@
 	</xs:element>
 	<xs:element name="check">
 		<xs:complexType>
-			<xs:attribute name="class" type="xs:string" use="required" />
+			<xs:attribute name="groupId" type="xs:string" use="optional"></xs:attribute>
+			<xs:attribute name="artifactId" type="xs:string" use="optional"></xs:attribute>
+            <xs:attribute name="version" type="xs:string" use="optional"></xs:attribute>
+            <xs:attribute name="class" type="xs:string" use="required" />
 			<xs:attribute name="severity" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">

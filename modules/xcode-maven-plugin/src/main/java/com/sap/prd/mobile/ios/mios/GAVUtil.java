@@ -19,7 +19,6 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
@@ -46,7 +45,7 @@ class GAVUtil
 
   }
 
-  static Artifact getArtifact(String coords)
+  static org.apache.maven.artifact.DefaultArtifact getArtifact(String coords)
   {
     DefaultArtifact aetherArtifact = new DefaultArtifact(coords);
     return new org.apache.maven.artifact.DefaultArtifact(aetherArtifact.getGroupId(), aetherArtifact.getArtifactId(),
