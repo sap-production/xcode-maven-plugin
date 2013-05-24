@@ -34,6 +34,9 @@ $(document).ready(function() {
 		descDiv.text(desc);
 		descDiv.css("background-color", "black");
 		descDiv.css("color", "white");
+		descDiv.css("padding-left", "5px");
+		descDiv.css("font-weight", "bolder");
+		descDiv.css("font-size", "11pt");
 	    div.append(descDiv);
       }
 	  
