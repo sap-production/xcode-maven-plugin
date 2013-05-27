@@ -27,7 +27,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,12 +38,14 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
@@ -53,26 +54,28 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 import com.sap.prd.mobile.ios.mios.XCodeContext.SourceCodeLocation;
+import com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check;
 import com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Checks;
 
 /**
  * Provides the possibility to perform validation checks.<br>
- * The specific checks have to be implemented additionally and their GAVs have to be specified using the ${xcode.additionalClasspathElements} parameter.<br>
+ * The check classes and their severities are described in an additional xml document, defined in <code>xcode.verification.checks.definitionFile</code>.<br>
+ * The specific checks have to be implemented in a separate project. The coordinates of that projects needs to be provided on the <code>check</code> node belonging to the test as attributes
+ * <code>groupId</code>, <code>artifactId</code> and <code>version</code>.<br>
  * The classpath for this goal will be extended by the jars found under the specified GAVs.
- * The actual check classes and their severities are described in an additional xml document, defined in <code>xcode.verification.checks.definitionFile</code>.<br>
  * <br>
  * Example checks definition:
  * <pre>&lt;checks&gt;
- *   &lt;check severity="ERROR" class="com.my.MyValidationCheck1"/&gt;
- *   &lt;check severity="WARNING" class="com.my.MyValidationCheck2"/&gt;
+ *   &lt;check groupId="my.group.id" artifactId="artifactId" version="1.0.0" severity="ERROR" class="com.my.MyValidationCheck1"/&gt;
+ *   &lt;check groupId="my.group.id" artifactId="artifactId" version="1.0.0" severity="WARNING" class="com.my.MyValidationCheck2"/&gt;
  * &lt;/checks&gt;</pre>
  * @goal validation-check
  * 
  */
 public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 {
-
   private final static String COLON = ":";
+
   private enum Protocol {
 
     HTTP() {
@@ -104,7 +107,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     String getName() {
       return name().toLowerCase(Locale.ENGLISH);
     }
-    
+
     static String getProtocols() {
       final StringBuilder sb = new StringBuilder(16);
       for(Protocol p : Protocol.values()) {
@@ -115,6 +118,26 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
       return sb.toString();
     }
   }
+
+  static class NoProtocolException extends XCodeException {
+
+    private static final long serialVersionUID = -7510547403353515108L;
+    
+    NoProtocolException(String message) {
+      super(message);
+    }
+  };
+
+  static class InvalidProtocolException extends XCodeException {
+
+    private static final long serialVersionUID = -5510547403353515108L;
+    
+    InvalidProtocolException(String message) {
+      super(message);
+    }
+  };
+
+
   
   /**
    * The entry point to Aether, i.e. the component doing all the work.
@@ -138,12 +161,6 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
    * @readonly
    */
   protected List<RemoteRepository> projectRepos;
-
-  /**
-   * Comma separated list of GAVs, containing the check implementations. The corresponding jar files are added to the classpath.
-   * @parameter expression="${xcode.additionalClasspathElements}"
-   */
-  private String dependencies;
 
   /**
    * Parameter, which conrols the validation goal execution. By default, the validation goal will be skipped.
@@ -172,25 +189,39 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
       return;
     }
 
-    if (this.dependencies != null && !this.dependencies.trim().isEmpty()) {
-      extendClasspath();
-    }
+      try {
 
-    performChecks();
+        final Checks checks = getChecks(checkDefinitionFile);
+
+        extendClasspath(checks);
+
+        performChecks(checks);
+
+      }
+      catch (XCodeException e) {
+        throw new MojoExecutionException(e.getMessage(), e);
+      }
+      catch (IOException e) {
+        throw new MojoExecutionException(e.getMessage(), e);
+      }
+      catch (JAXBException e) {
+        throw new MojoExecutionException(e.getMessage(), e);
+      }
   }
 
-  private void performChecks() throws MojoExecutionException
+  private void performChecks(final Checks checks) throws MojoExecutionException
   {
 
     String verificationCheckClassName = null;
     Map<com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check, Exception> failedChecks = new HashMap<com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check, Exception>();
     try {
 
-      if (getChecks().getCheck().isEmpty()) {
+      if (checks.getCheck().isEmpty()) {
         getLog().warn("No checks configured in '" + checkDefinitionFile + "'.");
       }
-      failedChecks.clear();
-      for (final com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check checkDesc : getChecks().getCheck()) {
+
+      for (final com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check checkDesc : checks.getCheck()) {
+
         verificationCheckClassName = checkDesc.getClazz();
         final Class<?> clazz = Class.forName(verificationCheckClassName);
         for (final String configuration : getConfigurations()) {
@@ -232,12 +263,6 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     catch (IllegalAccessException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
-    catch (IOException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
-    catch (JAXBException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
   }
   
   private void handleExceptions(Map<com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check, Exception> failedChecks)
@@ -273,10 +298,10 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private void extendClasspath() throws MojoExecutionException
+  private void extendClasspath(Checks checks) throws MojoExecutionException
   {
-    final Set<Artifact> dependencies = parseDependencies(this.dependencies);
-
+    final Set<Artifact> dependencies = parseDependencies(checks, getLog());
+    
     final ClassRealm classRealm;
     final ClassLoader loader = this.getClass().getClassLoader();
     if (loader instanceof ClassRealm) {
@@ -309,54 +334,67 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private Set<Artifact> parseDependencies(String deps)
+  static Set<Artifact> parseDependencies(final Checks checks, final Log log) throws MojoExecutionException
   {
+      final Set<Artifact> result = new HashSet<Artifact>();
 
-    Set<Artifact> result = new HashSet<Artifact>();
+      for (Check check : checks.getCheck()) {
 
-    if (deps == null || deps.trim().isEmpty())
+        final String coords = StringUtils.join(
+              Arrays.asList(check.getGroupId(), check.getArtifactId(), check.getVersion()), ":");
+
+        if (coords.equals("::")) {
+          log.info(
+                "No coordinates maintained for check represented by class '" + check.getClazz()
+                      + "'. Assuming this check is already contained in the classpath.");
+          continue;
+        }
+
+        if (coords.matches("^:.*|.*:$|.*::.*"))
+          throw new MojoExecutionException("Invalid coordinates: '" + coords
+                + "' maintained for check represented by class '" + check.getClazz()
+                + "'. At least one of groupId, artifactId or version is missing.");
+
+        result.add(new DefaultArtifact(coords));
+      }
+
       return result;
-
-    Collection<String> coords = Arrays.asList(deps.split(","));
-
-    for (String coord : coords) {
-      result.add(new DefaultArtifact(coord));
-    }
-
-    return result;
   }
 
-  private Checks getChecks() throws IOException, MojoExecutionException, JAXBException
+  static Checks getChecks(final String checkDefinitionFileLocation) throws XCodeException, IOException, JAXBException
   {
+    Reader checkDefinitions = null;
 
-    if (checkDefinitionFile == null || checkDefinitionFile.trim().isEmpty()) {
-      throw new MojoExecutionException("CheckDefinitionFile was not configured. Cannot perform verification checks");
+    try {
+      checkDefinitions = getChecksDescriptor(checkDefinitionFileLocation);
+      return (Checks) JAXBContext.newInstance(Checks.class).createUnmarshaller().unmarshal(checkDefinitions);
+    } finally {
+      IOUtils.closeQuietly(checkDefinitions);
+    }
+  }
+  
+  static Reader getChecksDescriptor(final String checkDefinitionFileLocation) throws XCodeException, IOException {
+    if (checkDefinitionFileLocation == null || checkDefinitionFileLocation.trim().isEmpty()) {
+      throw new XCodeException("CheckDefinitionFile was not configured. Cannot perform verification checks");
     }
 
-    final int index = checkDefinitionFile.indexOf(COLON);
+    final int index = checkDefinitionFileLocation.indexOf(COLON);
 
     if(index <= 0) {
-      throw new MojoExecutionException("No protocol found: " + checkDefinitionFile + ". Provide a protocol "
+      throw new NoProtocolException("No protocol found: " + checkDefinitionFileLocation + ". Provide a protocol "
             + Protocol.getProtocols() + " for parameter" + "'xcode.verification.checks.definitionFile'"
             + ". Provide a protocol, e.g. http://example.com/checkDefinitions.xml.");
     }
 
-    final String protocol = checkDefinitionFile.substring(0, index);
-    final String location = checkDefinitionFile.substring(index + COLON.length());
+    final String protocol = checkDefinitionFileLocation.substring(0, index);
+    final String location = checkDefinitionFileLocation.substring(index + COLON.length());
 
-    final Reader checkDefinitions;
     try {
-      checkDefinitions = Protocol.valueOf(protocol.toUpperCase(Locale.ENGLISH)).getCheckDefinitions(location);
+      return Protocol.valueOf(protocol.toUpperCase(Locale.ENGLISH)).getCheckDefinitions(location);
     } catch(IllegalArgumentException ex) {
-      throw new MojoExecutionException("Invalid protocol provided: '" + protocol + "'. Supported values are:'" + Protocol.getProtocols() + "'.");
+      throw new InvalidProtocolException("Invalid protocol provided: '" + protocol + "'. Supported values are:'" + Protocol.getProtocols() + "'.");
     } catch(IOException ex) {
-      throw new IOException("Cannot get check definitions from '" + checkDefinitionFile + "'.", ex);
-    }
-
-    try {
-      return (Checks) JAXBContext.newInstance(Checks.class).createUnmarshaller().unmarshal(checkDefinitions);
-    } finally {
-      IOUtils.closeQuietly(checkDefinitions);
+      throw new IOException("Cannot get check definitions from '" + checkDefinitionFileLocation + "'.", ex);
     }
   }
 }
