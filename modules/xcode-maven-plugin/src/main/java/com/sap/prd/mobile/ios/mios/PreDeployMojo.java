@@ -135,6 +135,8 @@ public class PreDeployMojo extends AbstractDeployMojo
       if (forward != null)
         forward.transferSucceeded(event);
 
+      if(event.getRequestType().equals(TransferEvent.RequestType.GET)) return;
+
       if (event.getResource().getResourceName().endsWith("maven-metadata.xml")) {
 
         getLog().debug("No redirect html file will be created for '" + event.getResource().getResourceName() + "'.");
