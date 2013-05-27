@@ -24,6 +24,7 @@
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="../js/lightbox_me/jquery.lightbox_me.js"></script>
 <script type="text/javascript" src="../js/image_lightbox.js"></script>
+<link rel="stylesheet" type="text/css" href="../css/boxes.css"/>
 </head>
 
 <body>
@@ -97,6 +98,8 @@
 	  <li>Use the OTA-Service by specifying the <tt>mios.ota-service.url</tt> in the <tt>xcode-maven-build</tt> as described above (don't forget the <tt>/HTML</tt> - e.g. <tt>-Dmios.ota-service.url=http://myserver:8080/ota-service/HTML</tt>)</li>
 	</ul>	
 	</p>
+	
+	<p class="info">The <a href="http://github.com/sap-production/OTAService#configuration-in-tomcat">OTA Service Documentation</a> describes how to configure custom HTML templates.</p>
 
 	<h3>Hosting OTA Service on Cloudbees</h3>
 	
@@ -121,7 +124,7 @@
 	<p valign="top">	
 	As Git repository specify <tt>http://github.com/sap-production/OTAService.git</tt> and specify <tt>clean install</tt> as Maven build goals.<br/>
     As Post-build Action add <tt>Deploy applications</tt>, specify a new application ID and the group- and artifact Id of the OTA Service webapp(<i>com.sap.prd.mobile.ios.ota</i> : <i>com.sap.prd.mobile.ios.ota.webapp</i>).<br/>
-	<table><tr><td valign="top">
+	<table width="1px"><tr><td valign="top">
 	<img class="screenshot" width="200" height="150" src="ota/cloudbees_jenkins3a.jpg" 
 		title="Git SCM configuration - fetch the OTA service sources" />
 	</td><td valign="top">
@@ -146,5 +149,7 @@
 	<img class="screenshot" width="200" height="150" src="ota/cloudbees_jenkins5.jpg" 
 		title="Testing the OTA Service - 400 'Referer required' is good" /></p>
 
+	<p class="info">Since it is not easily possible to configure the web application when it is running on Cloudbees we recommend to fork the OTA-Service project and customize the HTML template located in <code>/modules/ota-library/src/main/resources/template.html</code>.</p>
+		
 </body>
 </html>
