@@ -19,14 +19,13 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import junit.framework.Assert;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -60,7 +59,7 @@ public class XCodeValidationChecksTest extends XCodeTest
       verifier.verifyTextInLog(message);
     }
     catch (VerificationException ex) {
-      Assert.fail("Expected log message (" + message + ") was not present.");
+      fail("Expected log message (" + message + ") was not present.");
     }
   }
 
@@ -89,6 +88,7 @@ public class XCodeValidationChecksTest extends XCodeTest
                   + getMavenXcodePluginVersion() + ":validation-check",
             THE_EMPTY_LIST,
             additionalSystemProperties, pomReplacements, new NullProjectModifier());
+      fail("Expected Exception was not thrown");
     }
     catch (Exception ex) {
       assertTrue(ex.getMessage().contains(
@@ -121,6 +121,7 @@ public class XCodeValidationChecksTest extends XCodeTest
                   + getMavenXcodePluginVersion() + ":validation-check",
             THE_EMPTY_LIST,
             additionalSystemProperties, pomReplacements, new NullProjectModifier());
+      fail("Expected Exception was not thrown");
     }
     catch (Exception ex) {
       assertTrue(ex.getMessage().contains("May be your classpath has not been properly extended."));
