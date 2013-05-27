@@ -210,7 +210,7 @@ public class XCodeValidationCheckMojoTest
 
   private void testValidateLocation(String uri, String expectedProtocol, String expectedLocation) throws NoProtocolException
   {
-    Location validateLocation = XCodeValidationCheckMojo.validateLocation(uri);
+    Location validateLocation = XCodeValidationCheckMojo.Location.getLocation(uri);
     assertEquals(expectedProtocol, validateLocation.protocol);
     assertEquals(expectedLocation, validateLocation.location);
   }

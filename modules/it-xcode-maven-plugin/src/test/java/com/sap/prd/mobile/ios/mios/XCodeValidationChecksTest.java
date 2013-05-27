@@ -82,8 +82,9 @@ public class XCodeValidationChecksTest extends XCodeTest
     additionalSystemProperties.put("xcode.verification.checks.definitionFile", (new File(".",
           "src/test/resources/verifications-error.xml")).getAbsolutePath());
 
+    Verifier v = new Verifier(getTestExecutionDirectory(testName, "MyApp").getAbsolutePath());
     try {
-      test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
+      test(v, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
             "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:"
                   + getMavenXcodePluginVersion() + ":validation-check",
             THE_EMPTY_LIST,
@@ -92,7 +93,7 @@ public class XCodeValidationChecksTest extends XCodeTest
     }
     catch (Exception ex) {
       assertTrue(ex.getMessage().contains(
-            "Provide a protocol http, file for parameter'xcode.verification.checks.definitionFile'"));
+            "Provide a protocol [http, https, file] for parameter 'xcode.verification.checks.definitionFile'"));
     }
   }
 

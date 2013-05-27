@@ -153,7 +153,11 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
     NoProtocolException(String message)
     {
-      super(message);
+      this(message, null);
+    }
+    
+    NoProtocolException(String message, Throwable cause) {
+      super(message, cause);
     }
   };
 
@@ -414,12 +418,12 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
     Location location;
     try {
-      location = validateLocation(checkDefinitionFileLocation);
+      location = Location.getLocation(checkDefinitionFileLocation);
     }
     catch (NoProtocolException e) {
       throw new NoProtocolException(format("No protocol found: %s. Provide a protocol [%s]" +
             " for parameter 'xcode.verification.checks.definitionFile', e.g. http://example.com/checkDefinitions.xml.",
-            checkDefinitionFileLocation, Protocol.getProtocols()));
+            checkDefinitionFileLocation, Protocol.getProtocols()), e);
     }
 
     try {
@@ -435,20 +439,20 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  static Location validateLocation(final String locationUriString) throws NoProtocolException
-  {
-    URI uri = URI.create(locationUriString.trim());
-    String protocol = uri.getScheme();
-    if (protocol == null) throw new NoProtocolException(locationUriString);
-    String location = uri.getPath();
-    if (location == null) {
-      location = uri.getSchemeSpecificPart();
-    }
-    return new Location(protocol, location);
-  }
-
   static class Location
   {
+    static Location getLocation(final String locationUriString) throws NoProtocolException
+    {
+      URI uri = URI.create(locationUriString.trim());
+      String protocol = uri.getScheme();
+      if (protocol == null) throw new NoProtocolException(locationUriString);
+      String location = uri.getPath();
+      if (location == null) {
+        location = uri.getSchemeSpecificPart();
+      }
+      return new Location(protocol, location);
+    }
+    
     final String protocol;
     final String location;
 
