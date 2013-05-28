@@ -22,6 +22,7 @@
       <id>continuous-integration</id>		
       <modules>		
         <module>modules/it-xcode-maven-plugin</module>		
+        <module>modules/it-xcode-maven-plugin-verification-checks</module>		
       </modules>		
     </profile>		
   </profiles>

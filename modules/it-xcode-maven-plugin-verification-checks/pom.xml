@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>it-xcode-maven-plugin-verification-checks</artifactId>
+  <packaging>jar</packaging>
+  <parent>
+    <groupId>com.sap.prd.mobile.ios.mios</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.9.3-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <license.roots>src/main,src/test/java,src/test/projects</license.roots> <!--  skip src/test/resources as these files are used for file comparison and must not be changed-->
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>com.sap.prd.mobile.ios.mios</groupId>
+      <artifactId>xcode-maven-plugin</artifactId>
+    </dependency>
+  </dependencies>
+</project>

@@ -60,6 +60,13 @@
   </build>
   <dependencies>
      <dependency>
+       <!-- This dependency is required in order to ensure that this project is built first.
+            The jar correpsonding to this project is loaded dynamically during tests for the verification infrastructure. -->
+       <groupId>com.sap.prd.mobile.ios.mios</groupId>
+       <artifactId>it-xcode-maven-plugin-verification-checks</artifactId>
+       <version>${project.version}</version>
+     </dependency>
+     <dependency>
         <groupId>com.sap.prd.mobile.ios.mios</groupId>
         <artifactId>xcode-project-java-api</artifactId>
     </dependency>
