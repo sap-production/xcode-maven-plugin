@@ -200,7 +200,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
    * skipped.
    * 
    * @parameter expression="${xcode.verification.checks.skip}" default-value="true"
-   * @readonly
+   * @since 1.9.3
    */
   private boolean skip;
 
@@ -209,7 +209,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
    * system or a remote located file, accessed via HTTP.
    * 
    * @parameter expression="${xcode.verification.checks.definitionFile}"
-   * @readonly
+   * @since 1.9.3
    */
   private String checkDefinitionFile;
 
