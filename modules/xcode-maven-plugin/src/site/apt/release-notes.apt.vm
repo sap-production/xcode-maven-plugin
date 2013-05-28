@@ -10,6 +10,33 @@ Release Notes
 
 ===
 
+* 1.9.3
+
+** Features
+
+*** Verification Check infrastructure for applications
+
+  Applications are reviewed by Apple during the upload into the Appstore. In order to reduce the risk to be rejected
+  during that upload some checks could be applied to the application prior to the upload. The infrastructure for
+  such tests is provided. For details see {{{./validation-check-mojo.html}here}}. Only the infrastructure is provided,
+  the validation checks themselves are not contained in the xcode-maven-plugin.
+
+** Bug Fixes
+
+*** Artifact redirect links were provided also for artifacts downloaded during the deploy phase.
+
+  In rare cases downloads happen during the deploy phase. In this cases artifact redirect files were also written
+  for the downloaded artifacts.
+
+** Docu Update
+
+*** How-to section for OTA Service configuration
+
+   The OTA Service (Over-the-Air Deployment Service) is provided as part of the xcode-maven-plugin eco system. With this 
+   {{{./howto/EnableOTADeployment.html}how-to}} it is explained how to use the OTA Service in builds using the xcode-maven-plugin.
+
+===
+
 * 1.9.2
 
 ** Features
