@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,12 +89,24 @@ public class XCodeFrameworkTest extends XCodeTest
     test(testName, new File(getTestRootDirectory(), "framework/" + fmwkName), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
+    for (final String configuration : Arrays.asList("Release", "Debug")) {
+      final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion
+            + "/" + fmwkName
+            + "-" + dynamicVersion
+            + "-" + configuration;
+      File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + ".xcode-framework-zip");
+      assertTrue("Framework artifact " + repoArtifact + " does not exist.", repoArtifact.exists());
+      File extractedFrameworkFolder = tmpFolder.newFolder("frmw-" + fmwkName + "-" + configuration);
+      extractFileWithShellScript(repoArtifact, extractedFrameworkFolder);
+      validateFrameworkStructure(extractedFrameworkFolder, fmwkName);
+    }
+
     final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion
           + "/" + fmwkName
           + "-" + dynamicVersion;
     File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + ".xcode-framework-zip");
-    assertTrue(repoArtifact.exists());
-    File extractedFrameworkFolder = tmpFolder.newFolder("frmw" + fmwkName);
+    assertTrue("Framework artifact " + repoArtifact + " does not exist.", repoArtifact.exists());
+    File extractedFrameworkFolder = tmpFolder.newFolder("frmw-" + fmwkName + "-" + "mainArtifact");
     extractFileWithShellScript(repoArtifact, extractedFrameworkFolder);
     validateFrameworkStructure(extractedFrameworkFolder, fmwkName);
   }

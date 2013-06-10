@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * Packages the framework built by Xcode and prepares the generated artifact for deployment.
@@ -36,18 +37,38 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
 {
-
+  /**
+   * @component
+   */
+  private MavenProjectHelper projectHelper;
+  
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
     final String sdk = "iphoneos";
-    String productName = getProductName(getPrimaryFmwkConfiguration(), sdk);
-    String builtProductsDirName = null;
 
+    {
+      final File mainArtifact = getFrameworkArtifact(sdk, getPrimaryFmwkConfiguration());
+      project.getArtifact().setFile(mainArtifact);
+    }
+
+    for(String configuration : getConfigurations()) {
+
+      final File frameworkArtifact = getFrameworkArtifact(sdk, configuration);
+
+      projectHelper.attachArtifact(project, frameworkArtifact, configuration);
+      getLog().info("Artifact file '" + frameworkArtifact + "' attached for " + project.getArtifact());
+    }
+  }
+
+  private File getFrameworkArtifact(final String sdk, String configuration) throws MojoExecutionException
+  {
+    String builtProductsDirName = null;
+    String productName = getProductName(configuration, sdk);
     try {
       builtProductsDirName = EffectiveBuildSettings.getBuildSetting(
-            getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, getPrimaryFmwkConfiguration(), sdk),
+            getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk),
             getLog(), EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
     }
     catch (XCodeException ex) {
@@ -63,9 +84,8 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
     String artifactName = productName + ".xcode-framework-zip";
     zipFmwk(builtProductsDir, artifactName, fmwkDirName);
 
-    File mainArtifact = new File(builtProductsDir, artifactName);
-    project.getArtifact().setFile(mainArtifact);
-    getLog().info("Main artifact file '" + mainArtifact + "' attached for " + project.getArtifact());
+    File frameworkArtifact = new File(builtProductsDir, artifactName);
+    return frameworkArtifact;
   }
 
   private void zipFmwk(File workingDirectory, String artifactName, String zipDirName) throws MojoExecutionException
