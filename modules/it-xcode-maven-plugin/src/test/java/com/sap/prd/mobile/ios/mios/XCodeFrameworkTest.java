@@ -94,7 +94,7 @@ public class XCodeFrameworkTest extends XCodeTest
             + "/" + fmwkName
             + "-" + dynamicVersion
             + "-" + configuration;
-      File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + ".xcode-framework-zip");
+      File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + Constants.GROUP_ID + "." + Types.FRAMEWORK);
       assertTrue("Framework artifact " + repoArtifact + " does not exist.", repoArtifact.exists());
       File extractedFrameworkFolder = tmpFolder.newFolder("frmw-" + fmwkName + "-" + configuration);
       extractFileWithShellScript(repoArtifact, extractedFrameworkFolder);
@@ -104,7 +104,7 @@ public class XCodeFrameworkTest extends XCodeTest
     final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion
           + "/" + fmwkName
           + "-" + dynamicVersion;
-    File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + ".xcode-framework-zip");
+    File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + "." + Types.FRAMEWORK);
     assertTrue("Framework artifact " + repoArtifact + " does not exist.", repoArtifact.exists());
     File extractedFrameworkFolder = tmpFolder.newFolder("frmw-" + fmwkName + "-" + "mainArtifact");
     extractFileWithShellScript(repoArtifact, extractedFrameworkFolder);

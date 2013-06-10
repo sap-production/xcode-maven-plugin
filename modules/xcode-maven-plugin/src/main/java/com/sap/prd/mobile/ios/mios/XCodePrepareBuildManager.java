@@ -23,6 +23,7 @@ import static com.sap.prd.mobile.ios.mios.FileUtils.mkdirs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -101,7 +102,7 @@ class XCodePrepareBuildManager
         prepareLibrary(project, configurations, sdks, mainArtifact);
       }
       else if (PackagingType.FRAMEWORK.getMavenPackaging().equals(mainArtifact.getType())) {
-        prepareFramework(project, mainArtifact);
+        prepareFramework(project, mainArtifact, configurations);
       }
       else  if (additionalPackagingTypes.keySet().contains(mainArtifact.getType())){
 
@@ -361,7 +362,7 @@ private void prepareLibrary(final MavenProject project,
     }
   }
 
-  private void prepareFramework(MavenProject project, final Artifact primaryArtifact)
+  private void prepareFramework(MavenProject project, final Artifact primaryArtifact, Collection<String> configurations)
         throws MojoExecutionException
   {
     if (primaryArtifact != null) {
@@ -371,7 +372,7 @@ private void prepareLibrary(final MavenProject project,
             primaryArtifact.getGroupId(), primaryArtifact.getArtifactId());
 
       createDirectory(target);
-      com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "zip", source, target);
+      //com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "zip", source, target);
 
       try {
         extractFileWithShellScript(source, target, new File(project.getBuild().getDirectory()));
@@ -382,6 +383,23 @@ private void prepareLibrary(final MavenProject project,
 
       log.info("Framework unarchived from " + source + " to " + target);
 
+    }
+    
+    try {
+      for(String configuration : configurations) {
+        org.sonatype.aether.artifact.Artifact frameworkArtifact = downloadManager.resolveSideArtifact(primaryArtifact, configuration, Types.FRAMEWORK);
+        File target = FolderLayout.getFolderForExtractedFrameworkswithGA(project, primaryArtifact.getGroupId(), primaryArtifact.getArtifactId(), configuration);
+        createDirectory(target);
+        try {
+          extractFileWithShellScript(frameworkArtifact.getFile(), target, new File(project.getBuild().getDirectory()));
+        }
+        catch (IOException ioe) {
+          throw new MojoExecutionException("Cannot unarchive framework from " + frameworkArtifact.getFile() + " to " + target);
+        }
+}
+    }
+    catch (SideArtifactNotFoundException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
     }
   }
 

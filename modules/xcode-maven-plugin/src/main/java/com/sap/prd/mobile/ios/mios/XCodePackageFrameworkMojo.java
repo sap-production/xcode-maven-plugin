@@ -81,7 +81,7 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
 
     validateFrmkStructure(fmwkDir);
 
-    String artifactName = productName + ".xcode-framework-zip";
+    String artifactName = productName + "." + Types.FRAMEWORK;
     zipFmwk(builtProductsDir, artifactName, fmwkDirName);
 
     File frameworkArtifact = new File(builtProductsDir, artifactName);
