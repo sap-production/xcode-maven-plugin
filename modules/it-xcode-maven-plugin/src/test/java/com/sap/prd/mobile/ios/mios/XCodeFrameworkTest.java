@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,8 @@ public class XCodeFrameworkTest extends XCodeTest
     test(testName, new File(getTestRootDirectory(), "framework/" + fmwkName), "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
+    //
+    // Check the configuration independent framework
     final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion
           + "/" + fmwkName
           + "-" + dynamicVersion;
@@ -96,6 +99,19 @@ public class XCodeFrameworkTest extends XCodeTest
     File extractedFrameworkFolder = tmpFolder.newFolder("frmw" + fmwkName);
     extractFileWithShellScript(repoArtifact, extractedFrameworkFolder);
     validateFrameworkStructure(extractedFrameworkFolder, fmwkName);
+    
+    
+    //
+    // Check the configuration specific frameworks
+    for(String configuration : Arrays.asList("Debug", "Release")) 
+    {
+      repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + "-" + configuration + "." + Types.FRAMEWORK);
+      assertTrue("Framework artifact " + repoArtifact + " does not exist.", repoArtifact.exists());
+      extractedFrameworkFolder = tmpFolder.newFolder("frmw" + fmwkName + "-" + configuration);
+      extractFileWithShellScript(repoArtifact, extractedFrameworkFolder);
+      validateFrameworkStructure(extractedFrameworkFolder, fmwkName);
+
+    }
   }
 
   private void validateFrameworkStructure(File parentFolder, String frameworkName) throws IOException
