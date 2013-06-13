@@ -64,7 +64,7 @@ public class XCodeFrameworkTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + System.currentTimeMillis());
 
     try {
       test(verifier, testName, projectDirectory, "deploy",
@@ -79,7 +79,7 @@ public class XCodeFrameworkTest extends XCodeTest
 
   private void createAndValidateFmwk(String testName, String fmwkName) throws IOException, Exception
   {
-    String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
+    String dynamicVersion = "1.0." + System.currentTimeMillis();
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
     prepareRemoteRepository(remoteRepositoryDirectory);
@@ -123,9 +123,9 @@ public class XCodeFrameworkTest extends XCodeTest
   }
 
   @Test
-  public void testUseFramework() throws Exception
+  public void testUseFrameworkBackwardCompatibility() throws Exception
   {
-    final String dynamicVersion = "1.0.0";
+    final String dynamicVersion = "1.0." + System.currentTimeMillis();
 
     final String testName = getTestName();
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
@@ -141,13 +141,53 @@ public class XCodeFrameworkTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_FRWK_REPO_DIR, frameworkRepository.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
+    pomReplacements.setProperty(PROP_NAME_FRAMEWORK_VERSION, "1.0.0");
+
+    Verifier verifier = test(testName, new File(getTestRootDirectory(), "framework/MyApp"),
+          "deploy",
+          THE_EMPTY_LIST,
+          additionalSystemParameters, pomReplacements, new NullProjectModifier());
+
+    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/frameworks/Release/"
+          + Constants.GROUP_ID
+          + "/MyFramework/MyFramework.framework").exists());
+    verifier.verifyTextInLog("' does not contain configuration specific variant. Will dowload the generic framework for configuration 'Release'.");
+
+    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
+    final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
+    File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-"
+          + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");
+    assertTrue(xcodeprojAppZip.exists());
+    assertUnpackAndCompile(xcodeprojAppZip);
+  }
+
+  @Test
+  public void testUseFrameworkConfigurationSpecific() throws Exception
+  {
+    final String dynamicVersion = "1.0." + System.currentTimeMillis();
+  
+    final String testName = getTestName();
+    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
+    prepareRemoteRepository(remoteRepositoryDirectory);
+
+    final File frameworkRepository = new File(new File(".").getCanonicalFile(), "src/test/frameworkRepository");
+
+    final Map<String, String> additionalSystemParameters = new HashMap<String, String>();
+    additionalSystemParameters.put("configuration", "Release");
+    additionalSystemParameters.put("sdk", "iphoneos");
+
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_FRWK_REPO_DIR, frameworkRepository.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
+    pomReplacements.setProperty(PROP_NAME_FRAMEWORK_VERSION, "2.0.0");
 
     test(testName, new File(getTestRootDirectory(), "framework/MyApp"),
           "deploy",
           THE_EMPTY_LIST,
           additionalSystemParameters, pomReplacements, new NullProjectModifier());
 
-    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/frameworks/"
+    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/frameworks/Release/"
           + Constants.GROUP_ID
           + "/MyFramework/MyFramework.framework").exists());
 
@@ -158,7 +198,6 @@ public class XCodeFrameworkTest extends XCodeTest
     assertTrue(xcodeprojAppZip.exists());
     assertUnpackAndCompile(xcodeprojAppZip);
   }
-
   @Test
   public void testFrameworkInProjectZip() throws Exception
   {
@@ -221,17 +260,17 @@ public class XCodeFrameworkTest extends XCodeTest
           FileUtils.isSymbolicLink(libFile));
 
     File headersInFramework = new File(tmpDir,
-          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Headers");
+          "target/xcode-deps/frameworks/Release/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Headers");
     assertTrue("Header file '" + headersInFramework + "' is not a symbolic link, but should be a symbolic link.",
           FileUtils.isSymbolicLink(headersInFramework));
 
     File libInFramework = new File(tmpDir,
-          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/MyFramework");
+          "target/xcode-deps/frameworks/Release/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/MyFramework");
     assertTrue("Library file '" + libInFramework + "' is not a symbolic link, but should be a symbolic link.",
           FileUtils.isSymbolicLink(libInFramework));
 
     File resourcesInFramework = new File(tmpDir,
-          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Resources");
+          "target/xcode-deps/frameworks/Release/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Resources");
     assertTrue("Resources folder in framework '" + resourcesInFramework
           + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(resourcesInFramework));
   }
@@ -299,17 +338,17 @@ public class XCodeFrameworkTest extends XCodeTest
           FileUtils.isSymbolicLink(libFile));
 
     File headersInFramework = new File(tmpDir,
-          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Headers");
+          "target/xcode-deps/frameworks/Release/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Headers");
     assertTrue("Header file '" + headersInFramework + "' is not a symbolic link, but should be a symbolic link.",
           FileUtils.isSymbolicLink(headersInFramework));
 
     File libInFramework = new File(tmpDir,
-          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/MyFramework");
+          "target/xcode-deps/frameworks/Release/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/MyFramework");
     assertTrue("Library file '" + libInFramework + "' is not a symbolic link, but should be a symbolic link.",
           FileUtils.isSymbolicLink(libInFramework));
 
     File resourcesInFramework = new File(tmpDir,
-          "target/xcode-deps/frameworks/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Resources");
+          "target/xcode-deps/frameworks/Release/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Resources");
     assertTrue("Resources folder in framework '" + resourcesInFramework
           + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(resourcesInFramework));
   }

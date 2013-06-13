@@ -65,6 +65,8 @@ public abstract class XCodeTest
   static final String PROP_NAME_FRWK_REPO_DIR = "frwkrepo.directory";
   static final String PROP_NAME_ZIP_REPO_DIR = "ziprepo.directory";
   static final String PROP_NAME_DYNAMIC_VERSION = "dynamicVersion";
+  static final String PROP_NAME_FRAMEWORK_VERSION = "frameworkVersion";
+  
 
   private static File localRepo = null;
   private static String activeProfiles = null;

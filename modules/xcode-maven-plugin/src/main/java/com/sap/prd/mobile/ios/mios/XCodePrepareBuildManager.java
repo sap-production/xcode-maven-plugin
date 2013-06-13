@@ -52,26 +52,27 @@ class XCodePrepareBuildManager
   private final XCodeDownloadManager downloadManager;
   private final boolean useSymbolicLinks;
   private Map<String, String> additionalPackagingTypes;
-  
-  private boolean preferFatLibs;
 
+  private boolean preferFatLibs;
 
   XCodePrepareBuildManager(final Log log, final ArchiverManager archiverManager,
         final RepositorySystemSession repoSystemSession, final RepositorySystem repoSystem,
-        final List<RemoteRepository> projectRepos, final boolean useSymbolicLinks, final Map<String, String> additionalPackagingTypes)
+        final List<RemoteRepository> projectRepos, final boolean useSymbolicLinks,
+        final Map<String, String> additionalPackagingTypes)
   {
     this.log = log;
     this.archiverManager = archiverManager;
     this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
     this.useSymbolicLinks = useSymbolicLinks;
-    
-    if(additionalPackagingTypes == null) {
+
+    if (additionalPackagingTypes == null) {
       this.additionalPackagingTypes = Collections.emptyMap();
-    } else {
-      this.additionalPackagingTypes = additionalPackagingTypes;
-    
     }
-      
+    else {
+      this.additionalPackagingTypes = additionalPackagingTypes;
+
+    }
+
   }
 
   public XCodePrepareBuildManager setPreferFalLibs(boolean preferFatLibs)
@@ -104,9 +105,10 @@ class XCodePrepareBuildManager
       else if (PackagingType.FRAMEWORK.getMavenPackaging().equals(mainArtifact.getType())) {
         prepareFramework(project, mainArtifact, configurations);
       }
-      else  if (additionalPackagingTypes.keySet().contains(mainArtifact.getType())){
+      else if (additionalPackagingTypes.keySet().contains(mainArtifact.getType())) {
 
-        final PackagingTypeAction packagingTypeAction = PackagingTypeAction.valueOf(additionalPackagingTypes.get(mainArtifact.getType()));
+        final PackagingTypeAction packagingTypeAction = PackagingTypeAction.valueOf(additionalPackagingTypes
+          .get(mainArtifact.getType()));
         log.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + packagingTypeAction);
         packagingTypeAction.perform(archiverManager, project, mainArtifact);
       }
@@ -119,56 +121,57 @@ class XCodePrepareBuildManager
     }
   }
 
-private void prepareLibrary(final MavenProject project,
-		Set<String> configurations, final Set<String> sdks,
-		final Artifact mainArtifact) throws MojoExecutionException,
-		IOException, XCodeException {
-	for (final String xcodeConfiguration : configurations) {
+  private void prepareLibrary(final MavenProject project,
+        Set<String> configurations, final Set<String> sdks,
+        final Artifact mainArtifact) throws MojoExecutionException,
+        IOException, XCodeException
+  {
+    for (final String xcodeConfiguration : configurations) {
 
-	  Map<String, File> thinLibs = new HashMap<String, File>();
+      Map<String, File> thinLibs = new HashMap<String, File>();
 
-	  for (final String sdk : sdks) {
+      for (final String sdk : sdks) {
 
-	    thinLibs.put(sdk, resolveThinLib(project, xcodeConfiguration, sdk, mainArtifact));
+        thinLibs.put(sdk, resolveThinLib(project, xcodeConfiguration, sdk, mainArtifact));
 
-	    try {
-	      prepareHeaders(project, xcodeConfiguration, sdk, mainArtifact);
-	    }
-	    catch (SideArtifactNotFoundException e) {
-	      log.info("Headers not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId()
-	            + ":"
-	            + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
-	    }
-	  }
+        try {
+          prepareHeaders(project, xcodeConfiguration, sdk, mainArtifact);
+        }
+        catch (SideArtifactNotFoundException e) {
+          log.info("Headers not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId()
+                + ":"
+                + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
+        }
+      }
 
-	  File fatLib = resolveFatLib(project, xcodeConfiguration, mainArtifact);
+      File fatLib = resolveFatLib(project, xcodeConfiguration, mainArtifact);
 
-	  if (thinLibs.values().contains(null)) {
+      if (thinLibs.values().contains(null)) {
 
-	    if (fatLib != null) {
-	      provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
-	    }
-	    else {
-	      throw new XCodeException("Neither all thin libs nor fat lib available for " + mainArtifact.getId() + ".");
-	    }
-	  }
-	  else {
+        if (fatLib != null) {
+          provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
+        }
+        else {
+          throw new XCodeException("Neither all thin libs nor fat lib available for " + mainArtifact.getId() + ".");
+        }
+      }
+      else {
 
-	    if (preferFatLibs && fatLib != null)
-	      provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
-	    else
-	      provideThinLibs(thinLibs, xcodeConfiguration, mainArtifact, project);
-	  }
-	}
+        if (preferFatLibs && fatLib != null)
+          provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);
+        else
+          provideThinLibs(thinLibs, xcodeConfiguration, mainArtifact, project);
+      }
+    }
 
-	try {
-	  prepareBundles(project, mainArtifact);
-	}
-	catch (SideArtifactNotFoundException e) {
-	  log.info("Bundle not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId() + ":"
-	        + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
-	}
-}
+    try {
+      prepareBundles(project, mainArtifact);
+    }
+    catch (SideArtifactNotFoundException e) {
+      log.info("Bundle not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId() + ":"
+            + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
+    }
+  }
 
   private static void prepareRootFolders(MavenProject project, Set<String> configurations, Set<String> sdks)
         throws IOException
@@ -261,7 +264,8 @@ private void prepareLibrary(final MavenProject project,
       throw new IOException("Cannot create directory for expanded mainartefact of " + primaryArtifact.getGroupId()
             + ":" + primaryArtifact.getArtifactId() + " (" + mainArtifactExtracted + ").");
 
-    com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "tar", primaryArtifact.getFile(), mainArtifactExtracted);
+    com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "tar", primaryArtifact.getFile(),
+          mainArtifactExtracted);
 
     log.info("Main artifact extracted to '" + mainArtifactExtracted + "'.");
 
@@ -287,8 +291,8 @@ private void prepareLibrary(final MavenProject project,
           primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
 
     if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion()) || !useSymbolicLinks()) {
-        FileUtils.copyFile(source, target);
-      }
+      FileUtils.copyFile(source, target);
+    }
     else {
       com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);
     }
@@ -340,9 +344,11 @@ private void prepareLibrary(final MavenProject project,
     }
   }
 
-  private boolean useSymbolicLinks() {
+  private boolean useSymbolicLinks()
+  {
     return this.useSymbolicLinks;
   }
+
   private void prepareHeaders(MavenProject project, String xcodeConfiguration,
         final String sdk, final Artifact primaryArtifact) throws MojoExecutionException, SideArtifactNotFoundException
   {
@@ -365,41 +371,59 @@ private void prepareLibrary(final MavenProject project,
   private void prepareFramework(MavenProject project, final Artifact primaryArtifact, Collection<String> configurations)
         throws MojoExecutionException
   {
+
+    for (String configuration : configurations) {
+      try {
+        org.sonatype.aether.artifact.Artifact frameworkArtifact = downloadManager.resolveSideArtifact(primaryArtifact,
+              configuration, Types.FRAMEWORK);
+        extractFramework(project, primaryArtifact, configuration, frameworkArtifact.getFile());
+      }
+      catch (SideArtifactNotFoundException e) {
+        log
+          .warn("Framework '"
+                + primaryArtifact
+                + "' does not contain configuration specific variant. Will download the generic framework for configuration '"
+                + configuration + "'.");
+        handlePrimaryArtifact(project, primaryArtifact, configurations);
+      }
+    }
+  }
+
+  private void extractFramework(MavenProject project, final Artifact primaryArtifact, String configuration,
+        File frameworkArtifact) throws MojoExecutionException
+  {
+    File target = FolderLayout.getFolderForExtractedFrameworkswithGA(project, primaryArtifact.getGroupId(),
+          primaryArtifact.getArtifactId(), configuration);
+    createDirectory(target);
+    try {
+      extractFileWithShellScript(frameworkArtifact, target, new File(project.getBuild().getDirectory()));
+    }
+    catch (IOException ioe) {
+      throw new MojoExecutionException("Cannot unarchive framework from " + frameworkArtifact + " to "
+            + target);
+    }
+  }
+
+  private void handlePrimaryArtifact(MavenProject project, final Artifact primaryArtifact,
+        Collection<String> configurations)
+        throws MojoExecutionException
+  {
     if (primaryArtifact != null) {
       final File source = primaryArtifact.getFile();
+      for (String configuration : configurations) {
+        final File target = FolderLayout.getFolderForExtractedFrameworkswithGA(project,
+              primaryArtifact.getGroupId(), primaryArtifact.getArtifactId());
+        extractFramework(project, primaryArtifact, configuration, source);
 
-      final File target = FolderLayout.getFolderForExtractedFrameworkswithGA(project,
-            primaryArtifact.getGroupId(), primaryArtifact.getArtifactId());
-
-      createDirectory(target);
-      //com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "zip", source, target);
-
-      try {
-        extractFileWithShellScript(source, target, new File(project.getBuild().getDirectory()));
-      }
-      catch (IOException ioe) {
-        throw new MojoExecutionException("Cannot unarchive framework from " + source + " to " + target);
-      }
-
-      log.info("Framework unarchived from " + source + " to " + target);
-
-    }
-    
-    try {
-      for(String configuration : configurations) {
-        org.sonatype.aether.artifact.Artifact frameworkArtifact = downloadManager.resolveSideArtifact(primaryArtifact, configuration, Types.FRAMEWORK);
-        File target = FolderLayout.getFolderForExtractedFrameworkswithGA(project, primaryArtifact.getGroupId(), primaryArtifact.getArtifactId(), configuration);
-        createDirectory(target);
         try {
-          extractFileWithShellScript(frameworkArtifact.getFile(), target, new File(project.getBuild().getDirectory()));
+          extractFileWithShellScript(source, target, new File(project.getBuild().getDirectory()));
         }
         catch (IOException ioe) {
-          throw new MojoExecutionException("Cannot unarchive framework from " + frameworkArtifact.getFile() + " to " + target);
+          throw new MojoExecutionException("Cannot unarchive framework from " + source + " to " + target);
         }
-}
-    }
-    catch (SideArtifactNotFoundException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
+
+        log.info("Framework unarchived from " + source + " to " + target);
+      }
     }
   }
 
