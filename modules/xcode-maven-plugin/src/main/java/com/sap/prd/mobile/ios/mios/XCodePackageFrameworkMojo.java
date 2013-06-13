@@ -36,7 +36,23 @@ import org.apache.maven.project.MavenProjectHelper;
  * 
  */
 public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
-{
+{ 
+  /**
+   * The frameworks are built for all defined configurations, i.e Debug and Release.
+   * The parameter here defines the configuration, used for the primary artifact generation.
+   * 
+   * @parameter expression="${xcode.primaryFmwkConfiguration}" default-value="Release"
+   * @since 1.4.2
+   */
+  private String primaryFmwkConfiguration;
+  
+  /**
+   * 
+   * @parameter expression="${xcode.primaryFmwkSdk}" default-value="iphoneos"
+   * @since 1.4.2
+   */
+  private String primaryFmwkSdk;
+  
   /**
    * @component
    */
@@ -46,16 +62,12 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
-    final String sdk = "iphoneos";
-
-    {
-      final File mainArtifact = getFrameworkArtifact(sdk, getPrimaryFmwkConfiguration());
-      project.getArtifact().setFile(mainArtifact);
-    }
+    final File mainArtifact = getFrameworkArtifact(getPrimaryFmwkSdk(), getPrimaryFmwkConfiguration());
+    project.getArtifact().setFile(mainArtifact);
+   
 
     for(String configuration : getConfigurations()) {
-
-      final File frameworkArtifact = getFrameworkArtifact(sdk, configuration);
+      final File frameworkArtifact = getFrameworkArtifact(getPrimaryFmwkSdk(), configuration);
 
       projectHelper.attachArtifact(project, frameworkArtifact, configuration);
       getLog().info("Artifact file '" + frameworkArtifact + "' attached for " + project.getArtifact());
@@ -113,4 +125,22 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
     }
   }
 
+
+  protected String getPrimaryFmwkConfiguration() throws MojoExecutionException
+  {
+    if (getConfigurations().contains(primaryFmwkConfiguration)) {
+      return primaryFmwkConfiguration;
+    }
+    throw new MojoExecutionException("The primaryFmwkConfiguration '" + primaryFmwkConfiguration
+          + "' is not part of the configurations '" + getConfigurations() + "' defined for this project");
+  }
+  
+  protected String getPrimaryFmwkSdk() throws MojoExecutionException
+  {
+    if (getSDKs().contains(primaryFmwkSdk)) {
+      return primaryFmwkSdk;
+    }
+    throw new MojoExecutionException("The primaryFmwkSdk '" + primaryFmwkSdk
+          + "' is not part of the sdks '" + getSDKs() + "' defined for this project");
+  }
 }

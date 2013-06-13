@@ -94,18 +94,19 @@ public class XCodeFrameworkTest extends XCodeTest
     final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion
           + "/" + fmwkName
           + "-" + dynamicVersion;
-    File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + "." + Types.FRAMEWORK);
-    assertTrue("Framework artifact " + repoArtifact + " does not exist.", repoArtifact.exists());
+    File repoArtifactRelease = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + "-Release." + Types.FRAMEWORK);
+    assertTrue("Framework artifact " + repoArtifactRelease + " does not exist.", repoArtifactRelease.exists());
+    
+    File repoArtifactDebug = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + "-Debug." + Types.FRAMEWORK);
+    assertTrue("Framework artifact " + repoArtifactDebug + " does not exist.", repoArtifactDebug.exists());
+    
     File extractedFrameworkFolder = tmpFolder.newFolder("frmw" + fmwkName);
-    extractFileWithShellScript(repoArtifact, extractedFrameworkFolder);
-    validateFrameworkStructure(extractedFrameworkFolder, fmwkName);
-    
-    
+   
     //
     // Check the configuration specific frameworks
     for(String configuration : Arrays.asList("Debug", "Release")) 
     {
-      repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + "-" + configuration + "." + Types.FRAMEWORK);
+      File repoArtifact = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + "-" + configuration + "." + Types.FRAMEWORK);
       assertTrue("Framework artifact " + repoArtifact + " does not exist.", repoArtifact.exists());
       extractedFrameworkFolder = tmpFolder.newFolder("frmw" + fmwkName + "-" + configuration);
       extractFileWithShellScript(repoArtifact, extractedFrameworkFolder);
@@ -151,7 +152,7 @@ public class XCodeFrameworkTest extends XCodeTest
     Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/frameworks/Release/"
           + Constants.GROUP_ID
           + "/MyFramework/MyFramework.framework").exists());
-    verifier.verifyTextInLog("' does not contain configuration specific variant. Will dowload the generic framework for configuration 'Release'.");
+    verifier.verifyTextInLog("' does not contain configuration specific variant. Will download the generic framework for configuration 'Release'.");
 
     final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
     final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;

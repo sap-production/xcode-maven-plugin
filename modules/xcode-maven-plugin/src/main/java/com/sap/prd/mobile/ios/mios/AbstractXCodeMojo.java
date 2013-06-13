@@ -131,14 +131,6 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    */
   private String defaultLibSdks;
 
-  /**
-   * Frameworks are only built for one configuration. The defined configuration must also be listed
-   * in the configurations parameter.
-   * 
-   * @parameter expression="${xcode.primaryFmwkConfiguration}" default-value="Release"
-   * @since 1.4.2
-   */
-  private String primaryFmwkConfiguration;
 
   protected Set<String> getSDKs()
   {
@@ -276,14 +268,5 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   protected PackagingType getPackagingType()
   {
     return PackagingType.getByMavenType(packaging);
-  }
-
-  protected String getPrimaryFmwkConfiguration() throws MojoExecutionException
-  {
-    if (getConfigurations().contains(primaryFmwkConfiguration)) {
-      return primaryFmwkConfiguration;
-    }
-    throw new MojoExecutionException("The primaryFmwkConfiguration '" + primaryFmwkConfiguration
-          + "' is not part of the configurations '" + getConfigurations() + "' defined in the POM for this project");
   }
 }
