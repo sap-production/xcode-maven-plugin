@@ -1,0 +1,116 @@
+~~~
+~~ #%L
+~~ xcode-maven-plugin
+~~ %%
+~~ Copyright (C) 2012 SAP AG
+~~ %%
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~ #L%
+~~~
+
+ ------
+ Usage
+ ------
+ ------
+ 20123-06-20
+ ------
+
+How to handle keychains in master/slave environments
+
+* Purpose of this page
+ 
+   In order to be able to sign Xcode applications it is required to access the certificates for signing. These certificates are stored inside a keychain. The keychain must be open in order to
+   retrieve the certificate for the built application. Typically the xcode-maven-plugin will be used on a continuous-integration infrastructure like e.g. Hudson or Jenkins. As long as the continuous-integration
+   infrastructure is operated in a single node mode it is sufficient to put the certificate into the login keychain of the user that runs the continuous-integration server.
+   The situation becomes difficult when operating continuous-integration servers in the master/slave mode. The preferred way to establish the communication between the master and
+   the slave is ssh. Unfortunatally the keychains are not accessible by default when connecting to a machine using ssh.
+   This page explains how applications can be signed on slaves using the xcode-maven-plugin in a master/slave setup. As already explaind above the challange is to get access to the
+   keychain containing the certificate required for the codesiging.
+
+   The steps mentions below refer to Hudson/Jenkins as a build server.
+   
+* How applications can be signed using the xcode-maven-plugin in a master/slave environment
+
+** The Problem
+
+  When a slave is started we end up from the technical point of view in a call like 
+
++-------------    
+   [SSH] Opening SSH connection to <SLAVE>:22.
+   [SSH] Authenticating as <USER_NAME>/******.
+   [SSH] Authentication successful.
+   ...
+   [SSH] Starting slave process: cd '<REMOTE_FS_ROOT>' && java -jar slave.jar
++-------------   
+ 
+   When logging on via SSH the login keychain is not open - even if the same user is logged in with a graphical session on the target machine.
+   In this case triggering an Xcode build for an application leads to:
+
++-------------   
+    /usr/bin/codesign --force --sign <IDENTITY> --resource-rules=<RESOURCE_RULES> --entitlements <ENTITLEMENTS> <PATH_TO_APP>
+    <PATH_TO_APP>: User interaction is not allowed.
+
+   Command /usr/bin/codesign failed with exit code 1
++-------------
+
+   Codesign tries to ask for the keychain password in a modal dialog. This attempt fails since there is no graphical session. This is why we get the "User interaction is not allowed." error message.
+
+** The Solution
+
+   The preferred way to open the keychain is during startup of the slave process. But so far there is no known way to open the keychain when the slave process is launched.
+
+   The second best way to open the keychain is to unlock it inside the Hudson/Jenkins job.
+   The example code for opening a keychain looks like:
+
++-------------
+   #!/bin/bash
+
+   ...
+
+   keychain=<PATH_TO_KEYCHAIN_FILE> # e.g. $HOME/Library/Keychains/login.keychain
+   security unlock-keychain -p "<PASSWORD>" ${keychain} &>/dev/null
+   
+   if [ $? -ne 0 ];then
+     echo "Cannot open keychain ${keychain}"
+     exit 1
+   fi
+
+   ...    
++-------------
+
+
+   * Setup a freestyle job.
+
+   * Add a build step "execute shell"
+
+   * Put the code snippet above into that shell together with the subsequent maven call (provide the keychain and the password. Path to the keychain file must be absolute).
+
+* Security Advices
+
+   In order to secure the password contained as plain text in the shell perform the following steps
+   
+   * the umask should be set to 0077. This ensures that all files are created with access right 700. This ensures that config.xml files that contain the password in plain text cannot be accessed by other users.
+
+   * #!/bin/bash <<-x>> must not be used. When the -x flag is used the commands are prompted into the log.
+
+   * any output of the security call should be redirected to /dev/null
+
+   * set the HISTSIZE to 0. (e.g. export HISTSIZE=0  inside ~/.bashrc). This prevents the password to be contained in the history.
+
+   * Use Hudson/Jenkins security. Restrict the access rights in a way that the job configuration can only be read by authorized users.
+
+   * Hudson/Jenkins should run under a dedicated user.
+
+* Tipps and Tricks
+  
+   * By default keychains are locked after a timeout interval. In long running builds it might happen that the keychain is closed again before the code sign step happens. The keychain will remain open infinitly after the command <<<security set-keychain-settings <PATH_TO_KEYCHAIN_FILE> >>>. It is sufficient to execute this command once in a shell since the timeout is a property of the keychain. It is not required to put this command into the maven build jobs in order to get it executed during each and every build.
