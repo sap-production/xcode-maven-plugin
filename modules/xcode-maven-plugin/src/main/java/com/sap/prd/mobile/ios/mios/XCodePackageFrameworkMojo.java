@@ -49,7 +49,7 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
   /**
    * 
    * @parameter expression="${xcode.primaryFmwkSdk}" default-value="iphoneos"
-   * @since 1.4.2
+   * @since 1.9.4
    */
   private String primaryFmwkSdk;
   
