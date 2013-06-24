@@ -17,7 +17,11 @@ Release Notes
 *** Frameworks supported for all configurations
 
   Until version 1.9.3 the frameworks were built only for the configuration provided with parameter <<<primaryFmwkConfiguration>>>.
-  Starting with version 1.9.4 frameworks are built for all configurations specified in the pom. If nothing is specified the default configurations does apply (Debug, Release).
+  Starting with version 1.9.4 frameworks are built and deployed for all configurations specified in the pom. If nothing is specified the default configurations apply (Debug, Release).
+
+** Improvements
+
+  Each class representing a verification check (see release {{{1.9.3}1.9.3}}) is now loaded in a dedicated class loader that is a child of the class loader of the xcode-maven-plugin. The dependency to the xcode-maven-plugin and the corresponding transitive envelope is ommited inside the class loader of the verification check. Dependencies declared by the project hosting the verification check are also ommited in case they are also contained in the transitive envelope of the xcode-maven-plugin.
 
 ** Bug fixes
   
@@ -36,7 +40,7 @@ Release Notes
 
    This guide explains how keychains should be opened when running in a master/slave environment.
 
-* 1.9.3
+* 1.9.3 
 
 ** Features
 
