@@ -118,13 +118,13 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
   private void validateFrmkStructure(File fmwkDir) throws MojoExecutionException
   {
     FrameworkStructureValidator fmwkValidator = new FrameworkStructureValidator(fmwkDir);
+
     List<String> validationErrors = fmwkValidator.validate();
     if (!validationErrors.isEmpty()) {
       throw new MojoExecutionException("The validation of the built framework '" + fmwkDir.getAbsolutePath()
             + "' failed: " + validationErrors);
     }
   }
-
 
   protected String getPrimaryFmwkConfiguration() throws MojoExecutionException
   {

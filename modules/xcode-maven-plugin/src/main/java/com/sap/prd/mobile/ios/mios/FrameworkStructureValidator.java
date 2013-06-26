@@ -84,7 +84,16 @@ public class FrameworkStructureValidator
     if (!libFile.exists()) {
       errorMsgs.add("Missing the required library file '" + relativeLibPath + "'");
     }
-
+    else {
+      try {
+        if (!new FatLibAnalyzer(libFile).containsI386()) {
+          errorMsgs.add("'" + libFile.getAbsolutePath() + "' does not contain i386 architecture.");
+        }
+      }
+      catch (IOException e) {
+        errorMsgs.add("Error ocurred during validation of the library '" + libFile.getAbsolutePath() + "' for i386");
+      }
+    }
   }
 
   private void validateLink(String from, String to)

@@ -161,7 +161,7 @@ public class XCodeFrameworkTest extends XCodeTest
     assertTrue(xcodeprojAppZip.exists());
     assertUnpackAndCompile(xcodeprojAppZip);
   }
-
+  
   @Test
   public void testUseFrameworkConfigurationSpecific() throws Exception
   {
@@ -199,6 +199,7 @@ public class XCodeFrameworkTest extends XCodeTest
     assertTrue(xcodeprojAppZip.exists());
     assertUnpackAndCompile(xcodeprojAppZip);
   }
+  
   @Test
   public void testFrameworkInProjectZip() throws Exception
   {
@@ -352,5 +353,32 @@ public class XCodeFrameworkTest extends XCodeTest
           "target/xcode-deps/frameworks/Release/com.sap.ondevice.production.ios.tests/MyFramework/MyFramework.framework/Resources");
     assertTrue("Resources folder in framework '" + resourcesInFramework
           + "' is not a symbolic link, but should be a symbolic link.", FileUtils.isSymbolicLink(resourcesInFramework));
+  }
+  
+  @Test
+  public void createAndValidateMissingSimulatorFmwk() throws IOException, Exception
+  {
+    String dynamicVersion = "1.0." + System.currentTimeMillis();
+    final String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
+    final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
+    prepareRemoteRepository(remoteRepositoryDirectory);
+    Properties pomReplacements = new Properties();
+    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
+    pomReplacements.setProperty("configuration", "Release");
+    String fmwkName = "TestFramework";
+    File projectDirectory = new File(getTestRootDirectory(), "framework/TestFramework");
+    Verifier verifier = new Verifier(getTestExecutionDirectory(testName, projectDirectory.getName()).getAbsolutePath());
+
+    try {
+      verifier = test(testName, new File(getTestRootDirectory(), "framework/" + fmwkName), "deploy",
+            THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+      fail("Expected the Maven call to fail due to missing simulator architecture.");
+
+    }
+    catch (VerificationException e) {
+      verifier.verifyTextInLog("TestFramework' does not contain i386 architecture.");
+    }
   }
 }
