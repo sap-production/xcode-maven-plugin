@@ -71,6 +71,7 @@
                         <item name="How to build the Cordova HelloWorld project" href="howto/BuildCordovaHelloWorldExample.html" />
                         <item name="How to enable Over-The-Air Deployment" href="howto/EnableOTADeployment.html" />
                         <item name="How to handle Keychains in a master/slave environment" href="howto/HandlingKeychainsInMasterSlaveEnvironment.html" />
+                        <item name="How to build aggregated frameworks" href="howto/BuildAggregatedFrameworks.html" />
                 </menu>
 
 		<menu ref="reports" />
