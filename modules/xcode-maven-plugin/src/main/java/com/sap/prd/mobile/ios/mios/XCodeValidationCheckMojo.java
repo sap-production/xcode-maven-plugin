@@ -405,25 +405,35 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
     for (Check check : checks.getCheck()) {
 
-      final String coords = StringUtils.join(
-            Arrays.asList(check.getGroupId(), check.getArtifactId(), check.getVersion()), ":");
-
-      if (coords.equals("::")) {
-        log.info(
-          "No coordinates maintained for check represented by class '" + check.getClazz()
-                + "'. Assuming this check is already contained in the classpath.");
-        continue;
+      final Artifact artifact = parseDependency(check, log);
+      if(artifact != null)
+      {
+        result.add(artifact);
       }
-
-      if (coords.matches("^:.*|.*:$|.*::.*"))
-        throw new MojoExecutionException("Invalid coordinates: '" + coords
-              + "' maintained for check represented by class '" + check.getClazz()
-              + "'. At least one of groupId, artifactId or version is missing.");
-
-      result.add(new DefaultArtifact(coords));
     }
 
     return result;
+  }
+
+  private static Artifact parseDependency(Check check, final Log log)
+        throws MojoExecutionException
+  {
+    final String coords = StringUtils.join(
+          Arrays.asList(check.getGroupId(), check.getArtifactId(), check.getVersion()), ":");
+
+    if (coords.equals("::")) {
+      log.info(
+        "No coordinates maintained for check represented by class '" + check.getClazz()
+              + "'. Assuming this check is already contained in the classpath.");
+      return null;
+    }
+
+    if (coords.matches("^:.*|.*:$|.*::.*"))
+      throw new MojoExecutionException("Invalid coordinates: '" + coords
+            + "' maintained for check represented by class '" + check.getClazz()
+            + "'. At least one of groupId, artifactId or version is missing.");
+
+    return new DefaultArtifact(coords);
   }
 
   static Checks getChecks(final String checkDefinitionFileLocation) throws XCodeException, IOException, JAXBException
