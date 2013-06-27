@@ -53,6 +53,7 @@ import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
@@ -350,23 +351,32 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
     for (Artifact dependencyArtifact : dependencies) {
 
-      final File jar;
+      Set<Artifact> artifacts;
       try {
         Artifact artifact = new XCodeDownloadManager(projectRepos, repoSystem, repoSession)
           .resolveArtifact(dependencyArtifact);
-        jar = artifact.getFile();
+        
+        artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(artifact);
+
+        artifacts.add(artifact);
       }
-      catch (SideArtifactNotFoundException e1) {
-        throw new MojoExecutionException(e1.getMessage(), e1);
+      catch (SideArtifactNotFoundException e) {
+        throw new MojoExecutionException(e.getMessage(), e);
+      }
+      catch (DependencyCollectionException e) {
+        throw new MojoExecutionException(e.getMessage(), e);
       }
 
-      try {
-        classRealm.addURL(jar.toURI().toURL());
-      }
-      catch (final MalformedURLException e) {
-        throw new MojoExecutionException(
-              "Failed to add file '" + jar.getAbsolutePath() + "' to classloader: ", e);
-      }
+        for(Artifact a : artifacts)
+        {
+          try {
+            classRealm.addURL(a.getFile().toURI().toURL());
+          }
+          catch (final MalformedURLException e) {
+            throw new MojoExecutionException(
+                  "Failed to add file '" + a.getFile().getAbsolutePath() + "' to classloader: ", e);
+          }
+        }
     }
   }
 

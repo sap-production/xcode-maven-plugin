@@ -20,11 +20,19 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
+import org.sonatype.aether.collection.CollectRequest;
+import org.sonatype.aether.collection.CollectResult;
+import org.sonatype.aether.collection.DependencyCollectionException;
+import org.sonatype.aether.graph.Dependency;
+import org.sonatype.aether.graph.DependencyNode;
+import org.sonatype.aether.graph.DependencyVisitor;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
@@ -58,7 +66,40 @@ class XCodeDownloadManager
     return resolveSideArtifact(new DefaultArtifact(mainArtifact.getGroupId(), mainArtifact.getArtifactId(), null, null, mainArtifact.getVersion()), classifier, type);
   }
 
-  
+  public Set<org.sonatype.aether.artifact.Artifact> resolveArtifactWithTransitveDependencies(org.sonatype.aether.artifact.Artifact artifact) throws DependencyCollectionException, SideArtifactNotFoundException {
+
+    CollectRequest request = new CollectRequest();
+
+    request.setRoot( new Dependency(artifact, ""));
+    CollectResult collectedDependencies = repoSystem.collectDependencies(repoSession, request);
+
+    final DependencyNode root = collectedDependencies.getRoot();
+
+    final Set<org.sonatype.aether.artifact.Artifact> artifacts = new HashSet<org.sonatype.aether.artifact.Artifact>();
+
+    root.accept(new  DependencyVisitor() {
+
+      @Override
+      public boolean visitLeave(DependencyNode node)
+      {
+        return true;
+      }
+      @Override
+      public boolean visitEnter(DependencyNode node)
+      {
+        artifacts.add(node.getDependency().getArtifact());
+        return true;
+      }
+    });
+
+    final Set<org.sonatype.aether.artifact.Artifact> result = new HashSet<org.sonatype.aether.artifact.Artifact>();
+    
+    for(org.sonatype.aether.artifact.Artifact myArtifact : artifacts) {
+        org.sonatype.aether.artifact.Artifact resolvedArtifact = resolveArtifact(myArtifact);
+        result.add(resolvedArtifact);
+    }
+    return result;
+  }
   /**
    * 
    * @return The requested artifact or <code>null</code> if the requested artifact does not exist
