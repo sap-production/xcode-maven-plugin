@@ -50,6 +50,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
@@ -230,9 +231,9 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
       final Checks checks = getChecks(checkDefinitionFile);
 
-      extendClasspath(checks);
+      ClassRealm validationCheckRealm = extendClasspath(checks);
 
-      performChecks(checks);
+      performChecks(checks, validationCheckRealm);
 
     }
     catch (XCodeException e) {
@@ -246,7 +247,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private void performChecks(final Checks checks) throws MojoExecutionException
+  private void performChecks(final Checks checks, ClassRealm validationCheckRealm) throws MojoExecutionException
   {
 
     String verificationCheckClassName = null;
@@ -259,8 +260,10 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
       for (final com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check checkDesc : checks.getCheck()) {
 
+        validationCheckRealm.display();
+        
         verificationCheckClassName = checkDesc.getClazz();
-        final Class<?> clazz = Class.forName(verificationCheckClassName);
+        final Class<?> clazz = Class.forName(verificationCheckClassName, true, validationCheckRealm);
         for (final String configuration : getConfigurations()) {
           for (final String sdk : getSDKs()) {
             getLog().info(
@@ -335,14 +338,21 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private void extendClasspath(Checks checks) throws MojoExecutionException
+  private ClassRealm extendClasspath(Checks checks) throws MojoExecutionException
   {
     final Set<Artifact> dependencies = parseDependencies(checks, getLog());
 
     final ClassRealm classRealm;
+    ClassRealm childClassRealm = null;
     final ClassLoader loader = this.getClass().getClassLoader();
     if (loader instanceof ClassRealm) {
       classRealm = (ClassRealm) loader;
+      try {
+        childClassRealm = createChildRealm(classRealm.getId() + "-validationChecks", classRealm);
+      }
+      catch (DuplicateRealmException e) {
+        throw new MojoExecutionException(e.getMessage(), e);
+      }
     }
     else {
       throw new RuntimeException("Could not add jar to classpath. Class loader '" + loader
@@ -370,7 +380,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
         for(Artifact a : artifacts)
         {
           try {
-            classRealm.addURL(a.getFile().toURI().toURL());
+            childClassRealm.addURL(a.getFile().toURI().toURL());
           }
           catch (final MalformedURLException e) {
             throw new MojoExecutionException(
@@ -378,8 +388,17 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
           }
         }
     }
+    
+    return childClassRealm;
   }
 
+  private static ClassRealm createChildRealm(String id, ClassRealm parentClassRealm) throws DuplicateRealmException, MojoExecutionException 
+  {
+    final ClassRealm childClassRealm = parentClassRealm.createChildRealm(id);
+    childClassRealm.importFrom(parentClassRealm, XCodeValidationCheckMojo.class.getPackage().getName());
+    return childClassRealm;
+  }
+  
   static Set<Artifact> parseDependencies(final Checks checks, final Log log) throws MojoExecutionException
   {
     final Set<Artifact> result = new HashSet<Artifact>();
