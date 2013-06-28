@@ -333,59 +333,63 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   {
     final Artifact dependency = parseDependency(check, getLog());
     
-    final ClassRealm classRealm, childClassRealm;
-
     final ClassLoader loader = this.getClass().getClassLoader();
 
-    if (loader instanceof ClassRealm) {
+    if (! (loader instanceof ClassRealm)) {
 
-      classRealm = (ClassRealm) loader;
-      
-      if(dependency == null)
-      {
-        return classRealm;
-      }
-      
-      try {
-        childClassRealm = createChildRealm(classRealm.getId() + "-" + check.getClass().getSimpleName(), classRealm);
-      }
-      catch (DuplicateRealmException e) {
-        throw new MojoExecutionException(e.getMessage(), e);
-      }
-    }
-    else {
       throw new RuntimeException("Could not add jar to classpath. Class loader '" + loader
             + "' is not an instance of '" + ClassRealm.class.getName() + "'.");
     }
 
-      Set<Artifact> artifacts;
+    final ClassRealm classRealm = (ClassRealm) loader;
+
+      if(dependency == null)
+      {
+        return classRealm;
+      }
+
       try {
 
-        final Artifact artifact = new XCodeDownloadManager(projectRepos, repoSystem, repoSession)
-          .resolveArtifact(dependency);
+        final Set<Artifact> artifacts = resolveDependencies(dependency);
 
-        artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(artifact);
+        final ClassRealm childClassRealm = createChildRealm(classRealm.getId() + "-" + check.getClass().getSimpleName(), classRealm);
 
-        artifacts.add(artifact);
+        addDependencies(childClassRealm, artifacts);
+
+        return childClassRealm;
       }
-      catch (SideArtifactNotFoundException e) {
+      catch (DuplicateRealmException e) {
         throw new MojoExecutionException(e.getMessage(), e);
       }
-      catch (DependencyCollectionException e) {
-        throw new MojoExecutionException(e.getMessage(), e);
-      }
+  }
 
-        for(Artifact a : artifacts)
-        {
-          try {
-            childClassRealm.addURL(a.getFile().toURI().toURL());
-          }
-          catch (final MalformedURLException e) {
-            throw new MojoExecutionException(
-                  "Failed to add file '" + a.getFile().getAbsolutePath() + "' to classloader: ", e);
-          }
-        }
-    return childClassRealm;
+  private Set<Artifact> resolveDependencies(final Artifact dependency)
+        throws MojoExecutionException
+  {
+    try {
+
+      return new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(dependency);
+    }
+    catch (SideArtifactNotFoundException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
+    }
+    catch (DependencyCollectionException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
+    }
+  }
+
+  private void addDependencies(final ClassRealm childClassRealm, Set<Artifact> artifacts) throws MojoExecutionException
+  {
+    for(Artifact a : artifacts)
+    {
+      try {
+        childClassRealm.addURL(a.getFile().toURI().toURL());
+      }
+      catch (final MalformedURLException e) {
+        throw new MojoExecutionException(
+              "Failed to add file '" + a.getFile().getAbsolutePath() + "' to classloader: ", e);
+      }
+    }
   }
 
   private static ClassRealm createChildRealm(String id, ClassRealm parentClassRealm) throws DuplicateRealmException, MojoExecutionException 
