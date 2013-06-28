@@ -231,9 +231,18 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
       final Checks checks = getChecks(checkDefinitionFile);
 
-      ClassRealm validationCheckRealm = extendClasspath(checks);
+      if (checks.getCheck().isEmpty()) {
+        getLog().warn("No checks configured in '" + checkDefinitionFile + "'.");
+      }
 
-      performChecks(checks, validationCheckRealm);
+      Map<Check, Exception> failedChecks = new HashMap<Check, Exception>();
+
+      for(Check check : checks.getCheck()) {
+        final ClassRealm validationCheckRealm = extendClasspath(check);
+        performCheck(validationCheckRealm, failedChecks, check);
+      }
+
+      handleExceptions(failedChecks);
 
     }
     catch (XCodeException e) {
@@ -247,55 +256,38 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private void performChecks(final Checks checks, ClassRealm validationCheckRealm) throws MojoExecutionException
+  private void performCheck(ClassRealm validationCheckRealm, Map<Check, Exception> failedChecks, final Check checkDesc)
+        throws MojoExecutionException
   {
-
-    String verificationCheckClassName = null;
-    Map<com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check, Exception> failedChecks = new HashMap<com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check, Exception>();
+    final String verificationCheckClassName = checkDesc.getClazz();
     try {
-
-      if (checks.getCheck().isEmpty()) {
-        getLog().warn("No checks configured in '" + checkDefinitionFile + "'.");
-      }
-
-      for (final com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check checkDesc : checks.getCheck()) {
-
-        validationCheckRealm.display();
-        
-        verificationCheckClassName = checkDesc.getClazz();
-        final Class<?> clazz = Class.forName(verificationCheckClassName, true, validationCheckRealm);
-        for (final String configuration : getConfigurations()) {
-          for (final String sdk : getSDKs()) {
-            getLog().info(
-                  "Executing verification check: '" + clazz.getName() + "' for configuration '" + configuration
-                        + "' and sdk '" + sdk + "'.");
-            final ValidationCheck check = (ValidationCheck) clazz.newInstance();
-            check.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
-            check.setMavenProject(project);
-            check.setLog(getLog());
-            try {
-              check.check();
-            }
-            catch (VerificationException ex) {
-              failedChecks.put(checkDesc, ex);
-            }
-            catch (Exception ex) {
-              failedChecks.put(checkDesc, ex);
-            }
-          }
+    final Class<?> clazz = Class.forName(verificationCheckClassName, true, validationCheckRealm);
+    for (final String configuration : getConfigurations()) {
+      for (final String sdk : getSDKs()) {
+        getLog().info(
+              "Executing verification check: '" + clazz.getName() + "' for configuration '" + configuration
+                    + "' and sdk '" + sdk + "'.");
+        final ValidationCheck check = (ValidationCheck) clazz.newInstance();
+        check.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
+        check.setMavenProject(project);
+        check.setLog(getLog());
+        try {
+          check.check();
+        }
+        catch (VerificationException ex) {
+          failedChecks.put(checkDesc, ex);
+        }
+        catch (RuntimeException ex) {
+          failedChecks.put(checkDesc, ex);
         }
       }
-      handleExceptions(failedChecks);
     }
-    catch (MojoExecutionException e) {
-      throw e;
-    }
-    catch (ClassNotFoundException e) {
+    } catch(ClassNotFoundException ex) {
       throw new MojoExecutionException(
             "Could not load verification check '"
                   + verificationCheckClassName
                   + "'. May be your classpath has not been properly extended. Additional dependencies need to be provided with 'xcode.additionalClasspathElements'. "
-                  + e.getMessage(), e);
+                  + ex.getMessage(), ex);
     }
     catch (InstantiationException e) {
       throw new MojoExecutionException(e.getMessage(), e);
@@ -305,11 +297,11 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private void handleExceptions(Map<com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check, Exception> failedChecks)
+  private void handleExceptions(Map<Check, Exception> failedChecks)
         throws MojoExecutionException
   {
     boolean mustFailedTheBuild = false;
-    for (com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check failedCheck : failedChecks.keySet()) {
+    for (Check failedCheck : failedChecks.keySet()) {
       handleException(failedCheck, failedChecks.get(failedCheck));
       if (failedCheck.getSeverity().equalsIgnoreCase("ERROR")) {
         mustFailedTheBuild = true;
@@ -338,17 +330,24 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private ClassRealm extendClasspath(Checks checks) throws MojoExecutionException
+  private ClassRealm extendClasspath(Check check) throws MojoExecutionException
   {
-    final Set<Artifact> dependencies = parseDependencies(checks, getLog());
-
+    final Artifact dependency = parseDependency(check, getLog());
+    
     final ClassRealm classRealm;
     ClassRealm childClassRealm = null;
     final ClassLoader loader = this.getClass().getClassLoader();
     if (loader instanceof ClassRealm) {
+
       classRealm = (ClassRealm) loader;
+      
+      if(dependency == null)
+      {
+        return classRealm;
+      }
+      
       try {
-        childClassRealm = createChildRealm(classRealm.getId() + "-validationChecks", classRealm);
+        childClassRealm = createChildRealm(classRealm.getId() + "-" + check.getClass().getSimpleName(), classRealm);
       }
       catch (DuplicateRealmException e) {
         throw new MojoExecutionException(e.getMessage(), e);
@@ -359,12 +358,10 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
             + "' is not an instance of '" + ClassRealm.class.getName() + "'.");
     }
 
-    for (Artifact dependencyArtifact : dependencies) {
-
       Set<Artifact> artifacts;
       try {
         Artifact artifact = new XCodeDownloadManager(projectRepos, repoSystem, repoSession)
-          .resolveArtifact(dependencyArtifact);
+          .resolveArtifact(dependency);
         
         artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(artifact);
 
@@ -387,8 +384,6 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
                   "Failed to add file '" + a.getFile().getAbsolutePath() + "' to classloader: ", e);
           }
         }
-    }
-    
     return childClassRealm;
   }
 
@@ -398,24 +393,8 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     childClassRealm.importFrom(parentClassRealm, XCodeValidationCheckMojo.class.getPackage().getName());
     return childClassRealm;
   }
-  
-  static Set<Artifact> parseDependencies(final Checks checks, final Log log) throws MojoExecutionException
-  {
-    final Set<Artifact> result = new HashSet<Artifact>();
 
-    for (Check check : checks.getCheck()) {
-
-      final Artifact artifact = parseDependency(check, log);
-      if(artifact != null)
-      {
-        result.add(artifact);
-      }
-    }
-
-    return result;
-  }
-
-  private static Artifact parseDependency(Check check, final Log log)
+  static Artifact parseDependency(final Check check, final Log log)
         throws MojoExecutionException
   {
     final String coords = StringUtils.join(

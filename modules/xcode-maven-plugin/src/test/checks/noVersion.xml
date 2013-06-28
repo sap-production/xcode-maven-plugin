@@ -1,6 +1,4 @@
 <checks>
         <check groupId="com.sap.prd.mobile.ios.mios" artifactId="verification-checks" severity="WARNING"
                class="com.sap.prd.mobile.ios.mios.verification.AppStoreMetadataCheck"/>
-        <check groupId="com.sap.prd.mobile.ios.mios" artifactId="verification-checks" version="0.0.1-SNAPSHOT" severity="ERROR"
-               class="com.sap.prd.mobile.ios.mios.verification.XCodeValidationCheck"/>
 </checks>
