@@ -258,22 +258,21 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   private void performCheck(ClassRealm validationCheckRealm, Map<Check, Exception> failedChecks, final Check checkDesc)
         throws MojoExecutionException
   {
-    final String verificationCheckClassName = checkDesc.getClazz();
     try {
-    final Class<?> clazz = Class.forName(verificationCheckClassName, true, validationCheckRealm);
+    final Class<?> validationCheckClass = Class.forName(checkDesc.getClazz(), true, validationCheckRealm);
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
         getLog().info(
-              "Executing verification check: '" + clazz.getName() + "' for configuration '" + configuration
+              "Executing verification check: '" + validationCheckClass.getName() + "' for configuration '" + configuration
                     + "' and sdk '" + sdk + "'.");
-        final ValidationCheck check = (ValidationCheck) clazz.newInstance();
-        check.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
-        check.setMavenProject(project);
-        check.setLog(getLog());
+        final ValidationCheck validationCheck = (ValidationCheck) validationCheckClass.newInstance();
+        validationCheck.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
+        validationCheck.setMavenProject(project);
+        validationCheck.setLog(getLog());
         try {
-          check.check();
+          validationCheck.check();
         }
-        catch (VerificationException ex) {
+        catch (ValidationException ex) {
           failedChecks.put(checkDesc, ex);
         }
         catch (RuntimeException ex) {
@@ -284,7 +283,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     } catch(ClassNotFoundException ex) {
       throw new MojoExecutionException(
             "Could not load verification check '"
-                  + verificationCheckClassName
+                  + checkDesc.getClazz()
                   + "'. May be your classpath has not been properly extended. Additional dependencies need to be provided with 'xcode.additionalClasspathElements'. "
                   + ex.getMessage(), ex);
     }
@@ -315,7 +314,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
         throws MojoExecutionException
   {
     final String message;
-    if (e instanceof VerificationException) {
+    if (e instanceof ValidationException) {
       message = "Verification check '" + failedCheck.getClazz() + " failed. " + e.getMessage();
     }
     else {

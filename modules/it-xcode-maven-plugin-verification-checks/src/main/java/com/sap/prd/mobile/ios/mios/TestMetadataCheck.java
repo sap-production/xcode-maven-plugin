@@ -28,9 +28,9 @@ public class TestMetadataCheck extends ValidationCheck
   }
 
   @Override
-  public void check() throws VerificationException
+  public void check() throws ValidationException
   {
-    throw new VerificationException("7430190670433136460", "");
+    throw new ValidationException("7430190670433136460", "");
   }
 
 }

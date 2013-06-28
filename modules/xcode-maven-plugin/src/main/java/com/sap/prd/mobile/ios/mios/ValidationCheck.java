@@ -51,5 +51,5 @@ public abstract class ValidationCheck
     return this.context;
   }
 
-  public abstract void check() throws VerificationException;
+  public abstract void check() throws ValidationException;
 }

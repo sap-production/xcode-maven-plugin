@@ -19,7 +19,7 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-public class VerificationException extends Exception
+public class ValidationException extends Exception
 {
 
   /**
@@ -29,17 +29,17 @@ public class VerificationException extends Exception
 
   private String details;
 
-  public VerificationException(String message, String details)
+  public ValidationException(String message, String details)
   {
     this(message, details, null);
   }
 
-  public VerificationException(String details, Throwable cause)
+  public ValidationException(String details, Throwable cause)
   {
     this(null, details, cause);
   }
 
-  public VerificationException(String message, String details, Throwable cause)
+  public ValidationException(String message, String details, Throwable cause)
   {
     super(message, cause);
     this.details = details;
