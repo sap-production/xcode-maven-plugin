@@ -257,6 +257,12 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     catch (JAXBException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
+    catch (DependencyCollectionException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
+    }
+    catch (DuplicateRealmException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
+    }
   }
 
   private Exception performCheck(ClassRealm validationCheckRealm, final Check checkDesc)
@@ -299,11 +305,15 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
             + err.getMessage(), err);
       throw err;
     }
-    catch (InstantiationException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
+    catch (InstantiationException ex) {
+      throw new MojoExecutionException("Could not instanciate verification check '"
+            + checkDesc.getClazz()
+            + ex.getMessage(), ex);
     }
-    catch (IllegalAccessException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
+    catch (IllegalAccessException ex) {
+      throw new MojoExecutionException("Could not access verification check '"
+            + checkDesc.getClazz()
+            + ex.getMessage(), ex);
     }
 
   }
@@ -324,7 +334,6 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   }
 
   private void handleException(com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check failedCheck, final Exception e)
-        throws MojoExecutionException
   {
     final String message;
     if (e instanceof ValidationException) {
@@ -341,7 +350,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private ClassRealm extendClasspath(Check check) throws MojoExecutionException
+  private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException, DuplicateRealmException, MalformedURLException
   {
     final Artifact dependency = parseDependency(check, getLog());
     
@@ -349,7 +358,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
     if (! (loader instanceof ClassRealm)) {
 
-      throw new RuntimeException("Could not add jar to classpath. Class loader '" + loader
+      throw new XCodeException("Could not add jar to classpath. Class loader '" + loader
             + "' is not an instance of '" + ClassRealm.class.getName() + "'.");
     }
 
@@ -360,51 +369,25 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
         return classRealm;
       }
 
-      try {
 
-        final Set<Artifact> artifacts = resolveDependencies(dependency);
+        final Set<Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(dependency);
 
         final ClassRealm childClassRealm = createChildRealm(classRealm.getId() + "-" + check.getClass().getSimpleName(), classRealm);
 
         addDependencies(childClassRealm, artifacts);
 
         return childClassRealm;
-      }
-      catch (DuplicateRealmException e) {
-        throw new MojoExecutionException(e.getMessage(), e);
-      }
   }
 
-  private Set<Artifact> resolveDependencies(final Artifact dependency)
-        throws MojoExecutionException
-  {
-    try {
-
-      return new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(dependency);
-    }
-    catch (SideArtifactNotFoundException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
-    catch (DependencyCollectionException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
-  }
-
-  private void addDependencies(final ClassRealm childClassRealm, Set<Artifact> artifacts) throws MojoExecutionException
+  private void addDependencies(final ClassRealm childClassRealm, Set<Artifact> artifacts) throws MalformedURLException
   {
     for(Artifact a : artifacts)
     {
-      try {
         childClassRealm.addURL(a.getFile().toURI().toURL());
-      }
-      catch (final MalformedURLException e) {
-        throw new MojoExecutionException(
-              "Failed to add file '" + a.getFile().getAbsolutePath() + "' to classloader: ", e);
-      }
     }
   }
 
-  private static ClassRealm createChildRealm(String id, ClassRealm parentClassRealm) throws DuplicateRealmException, MojoExecutionException 
+  private static ClassRealm createChildRealm(String id, ClassRealm parentClassRealm) throws DuplicateRealmException 
   {
     final ClassRealm childClassRealm = parentClassRealm.createChildRealm(id);
     childClassRealm.importFrom(parentClassRealm, XCodeValidationCheckMojo.class.getPackage().getName());
@@ -412,7 +395,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   }
 
   static Artifact parseDependency(final Check check, final Log log)
-        throws MojoExecutionException
+        throws XCodeException
   {
     final String coords = StringUtils.join(
           Arrays.asList(check.getGroupId(), check.getArtifactId(), check.getVersion()), ":");
@@ -425,7 +408,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
 
     if (coords.matches("^:.*|.*:$|.*::.*"))
-      throw new MojoExecutionException("Invalid coordinates: '" + coords
+      throw new XCodeException("Invalid coordinates: '" + coords
             + "' maintained for check represented by class '" + check.getClazz()
             + "'. At least one of groupId, artifactId or version is missing.");
 
