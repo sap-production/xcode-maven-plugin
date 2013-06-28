@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -48,16 +49,35 @@ public class XCodeValidationCheckMojoTest
   @Test
   public void testNoGav() throws Exception
   {
-    Set<Artifact> dependencies = XCodeValidationCheckMojo.parseDependencies(loadChecks("src/test/checks/noGAV.xml"),
-          new SystemStreamLog());
+    Checks checks = loadChecks("src/test/checks/noGAV.xml");
+    
+    Set<Artifact> dependencies = new HashSet<Artifact>();
+    
+    for(Check check : checks.getCheck())
+    {
+        Artifact dep = XCodeValidationCheckMojo.parseDependency(check, new SystemStreamLog());
+        if(dep != null)
+        {
+            dependencies.add(dep);
+        }
+    }
     assertEquals("Check dependencies number unexpected", 0, dependencies.size());
   }
 
   @Test
   public void testEmptyGav() throws Exception
   {
-    Set<Artifact> dependencies = XCodeValidationCheckMojo.parseDependencies(loadChecks("src/test/checks/emptyGAV.xml"),
-          new SystemStreamLog());
+    Checks checks = loadChecks("src/test/checks/emptyGAV.xml");
+    
+    Set<Artifact> dependencies = new HashSet<Artifact>();
+    
+    for(Check check : checks.getCheck())
+    {
+        Artifact dep = XCodeValidationCheckMojo.parseDependency(check, new SystemStreamLog());
+        if(dep != null) {
+            dependencies.add(dep);
+        }
+    }
     assertEquals("Check dependencies number unexpected", 1, dependencies.size());
   }
 
@@ -127,17 +147,24 @@ public class XCodeValidationCheckMojoTest
   {
     Checks checks = loadChecks(location);
 
+    for(Check check : checks.getCheck())
+    {
     try {
-      XCodeValidationCheckMojo.parseDependencies(checks, new SystemStreamLog());
-      fail();
+      XCodeValidationCheckMojo.parseDependency(check, new SystemStreamLog());
+      fail("Dependency could be parsed. Expected was missing attribute '" + attNameFix + "'.");
     }
     catch (MojoExecutionException ex) {
-      System.out.println(ex.getMessage());
     }
 
     Method m = Check.class.getMethod(getSetterName(attNameFix), new Class[] { String.class });
     m.invoke(checks.getCheck().get(0), new Object[] { attValueFix });
-    XCodeValidationCheckMojo.parseDependencies(checks, new SystemStreamLog());
+    Artifact dependency = XCodeValidationCheckMojo.parseDependency(check, new SystemStreamLog());
+    
+    if(dependency == null)
+    {
+      fail("Dependency could not be parsed after fix. Fixed attribute is: '" + attNameFix + "'.");
+    }
+    }
   }
 
   private Checks loadChecks(String location) throws JAXBException
