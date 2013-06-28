@@ -238,7 +238,11 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
       for(Check check : checks.getCheck()) {
         final ClassRealm validationCheckRealm = extendClasspath(check);
-        performCheck(validationCheckRealm, failedChecks, check);
+        final Exception ex = performCheck(validationCheckRealm, check);
+        if(ex != null)
+        {
+          failedChecks.put(check,  ex);
+        }
       }
 
       handleExceptions(failedChecks);
@@ -255,7 +259,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private void performCheck(ClassRealm validationCheckRealm, Map<Check, Exception> failedChecks, final Check checkDesc)
+  private Exception performCheck(ClassRealm validationCheckRealm, final Check checkDesc)
         throws MojoExecutionException
   {
     try {
@@ -273,13 +277,14 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
           validationCheck.check();
         }
         catch (ValidationException ex) {
-          failedChecks.put(checkDesc, ex);
+          return ex;
         }
         catch (RuntimeException ex) {
-          failedChecks.put(checkDesc, ex);
+          return ex;
         }
       }
     }
+    return null;
     } catch(ClassNotFoundException ex) {
       throw new MojoExecutionException(
             "Could not load verification check '"
@@ -300,6 +305,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     catch (IllegalAccessException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
+
   }
 
   private void handleExceptions(Map<Check, Exception> failedChecks)
