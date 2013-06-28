@@ -270,13 +270,18 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   {
     final String verificationCheckClassName = checkDesc.getClazz();
     try {
-    final Class<?> clazz = Class.forName(verificationCheckClassName, true, validationCheckRealm);
+    final Class<?> validationCheckClass = Class.forName(checkDesc.getClazz(), true, validationCheckRealm);
+    
+    getLog().debug(String.format("Validation check class %s has been loaded by %s.", validationCheckClass.getName(), validationCheckClass.getClassLoader()));
+    getLog().debug(String.format("Validation check super class %s has been loaded by %s.", validationCheckClass.getSuperclass().getName(), validationCheckClass.getSuperclass().getClassLoader()));
+    getLog().debug(String.format("%s class used by this class (%s) has been loaded by %s.", ValidationCheck.class.getName(), this.getClass().getName(), ValidationCheck.class.getClassLoader() ));
+
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
         getLog().info(
-              "Executing verification check: '" + clazz.getName() + "' for configuration '" + configuration
+              "Executing verification check: '" + validationCheckClass.getName() + "' for configuration '" + configuration
                     + "' and sdk '" + sdk + "'.");
-        final ValidationCheck check = (ValidationCheck) clazz.newInstance();
+        final ValidationCheck check = (ValidationCheck) validationCheckClass.newInstance();
         check.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
         check.setMavenProject(project);
         check.setLog(getLog());
