@@ -33,7 +33,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.Test;
 import org.sonatype.aether.artifact.Artifact;
@@ -153,7 +152,7 @@ public class XCodeValidationCheckMojoTest
       XCodeValidationCheckMojo.parseDependency(check, new SystemStreamLog());
       fail("Dependency could be parsed. Expected was missing attribute '" + attNameFix + "'.");
     }
-    catch (MojoExecutionException ex) {
+    catch (XCodeException ex) {
     }
 
     Method m = Check.class.getMethod(getSetterName(attNameFix), new Class[] { String.class });
