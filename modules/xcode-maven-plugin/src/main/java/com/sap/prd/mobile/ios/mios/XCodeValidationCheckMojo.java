@@ -270,6 +270,11 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   {
     try {
     final Class<?> validationCheckClass = Class.forName(checkDesc.getClazz(), true, validationCheckRealm);
+    
+    getLog().debug(String.format("Validation check class %s has been loaded by %s.", validationCheckClass.getName(), validationCheckClass.getClassLoader()));
+    getLog().debug(String.format("Validation check super class %s has been loaded by %s.", validationCheckClass.getSuperclass().getName(), validationCheckClass.getSuperclass().getClassLoader()));
+    getLog().debug(String.format("%s class used by this class (%s) has been loaded by %s.", ValidationCheck.class.getName(), this.getClass().getName(), ValidationCheck.class.getClassLoader() ));
+
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
         getLog().info(
