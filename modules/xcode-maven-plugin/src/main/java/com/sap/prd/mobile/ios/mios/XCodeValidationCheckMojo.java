@@ -334,7 +334,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private void handleException(com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check failedCheck, final Exception e)
+  private void handleException(Check failedCheck, final Exception e)
   {
     final String message;
     if (e instanceof VerificationException) {
