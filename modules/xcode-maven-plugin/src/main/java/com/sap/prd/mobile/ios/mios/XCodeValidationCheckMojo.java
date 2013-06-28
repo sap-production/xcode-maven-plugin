@@ -31,7 +31,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -334,9 +333,10 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   {
     final Artifact dependency = parseDependency(check, getLog());
     
-    final ClassRealm classRealm;
-    ClassRealm childClassRealm = null;
+    final ClassRealm classRealm, childClassRealm;
+
     final ClassLoader loader = this.getClass().getClassLoader();
+
     if (loader instanceof ClassRealm) {
 
       classRealm = (ClassRealm) loader;
@@ -360,9 +360,10 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
       Set<Artifact> artifacts;
       try {
-        Artifact artifact = new XCodeDownloadManager(projectRepos, repoSystem, repoSession)
+
+        final Artifact artifact = new XCodeDownloadManager(projectRepos, repoSystem, repoSession)
           .resolveArtifact(dependency);
-        
+
         artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(artifact);
 
         artifacts.add(artifact);
