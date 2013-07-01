@@ -221,8 +221,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     if (skip) {
 
       getLog().info(
-            "Verification check goal has been skipped intentionally since parameter 'xcode.verification.checks.skip' is '"
-                  + skip + "'.");
+            String.format("Verification check goal has been skipped intentionally since parameter 'xcode.verification.checks.skip' is '%s'.", skip));
       return;
     }
 
@@ -231,7 +230,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
       final Checks checks = getChecks(checkDefinitionFile);
 
       if (checks.getCheck().isEmpty()) {
-        getLog().warn("No checks configured in '" + checkDefinitionFile + "'.");
+        getLog().warn(String.format("No checks configured in '%s'.", checkDefinitionFile));
       }
 
       Map<Check, Exception> failedChecks = new HashMap<Check, Exception>();
@@ -278,8 +277,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
         getLog().info(
-              "Executing verification check: '" + validationCheckClass.getName() + "' for configuration '" + configuration
-                    + "' and sdk '" + sdk + "'.");
+              String.format("Executing verification check: '%s' for configuration '%s' and sdk '%s'.", validationCheckClass.getName(), configuration, sdk));
         final ValidationCheck validationCheck = (ValidationCheck) validationCheckClass.newInstance();
         validationCheck.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
         validationCheck.setMavenProject(project);
@@ -304,21 +302,17 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
                   + ex.getMessage(), ex);
     }
     catch(NoClassDefFoundError err) {
-      getLog().error("Could not load verification check '"
-            + checkDesc.getClazz()
-            + "'. May be your classpath has not been properly extended. Additional dependencies need to be provided with 'xcode.additionalClasspathElements'. "
-            + err.getMessage(), err);
+      getLog().error(String.format("Could not load verification check '%s'. " +
+          "May be your classpath has not been properly extended. " +
+          "Additional dependencies need to be declard inside the check definition file: %s",
+             checkDesc.getClazz(), err.getMessage()), err);
       throw err;
     }
     catch (InstantiationException ex) {
-      throw new MojoExecutionException("Could not instanciate verification check '"
-            + checkDesc.getClazz()
-            + ex.getMessage(), ex);
+      throw new MojoExecutionException(String.format("Could not instanciate verification check '%s': %s", checkDesc.getClazz(), ex.getMessage()), ex);
     }
     catch (IllegalAccessException ex) {
-      throw new MojoExecutionException("Could not access verification check '"
-            + checkDesc.getClazz()
-            + ex.getMessage(), ex);
+      throw new MojoExecutionException(String.format("Could not access verification check '%s': %s", checkDesc.getClazz(), ex.getMessage()), ex);
     }
 
   }
