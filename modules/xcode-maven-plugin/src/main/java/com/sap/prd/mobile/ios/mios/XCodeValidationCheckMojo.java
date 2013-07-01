@@ -430,7 +430,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   static Reader getChecksDescriptor(final String checkDefinitionFileLocation) throws XCodeException, IOException
   {
     if (checkDefinitionFileLocation == null || checkDefinitionFileLocation.trim().isEmpty()) {
-      throw new XCodeException("CheckDefinitionFile was not configured. Cannot perform verification checks");
+      throw new XCodeException("CheckDefinitionFile was not configured. Cannot perform verification checks. Define check definition file with paramater 'xcode.verification.checks.definitionFile'.");
     }
 
     Location location;
