@@ -21,16 +21,19 @@ package com.sap.prd.mobile.ios.mios;
 
 import static java.lang.String.format;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -54,6 +57,7 @@ import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.collection.DependencyCollectionException;
+import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
@@ -267,6 +271,23 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   private Exception performCheck(ClassRealm validationCheckRealm, final Check checkDesc)
         throws MojoExecutionException
   {
+    getLog().info(String.format("Performing validation check '%s'.", checkDesc.getClazz()));
+
+    if (getLog().isDebugEnabled()) {
+
+      final ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
+      final PrintStream ps = new PrintStream(byteOs);
+
+      try {
+        validationCheckRealm.display(ps);
+        ps.close();
+        getLog().debug(String.format("Using classloader:%s%s", System.getProperty("line.separator"), new String(byteOs.toByteArray())));
+      }
+      finally {
+        IOUtils.closeQuietly(ps);
+      }
+    }
+
     try {
     final Class<?> validationCheckClass = Class.forName(checkDesc.getClazz(), true, validationCheckRealm);
     
@@ -351,7 +372,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
   private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException, DuplicateRealmException, MalformedURLException
   {
-    final Artifact dependency = parseDependency(check, getLog());
+    final Artifact artifact = parseDependency(check, getLog());
     
     final ClassLoader loader = this.getClass().getClassLoader();
 
@@ -363,13 +384,16 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
     final ClassRealm classRealm = (ClassRealm) loader;
 
-      if(dependency == null)
+      if(artifact == null)
       {
         return classRealm;
       }
 
-
-        final Set<Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(dependency);
+        final Set<String> scopes = new HashSet<String>(Arrays.asList(org.apache.maven.artifact.Artifact.SCOPE_COMPILE,
+                                                                     org.apache.maven.artifact.Artifact.SCOPE_PROVIDED,
+                                                                     org.apache.maven.artifact.Artifact.SCOPE_RUNTIME,
+                                                                     org.apache.maven.artifact.Artifact.SCOPE_SYSTEM)); // do not resolve dependencies with scope "test".
+        final Set<Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(new Dependency(artifact, org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes);
 
         final ClassRealm childClassRealm = createChildRealm(classRealm.getId() + "-" + check.getClazz(), classRealm);
 

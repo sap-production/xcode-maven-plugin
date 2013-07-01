@@ -66,11 +66,11 @@ class XCodeDownloadManager
     return resolveSideArtifact(new DefaultArtifact(mainArtifact.getGroupId(), mainArtifact.getArtifactId(), null, null, mainArtifact.getVersion()), classifier, type);
   }
 
-  public Set<org.sonatype.aether.artifact.Artifact> resolveArtifactWithTransitveDependencies(org.sonatype.aether.artifact.Artifact artifact) throws DependencyCollectionException, SideArtifactNotFoundException {
+  public Set<org.sonatype.aether.artifact.Artifact> resolveArtifactWithTransitveDependencies(final Dependency dependency, final Set<String> scopes) throws DependencyCollectionException, SideArtifactNotFoundException {
 
     CollectRequest request = new CollectRequest();
 
-    request.setRoot( new Dependency(artifact, ""));
+    request.setRoot(dependency);
     CollectResult collectedDependencies = repoSystem.collectDependencies(repoSession, request);
 
     final DependencyNode root = collectedDependencies.getRoot();
@@ -87,8 +87,12 @@ class XCodeDownloadManager
       @Override
       public boolean visitEnter(DependencyNode node)
       {
-        artifacts.add(node.getDependency().getArtifact());
-        return true;
+        if(scopes.contains(node.getDependency().getScope()))
+        {
+          artifacts.add(node.getDependency().getArtifact());
+          return true;
+        }
+        return false;
       }
     });
 
