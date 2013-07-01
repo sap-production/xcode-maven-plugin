@@ -288,6 +288,13 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
                   + "'. May be your classpath has not been properly extended. Additional dependencies need to be provided with 'xcode.additionalClasspathElements'. "
                   + ex.getMessage(), ex);
     }
+    catch(NoClassDefFoundError err) {
+      getLog().error("Could not load verification check '"
+            + checkDesc.getClazz()
+            + "'. May be your classpath has not been properly extended. Additional dependencies need to be provided with 'xcode.additionalClasspathElements'. "
+            + err.getMessage(), err);
+      throw err;
+    }
     catch (InstantiationException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
