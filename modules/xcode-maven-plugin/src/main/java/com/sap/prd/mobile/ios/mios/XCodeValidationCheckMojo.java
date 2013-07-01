@@ -372,7 +372,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
         final Set<Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(dependency);
 
-        final ClassRealm childClassRealm = createChildRealm(classRealm.getId() + "-" + check.getClass().getSimpleName(), classRealm);
+        final ClassRealm childClassRealm = createChildRealm(classRealm.getId() + "-" + check.getClazz(), classRealm);
 
         addDependencies(childClassRealm, artifacts);
 
