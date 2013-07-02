@@ -283,7 +283,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
       try {
         validationCheckRealm.display(ps);
         ps.close();
-        getLog().debug(String.format("Using classloader:%s%s", System.getProperty("line.separator"), new String(byteOs.toByteArray())));
+        getLog().debug(String.format("Using classloader for loading validation check '%s':%s%s", checkDesc.getClazz(), System.getProperty("line.separator"), new String(byteOs.toByteArray())));
       }
       finally {
         IOUtils.closeQuietly(ps);
@@ -375,7 +375,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException, DuplicateRealmException, MalformedURLException
   {
     final Artifact artifact = parseDependency(check, getLog());
-    
+
     final ClassLoader loader = this.getClass().getClassLoader();
 
     if (! (loader instanceof ClassRealm)) {
@@ -395,7 +395,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
                                                                      org.apache.maven.artifact.Artifact.SCOPE_PROVIDED,
                                                                      org.apache.maven.artifact.Artifact.SCOPE_RUNTIME,
                                                                      org.apache.maven.artifact.Artifact.SCOPE_SYSTEM)); // do not resolve dependencies with scope "test".
-        
+
         final Set<Artifact> omits = new HashSet<Artifact>(Arrays.asList(getXcodeMavenPluginGav()));
         final Set<Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(new Dependency(artifact, org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
 
