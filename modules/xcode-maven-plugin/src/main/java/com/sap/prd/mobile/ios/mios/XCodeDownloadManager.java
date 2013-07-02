@@ -20,9 +20,11 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.maven.artifact.Artifact;
 import org.sonatype.aether.RepositorySystem;
@@ -66,7 +68,7 @@ class XCodeDownloadManager
     return resolveSideArtifact(new DefaultArtifact(mainArtifact.getGroupId(), mainArtifact.getArtifactId(), null, null, mainArtifact.getVersion()), classifier, type);
   }
 
-  public Set<org.sonatype.aether.artifact.Artifact> resolveArtifactWithTransitveDependencies(final Dependency dependency, final Set<String> scopes) throws DependencyCollectionException, SideArtifactNotFoundException {
+  public Set<org.sonatype.aether.artifact.Artifact> resolveArtifactWithTransitveDependencies(final Dependency dependency, final Set<String> scopes, final Set<org.sonatype.aether.artifact.Artifact> omits) throws DependencyCollectionException, SideArtifactNotFoundException {
 
     CollectRequest request = new CollectRequest();
 
@@ -77,6 +79,27 @@ class XCodeDownloadManager
 
     final Set<org.sonatype.aether.artifact.Artifact> artifacts = new HashSet<org.sonatype.aether.artifact.Artifact>();
 
+    final Set<org.sonatype.aether.artifact.Artifact> _omits = new TreeSet<org.sonatype.aether.artifact.Artifact>(new Comparator<org.sonatype.aether.artifact.Artifact>() {
+
+      @Override
+      public int compare(org.sonatype.aether.artifact.Artifact a1, org.sonatype.aether.artifact.Artifact a2)
+      {
+        if(a1.getGroupId().compareTo(a2.getGroupId()) != 0) {
+          return a1.getGroupId().compareTo(a2.getGroupId());
+        }
+        if(a1.getArtifactId().compareTo(a2.getArtifactId()) != 0) {
+          return a1.getArtifactId().compareTo(a2.getArtifactId());
+        }
+        if(a1.getVersion().compareTo(a2.getVersion()) != 0) {
+          return a1.getVersion().compareTo(a2.getVersion());
+        }
+
+        return 0;
+      }
+    });
+
+    _omits.addAll(omits);
+    
     root.accept(new  DependencyVisitor() {
 
       @Override
@@ -87,7 +110,7 @@ class XCodeDownloadManager
       @Override
       public boolean visitEnter(DependencyNode node)
       {
-        if(scopes.contains(node.getDependency().getScope()))
+        if(scopes.contains(node.getDependency().getScope()) && (! _omits.contains(node.getDependency().getArtifact())))
         {
           artifacts.add(node.getDependency().getArtifact());
           return true;
