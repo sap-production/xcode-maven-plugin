@@ -418,22 +418,27 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   static Artifact parseDependency(final Check check, final Log log)
         throws XCodeException
   {
-    final String coords = StringUtils.join(
-          Arrays.asList(check.getGroupId(), check.getArtifactId(), check.getVersion()), ":");
-
-    if (coords.equals("::")) {
+    final String groupId = check.getGroupId();
+    final String artifactId = check.getArtifactId();
+    final String version = check.getVersion();
+    
+    if (StringUtils.isEmpty(groupId) && StringUtils.isEmpty(artifactId) && StringUtils.isEmpty(version)) {
       log.info(
         "No coordinates maintained for check represented by class '" + check.getClazz()
               + "'. Assuming this check is already contained in the classpath.");
       return null;
     }
 
-    if (coords.matches("^:.*|.*:$|.*::.*"))
-      throw new XCodeException("Invalid coordinates: '" + coords
-            + "' maintained for check represented by class '" + check.getClazz()
-            + "'. At least one of groupId, artifactId or version is missing.");
+    if(StringUtils.isEmpty(groupId))
+      throw new XCodeException(String.format("groupId for check %s is null or emtpy", check.getClazz()));
 
-    return new DefaultArtifact(coords);
+    if(StringUtils.isEmpty(artifactId))
+      throw new XCodeException(String.format("artifactId for check %s is null or emtpy", check.getClazz()));
+
+    if(StringUtils.isEmpty(version))
+      throw new XCodeException(String.format("version for check %s is null or emtpy", check.getClazz()));
+
+    return new DefaultArtifact(groupId, artifactId, null, version);
   }
 
   static Checks getChecks(final String checkDefinitionFileLocation) throws XCodeException, IOException, JAXBException
