@@ -242,11 +242,15 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
       Map<Check, Exception> failedChecks = new HashMap<Check, Exception>();
 
       for(Check check : checks.getCheck()) {
-        final ClassRealm validationCheckRealm = extendClasspath(check);
-        final Exception ex = performCheck(validationCheckRealm, check);
-        if(ex != null)
-        {
-          failedChecks.put(check,  ex);
+        try {
+          final ClassRealm validationCheckRealm = extendClasspath(check);
+          final Exception ex = performCheck(validationCheckRealm, check);
+          if(ex != null)
+          {
+            failedChecks.put(check,  ex);
+          }
+        } catch(DuplicateRealmException ex) {
+          throw new MojoExecutionException(String.format("Check '%s' was configured twice in check definition file '%s'", check.getClazz(), checkDefinitionFile), ex);
         }
       }
 
@@ -263,9 +267,6 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
       throw new MojoExecutionException(e.getMessage(), e);
     }
     catch (DependencyCollectionException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
-    catch (DuplicateRealmException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
   }
