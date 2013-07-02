@@ -33,7 +33,6 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -399,11 +398,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
         final XCodeDownloadManager downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSession);
 
-        //final Set<org.sonatype.aether.artifact.Artifact> omits = new HashSet<org.sonatype.aether.artifact.Artifact>(Arrays.asList(getXcodeMavenPluginGav()));
         final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(new Dependency(getXcodeMavenPluginGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, new HashSet<org.sonatype.aether.artifact.Artifact>());
-
-        
-        
         final Set<org.sonatype.aether.artifact.Artifact> artifacts = downloadManager.resolveArtifactWithTransitveDependencies(new Dependency(artifact, org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
 
         final ClassRealm childClassRealm = classRealm.createChildRealm(classRealm.getId() + "-" + check.getClazz());
