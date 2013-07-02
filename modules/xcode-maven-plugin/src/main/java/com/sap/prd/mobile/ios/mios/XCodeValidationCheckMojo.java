@@ -57,7 +57,6 @@ import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -375,7 +374,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
   private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException, DuplicateRealmException, MalformedURLException
   {
-    final Artifact artifact = parseDependency(check, getLog());
+    final org.sonatype.aether.artifact.Artifact artifact = parseDependency(check, getLog());
 
     final ClassLoader loader = this.getClass().getClassLoader();
 
@@ -397,8 +396,8 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
                                                                      org.apache.maven.artifact.Artifact.SCOPE_RUNTIME,
                                                                      org.apache.maven.artifact.Artifact.SCOPE_SYSTEM)); // do not resolve dependencies with scope "test".
 
-        final Set<Artifact> omits = new HashSet<Artifact>(Arrays.asList(getXcodeMavenPluginGav()));
-        final Set<Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(new Dependency(artifact, org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
+        final Set<org.sonatype.aether.artifact.Artifact> omits = new HashSet<org.sonatype.aether.artifact.Artifact>(Arrays.asList(getXcodeMavenPluginGav()));
+        final Set<org.sonatype.aether.artifact.Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(new Dependency(artifact, org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
 
         final ClassRealm childClassRealm = classRealm.createChildRealm(classRealm.getId() + "-" + check.getClazz());
 
@@ -407,15 +406,15 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
         return childClassRealm;
   }
 
-  private void addDependencies(final ClassRealm childClassRealm, Set<Artifact> artifacts) throws MalformedURLException
+  private void addDependencies(final ClassRealm childClassRealm, Set<org.sonatype.aether.artifact.Artifact> artifacts) throws MalformedURLException
   {
-    for(Artifact a : artifacts)
+    for(org.sonatype.aether.artifact.Artifact a : artifacts)
     {
         childClassRealm.addURL(a.getFile().toURI().toURL());
     }
   }
 
-  static Artifact parseDependency(final Check check, final Log log)
+  static org.sonatype.aether.artifact.Artifact parseDependency(final Check check, final Log log)
         throws XCodeException
   {
     final String groupId = check.getGroupId();
@@ -454,7 +453,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
   
-  Artifact getXcodeMavenPluginGav() throws XCodeException {
+  org.sonatype.aether.artifact.Artifact getXcodeMavenPluginGav() throws XCodeException {
 
     InputStream is = null;
     

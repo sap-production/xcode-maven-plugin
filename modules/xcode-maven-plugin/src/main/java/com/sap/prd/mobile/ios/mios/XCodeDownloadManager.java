@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.maven.artifact.Artifact;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.collection.CollectRequest;
@@ -63,7 +62,7 @@ class XCodeDownloadManager
   }
 
   
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact mainArtifact, final String classifier,
+  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.apache.maven.artifact.Artifact mainArtifact, final String classifier,
         final String type) throws SideArtifactNotFoundException {
     return resolveSideArtifact(new DefaultArtifact(mainArtifact.getGroupId(), mainArtifact.getArtifactId(), null, null, mainArtifact.getVersion()), classifier, type);
   }
@@ -166,7 +165,7 @@ class XCodeDownloadManager
    *         inside the remote repositories
    * @throws SideArtifactNotFoundException
    */
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact artifact)
+  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.apache.maven.artifact.Artifact artifact)
         throws SideArtifactNotFoundException
   {
     return resolveSideArtifact(artifact, artifact.getClassifier(), artifact.getType());
