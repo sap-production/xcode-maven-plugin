@@ -399,7 +399,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
         final Set<Artifact> omits = new HashSet<Artifact>(Arrays.asList(getXcodeMavenPluginGav()));
         final Set<Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(new Dependency(artifact, org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
 
-        final ClassRealm childClassRealm = createChildRealm(classRealm.getId() + "-" + check.getClazz(), classRealm);
+        final ClassRealm childClassRealm = classRealm.createChildRealm(classRealm.getId() + "-" + check.getClazz());
 
         addDependencies(childClassRealm, artifacts);
 
@@ -412,13 +412,6 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     {
         childClassRealm.addURL(a.getFile().toURI().toURL());
     }
-  }
-
-  private static ClassRealm createChildRealm(String id, ClassRealm parentClassRealm) throws DuplicateRealmException 
-  {
-    final ClassRealm childClassRealm = parentClassRealm.createChildRealm(id);
-    childClassRealm.importFrom(parentClassRealm, XCodeValidationCheckMojo.class.getPackage().getName());
-    return childClassRealm;
   }
 
   static Artifact parseDependency(final Check check, final Log log)
