@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
@@ -37,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -393,7 +395,9 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
                                                                      org.apache.maven.artifact.Artifact.SCOPE_PROVIDED,
                                                                      org.apache.maven.artifact.Artifact.SCOPE_RUNTIME,
                                                                      org.apache.maven.artifact.Artifact.SCOPE_SYSTEM)); // do not resolve dependencies with scope "test".
-        final Set<Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(new Dependency(artifact, org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes);
+        
+        final Set<Artifact> omits = new HashSet<Artifact>(Arrays.asList(getXcodeMavenPluginGav()));
+        final Set<Artifact> artifacts = new XCodeDownloadManager(projectRepos, repoSystem, repoSession).resolveArtifactWithTransitveDependencies(new Dependency(artifact, org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
 
         final ClassRealm childClassRealm = createChildRealm(classRealm.getId() + "-" + check.getClazz(), classRealm);
 
@@ -448,6 +452,32 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
     finally {
       IOUtils.closeQuietly(checkDefinitions);
+    }
+  }
+  
+  Artifact getXcodeMavenPluginGav() throws XCodeException {
+
+    InputStream is = null;
+    
+    try {
+        is = XCodeValidationCheckMojo.class.getResourceAsStream("/misc/project.properties");
+        
+        if(is == null)
+        {
+          throw new XCodeException("Cannot get the GAV of the xcode-maven-plugin");
+        }
+        
+        Properties props = new Properties();
+        props.load(is);
+        
+        final String groupId = props.getProperty("xcode-plugin-groupId");
+        final String artifactId = props.getProperty("xcode-plugin-artifactId");
+        final String version = props.getProperty("xcode-plugin-version");
+        return new DefaultArtifact(groupId, artifactId, null, version);
+    } catch(final IOException ex) {
+        throw new XCodeException("Cannot get the GAV for the xcode-maven-plugin", ex);
+    } finally {
+      IOUtils.closeQuietly(is);
     }
   }
 
