@@ -128,9 +128,9 @@ class XCodeDownloadManager
   }
   /**
    * 
-   * @return The requested artifact or <code>null</code> if the requested artifact does not exist
-   *         inside the remote repositories
-   * @throws SideArtifactNotFoundException
+   * @return The requested artifact according to the <code>groupId</code>, <code>artifactId</code> and <code>version</code>
+   * of the main artifact and <code>classifier</code> and <code>type</code> as specified by the actual parameters.
+   * @throws SideArtifactNotFoundException  If the requested artifact does not exist inside the remote repositories
    */
   org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.sonatype.aether.artifact.Artifact mainArtifact, final String classifier,
         final String type)
