@@ -155,7 +155,7 @@ class XCodeDownloadManager
             (sideArtifact != null ? sideArtifact.getArtifactId() : "<n/a>") + ":" + 
             (sideArtifact != null ? sideArtifact.getVersion() : "<n/a>") + ":" + 
             (sideArtifact != null ? sideArtifact.getClassifier() : "<n/a>")
-             + " could not be resolved.", sideArtifact);
+             + " could not be resolved.", sideArtifact, ex);
     }
   }
 
