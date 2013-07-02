@@ -29,9 +29,13 @@ public class SideArtifactNotFoundException extends XCodeException
 
   private final Artifact sideArtifact;
 
-  public SideArtifactNotFoundException(String message, Artifact sideArtifact)
+  public SideArtifactNotFoundException(String message, Artifact sideArtifact) {
+    this(message, sideArtifact, null);
+  }
+
+  public SideArtifactNotFoundException(String message, Artifact sideArtifact, Throwable ex)
   {
-    super(message);
+    super(message, ex);
     this.sideArtifact = sideArtifact;
   }
 
