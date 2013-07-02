@@ -151,11 +151,12 @@ class XCodeDownloadManager
 
     }
     catch (ArtifactResolutionException ex) {
-      throw new SideArtifactNotFoundException("Side artifact" + sideArtifact != null ? sideArtifact.getGroupId()
-            : "<n/a>" + ":" + sideArtifact != null ? sideArtifact.getArtifactId()
-                  : "<n/a>" + ":" + sideArtifact != null ? sideArtifact.getVersion()
-                        : "<n/a>" + ":" + sideArtifact != null ? sideArtifact.getClassifier() : "<n/a>" + ":"
-                              + " could not be resolved.", sideArtifact);
+      throw new SideArtifactNotFoundException("Side artifact " + 
+            (sideArtifact != null ? sideArtifact.getGroupId() : "<n/a>") + ":" + 
+            (sideArtifact != null ? sideArtifact.getArtifactId() : "<n/a>") + ":" + 
+            (sideArtifact != null ? sideArtifact.getVersion() : "<n/a>") + ":" + 
+            (sideArtifact != null ? sideArtifact.getClassifier() : "<n/a>")
+             + " could not be resolved.", sideArtifact);
     }
   }
 
