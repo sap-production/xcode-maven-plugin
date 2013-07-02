@@ -444,7 +444,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     if(StringUtils.isEmpty(version))
       throw new XCodeException(String.format("version for check %s is null or emtpy", check.getClazz()));
 
-    return new DefaultArtifact(groupId, artifactId, null, version);
+    return new DefaultArtifact(groupId, artifactId, "jar", version);
   }
 
   static Checks getChecks(final String checkDefinitionFileLocation) throws XCodeException, IOException, JAXBException
@@ -478,7 +478,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
         final String groupId = props.getProperty("xcode-plugin-groupId");
         final String artifactId = props.getProperty("xcode-plugin-artifactId");
         final String version = props.getProperty("xcode-plugin-version");
-        return new DefaultArtifact(groupId, artifactId, null, version);
+        return new DefaultArtifact(groupId, artifactId, "jar", version);
     } catch(final IOException ex) {
         throw new XCodeException("Cannot get the GAV for the xcode-maven-plugin", ex);
     } finally {
