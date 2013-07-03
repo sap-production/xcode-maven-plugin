@@ -37,12 +37,12 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.Test;
 import org.sonatype.aether.artifact.Artifact;
 
-import com.sap.prd.mobile.ios.mios.XCodeValidationCheckMojo.Location;
-import com.sap.prd.mobile.ios.mios.XCodeValidationCheckMojo.NoProtocolException;
-import com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check;
-import com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Checks;
+import com.sap.prd.mobile.ios.mios.XCodeVerificationCheckMojo.Location;
+import com.sap.prd.mobile.ios.mios.XCodeVerificationCheckMojo.NoProtocolException;
+import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Check;
+import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
 
-public class XCodeValidationCheckMojoTest
+public class XCodeVerificationCheckMojoTest
 {
 
   @Test
@@ -54,7 +54,7 @@ public class XCodeValidationCheckMojoTest
     
     for(Check check : checks.getCheck())
     {
-        Artifact dep = XCodeValidationCheckMojo.parseDependency(check, new SystemStreamLog());
+        Artifact dep = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
         if(dep != null)
         {
             dependencies.add(dep);
@@ -72,7 +72,7 @@ public class XCodeValidationCheckMojoTest
     
     for(Check check : checks.getCheck())
     {
-        Artifact dep = XCodeValidationCheckMojo.parseDependency(check, new SystemStreamLog());
+        Artifact dep = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
         if(dep != null) {
             dependencies.add(dep);
         }
@@ -122,7 +122,7 @@ public class XCodeValidationCheckMojoTest
     Reader r = null;
 
     try {
-      r = XCodeValidationCheckMojo.getChecksDescriptor("file:src/test/checks/checks.xml");
+      r = XCodeVerificationCheckMojo.getChecksDescriptor("file:src/test/checks/checks.xml");
       JAXBContext.newInstance(Checks.class).createUnmarshaller().unmarshal(r);
     }
     finally {
@@ -130,16 +130,16 @@ public class XCodeValidationCheckMojoTest
     }
   }
 
-  @Test(expected = XCodeValidationCheckMojo.InvalidProtocolException.class)
+  @Test(expected = XCodeVerificationCheckMojo.InvalidProtocolException.class)
   public void testGetCheckDescriptorWithInvalidProtocol() throws Exception, IOException
   {
-    XCodeValidationCheckMojo.getChecksDescriptor("ftp://example.com");
+    XCodeVerificationCheckMojo.getChecksDescriptor("ftp://example.com");
   }
 
-  @Test(expected = XCodeValidationCheckMojo.NoProtocolException.class)
+  @Test(expected = XCodeVerificationCheckMojo.NoProtocolException.class)
   public void testGetCheckDescriptorWithoutProtocol() throws Exception, IOException
   {
-    XCodeValidationCheckMojo.getChecksDescriptor("example.com");
+    XCodeVerificationCheckMojo.getChecksDescriptor("example.com");
   }
 
   private void testPartOfGavInvalidOrMissing(String location, String attNameFix, String attValueFix) throws Exception
@@ -149,7 +149,7 @@ public class XCodeValidationCheckMojoTest
     for(Check check : checks.getCheck())
     {
     try {
-      XCodeValidationCheckMojo.parseDependency(check, new SystemStreamLog());
+      XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
       fail("Dependency could be parsed. Expected was missing attribute '" + attNameFix + "'.");
     }
     catch (XCodeException ex) {
@@ -157,7 +157,7 @@ public class XCodeValidationCheckMojoTest
 
     Method m = Check.class.getMethod(getSetterName(attNameFix), new Class[] { String.class });
     m.invoke(checks.getCheck().get(0), new Object[] { attValueFix });
-    Artifact dependency = XCodeValidationCheckMojo.parseDependency(check, new SystemStreamLog());
+    Artifact dependency = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
     
     if(dependency == null)
     {
@@ -184,7 +184,7 @@ public class XCodeValidationCheckMojoTest
     return new String(c);
   }
 
-  @Test(expected = XCodeValidationCheckMojo.NoProtocolException.class)
+  @Test(expected = XCodeVerificationCheckMojo.NoProtocolException.class)
   public void testValidateLocationNoColon() throws NoProtocolException
   {
     testValidateLocation("a/b/c.xml", "FILE", "a/b/c.xml");
@@ -236,7 +236,7 @@ public class XCodeValidationCheckMojoTest
 
   private void testValidateLocation(String uri, String expectedProtocol, String expectedLocation) throws NoProtocolException
   {
-    Location validateLocation = XCodeValidationCheckMojo.Location.getLocation(uri);
+    Location validateLocation = XCodeVerificationCheckMojo.Location.getLocation(uri);
     assertEquals(expectedProtocol, validateLocation.protocol);
     assertEquals(expectedLocation, validateLocation.location);
   }

@@ -20,7 +20,7 @@
 package com.sap.prd.mobile.ios.mios;
 
 
-public class TestMetadataCheck extends ValidationCheck
+public class TestMetadataCheck extends VerificationCheck
 {
 
   public TestMetadataCheck() 
@@ -28,9 +28,9 @@ public class TestMetadataCheck extends ValidationCheck
   }
 
   @Override
-  public void check() throws ValidationException
+  public void check() throws VerificationException
   {
-    throw new ValidationException("7430190670433136460", "");
+    throw new VerificationException("7430190670433136460", "");
   }
 
 }

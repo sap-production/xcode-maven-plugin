@@ -1,4 +1,4 @@
 <checks>
     <check severity="ERROR" class="com.my.company.MyMetadataCheck"/>
-    <check severity="ERROR" class="com.my.company.MyValidationCheckCheck"/>
+    <check severity="ERROR" class="com.my.company.MyVerificationCheckCheck"/>
 </checks>

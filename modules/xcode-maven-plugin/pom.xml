@@ -19,7 +19,7 @@
     
   <properties>
     <license.roots>src/main,src/site,src/test/java,src/test/projects</license.roots>  <!--  skip src/test/resources as these files are used for file comparison and must not be changed-->
-    <jaxb.validation.checks.1_0_0.sources>${project.build.directory}/generated-sources/jaxb/validation-checks/1.0.0</jaxb.validation.checks.1_0_0.sources>
+    <jaxb.verification.checks.1_0_0.sources>${project.build.directory}/generated-sources/jaxb/verification-checks/1.0.0</jaxb.verification.checks.1_0_0.sources>
   </properties>
 
   <build>
@@ -55,15 +55,15 @@
        <version>1.5</version>
        <executions>
          <execution>
-           <id>validation-checks</id>
+           <id>verifiction-checks</id>
            <phase>generate-sources</phase>
            <goals>
              <goal>xjc</goal>
            </goals>
            <configuration>
-             <outputDirectory>${jaxb.validation.checks.1_0_0.sources}</outputDirectory>
-             <schemaDirectory>${basedir}/src/main/xsd/validation-checks/1.0.0</schemaDirectory>
-             <packageName>com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0</packageName>
+             <outputDirectory>${jaxb.verification.checks.1_0_0.sources}</outputDirectory>
+             <schemaDirectory>${basedir}/src/main/xsd/verification-checks/1.0.0</schemaDirectory>
+             <packageName>com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0</packageName>
            </configuration>
          </execution>
        </executions>
@@ -82,7 +82,7 @@
             </goals>
             <configuration>
               <sources>
-                <source>${jaxb.validation.checks.1_0_0.sources}</source>
+                <source>${jaxb.verification.checks.1_0_0.sources}</source>
               </sources>
             </configuration>
           </execution>

@@ -22,7 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
-public abstract class ValidationCheck
+public abstract class VerificationCheck
 {
   private XCodeContext context;
   private Log log;
@@ -51,5 +51,5 @@ public abstract class ValidationCheck
     return this.context;
   }
 
-  public abstract void check() throws ValidationException;
+  public abstract void check() throws VerificationException;
 }
