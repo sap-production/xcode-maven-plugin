@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -66,7 +67,7 @@ public class XCodeValidationChecksTest extends XCodeTest
     {
         test(v, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
               "verify",
-              THE_EMPTY_LIST,
+              Arrays.asList("-X"),
               additionalSystemProperties, pomReplacements, new ProjectModifier() {
 
                 @Override
@@ -79,6 +80,8 @@ public class XCodeValidationChecksTest extends XCodeTest
         });
         fail();
     } catch(VerificationException ex) {
+      v.verifyTextInLog("Adding transitive dependency 'junit:junit:4.8.2'");
+      v.verifyTextInLog("Omitting transitive dependency 'org.apache.velocity:velocity:1.7'");
       v.verifyTextInLog("Verification check 'com.sap.prd.mobile.ios.mios.TestMetadataCheck failed. 7430190670433136460");
     }
   }
@@ -150,7 +153,7 @@ public class XCodeValidationChecksTest extends XCodeTest
     
     Verifier v = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
               "verify",
-              THE_EMPTY_LIST,
+              Arrays.asList("-X"),
               additionalSystemProperties, pomReplacements, new ProjectModifier() {
 
                 @Override
@@ -161,6 +164,8 @@ public class XCodeValidationChecksTest extends XCodeTest
                 }
           
         });
+      v.verifyTextInLog("Adding transitive dependency 'junit:junit:4.8.2'");
+      v.verifyTextInLog("Omitting transitive dependency 'org.apache.velocity:velocity:1.7'");
       v.verifyTextInLog("[WARNING] Verification check 'com.sap.prd.mobile.ios.mios.TestMetadataCheck failed. 7430190670433136460");
   }
 

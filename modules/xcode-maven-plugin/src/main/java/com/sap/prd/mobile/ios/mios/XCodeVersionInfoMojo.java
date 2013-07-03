@@ -270,7 +270,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
       try {
         org.sonatype.aether.artifact.Artifact sideArtifact = new XCodeDownloadManager(projectRepos, repoSystem,
-              repoSession).resolveSideArtifact(mainArtifact, "versions", "xml");
+              repoSession, getLog()).resolveSideArtifact(mainArtifact, "versions", "xml");
         getLog().info("Version information retrieved for artifact: " + mainArtifact);
 
         result.add(VersionInfoXmlManager.parseDependency(sideArtifact.getFile()));
