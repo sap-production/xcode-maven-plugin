@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -33,7 +34,7 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.junit.Test;
 
-public class XCodeValidationChecksTest extends XCodeTest
+public class XCodeVerificationChecksTest extends XCodeTest
 {
   @Test
   public void testVerifyWithError() throws Exception
@@ -66,7 +67,7 @@ public class XCodeValidationChecksTest extends XCodeTest
     {
         test(v, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
               "verify",
-              THE_EMPTY_LIST,
+              Arrays.asList("-X"),
               additionalSystemProperties, pomReplacements, new ProjectModifier() {
 
                 @Override
@@ -79,6 +80,8 @@ public class XCodeValidationChecksTest extends XCodeTest
         });
         fail();
     } catch(VerificationException ex) {
+      v.verifyTextInLog("Adding transitive dependency 'junit:junit:4.8.2'");
+      v.verifyTextInLog("Omitting transitive dependency 'org.apache.velocity:velocity:1.7'");
       v.verifyTextInLog("Verification check 'com.sap.prd.mobile.ios.mios.TestMetadataCheck failed. 7430190670433136460");
     }
   }
@@ -150,7 +153,7 @@ public class XCodeValidationChecksTest extends XCodeTest
     
     Verifier v = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
               "verify",
-              THE_EMPTY_LIST,
+              Arrays.asList("-X"),
               additionalSystemProperties, pomReplacements, new ProjectModifier() {
 
                 @Override
@@ -161,6 +164,8 @@ public class XCodeValidationChecksTest extends XCodeTest
                 }
           
         });
+      v.verifyTextInLog("Adding transitive dependency 'junit:junit:4.8.2'");
+      v.verifyTextInLog("Omitting transitive dependency 'org.apache.velocity:velocity:1.7'");
       v.verifyTextInLog("[WARNING] Verification check 'com.sap.prd.mobile.ios.mios.TestMetadataCheck failed. 7430190670433136460");
   }
 
@@ -175,7 +180,7 @@ public class XCodeValidationChecksTest extends XCodeTest
   }
 
   @Test
-  public void testValidationCheckSkipped() throws Exception
+  public void testVerificationCheckSkipped() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = getTestName();
@@ -190,7 +195,7 @@ public class XCodeValidationChecksTest extends XCodeTest
 
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:"
-                + getMavenXcodePluginVersion() + ":validation-check",
+                + getMavenXcodePluginVersion() + ":verification-check",
           THE_EMPTY_LIST,
           null, pomReplacements, new NullProjectModifier());
 
@@ -205,7 +210,7 @@ public class XCodeValidationChecksTest extends XCodeTest
   }
 
   @Test
-  public void testValidationCheckNoProtocolSpecified() throws Exception
+  public void testVerificationCheckNoProtocolSpecified() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = getTestName();
@@ -227,7 +232,7 @@ public class XCodeValidationChecksTest extends XCodeTest
     try {
       test(v, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
             "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:"
-                  + getMavenXcodePluginVersion() + ":validation-check",
+                  + getMavenXcodePluginVersion() + ":verification-check",
             THE_EMPTY_LIST,
             additionalSystemProperties, pomReplacements, new NullProjectModifier());
       fail("Expected Exception was not thrown");
@@ -239,7 +244,7 @@ public class XCodeValidationChecksTest extends XCodeTest
   }
 
   @Test
-  public void testValidationCheckClassPathNotExtendedSpecified() throws Exception
+  public void testVerificationCheckClassPathNotExtendedSpecified() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = getTestName();
@@ -260,7 +265,7 @@ public class XCodeValidationChecksTest extends XCodeTest
     try {
       test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
             "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:"
-                  + getMavenXcodePluginVersion() + ":validation-check",
+                  + getMavenXcodePluginVersion() + ":verification-check",
             THE_EMPTY_LIST,
             additionalSystemProperties, pomReplacements, new NullProjectModifier());
       fail("Expected Exception was not thrown");

@@ -20,11 +20,22 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.logging.Log;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
+import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.collection.CollectRequest;
+import org.sonatype.aether.collection.CollectResult;
+import org.sonatype.aether.collection.DependencyCollectionException;
+import org.sonatype.aether.graph.Dependency;
+import org.sonatype.aether.graph.DependencyNode;
+import org.sonatype.aether.graph.DependencyVisitor;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
@@ -37,13 +48,15 @@ class XCodeDownloadManager
   private final List<RemoteRepository> projectRepos;
   private final RepositorySystem repoSystem;
   private final RepositorySystemSession repoSession;
+  private final Log log;
 
   XCodeDownloadManager(final List<RemoteRepository> projectRepos,
-        final RepositorySystem repoSystem, final RepositorySystemSession repoSession)
+        final RepositorySystem repoSystem, final RepositorySystemSession repoSession, Log log)
   {
     this.projectRepos = projectRepos;
     this.repoSystem = repoSystem;
     this.repoSession = repoSession;
+    this.log = log;
   }
 
   org.sonatype.aether.artifact.Artifact resolveArtifact(final org.sonatype.aether.artifact.Artifact artifact)
@@ -53,17 +66,87 @@ class XCodeDownloadManager
   }
 
   
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact mainArtifact, final String classifier,
+  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.apache.maven.artifact.Artifact mainArtifact, final String classifier,
         final String type) throws SideArtifactNotFoundException {
     return resolveSideArtifact(new DefaultArtifact(mainArtifact.getGroupId(), mainArtifact.getArtifactId(), null, null, mainArtifact.getVersion()), classifier, type);
   }
 
-  
+  public Set<org.sonatype.aether.artifact.Artifact> resolveArtifactWithTransitveDependencies(final Dependency dependency, final Set<String> scopes, final Set<org.sonatype.aether.artifact.Artifact> omits) throws DependencyCollectionException, SideArtifactNotFoundException {
+
+    CollectRequest request = new CollectRequest();
+
+    request.setRoot(dependency);
+    CollectResult collectedDependencies = repoSystem.collectDependencies(repoSession, request);
+
+    final DependencyNode root = collectedDependencies.getRoot();
+
+    final Set<org.sonatype.aether.artifact.Artifact> artifacts = new HashSet<org.sonatype.aether.artifact.Artifact>();
+
+    final Set<org.sonatype.aether.artifact.Artifact> _omits = new TreeSet<org.sonatype.aether.artifact.Artifact>(new Comparator<org.sonatype.aether.artifact.Artifact>() {
+
+      @Override
+      public int compare(org.sonatype.aether.artifact.Artifact a1, org.sonatype.aether.artifact.Artifact a2)
+      {
+        if(a1.getGroupId().compareTo(a2.getGroupId()) != 0) {
+          return a1.getGroupId().compareTo(a2.getGroupId());
+        }
+        if(a1.getArtifactId().compareTo(a2.getArtifactId()) != 0) {
+          return a1.getArtifactId().compareTo(a2.getArtifactId());
+        }
+        if(a1.getVersion().compareTo(a2.getVersion()) != 0) {
+          return a1.getVersion().compareTo(a2.getVersion());
+        }
+
+        return 0;
+      }
+    });
+
+    _omits.addAll(omits);
+    
+    root.accept(new  DependencyVisitor() {
+
+      @Override
+      public boolean visitLeave(DependencyNode node)
+      {
+        return true;
+      }
+      @Override
+      public boolean visitEnter(DependencyNode node)
+      {
+        if(scopes.contains(node.getDependency().getScope()) && (! _omits.contains(node.getDependency().getArtifact())))
+        {
+          artifacts.add(node.getDependency().getArtifact());
+          if(log.isDebugEnabled())
+          {
+            final Artifact depArtifact = node.getDependency().getArtifact();
+            final Artifact rootArtifact = root.getDependency().getArtifact();;
+            log.debug(String.format("Adding transitive dependency '%s:%s:%s' for artifact '%s:%s:%s'", depArtifact.getGroupId(), depArtifact.getArtifactId(), depArtifact.getVersion(), rootArtifact.getGroupId(), rootArtifact.getArtifactId(), rootArtifact.getVersion()));
+          }
+          return true;
+        }
+        if(log.isDebugEnabled())
+        {
+          final Artifact depArtifact = node.getDependency().getArtifact();
+          final Artifact rootArtifact = root.getDependency().getArtifact();;
+          log.debug(String.format("Omitting transitive dependency '%s:%s:%s' and the transitive envelope for artifact '%s:%s:%s'", depArtifact.getGroupId(), depArtifact.getArtifactId(), depArtifact.getVersion(), rootArtifact.getGroupId(), rootArtifact.getArtifactId(), rootArtifact.getVersion()));
+        }
+        return false;
+      }
+    });
+
+    final Set<org.sonatype.aether.artifact.Artifact> result = new HashSet<org.sonatype.aether.artifact.Artifact>();
+    
+    for(org.sonatype.aether.artifact.Artifact myArtifact : artifacts) {
+        org.sonatype.aether.artifact.Artifact resolvedArtifact = resolveArtifact(myArtifact);
+        result.add(resolvedArtifact);
+    }
+    return result;
+  }
   /**
    * 
-   * @return The requested artifact or <code>null</code> if the requested artifact does not exist
-   *         inside the remote repositories
-   * @throws SideArtifactNotFoundException
+   * @return The requested artifact according to the <code>groupId</code>, <code>artifactId</code> and <code>version</code>
+   * of the main artifact and <code>classifier</code> and <code>type</code> as specified by the actual parameters.
+   * @throws SideArtifactNotFoundException  If the requested artifact does not exist inside the remote repositories
    */
   org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.sonatype.aether.artifact.Artifact mainArtifact, final String classifier,
         final String type)
@@ -83,11 +166,12 @@ class XCodeDownloadManager
 
     }
     catch (ArtifactResolutionException ex) {
-      throw new SideArtifactNotFoundException("Side artifact" + sideArtifact != null ? sideArtifact.getGroupId()
-            : "<n/a>" + ":" + sideArtifact != null ? sideArtifact.getArtifactId()
-                  : "<n/a>" + ":" + sideArtifact != null ? sideArtifact.getVersion()
-                        : "<n/a>" + ":" + sideArtifact != null ? sideArtifact.getClassifier() : "<n/a>" + ":"
-                              + " could not be resolved.", sideArtifact);
+      throw new SideArtifactNotFoundException("Side artifact " + 
+            (sideArtifact != null ? sideArtifact.getGroupId() : "<n/a>") + ":" + 
+            (sideArtifact != null ? sideArtifact.getArtifactId() : "<n/a>") + ":" + 
+            (sideArtifact != null ? sideArtifact.getVersion() : "<n/a>") + ":" + 
+            (sideArtifact != null ? sideArtifact.getClassifier() : "<n/a>")
+             + " could not be resolved.", sideArtifact, ex);
     }
   }
 
@@ -97,7 +181,7 @@ class XCodeDownloadManager
    *         inside the remote repositories
    * @throws SideArtifactNotFoundException
    */
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final Artifact artifact)
+  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.apache.maven.artifact.Artifact artifact)
         throws SideArtifactNotFoundException
   {
     return resolveSideArtifact(artifact, artifact.getClassifier(), artifact.getType());

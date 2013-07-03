@@ -20,7 +20,7 @@ package com.sap.prd.mobile.ios.mios;
  * #L%
  */
 
-public class XCodeProjectNotFoundException extends XCodeValidationException
+public class XCodeProjectNotFoundException extends XCodeVerificationException
 {
 
   public XCodeProjectNotFoundException()

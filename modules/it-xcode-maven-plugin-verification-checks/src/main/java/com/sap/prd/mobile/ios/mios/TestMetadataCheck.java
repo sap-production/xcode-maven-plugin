@@ -20,7 +20,7 @@
 package com.sap.prd.mobile.ios.mios;
 
 
-public class TestMetadataCheck extends ValidationCheck
+public class TestMetadataCheck extends VerificationCheck
 {
 
   public TestMetadataCheck() 
