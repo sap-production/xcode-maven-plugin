@@ -62,7 +62,7 @@ class XCodePrepareBuildManager
   {
     this.log = log;
     this.archiverManager = archiverManager;
-    this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
+    this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession, log);
     this.useSymbolicLinks = useSymbolicLinks;
 
     if (additionalPackagingTypes == null) {
