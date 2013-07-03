@@ -20,25 +20,25 @@ package com.sap.prd.mobile.ios.mios;
  * #L%
  */
 
-public class XCodeValidationException extends XCodeException
+public class XCodeVerificationException extends XCodeException
 {
 
-  public XCodeValidationException()
+  public XCodeVerificationException()
   {
     super();
   }
 
-  public XCodeValidationException(String message, Throwable cause)
+  public XCodeVerificationException(String message, Throwable cause)
   {
     super(message, cause);
   }
 
-  public XCodeValidationException(String message)
+  public XCodeVerificationException(String message)
   {
     super(message);
   }
 
-  public XCodeValidationException(Throwable cause)
+  public XCodeVerificationException(Throwable cause)
   {
     super(cause);
   }

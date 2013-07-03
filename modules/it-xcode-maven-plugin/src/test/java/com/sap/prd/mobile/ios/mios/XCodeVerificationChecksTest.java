@@ -34,7 +34,7 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.junit.Test;
 
-public class XCodeValidationChecksTest extends XCodeTest
+public class XCodeVerificationChecksTest extends XCodeTest
 {
   @Test
   public void testVerifyWithError() throws Exception
@@ -180,7 +180,7 @@ public class XCodeValidationChecksTest extends XCodeTest
   }
 
   @Test
-  public void testValidationCheckSkipped() throws Exception
+  public void testVerificationCheckSkipped() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = getTestName();
@@ -195,7 +195,7 @@ public class XCodeValidationChecksTest extends XCodeTest
 
     Verifier verifier = test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:"
-                + getMavenXcodePluginVersion() + ":validation-check",
+                + getMavenXcodePluginVersion() + ":verification-check",
           THE_EMPTY_LIST,
           null, pomReplacements, new NullProjectModifier());
 
@@ -210,7 +210,7 @@ public class XCodeValidationChecksTest extends XCodeTest
   }
 
   @Test
-  public void testValidationCheckNoProtocolSpecified() throws Exception
+  public void testVerificationCheckNoProtocolSpecified() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = getTestName();
@@ -232,7 +232,7 @@ public class XCodeValidationChecksTest extends XCodeTest
     try {
       test(v, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
             "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:"
-                  + getMavenXcodePluginVersion() + ":validation-check",
+                  + getMavenXcodePluginVersion() + ":verification-check",
             THE_EMPTY_LIST,
             additionalSystemProperties, pomReplacements, new NullProjectModifier());
       fail("Expected Exception was not thrown");
@@ -244,7 +244,7 @@ public class XCodeValidationChecksTest extends XCodeTest
   }
 
   @Test
-  public void testValidationCheckClassPathNotExtendedSpecified() throws Exception
+  public void testVerificationCheckClassPathNotExtendedSpecified() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = getTestName();
@@ -265,7 +265,7 @@ public class XCodeValidationChecksTest extends XCodeTest
     try {
       test(testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
             "com.sap.prd.mobile.ios.mios:xcode-maven-plugin:"
-                  + getMavenXcodePluginVersion() + ":validation-check",
+                  + getMavenXcodePluginVersion() + ":verification-check",
             THE_EMPTY_LIST,
             additionalSystemProperties, pomReplacements, new NullProjectModifier());
       fail("Expected Exception was not thrown");

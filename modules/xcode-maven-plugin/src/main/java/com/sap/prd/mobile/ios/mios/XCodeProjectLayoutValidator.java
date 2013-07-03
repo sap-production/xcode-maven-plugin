@@ -38,7 +38,7 @@ class XCodeProjectLayoutValidator
    * @throws XCodeException
    *           is the folder is not a valid xcode project folder
    */
-  static void verifyXcodeFolder(final File xcodeFolder, final String projectName) throws XCodeValidationException
+  static void verifyXcodeFolder(final File xcodeFolder, final String projectName) throws XCodeVerificationException
   {
 
     if (!xcodeFolder.exists()) {

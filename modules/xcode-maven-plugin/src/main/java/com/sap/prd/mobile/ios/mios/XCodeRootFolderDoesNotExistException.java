@@ -20,7 +20,7 @@ package com.sap.prd.mobile.ios.mios;
  * #L%
  */
 
-public class XCodeRootFolderDoesNotExistException extends XCodeValidationException
+public class XCodeRootFolderDoesNotExistException extends XCodeVerificationException
 {
 
   /**

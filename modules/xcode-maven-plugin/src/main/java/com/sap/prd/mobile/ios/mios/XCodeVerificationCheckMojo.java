@@ -64,11 +64,11 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 import com.sap.prd.mobile.ios.mios.XCodeContext.SourceCodeLocation;
-import com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Check;
-import com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Checks;
+import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Check;
+import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
 
 /**
- * Provides the possibility to perform validation checks.<br>
+ * Provides the possibility to perform verification checks.<br>
  * The check classes and their severities are described in an additional xml document, defined in
  * <code>xcode.verification.checks.definitionFile</code>.<br>
  * The specific checks have to be implemented in a separate project. The coordinates of that
@@ -79,15 +79,15 @@ import com.sap.prd.mobile.ios.mios.validationchecks.v_1_0_0.Checks;
  * 
  * <pre>
  * &lt;checks&gt;
- *   &lt;check groupId="my.group.id" artifactId="artifactId" version="1.0.0" severity="ERROR" class="com.my.MyValidationCheck1"/&gt;
- *   &lt;check groupId="my.group.id" artifactId="artifactId" version="1.0.0" severity="WARNING" class="com.my.MyValidationCheck2"/&gt;
+ *   &lt;check groupId="my.group.id" artifactId="artifactId" version="1.0.0" severity="ERROR" class="com.my.MyVerificationCheck1"/&gt;
+ *   &lt;check groupId="my.group.id" artifactId="artifactId" version="1.0.0" severity="WARNING" class="com.my.MyVerificationCheck2"/&gt;
  * &lt;/checks&gt;
  * </pre>
  * 
- * @goal validation-check
+ * @goal verification-check
  * 
  */
-public class XCodeValidationCheckMojo extends BuildContextAwareMojo
+public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 {
   private final static String COLON = ":";
 
@@ -203,7 +203,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
   protected List<RemoteRepository> projectRepos;
 
   /**
-   * Parameter, which conrols the validation goal execution. By default, the validation goal will be
+   * Parameter, which conrols the verification goal execution. By default, the verification goal will be
    * skipped.
    * 
    * @parameter expression="${xcode.verification.checks.skip}" default-value="true"
@@ -243,8 +243,8 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
 
       for(Check check : checks.getCheck()) {
         try {
-          final ClassRealm validationCheckRealm = extendClasspath(check);
-          final Exception ex = performCheck(validationCheckRealm, check);
+          final ClassRealm verificationCheckRealm = extendClasspath(check);
+          final Exception ex = performCheck(verificationCheckRealm, check);
           if(ex != null)
           {
             failedChecks.put(check,  ex);
@@ -271,10 +271,10 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private Exception performCheck(ClassRealm validationCheckRealm, final Check checkDesc)
+  private Exception performCheck(ClassRealm verificationCheckRealm, final Check checkDesc)
         throws MojoExecutionException
   {
-    getLog().info(String.format("Performing validation check '%s'.", checkDesc.getClazz()));
+    getLog().info(String.format("Performing verification check '%s'.", checkDesc.getClazz()));
 
     if (getLog().isDebugEnabled()) {
 
@@ -282,9 +282,9 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
       final PrintStream ps = new PrintStream(byteOs);
 
       try {
-        validationCheckRealm.display(ps);
+        verificationCheckRealm.display(ps);
         ps.close();
-        getLog().debug(String.format("Using classloader for loading validation check '%s':%s%s", checkDesc.getClazz(), System.getProperty("line.separator"), new String(byteOs.toByteArray())));
+        getLog().debug(String.format("Using classloader for loading verification check '%s':%s%s", checkDesc.getClazz(), System.getProperty("line.separator"), new String(byteOs.toByteArray())));
       }
       finally {
         IOUtils.closeQuietly(ps);
@@ -292,22 +292,22 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     }
 
     try {
-    final Class<?> validationCheckClass = Class.forName(checkDesc.getClazz(), true, validationCheckRealm);
+    final Class<?> verificationCheckClass = Class.forName(checkDesc.getClazz(), true, verificationCheckRealm);
     
-    getLog().debug(String.format("Validation check class %s has been loaded by %s.", validationCheckClass.getName(), validationCheckClass.getClassLoader()));
-    getLog().debug(String.format("Validation check super class %s has been loaded by %s.", validationCheckClass.getSuperclass().getName(), validationCheckClass.getSuperclass().getClassLoader()));
-    getLog().debug(String.format("%s class used by this class (%s) has been loaded by %s.", ValidationCheck.class.getName(), this.getClass().getName(), ValidationCheck.class.getClassLoader() ));
+    getLog().debug(String.format("Verificaiton check class %s has been loaded by %s.", verificationCheckClass.getName(), verificationCheckClass.getClassLoader()));
+    getLog().debug(String.format("Verification check super class %s has been loaded by %s.", verificationCheckClass.getSuperclass().getName(), verificationCheckClass.getSuperclass().getClassLoader()));
+    getLog().debug(String.format("%s class used by this class (%s) has been loaded by %s.", VerificationCheck.class.getName(), this.getClass().getName(), VerificationCheck.class.getClassLoader() ));
 
     for (final String configuration : getConfigurations()) {
       for (final String sdk : getSDKs()) {
         getLog().info(
-              String.format("Executing verification check: '%s' for configuration '%s' and sdk '%s'.", validationCheckClass.getName(), configuration, sdk));
-        final ValidationCheck validationCheck = (ValidationCheck) validationCheckClass.newInstance();
-        validationCheck.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
-        validationCheck.setMavenProject(project);
-        validationCheck.setLog(getLog());
+              String.format("Executing verification check: '%s' for configuration '%s' and sdk '%s'.", verificationCheckClass.getName(), configuration, sdk));
+        final VerificationCheck verificationCheck = (VerificationCheck) verificationCheckClass.newInstance();
+        verificationCheck.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
+        verificationCheck.setMavenProject(project);
+        verificationCheck.setLog(getLog());
         try {
-          validationCheck.check();
+          verificationCheck.check();
         }
         catch (VerificationException ex) {
           return ex;
@@ -352,7 +352,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
       }
     }
     if (mustFailedTheBuild) {
-      throw new MojoExecutionException("Validation checks failed. See the log file for details.");
+      throw new MojoExecutionException("Verification checks failed. See the log file for details.");
     }
   }
 
@@ -462,7 +462,7 @@ public class XCodeValidationCheckMojo extends BuildContextAwareMojo
     InputStream is = null;
     
     try {
-        is = XCodeValidationCheckMojo.class.getResourceAsStream("/misc/project.properties");
+        is = XCodeVerificationCheckMojo.class.getResourceAsStream("/misc/project.properties");
         
         if(is == null)
         {
