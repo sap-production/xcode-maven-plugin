@@ -36,37 +36,36 @@ import org.apache.maven.project.MavenProjectHelper;
  * 
  */
 public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
-{ 
+{
   /**
-   * The frameworks are built for all defined configurations, i.e Debug and Release.
-   * The parameter here defines the configuration, used for the primary artifact generation.
+   * The frameworks are built for all defined configurations, i.e Debug and Release. The parameter
+   * here defines the configuration, used for the primary artifact generation.
    * 
    * @parameter expression="${xcode.primaryFmwkConfiguration}" default-value="Release"
    * @since 1.4.2
    */
   private String primaryFmwkConfiguration;
-  
+
   /**
    * 
    * @parameter expression="${xcode.primaryFmwkSdk}" default-value="iphoneos"
    * @since 1.9.4
    */
   private String primaryFmwkSdk;
-  
+
   /**
    * @component
    */
   private MavenProjectHelper projectHelper;
-  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
     final File mainArtifact = getFrameworkArtifact(getPrimaryFmwkSdk(), getPrimaryFmwkConfiguration());
     project.getArtifact().setFile(mainArtifact);
-   
 
-    for(String configuration : getConfigurations()) {
+    for (String configuration : getConfigurations()) {
       final File frameworkArtifact = getFrameworkArtifact(getPrimaryFmwkSdk(), configuration);
 
       projectHelper.attachArtifact(project, frameworkArtifact, configuration);
@@ -134,7 +133,7 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
     throw new MojoExecutionException("The primaryFmwkConfiguration '" + primaryFmwkConfiguration
           + "' is not part of the configurations '" + getConfigurations() + "' defined for this project");
   }
-  
+
   protected String getPrimaryFmwkSdk() throws MojoExecutionException
   {
     if (getSDKs().contains(primaryFmwkSdk)) {

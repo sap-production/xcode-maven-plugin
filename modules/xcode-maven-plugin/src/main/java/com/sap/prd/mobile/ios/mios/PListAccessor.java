@@ -71,12 +71,13 @@ public class PListAccessor
 
       if (exitValue == 0)
       {
-    	  InputStream is = p.getInputStream();
-    	  try {
-    	    return new Scanner(is).useDelimiter("\\Z").next();
-    	  } finally {
-    	    closeQuietly(is);
-    	  }
+        InputStream is = p.getInputStream();
+        try {
+          return new Scanner(is).useDelimiter("\\Z").next();
+        }
+        finally {
+          closeQuietly(is);
+        }
       }
 
       String errorMessage = "<n/a>";

@@ -50,9 +50,11 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
   final static String OTA_HTML_FILE_APPENDIX = "htm";
 
   /**
-   * To enable the generation of Over-The-Air deployment HTML files you have to specify the URL to your 
-   * "HTML" OTA Service (e.g. <code>http://server/ota-service/HTML</code>).<br/>
-   * Here you find more information about the <a href="https://github.com/sap-production/OTAService">OTA Service Github Project</a>.<br/>
+   * To enable the generation of Over-The-Air deployment HTML files you have to specify the URL to
+   * your "HTML" OTA Service (e.g. <code>http://server/ota-service/HTML</code>).<br/>
+   * Here you find more information about the <a
+   * href="https://github.com/sap-production/OTAService">OTA Service Github Project</a>.<br/>
+   * 
    * @parameter expression="${mios.ota-service.url}"
    */
   private URL miosOtaServiceUrl;
@@ -106,13 +108,13 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
         try {
           PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.WORKING_COPY,
                 configuration, sdk);
-          
+
           final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION),
                 ipaClassifier, otaClassifier, buildHtmlTemplate, getProperties());
           otaManager.setLogger(getLog());
-          
+
           if (otaManager.generateOtaHTML()) {
 
             PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(otaHtmlFile), "UTF-8"));
@@ -153,9 +155,9 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
   {
     Map<String, String> result = new HashMap<String, String>();
     Set<String> keys = this.getKeys(null);
-    for(String key : keys) {
+    for (String key : keys) {
       String value = this.getProperty(key);
-      result.put(key,  value);
+      result.put(key, value);
     }
     return result;
   }

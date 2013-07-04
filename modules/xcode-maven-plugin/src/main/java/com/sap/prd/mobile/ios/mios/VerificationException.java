@@ -44,7 +44,7 @@ public class VerificationException extends Exception
     super(message, cause);
     this.details = details;
   }
-  
+
   @Override
   public String getMessage()
   {
@@ -52,7 +52,8 @@ public class VerificationException extends Exception
     return super.getMessage() + det + getDetails();
   }
 
-  public String getDetails() {
+  public String getDetails()
+  {
     return this.details;
   }
 

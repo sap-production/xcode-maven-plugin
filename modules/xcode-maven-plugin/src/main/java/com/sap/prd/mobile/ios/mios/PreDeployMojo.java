@@ -55,17 +55,18 @@ public class PreDeployMojo extends AbstractDeployMojo
         "In case this does not work click <a href=\"$LOCATION\">here</a></body></html>";
 
   /**
-   * Returns the unique archive folder for this specific project
-   * (containing folders with groupId and artifactId)
+   * Returns the unique archive folder for this specific project (containing folders with groupId
+   * and artifactId)
+   * 
    * @param rootArchiveFolder
    * @param project
-   * @return 
+   * @return
    */
   static File getProjectArchiveFolder(File rootArchiveFolder, MavenProject project)
   {
     return new File(new File(new File(rootArchiveFolder, "artifacts"), project.getGroupId()), project.getArtifactId());
   }
-  
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -124,8 +125,9 @@ public class PreDeployMojo extends AbstractDeployMojo
     {
       this.forward = forward;
     }
-    
-    TransferListener getForward() {
+
+    TransferListener getForward()
+    {
       return this.forward;
     }
 
@@ -135,7 +137,7 @@ public class PreDeployMojo extends AbstractDeployMojo
       if (forward != null)
         forward.transferSucceeded(event);
 
-      if(event.getRequestType().equals(TransferEvent.RequestType.GET)) return;
+      if (event.getRequestType().equals(TransferEvent.RequestType.GET)) return;
 
       if (event.getResource().getResourceName().endsWith("maven-metadata.xml")) {
 
@@ -268,7 +270,7 @@ public class PreDeployMojo extends AbstractDeployMojo
       nthElement = 1;
       search = ".";
     }
-    
+
     int idx = getNthIndexFromBack(artifactFileName, search, nthElement);
     if (idx >= 0) {
       String name = artifactId + artifactFileName.substring(idx);

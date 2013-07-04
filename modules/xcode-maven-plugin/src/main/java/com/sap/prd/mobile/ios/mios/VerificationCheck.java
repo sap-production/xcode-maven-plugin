@@ -32,22 +32,29 @@ public abstract class VerificationCheck
   {
     return mavenProject;
   }
+
   void setMavenProject(MavenProject mavenProject)
   {
     this.mavenProject = mavenProject;
   }
-  final void setXcodeContext(XCodeContext context) {
+
+  final void setXcodeContext(XCodeContext context)
+  {
     this.context = context;
   }
-  final void setLog(Log log) {
+
+  final void setLog(Log log)
+  {
     this.log = log;
   }
 
-  protected Log getLog() {
+  protected Log getLog()
+  {
     return this.log;
   }
 
-  protected XCodeContext getXcodeContext() {
+  protected XCodeContext getXcodeContext()
+  {
     return this.context;
   }
 

@@ -98,31 +98,35 @@ public class FileUtilsTest
   }
 
   @Test
-  public void testAddLeadingSlash() {
+  public void testAddLeadingSlash()
+  {
     assertEquals("/abc/def", FileUtils.ensureLeadingSlash("abc/def"));
   }
 
   @Test
-  public void testNoDoubleLeadingSlash() {
+  public void testNoDoubleLeadingSlash()
+  {
     assertEquals("/abc/def", FileUtils.ensureLeadingSlash("/abc/def"));
   }
 
-  @Test(expected=NullPointerException.class)
-  public void testNullPointer() {
+  @Test(expected = NullPointerException.class)
+  public void testNullPointer()
+  {
     FileUtils.ensureLeadingSlash(null);
   }
-  
+
   @Test
-  public void testFileAppendix() {
+  public void testFileAppendix()
+  {
     assertEquals("zip", FileUtils.getAppendix(new File("MyFile.zip")));
   }
 
   @Test
-  public void testNoFileAppendix() {
+  public void testNoFileAppendix()
+  {
     assertNull(FileUtils.getAppendix(new File("MyFile")));
   }
 
-  
   private static boolean checkForSymbolicLink(final File f) throws IOException
   {
 

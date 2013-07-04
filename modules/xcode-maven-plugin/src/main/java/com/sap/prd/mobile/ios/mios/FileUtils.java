@@ -39,6 +39,7 @@ public class FileUtils
 {
 
   private final static String DOT = ".";
+
   public static void mkdirs(final File f) throws IOException
   {
 
@@ -268,25 +269,27 @@ public class FileUtils
     return true;
 
   }
-  
+
   public static String ensureLeadingSlash(final String path)
   {
     return path.startsWith("/") ? path : "/" + path;
   }
-  
-  public static String getAppendix(final File f) {
-    
+
+  public static String getAppendix(final File f)
+  {
+
     final String fileName = f.getName();
     int indexOfLastDot = fileName.lastIndexOf(DOT);
-    
-    if(indexOfLastDot < 0) {
+
+    if (indexOfLastDot < 0) {
       return null;
     }
-    
+
     return fileName.substring(indexOfLastDot + DOT.length());
   }
 
-  static void unarchive(final ArchiverManager archiverManager, final String archiverId, final File source, final File destinationDirectory)
+  static void unarchive(final ArchiverManager archiverManager, final String archiverId, final File source,
+        final File destinationDirectory)
   {
     try {
       UnArchiver unarchiver = archiverManager.getUnArchiver(archiverId);

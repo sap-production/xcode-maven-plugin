@@ -54,7 +54,7 @@ class FolderLayout
   {
     return new File(new File(new File(project.getBuild().getDirectory()), XCODE_DEPS_TARGET_FOLDER), "frameworks");
   }
-  
+
   static File getFolderForAdditionalPackagingType(MavenProject project, String type)
   {
     return new File(new File(new File(project.getBuild().getDirectory()), XCODE_DEPS_TARGET_FOLDER), type);
@@ -94,7 +94,8 @@ class FolderLayout
     return new File(new File(getFolderForExtractedFrameworks(project), groupId), artifactId);
   }
 
-  static File getFolderForExtractedFrameworkswithGA(MavenProject project, final String groupId, final String artifactId, final String configuration)
+  static File getFolderForExtractedFrameworkswithGA(MavenProject project, final String groupId,
+        final String artifactId, final String configuration)
   {
     return new File(new File(new File(getFolderForExtractedFrameworks(project), configuration), groupId), artifactId);
   }

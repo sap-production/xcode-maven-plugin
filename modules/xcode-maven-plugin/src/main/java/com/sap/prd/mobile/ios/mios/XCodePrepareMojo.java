@@ -32,86 +32,88 @@ import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.RemoteRepository;
 
 /**
- * Prepares the local build environment. Copies and unpacks the artifacts of the
- * referenced projects into the target folder.
+ * Prepares the local build environment. Copies and unpacks the artifacts of the referenced projects
+ * into the target folder.
  * 
  * @goal prepare-xcode-build
  * @requiresDependencyResolution
  */
-public class XCodePrepareMojo extends AbstractXCodeMojo {
+public class XCodePrepareMojo extends AbstractXCodeMojo
+{
 
-	/**
-	 * @parameter expression="${project}"
-	 * @readonly
-	 * @required
-	 */
-	public MavenProject project;
+  /**
+   * @parameter expression="${project}"
+   * @readonly
+   * @required
+   */
+  public MavenProject project;
 
-	/**
-	 * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
-	 * @required
-	 */
-	private ArchiverManager archiverManager;
+  /**
+   * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
+   * @required
+   */
+  private ArchiverManager archiverManager;
 
-	/**
-	 * The entry point to Aether, i.e. the component doing all the work.
-	 * 
-	 * @component
-	 */
-	protected RepositorySystem repoSystem;
+  /**
+   * The entry point to Aether, i.e. the component doing all the work.
+   * 
+   * @component
+   */
+  protected RepositorySystem repoSystem;
 
-	/**
-	 * The current repository/network configuration of Maven.
-	 * 
-	 * @parameter default-value="${repositorySystemSession}"
-	 * @readonly
-	 */
-	protected RepositorySystemSession repoSession;
+  /**
+   * The current repository/network configuration of Maven.
+   * 
+   * @parameter default-value="${repositorySystemSession}"
+   * @readonly
+   */
+  protected RepositorySystemSession repoSession;
 
-	/**
-	 * The project's remote repositories to use for the resolution of project
-	 * dependencies.
-	 * 
-	 * @parameter default-value="${project.remoteProjectRepositories}"
-	 * @readonly
-	 */
-	protected List<RemoteRepository> projectRepos;
+  /**
+   * The project's remote repositories to use for the resolution of project dependencies.
+   * 
+   * @parameter default-value="${project.remoteProjectRepositories}"
+   * @readonly
+   */
+  protected List<RemoteRepository> projectRepos;
 
-	/**
-	 * If set to <code>true</code> the dependency resolution will try to
-	 * retrieve the fat libs instead of the sdk specific ones. In all cases the
-	 * lib resolution will try to fallback to the other library type if the
-	 * preferred type is not available.
-	 * 
-	 * @parameter expression="${xcode.preferFatLibs}" default-value="false"
-	 * @since 1.5.2
-	 */
-	protected boolean preferFatLibs;
+  /**
+   * If set to <code>true</code> the dependency resolution will try to retrieve the fat libs instead
+   * of the sdk specific ones. In all cases the lib resolution will try to fallback to the other
+   * library type if the preferred type is not available.
+   * 
+   * @parameter expression="${xcode.preferFatLibs}" default-value="false"
+   * @since 1.5.2
+   */
+  protected boolean preferFatLibs;
 
-	/**
-	 * @parameter expression="${xcode.useSymbolicLinks}" default-value="false"
-	 */
-	private boolean useSymbolicLinks;
+  /**
+   * @parameter expression="${xcode.useSymbolicLinks}" default-value="false"
+   */
+  private boolean useSymbolicLinks;
 
-	/**
-	 * @parameter
-	 */
-	private Map<String, String> additionalPackagingTypes;
+  /**
+   * @parameter
+   */
+  private Map<String, String> additionalPackagingTypes;
 
-	@Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
 
-		try {
-			new XCodePrepareBuildManager(getLog(), archiverManager,
-					repoSession, repoSystem, projectRepos, useSymbolicLinks,
-					additionalPackagingTypes).setPreferFalLibs(preferFatLibs)
-					.prepareBuild(project, getConfigurations(), getSDKs());
-		} catch (XCodeException ex) {
-			throw new MojoExecutionException(
-					"Cannot prepare build environment", ex);
-		} catch (IOException ex) {
-			throw new MojoExecutionException(
-					"Cannot prepare build environment", ex);
-		}
-	}
+    try {
+      new XCodePrepareBuildManager(getLog(), archiverManager,
+            repoSession, repoSystem, projectRepos, useSymbolicLinks,
+            additionalPackagingTypes).setPreferFalLibs(preferFatLibs)
+        .prepareBuild(project, getConfigurations(), getSDKs());
+    }
+    catch (XCodeException ex) {
+      throw new MojoExecutionException(
+            "Cannot prepare build environment", ex);
+    }
+    catch (IOException ex) {
+      throw new MojoExecutionException(
+            "Cannot prepare build environment", ex);
+    }
+  }
 }

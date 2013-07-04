@@ -131,7 +131,6 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    */
   private String defaultLibSdks;
 
-
   protected Set<String> getSDKs()
   {
     if (sdks == null || sdks.isEmpty()) {

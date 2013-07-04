@@ -30,7 +30,8 @@ import org.apache.commons.io.IOUtils;
 public class Forker
 {
 
-  public static int forkProcess(final PrintStream out, final File executionDirectory, final String... args) throws IOException
+  public static int forkProcess(final PrintStream out, final File executionDirectory, final String... args)
+        throws IOException
   {
 
     if (out == null)

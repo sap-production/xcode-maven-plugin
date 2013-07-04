@@ -76,7 +76,7 @@ class OTAManager
       Parameters parameters = new Parameters(miosOtaServiceUrl, title, bundleIdentifier, bundleVersion,
             ipaClassifier, otaClassifier, propertiesWithEnv);
       OtaBuildHtmlGenerator generator = OtaBuildHtmlGenerator.getInstance(buildHtmltemplate);
-      log("Using OTA build HTML template "+generator.getTemplateName()+" (requested: "+buildHtmltemplate+")");
+      log("Using OTA build HTML template " + generator.getTemplateName() + " (requested: " + buildHtmltemplate + ")");
       generator.generate(printWriter, parameters);
     }
     finally {
@@ -86,12 +86,12 @@ class OTAManager
 
   private void log(String message)
   {
-    if(log != null) log.info(message);
+    if (log != null) log.info(message);
   }
 
   public void setLogger(Log log)
   {
-    this.log  = log;
-  
+    this.log = log;
+
   }
 }

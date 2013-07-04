@@ -255,7 +255,8 @@ class XCodePackageManager
     }
   }
 
-  static File getPublicHeaderFolderPath(final Log log, String builtProductDirInsideXcodeProject, String publicHeaderFolderPathInsideXcodeProject, String relativeAlternatePublicHeaderFolderPath)
+  static File getPublicHeaderFolderPath(final Log log, String builtProductDirInsideXcodeProject,
+        String publicHeaderFolderPathInsideXcodeProject, String relativeAlternatePublicHeaderFolderPath)
         throws XCodeException
   {
 
@@ -275,9 +276,12 @@ class XCodePackageManager
 
       relativePublicHeaderFolderPath = relativeAlternatePublicHeaderFolderPath;
 
-      if (!com.sap.prd.mobile.ios.mios.FileUtils.isChild(new File(
-            com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativeAlternatePublicHeaderFolderPath)), new File(
-            com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativePublicHeaderFolderPathInXcodeProject))))
+      if (!com.sap.prd.mobile.ios.mios.FileUtils.isChild(
+            new File(
+                  com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativeAlternatePublicHeaderFolderPath)),
+            new File(
+                  com.sap.prd.mobile.ios.mios.FileUtils
+                    .ensureLeadingSlash(relativePublicHeaderFolderPathInXcodeProject))))
         throw new InvalidAlternatePublicHeaderPathException(
               "Public header folder path configured on the level of xcode-maven-plugin configuration ("
                     + relativeAlternatePublicHeaderFolderPath
@@ -291,6 +295,7 @@ class XCodePackageManager
               + "' is configured as public header folder path.");
     }
 
-    return new File(builtProductDirInsideXcodeProject, com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativePublicHeaderFolderPath));
+    return new File(builtProductDirInsideXcodeProject,
+          com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativePublicHeaderFolderPath));
   }
 }

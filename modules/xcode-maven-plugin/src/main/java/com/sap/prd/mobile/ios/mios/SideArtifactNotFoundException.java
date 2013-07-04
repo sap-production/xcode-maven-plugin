@@ -21,7 +21,6 @@ package com.sap.prd.mobile.ios.mios;
 
 import org.sonatype.aether.artifact.Artifact;
 
-
 public class SideArtifactNotFoundException extends XCodeException
 {
 
@@ -29,7 +28,8 @@ public class SideArtifactNotFoundException extends XCodeException
 
   private final Artifact sideArtifact;
 
-  public SideArtifactNotFoundException(String message, Artifact sideArtifact) {
+  public SideArtifactNotFoundException(String message, Artifact sideArtifact)
+  {
     this(message, sideArtifact, null);
   }
 

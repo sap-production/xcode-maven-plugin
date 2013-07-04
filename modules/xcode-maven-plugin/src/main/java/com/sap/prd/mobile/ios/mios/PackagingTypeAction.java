@@ -34,20 +34,23 @@ public enum PackagingTypeAction
 
     public void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact)
     {
-      final File f = FolderLayout.getFolderForAdditionalPackagingTypeWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId(), mainArtifact.getType());
-      if(!f.exists() && !f.mkdirs())
+      final File f = FolderLayout.getFolderForAdditionalPackagingTypeWithGA(project, mainArtifact.getGroupId(),
+            mainArtifact.getArtifactId(), mainArtifact.getType());
+      if (!f.exists() && !f.mkdirs())
         throw new IllegalStateException("Cannot create directory " + f);
-      
+
       final File unpackMe = mainArtifact.getFile();
       final String archiverId = com.sap.prd.mobile.ios.mios.FileUtils.getAppendix(unpackMe);
       com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, archiverId, unpackMe, f);
     }
   },
   COPY() {
-    public void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact) throws IOException
+    public void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact)
+          throws IOException
     {
-      final File f = FolderLayout.getFolderForAdditionalPackagingTypeWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId(), mainArtifact.getType());
-      if(!f.exists() && !f.mkdirs())
+      final File f = FolderLayout.getFolderForAdditionalPackagingTypeWithGA(project, mainArtifact.getGroupId(),
+            mainArtifact.getArtifactId(), mainArtifact.getType());
+      if (!f.exists() && !f.mkdirs())
         throw new IllegalStateException("Cannot create directory " + f);
 
       final File copyMe = mainArtifact.getFile();
@@ -58,8 +61,10 @@ public enum PackagingTypeAction
   BUNDLE() {
     public void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact)
     {
-      final File f = new File(FolderLayout.getFolderForAdditionalPackagingTypeWithGA(project, mainArtifact.getGroupId(), mainArtifact.getArtifactId(), mainArtifact.getType()), mainArtifact.getArtifactId() + ".bundle");
-      if(!f.exists() && !f.mkdirs()) {
+      final File f = new File(FolderLayout.getFolderForAdditionalPackagingTypeWithGA(project,
+            mainArtifact.getGroupId(), mainArtifact.getArtifactId(), mainArtifact.getType()),
+            mainArtifact.getArtifactId() + ".bundle");
+      if (!f.exists() && !f.mkdirs()) {
         throw new IllegalStateException("Cannot create directory " + f);
       }
       final File unpackMe = mainArtifact.getFile();
@@ -68,5 +73,6 @@ public enum PackagingTypeAction
     }
   };
 
-  public abstract void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact) throws IOException;
+  public abstract void perform(ArchiverManager archiverManager, MavenProject project, Artifact mainArtifact)
+        throws IOException;
 }

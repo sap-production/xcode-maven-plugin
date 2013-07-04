@@ -162,8 +162,9 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     {
       this(message, null);
     }
-    
-    NoProtocolException(String message, Throwable cause) {
+
+    NoProtocolException(String message, Throwable cause)
+    {
       super(message, cause);
     }
   };
@@ -203,8 +204,8 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
   protected List<RemoteRepository> projectRepos;
 
   /**
-   * Parameter, which conrols the verification goal execution. By default, the verification goal will be
-   * skipped.
+   * Parameter, which conrols the verification goal execution. By default, the verification goal
+   * will be skipped.
    * 
    * @parameter expression="${xcode.verification.checks.skip}" default-value="true"
    * @since 1.9.3
@@ -226,8 +227,12 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
     if (skip) {
 
-      getLog().info(
-            String.format("Verification check goal has been skipped intentionally since parameter 'xcode.verification.checks.skip' is '%s'.", skip));
+      getLog()
+        .info(
+              String
+                .format(
+                      "Verification check goal has been skipped intentionally since parameter 'xcode.verification.checks.skip' is '%s'.",
+                      skip));
       return;
     }
 
@@ -241,16 +246,19 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
       Map<Check, Exception> failedChecks = new HashMap<Check, Exception>();
 
-      for(Check check : checks.getCheck()) {
+      for (Check check : checks.getCheck()) {
         try {
           final ClassRealm verificationCheckRealm = extendClasspath(check);
           final Exception ex = performCheck(verificationCheckRealm, check);
-          if(ex != null)
+          if (ex != null)
           {
-            failedChecks.put(check,  ex);
+            failedChecks.put(check, ex);
           }
-        } catch(DuplicateRealmException ex) {
-          throw new MojoExecutionException(String.format("Check '%s' was configured twice in check definition file '%s'", check.getClazz(), checkDefinitionFile), ex);
+        }
+        catch (DuplicateRealmException ex) {
+          throw new MojoExecutionException(
+                String.format("Check '%s' was configured twice in check definition file '%s'", check.getClazz(),
+                      checkDefinitionFile), ex);
         }
       }
 
@@ -284,7 +292,9 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       try {
         verificationCheckRealm.display(ps);
         ps.close();
-        getLog().debug(String.format("Using classloader for loading verification check '%s':%s%s", checkDesc.getClazz(), System.getProperty("line.separator"), new String(byteOs.toByteArray())));
+        getLog().debug(
+              String.format("Using classloader for loading verification check '%s':%s%s", checkDesc.getClazz(),
+                    System.getProperty("line.separator"), new String(byteOs.toByteArray())));
       }
       finally {
         IOUtils.closeQuietly(ps);
@@ -292,51 +302,61 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
 
     try {
-    final Class<?> verificationCheckClass = Class.forName(checkDesc.getClazz(), true, verificationCheckRealm);
-    
-    getLog().debug(String.format("Verificaiton check class %s has been loaded by %s.", verificationCheckClass.getName(), verificationCheckClass.getClassLoader()));
-    getLog().debug(String.format("Verification check super class %s has been loaded by %s.", verificationCheckClass.getSuperclass().getName(), verificationCheckClass.getSuperclass().getClassLoader()));
-    getLog().debug(String.format("%s class used by this class (%s) has been loaded by %s.", VerificationCheck.class.getName(), this.getClass().getName(), VerificationCheck.class.getClassLoader() ));
+      final Class<?> verificationCheckClass = Class.forName(checkDesc.getClazz(), true, verificationCheckRealm);
 
-    for (final String configuration : getConfigurations()) {
-      for (final String sdk : getSDKs()) {
-        getLog().info(
-              String.format("Executing verification check: '%s' for configuration '%s' and sdk '%s'.", verificationCheckClass.getName(), configuration, sdk));
-        final VerificationCheck verificationCheck = (VerificationCheck) verificationCheckClass.newInstance();
-        verificationCheck.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
-        verificationCheck.setMavenProject(project);
-        verificationCheck.setLog(getLog());
-        try {
-          verificationCheck.check();
-        }
-        catch (VerificationException ex) {
-          return ex;
-        }
-        catch (RuntimeException ex) {
-          return ex;
+      getLog().debug(
+            String.format("Verificaiton check class %s has been loaded by %s.", verificationCheckClass.getName(),
+                  verificationCheckClass.getClassLoader()));
+      getLog().debug(
+            String.format("Verification check super class %s has been loaded by %s.", verificationCheckClass
+              .getSuperclass().getName(), verificationCheckClass.getSuperclass().getClassLoader()));
+      getLog().debug(
+            String.format("%s class used by this class (%s) has been loaded by %s.", VerificationCheck.class.getName(),
+                  this.getClass().getName(), VerificationCheck.class.getClassLoader()));
+
+      for (final String configuration : getConfigurations()) {
+        for (final String sdk : getSDKs()) {
+          getLog().info(
+                String.format("Executing verification check: '%s' for configuration '%s' and sdk '%s'.",
+                      verificationCheckClass.getName(), configuration, sdk));
+          final VerificationCheck verificationCheck = (VerificationCheck) verificationCheckClass.newInstance();
+          verificationCheck.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
+          verificationCheck.setMavenProject(project);
+          verificationCheck.setLog(getLog());
+          try {
+            verificationCheck.check();
+          }
+          catch (VerificationException ex) {
+            return ex;
+          }
+          catch (RuntimeException ex) {
+            return ex;
+          }
         }
       }
+      return null;
     }
-    return null;
-    } catch(ClassNotFoundException ex) {
+    catch (ClassNotFoundException ex) {
       throw new MojoExecutionException(
             "Could not load verification check '"
                   + checkDesc.getClazz()
                   + "'. May be your classpath has not been properly extended. Additional dependencies need to be provided with 'xcode.additionalClasspathElements'. "
                   + ex.getMessage(), ex);
     }
-    catch(NoClassDefFoundError err) {
+    catch (NoClassDefFoundError err) {
       getLog().error(String.format("Could not load verification check '%s'. " +
-          "May be your classpath has not been properly extended. " +
-          "Additional dependencies need to be declard inside the check definition file: %s",
-             checkDesc.getClazz(), err.getMessage()), err);
+            "May be your classpath has not been properly extended. " +
+            "Additional dependencies need to be declard inside the check definition file: %s",
+            checkDesc.getClazz(), err.getMessage()), err);
       throw err;
     }
     catch (InstantiationException ex) {
-      throw new MojoExecutionException(String.format("Could not instanciate verification check '%s': %s", checkDesc.getClazz(), ex.getMessage()), ex);
+      throw new MojoExecutionException(String.format("Could not instanciate verification check '%s': %s",
+            checkDesc.getClazz(), ex.getMessage()), ex);
     }
     catch (IllegalAccessException ex) {
-      throw new MojoExecutionException(String.format("Could not access verification check '%s': %s", checkDesc.getClazz(), ex.getMessage()), ex);
+      throw new MojoExecutionException(String.format("Could not access verification check '%s': %s",
+            checkDesc.getClazz(), ex.getMessage()), ex);
     }
 
   }
@@ -373,13 +393,14 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException, DuplicateRealmException, MalformedURLException
+  private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException,
+        DuplicateRealmException, MalformedURLException
   {
     final org.sonatype.aether.artifact.Artifact artifact = parseDependency(check, getLog());
 
     final ClassLoader loader = this.getClass().getClassLoader();
 
-    if (! (loader instanceof ClassRealm)) {
+    if (!(loader instanceof ClassRealm)) {
 
       throw new XCodeException("Could not add jar to classpath. Class loader '" + loader
             + "' is not an instance of '" + ClassRealm.class.getName() + "'.");
@@ -387,34 +408,40 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
     final ClassRealm classRealm = (ClassRealm) loader;
 
-      if(artifact == null)
-      {
-        return classRealm;
-      }
+    if (artifact == null)
+    {
+      return classRealm;
+    }
 
-        final Set<String> scopes = new HashSet<String>(Arrays.asList(org.apache.maven.artifact.Artifact.SCOPE_COMPILE,
-                                                                     org.apache.maven.artifact.Artifact.SCOPE_PROVIDED,
-                                                                     org.apache.maven.artifact.Artifact.SCOPE_RUNTIME,
-                                                                     org.apache.maven.artifact.Artifact.SCOPE_SYSTEM)); // do not resolve dependencies with scope "test".
+    final Set<String> scopes = new HashSet<String>(Arrays.asList(org.apache.maven.artifact.Artifact.SCOPE_COMPILE,
+          org.apache.maven.artifact.Artifact.SCOPE_PROVIDED,
+          org.apache.maven.artifact.Artifact.SCOPE_RUNTIME,
+          org.apache.maven.artifact.Artifact.SCOPE_SYSTEM)); // do not resolve dependencies with scope "test".
 
-        final XCodeDownloadManager downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSession, getLog());
+    final XCodeDownloadManager downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSession,
+          getLog());
 
-        final Set<org.sonatype.aether.artifact.Artifact> theEmptyOmitsSet = Collections.emptySet();
-        final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(new Dependency(getXcodeMavenPluginGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, theEmptyOmitsSet);
-        final Set<org.sonatype.aether.artifact.Artifact> artifacts = downloadManager.resolveArtifactWithTransitveDependencies(new Dependency(artifact, org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
+    final Set<org.sonatype.aether.artifact.Artifact> theEmptyOmitsSet = Collections.emptySet();
+    final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
+          new Dependency(getXcodeMavenPluginGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes,
+          theEmptyOmitsSet);
+    final Set<org.sonatype.aether.artifact.Artifact> artifacts = downloadManager
+      .resolveArtifactWithTransitveDependencies(new Dependency(artifact,
+            org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
 
-        final ClassRealm childClassRealm = classRealm.createChildRealm(classRealm.getId() + "-" + check.getClazz());
+    final ClassRealm childClassRealm = classRealm.createChildRealm(classRealm.getId() + "-" + check.getClazz());
 
-        addDependencies(childClassRealm, artifacts);
+    addDependencies(childClassRealm, artifacts);
 
-        return childClassRealm;
+    return childClassRealm;
   }
 
-  private void addDependencies(final ClassRealm childClassRealm, Set<org.sonatype.aether.artifact.Artifact> artifacts) throws MalformedURLException
+  private void addDependencies(final ClassRealm childClassRealm, Set<org.sonatype.aether.artifact.Artifact> artifacts)
+        throws MalformedURLException
   {
-    for(org.sonatype.aether.artifact.Artifact a : artifacts)
+    for (org.sonatype.aether.artifact.Artifact a : artifacts)
     {
-        childClassRealm.addURL(a.getFile().toURI().toURL());
+      childClassRealm.addURL(a.getFile().toURI().toURL());
     }
   }
 
@@ -424,7 +451,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     final String groupId = check.getGroupId();
     final String artifactId = check.getArtifactId();
     final String version = check.getVersion();
-    
+
     if (StringUtils.isEmpty(groupId) && StringUtils.isEmpty(artifactId) && StringUtils.isEmpty(version)) {
       log.info(
         "No coordinates maintained for check represented by class '" + check.getClazz()
@@ -432,13 +459,13 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       return null;
     }
 
-    if(StringUtils.isEmpty(groupId))
+    if (StringUtils.isEmpty(groupId))
       throw new XCodeException(String.format("groupId for check %s is null or emtpy", check.getClazz()));
 
-    if(StringUtils.isEmpty(artifactId))
+    if (StringUtils.isEmpty(artifactId))
       throw new XCodeException(String.format("artifactId for check %s is null or emtpy", check.getClazz()));
 
-    if(StringUtils.isEmpty(version))
+    if (StringUtils.isEmpty(version))
       throw new XCodeException(String.format("version for check %s is null or emtpy", check.getClazz()));
 
     return new DefaultArtifact(groupId, artifactId, "jar", version);
@@ -456,29 +483,32 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       IOUtils.closeQuietly(checkDefinitions);
     }
   }
-  
-  org.sonatype.aether.artifact.Artifact getXcodeMavenPluginGav() throws XCodeException {
+
+  org.sonatype.aether.artifact.Artifact getXcodeMavenPluginGav() throws XCodeException
+  {
 
     InputStream is = null;
-    
+
     try {
-        is = XCodeVerificationCheckMojo.class.getResourceAsStream("/misc/project.properties");
-        
-        if(is == null)
-        {
-          throw new XCodeException("Cannot get the GAV of the xcode-maven-plugin");
-        }
-        
-        Properties props = new Properties();
-        props.load(is);
-        
-        final String groupId = props.getProperty("xcode-plugin-groupId");
-        final String artifactId = props.getProperty("xcode-plugin-artifactId");
-        final String version = props.getProperty("xcode-plugin-version");
-        return new DefaultArtifact(groupId, artifactId, "jar", version);
-    } catch(final IOException ex) {
-        throw new XCodeException("Cannot get the GAV for the xcode-maven-plugin", ex);
-    } finally {
+      is = XCodeVerificationCheckMojo.class.getResourceAsStream("/misc/project.properties");
+
+      if (is == null)
+      {
+        throw new XCodeException("Cannot get the GAV of the xcode-maven-plugin");
+      }
+
+      Properties props = new Properties();
+      props.load(is);
+
+      final String groupId = props.getProperty("xcode-plugin-groupId");
+      final String artifactId = props.getProperty("xcode-plugin-artifactId");
+      final String version = props.getProperty("xcode-plugin-version");
+      return new DefaultArtifact(groupId, artifactId, "jar", version);
+    }
+    catch (final IOException ex) {
+      throw new XCodeException("Cannot get the GAV for the xcode-maven-plugin", ex);
+    }
+    finally {
       IOUtils.closeQuietly(is);
     }
   }
@@ -486,7 +516,8 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
   static Reader getChecksDescriptor(final String checkDefinitionFileLocation) throws XCodeException, IOException
   {
     if (checkDefinitionFileLocation == null || checkDefinitionFileLocation.trim().isEmpty()) {
-      throw new XCodeException("CheckDefinitionFile was not configured. Cannot perform verification checks. Define check definition file with paramater 'xcode.verification.checks.definitionFile'.");
+      throw new XCodeException(
+            "CheckDefinitionFile was not configured. Cannot perform verification checks. Define check definition file with paramater 'xcode.verification.checks.definitionFile'.");
     }
 
     Location location;
@@ -525,7 +556,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       }
       return new Location(protocol, location);
     }
-    
+
     final String protocol;
     final String location;
 

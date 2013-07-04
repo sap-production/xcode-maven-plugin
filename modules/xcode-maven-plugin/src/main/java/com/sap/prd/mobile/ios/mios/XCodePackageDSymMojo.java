@@ -89,12 +89,12 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
     final String productName = getProductName(config, sdk);
 
     final String fixedProductName = getFixedProductName(productName);
-    
+
     final File root = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), config, sdk);
     final File dsymRoot = new File(root, productName + ".app.dSYM");
-  
+
     if (dsymRoot.canRead()) {
-    	  
+
       Archiver archiver = archiverManager.getArchiver("zip");
 
       File destination = new File(new File(new File(project.getBuild().getDirectory()), config + "-" + sdk),
@@ -108,35 +108,36 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
       prepareDSymFileForDeployment(project, config, sdk, destination);
     }
     else {
-			if (shouldExistDSym(sdk, config)) {
-				throw new XCodeException(
-						"DSym file should be created but could not be found at the expected location: '"
-								+ dsymRoot
-								+ "'. In case you prefere not to have dSym files set Xcode properties '"
-								+ EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS
-								+ "' and '"
-								+ EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT
-								+ "' accordingly.");
-			}
-		}
+      if (shouldExistDSym(sdk, config)) {
+        throw new XCodeException(
+              "DSym file should be created but could not be found at the expected location: '"
+                    + dsymRoot
+                    + "'. In case you prefere not to have dSym files set Xcode properties '"
+                    + EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS
+                    + "' and '"
+                    + EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT
+                    + "' accordingly.");
+      }
+    }
   }
 
-	private boolean shouldExistDSym(final String sdk, final String config)
-			throws XCodeException {
-		final String generateDSym = EffectiveBuildSettings.getBuildSetting(
-				getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
-						config, sdk), getLog(),
-				EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
+  private boolean shouldExistDSym(final String sdk, final String config)
+        throws XCodeException
+  {
+    final String generateDSym = EffectiveBuildSettings.getBuildSetting(
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
+                config, sdk), getLog(),
+          EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
-		final String debugFormat = EffectiveBuildSettings.getBuildSetting(
-				getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
-						config, sdk), getLog(),
-				EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT);
+    final String debugFormat = EffectiveBuildSettings.getBuildSetting(
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
+                config, sdk), getLog(),
+          EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT);
 
-		return (generateDSym == null || generateDSym.equalsIgnoreCase("YES")
-				&& (debugFormat != null && debugFormat
-						.equalsIgnoreCase("dwarf-with-dsym")));
-	}
+    return (generateDSym == null || generateDSym.equalsIgnoreCase("YES")
+          && (debugFormat != null && debugFormat
+            .equalsIgnoreCase("dwarf-with-dsym")));
+  }
 
   private void prepareDSymFileForDeployment(final MavenProject mavenProject, final String configuration,
         final String sdk, final File dSymFile)

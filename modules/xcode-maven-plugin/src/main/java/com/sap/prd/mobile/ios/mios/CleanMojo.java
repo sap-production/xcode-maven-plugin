@@ -55,13 +55,13 @@ public class CleanMojo extends AbstractMojo
    * @readonly
    */
   private File baseDirectory;
-  
+
   /**
    * @parameter expression="${project}"
    * @readonly
    * @required
    */
-  protected MavenProject project;  
+  protected MavenProject project;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException

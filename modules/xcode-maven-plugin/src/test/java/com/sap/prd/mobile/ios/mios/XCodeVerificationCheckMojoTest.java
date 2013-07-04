@@ -49,16 +49,16 @@ public class XCodeVerificationCheckMojoTest
   public void testNoGav() throws Exception
   {
     Checks checks = loadChecks("src/test/checks/noGAV.xml");
-    
+
     Set<Artifact> dependencies = new HashSet<Artifact>();
-    
-    for(Check check : checks.getCheck())
+
+    for (Check check : checks.getCheck())
     {
-        Artifact dep = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
-        if(dep != null)
-        {
-            dependencies.add(dep);
-        }
+      Artifact dep = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
+      if (dep != null)
+      {
+        dependencies.add(dep);
+      }
     }
     assertEquals("Check dependencies number unexpected", 0, dependencies.size());
   }
@@ -67,15 +67,15 @@ public class XCodeVerificationCheckMojoTest
   public void testEmptyGav() throws Exception
   {
     Checks checks = loadChecks("src/test/checks/emptyGAV.xml");
-    
+
     Set<Artifact> dependencies = new HashSet<Artifact>();
-    
-    for(Check check : checks.getCheck())
+
+    for (Check check : checks.getCheck())
     {
-        Artifact dep = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
-        if(dep != null) {
-            dependencies.add(dep);
-        }
+      Artifact dep = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
+      if (dep != null) {
+        dependencies.add(dep);
+      }
     }
     assertEquals("Check dependencies number unexpected", 1, dependencies.size());
   }
@@ -146,23 +146,23 @@ public class XCodeVerificationCheckMojoTest
   {
     Checks checks = loadChecks(location);
 
-    for(Check check : checks.getCheck())
+    for (Check check : checks.getCheck())
     {
-    try {
-      XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
-      fail("Dependency could be parsed. Expected was missing attribute '" + attNameFix + "'.");
-    }
-    catch (XCodeException ex) {
-    }
+      try {
+        XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
+        fail("Dependency could be parsed. Expected was missing attribute '" + attNameFix + "'.");
+      }
+      catch (XCodeException ex) {
+      }
 
-    Method m = Check.class.getMethod(getSetterName(attNameFix), new Class[] { String.class });
-    m.invoke(checks.getCheck().get(0), new Object[] { attValueFix });
-    Artifact dependency = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
-    
-    if(dependency == null)
-    {
-      fail("Dependency could not be parsed after fix. Fixed attribute is: '" + attNameFix + "'.");
-    }
+      Method m = Check.class.getMethod(getSetterName(attNameFix), new Class[] { String.class });
+      m.invoke(checks.getCheck().get(0), new Object[] { attValueFix });
+      Artifact dependency = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
+
+      if (dependency == null)
+      {
+        fail("Dependency could not be parsed after fix. Fixed attribute is: '" + attNameFix + "'.");
+      }
     }
   }
 
@@ -202,7 +202,6 @@ public class XCodeVerificationCheckMojoTest
     testValidateLocation("file:/a/b/c.xml", "FILE", "/a/b/c.xml");
   }
 
-  
   @Test
   public void testValidateLocationDoubleSlashOnly() throws NoProtocolException
   {
@@ -234,7 +233,8 @@ public class XCodeVerificationCheckMojoTest
     testValidateLocation(" xyz://localhost/a/b/c.xml  ", "XYZ", "/a/b/c.xml");
   }
 
-  private void testValidateLocation(String uri, String expectedProtocol, String expectedLocation) throws NoProtocolException
+  private void testValidateLocation(String uri, String expectedProtocol, String expectedLocation)
+        throws NoProtocolException
   {
     Location validateLocation = XCodeVerificationCheckMojo.Location.getLocation(uri);
     assertEquals(expectedProtocol, validateLocation.protocol);

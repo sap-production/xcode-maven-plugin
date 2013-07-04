@@ -38,7 +38,7 @@ public class EffectiveBuildSettings
   public static final String PRODUCT_NAME = "PRODUCT_NAME";
   public static final String SRC_ROOT = "SRCROOT";
   public static final String GCC_GENERATE_DEBUGGING_SYMBOLS = "GCC_GENERATE_DEBUGGING_SYMBOLS";
-  public static final String DEBUG_INFORMATION_FORMAT="DEBUG_INFORMATION_FORMAT";
+  public static final String DEBUG_INFORMATION_FORMAT = "DEBUG_INFORMATION_FORMAT";
   public static final String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
   public static final String CODESIGNING_FOLDER_PATH = "CODESIGNING_FOLDER_PATH";
   public static final String INFOPLIST_FILE = "INFOPLIST_FILE";

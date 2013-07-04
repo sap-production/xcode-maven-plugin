@@ -102,13 +102,13 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * @since 1.6.2
    */
   private Map<String, String> options;
-  
+
   /**
    * @parameter expression="${session}"
    * @required
    * @readonly
    */
-   private MavenSession session;
+  private MavenSession session;
 
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,
         String configuration, String sdk)
@@ -144,15 +144,17 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     if (target != null && !target.trim().isEmpty())
       managedOptions.put(Options.ManagedOption.TARGET.getOptionName(), target);
 
-    Map<String, String> _settings = new HashMap<String, String>(settings == null ? new HashMap<String, String>() : settings);
-    
-    for(String key : getKeys(PREFIX_XCODE_SETTINGS)) {
+    Map<String, String> _settings = new HashMap<String, String>(settings == null ? new HashMap<String, String>()
+          : settings);
+
+    for (String key : getKeys(PREFIX_XCODE_SETTINGS)) {
       _settings.put(key.substring(PREFIX_XCODE_SETTINGS.length()), getProperty(key));
     }
 
-    Map<String, String> _options = new HashMap<String, String>(options == null ? new HashMap<String, String>(): options);
-    
-    for(String key : getKeys(PREFIX_XCODE_OPTIONS)) {
+    Map<String, String> _options = new HashMap<String, String>(options == null ? new HashMap<String, String>()
+          : options);
+
+    for (String key : getKeys(PREFIX_XCODE_OPTIONS)) {
       _options.put(key.substring(PREFIX_XCODE_OPTIONS.length()), getProperty(key));
     }
 
@@ -234,42 +236,45 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 
     return productName;
   }
-  
+
   /**
-   * Returns all keys of project properties and user properties matching the <code>prefix</code>. 
-   * @param prefix all keys if null
+   * Returns all keys of project properties and user properties matching the <code>prefix</code>.
+   * 
+   * @param prefix
+   *          all keys if null
    * @return
    */
   @SuppressWarnings("unchecked")
-  protected Set<String> getKeys(String prefix) {
-    
+  protected Set<String> getKeys(String prefix)
+  {
+
     Set<String> result = new HashSet<String>();
-    
+
     @SuppressWarnings("rawtypes")
     final Set keys = new HashSet();
     keys.addAll(session.getUserProperties().keySet());
     keys.addAll(project.getProperties().keySet());
-    
-    if(prefix == null) return keys;
-    
-    for(Object key : keys) {
-      if(((String)key).startsWith(prefix))
-        result.add((String)key);
+
+    if (prefix == null) return keys;
+
+    for (Object key : keys) {
+      if (((String) key).startsWith(prefix))
+        result.add((String) key);
     }
 
     return result;
   }
-  
+
   protected String getProperty(String key)
   {
     String value = session.getUserProperties().getProperty(key);
 
-    if(value == null)
+    if (value == null)
     {
       value = project.getProperties().getProperty(key);
     }
 
     return value;
   }
-  
+
 }
