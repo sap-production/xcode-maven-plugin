@@ -146,3 +146,8 @@ Xcode Maven Plugin
   * {{{./examples/FmwkBuildExample.html}Example of a Framework build}}
 
   * {{{./examples/AppBuildExample.html}Example of an App build}}
+
+* Contributions
+
+  Contributions are welcome. In case you work with eclipse you are kindly asked to apply {{{./xcode-maven-plugin-formatter.xml}this}} formatting rules.
+
