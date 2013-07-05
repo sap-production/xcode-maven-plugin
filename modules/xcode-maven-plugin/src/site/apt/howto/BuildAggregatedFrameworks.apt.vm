@@ -38,12 +38,12 @@ How to build frameworks aggregating multiple other libraries or frameworks
       
 * Step-by-step Guide
 
-   * Create Xcode Framework Project. See {{{examples/FmwkBuildExample.html}Building a Static Xcode Framework}} for detailed information concerning this step.
+   * Create Xcode Framework Project. See {{{../examples/FmwkBuildExample.html}Building a Static Xcode Framework}} for detailed information concerning this step.
    
    * Create a dummy header and an implementation file.
    
    * Create the project pom and declare as dependencies the frameworks and/or libraries you want to aggregate.
-   See the {{{userguide/Project Structure.html}Project Structure}} and {{{userguide/Project Pom.html}Project Pom}} for detailed information concerning these steps.
+   See the {{{../userguide/Project Structure.html}Project Structure}} and {{{../userguide/Project Pom.html}Project Pom}} for detailed information concerning these steps.
    
    * Call <<<mvn initialize>>> to get the dependent projects locally.
    
