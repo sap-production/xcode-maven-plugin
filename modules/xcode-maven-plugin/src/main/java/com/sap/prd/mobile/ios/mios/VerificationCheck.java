@@ -24,7 +24,8 @@ import org.apache.maven.project.MavenProject;
 
 public abstract class VerificationCheck
 {
-  private XCodeContext context;
+  private IXCodeContext context;
+  private IEffectiveBuildSettings effectiveBuildSettings;
   private Log log;
   private MavenProject mavenProject;
 
@@ -38,7 +39,7 @@ public abstract class VerificationCheck
     this.mavenProject = mavenProject;
   }
 
-  final void setXcodeContext(XCodeContext context)
+  final void setXcodeContext(IXCodeContext context)
   {
     this.context = context;
   }
@@ -53,9 +54,17 @@ public abstract class VerificationCheck
     return this.log;
   }
 
-  protected XCodeContext getXcodeContext()
+  protected IXCodeContext getXcodeContext()
   {
     return this.context;
+  }
+  
+  final void setEffectiveBuildSettings(final IEffectiveBuildSettings effectiveBuildSettings) {
+    this.effectiveBuildSettings = effectiveBuildSettings;
+  }
+  
+  protected final IEffectiveBuildSettings getEffectiveBuildSettings() {
+    return this.effectiveBuildSettings;
   }
 
   public abstract void check() throws VerificationException;

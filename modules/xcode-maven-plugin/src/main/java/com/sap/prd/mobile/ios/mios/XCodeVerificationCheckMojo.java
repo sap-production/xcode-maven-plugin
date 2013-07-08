@@ -409,6 +409,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
           final VerificationCheck verificationCheck = (VerificationCheck) verificationCheckClass.newInstance();
           verificationCheck.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
           verificationCheck.setMavenProject(project);
+          verificationCheck.setEffectiveBuildSettings(new EffectiveBuildSettings());
           verificationCheck.setLog(getLog());
           try {
             verificationCheck.check();

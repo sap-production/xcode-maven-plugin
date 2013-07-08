@@ -33,7 +33,7 @@ import java.util.Map;
  * of SDKs * List of buildActions projectRootDirectory codeSignIdentity output stream xcode options
  * xcode settings
  */
-public class XCodeContext
+public class XCodeContext implements IXCodeContext
 {
   enum SourceCodeLocation
   {
@@ -116,11 +116,16 @@ public class XCodeContext
     this.out = out;
   }
 
+  /* (non-Javadoc)
+   * @see com.sap.prd.mobile.ios.mios.IXCodeContext#getSDK()
+   */
+  @Override
   public String getSDK()
   {
     return getOptions().getAllOptions().get(Options.ManagedOption.SDK.getOptionName());
   }
 
+  @Override
   public String getConfiguration()
   {
     return getOptions().getAllOptions().get(Options.ManagedOption.CONFIGURATION.getOptionName());
@@ -141,6 +146,9 @@ public class XCodeContext
     return options;
   }
 
+  /* (non-Javadoc)
+   * @see com.sap.prd.mobile.ios.mios.IXCodeContext#getSettings()
+   */
   public Settings getSettings()
   {
     return settings;
