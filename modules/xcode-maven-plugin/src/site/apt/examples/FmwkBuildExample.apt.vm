@@ -51,11 +51,22 @@ Building a Static Xcode Framework
         <extensions>true</extensions>
         <!-- optional configurations, e.g.
           <configuration>
-            <primaryFmwkConfiguration>Release</primaryFmwkConfiguration> <!-- Note that "Release" is the default configuration
-                                                                              i.e. if you want to build "Release" you can omit
-                                                                              this configuration -->
-          <configuration>
-        -->
+             <!-- Note that "Release" is the default configuration
+              i.e. if you want to build "Release" you can omit
+              this configuration -->
+              <primaryFmwkConfiguration>Release</primaryFmwkConfiguration>
+              
+              
+             <!-- Note that the framework project will be built by default
+             for both Release and Debug configurations. If you want not to built
+             for both, you should specify the desired configuration here -->
+              
+             <configurations>
+               <configuration>Debug</configuration> 
+               <configuration>Release</configuration>
+             </configurations>
+           <configuration>
+          -->
       </plugin>
     </plugins>
   </build>
