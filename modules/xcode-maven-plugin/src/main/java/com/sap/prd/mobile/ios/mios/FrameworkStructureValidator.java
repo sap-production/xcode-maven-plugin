@@ -87,7 +87,13 @@ public class FrameworkStructureValidator
     else {
       try {
         if (!new FatLibAnalyzer(libFile).containsI386()) {
-          errorMsgs.add("'" + libFile.getAbsolutePath() + "' does not contain i386 architecture.");
+          errorMsgs
+            .add("'"
+                  + libFile.getAbsolutePath()
+                  + "' does not contain i386 architecture. You should configure your project accordingly to build " +
+                  "for the simulator architecture, otherwise the applications, which are using this framework will " +
+                  "not be able to run in Simulator. For this, set the 'Build Active Architecture Only' to 'NO' for both" +
+                  "'Release' and 'Debug' configuration.");
         }
       }
       catch (IOException e) {
