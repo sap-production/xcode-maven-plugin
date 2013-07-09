@@ -102,6 +102,11 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>com.sap.prd.mobile.ios.mios</groupId>
+      <artifactId>verification-check-api</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
     </dependency>
