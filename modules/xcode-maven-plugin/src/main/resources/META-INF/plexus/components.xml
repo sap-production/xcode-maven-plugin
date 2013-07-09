@@ -68,6 +68,7 @@
             <id>default</id>
             <phases>
               <validate>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:setup-logging,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:check-prerequisites
               </validate>
               <initialize>
@@ -120,6 +121,7 @@
             <id>default</id>
             <phases>
               <validate>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:setup-logging,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:check-prerequisites
               </validate>
               <initialize>
@@ -170,6 +172,7 @@
             <id>default</id>
             <phases>
               <validate>
+                com.sap.prd.mobile.ios.mios:xcode-maven-plugin:setup-logging,
                 com.sap.prd.mobile.ios.mios:xcode-maven-plugin:check-prerequisites
               </validate>
               <initialize>
