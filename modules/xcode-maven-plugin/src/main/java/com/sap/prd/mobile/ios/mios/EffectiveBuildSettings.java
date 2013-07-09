@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
@@ -51,7 +53,8 @@ public class EffectiveBuildSettings
   public static String getBuildSetting(XCodeContext context, Log log, String key) throws XCodeException
   {
     String buildSetting = getBuildSettings(context, log).getProperty(key);
-    debug(log, "Build settings for context '" + context + "'. Key: '" + key + "' resolved to: " + buildSetting);
+    Logger logger = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
+    logger.finer("Build settings for context '" + context + "'. Key: '" + key + "' resolved to: " + buildSetting);
     return buildSetting;
   }
 
@@ -67,7 +70,8 @@ public class EffectiveBuildSettings
       log.info("Build settings for context: " + context + " loaded:" + toString(_buildSettings));
     }
     else {
-      debug(log, "Build settings for key: '" + context + " found in cache.");
+      Logger logger = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
+      logger.finer("Build settings for key: '" + context + " found in cache.");
     }
 
     return _buildSettings;
@@ -123,10 +127,5 @@ public class EffectiveBuildSettings
     finally {
       IOUtils.closeQuietly(out);
     }
-  }
-
-  private static void debug(Log log, String message)
-  {
-    log.debug(EffectiveBuildSettings.class.getName() + ": " + message);
   }
 }
