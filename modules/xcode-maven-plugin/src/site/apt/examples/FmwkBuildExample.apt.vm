@@ -51,9 +51,16 @@ Building a Static Xcode Framework
         <extensions>true</extensions>
         <!-- optional configurations, e.g.
           <configuration>
-             <!-- Note that "Release" is the default configuration
-              i.e. if you want to build "Release" you can omit
-              this configuration -->
+             <!-- Earlier versions of the xcode-maven-plugin created only one
+                  framework. The configuration for that the framework should
+                  be built was specified with property below. For backward
+                  compatibility the corresponding artifact is still deployed and
+                  it is still possible to provide the configuration below.
+                  Since version 1.9.3 the frameworks are created by default for the
+                  configurations "Debug" and "Release". In case frameworks should be built
+                  for other configurations these configurations needs to be specified
+                  by the configurations sections mentioned below.
+               -->
               <primaryFmwkConfiguration>Release</primaryFmwkConfiguration>
               
               
