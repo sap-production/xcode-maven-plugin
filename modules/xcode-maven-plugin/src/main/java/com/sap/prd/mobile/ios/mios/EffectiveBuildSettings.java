@@ -33,7 +33,6 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.logging.Log;
 
 public class EffectiveBuildSettings
 {
@@ -53,14 +52,14 @@ public class EffectiveBuildSettings
   
   private final static Map<XCodeContext, Properties> buildSettings = new HashMap<XCodeContext, Properties>();
 
-  public static String getBuildSetting(XCodeContext context, Log log, String key) throws XCodeException
+  public static String getBuildSetting(XCodeContext context, String key) throws XCodeException
   {
-    String buildSetting = getBuildSettings(context, log).getProperty(key);
+    String buildSetting = getBuildSettings(context).getProperty(key);
     LOGGER.finer("Build settings for context '" + context + "'. Key: '" + key + "' resolved to: " + buildSetting);
     return buildSetting;
   }
 
-  private static synchronized Properties getBuildSettings(final XCodeContext context, final Log log)
+  private static synchronized Properties getBuildSettings(final XCodeContext context)
         throws XCodeException
   {
 
