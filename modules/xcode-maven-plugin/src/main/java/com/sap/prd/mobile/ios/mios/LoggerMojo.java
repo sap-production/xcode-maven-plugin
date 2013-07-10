@@ -30,11 +30,14 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public class LoggerMojo extends AbstractXCodeMojo
 {
-
-  private static XCodePluginLogger logger = new XCodePluginLogger();
   static {
+
      if(null == LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName())) {
+
+       final XCodePluginLogger logger = new XCodePluginLogger();
        LogManager.getLogManager().addLogger(logger);
+       setLogger(logger);
+       logger.finest(String.format("XCode plugin logger has been created: %s", logger.getName()));
      }
    }
 

@@ -34,7 +34,17 @@ import org.apache.maven.project.MavenProject;
  */
 public abstract class AbstractXCodeMojo extends AbstractMojo
 {
-
+  //
+  // This variable here ensures that a reference to the logger is kept.
+  // According to the API doc of the java.util.logging framework it is required
+  // to keep a reference. Otherwise it might happen that the logger is garbage
+  // collected. This in turn must not happen since the logger keeps a
+  // reference to the maven logger that could not be restored. This variable
+  // should not be accessed. Instead use the LogManager to get the instance.
+  //
+  @SuppressWarnings("unused")
+  private static XCodePluginLogger logger = null;
+  
   /**
    * The original Xcode sources located in the <code>src/xcode</code> directory stay untouched
    * during the whole Maven build. However, as we might have to modify the info.plist or the project
@@ -267,5 +277,14 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   protected PackagingType getPackagingType()
   {
     return PackagingType.getByMavenType(packaging);
+  }
+  
+  protected static void setLogger(final XCodePluginLogger _logger) {
+    
+    if(_logger == null)
+    {
+      throw new NullPointerException();
+    }
+      logger = _logger;
   }
 }
