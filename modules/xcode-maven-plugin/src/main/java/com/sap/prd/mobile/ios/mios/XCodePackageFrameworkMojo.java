@@ -80,7 +80,7 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
     try {
       builtProductsDirName = EffectiveBuildSettings.getBuildSetting(
             getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk),
-            getLog(), EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+            EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
     }
     catch (XCodeException ex) {
       throw new MojoExecutionException(ex.getMessage(), ex);

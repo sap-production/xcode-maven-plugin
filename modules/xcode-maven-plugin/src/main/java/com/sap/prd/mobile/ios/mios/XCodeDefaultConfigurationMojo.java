@@ -53,7 +53,6 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-
     final Properties projectProperties = project.getProperties();
 
     if (!projectProperties.containsKey(XCODE_SOURCE_DIRECTORY)) {

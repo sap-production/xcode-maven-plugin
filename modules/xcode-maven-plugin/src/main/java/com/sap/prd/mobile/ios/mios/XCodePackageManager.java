@@ -158,8 +158,8 @@ class XCodePackageManager
         String relativeAlternatePublicHeaderFolderPath) throws IOException, XCodeException
   {
     final File publicHeaderFolderPath = getPublicHeaderFolderPath(log,
-          EffectiveBuildSettings.getBuildSetting(xcodeContext, log, EffectiveBuildSettings.BUILT_PRODUCTS_DIR),
-          EffectiveBuildSettings.getBuildSetting(xcodeContext, log, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH),
+          EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.BUILT_PRODUCTS_DIR),
+          EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH),
           relativeAlternatePublicHeaderFolderPath);
 
     if (!publicHeaderFolderPath.canRead()) {

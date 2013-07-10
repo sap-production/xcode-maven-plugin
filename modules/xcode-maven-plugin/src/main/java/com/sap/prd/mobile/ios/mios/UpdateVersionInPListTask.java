@@ -21,14 +21,14 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.maven.plugin.logging.Log;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 abstract class UpdateVersionInPListTask
 {
   protected File plistFile;
   protected String version;
-  protected Log log;
+  protected final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
 
   final UpdateVersionInPListTask setPListFile(File plistFile)
   {
@@ -39,12 +39,6 @@ abstract class UpdateVersionInPListTask
   final UpdateVersionInPListTask setVersion(String version)
   {
     this.version = version;
-    return this;
-  }
-
-  final UpdateVersionInPListTask setLog(Log log)
-  {
-    this.log = log;
     return this;
   }
 
@@ -79,19 +73,19 @@ abstract class UpdateVersionInPListTask
       if (oldValue == null) {
 
         infoPlistAccessor.addStringValue(key, newValue);
-        log.info(key + " was not present in PList '" + infoPlistAccessor.getPlistFile()
+        LOGGER.info(key + " was not present in PList '" + infoPlistAccessor.getPlistFile()
               + ". Entry has been added with value '" + newValue + "'.");
         return;
 
       }
       else if (oldValue.equals(newValue)) {
-        log.info(key + " in PList '" + infoPlistAccessor.getPlistFile() + "' file is already up-to-date (" + oldValue
+        LOGGER.info(key + " in PList '" + infoPlistAccessor.getPlistFile() + "' file is already up-to-date (" + oldValue
               + "). No update needed.");
         return;
       }
 
       infoPlistAccessor.updateStringValue(key, newValue);
-      log.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set " + key + " from old value "
+      LOGGER.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set " + key + " from old value "
             + oldValue + " to new value '" + version + "'.");
     }
     catch (IOException e) {

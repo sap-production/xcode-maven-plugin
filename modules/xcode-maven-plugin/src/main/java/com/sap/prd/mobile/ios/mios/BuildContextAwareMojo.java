@@ -190,9 +190,8 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 
     XCodeContext context = getXCodeContext(location, configuration, sdk);
 
-    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, getLog(),
-          EffectiveBuildSettings.INFOPLIST_FILE);
-    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, getLog(), EffectiveBuildSettings.SRC_ROOT));
+    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.INFOPLIST_FILE);
+    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.SRC_ROOT));
 
     final File plistFile = new File(plistFileName);
 
@@ -221,8 +220,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 
       try {
         productName = EffectiveBuildSettings.getBuildSetting(
-              getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), getLog(),
-              EffectiveBuildSettings.PRODUCT_NAME);
+              getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), EffectiveBuildSettings.PRODUCT_NAME);
         getLog().info("Product name obtained from effective build settings file");
 
       }

@@ -20,19 +20,13 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.IOException;
-
-import org.apache.maven.plugin.logging.Log;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 class XCodeManager
 {
-
-  private final Log log;
-
-  public XCodeManager(Log log)
-  {
-    this.log = log;
-  }
-
+  
+  private static final Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
   /**
    * Trigger xcodebuild. The configuration is provided by <code>context</code>
    * 
@@ -48,7 +42,7 @@ class XCodeManager
     //
     //TODO The command line printed into the log is not 100% accurate. We have a problem with
     // quotation marks.
-    log.info("Executing xcode command: '" + commandLineBuilder.toString() + "'.");
+    LOGGER.info("Executing xcode command: '" + commandLineBuilder.toString() + "'.");
 
     final int returnValue = Forker.forkProcess(ctx.getOut(), ctx.getProjectRootDirectory(),
           commandLineBuilder.createBuildCall());
