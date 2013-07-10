@@ -31,14 +31,23 @@ import org.apache.maven.plugin.MojoFailureException;
 public class LoggerMojo extends AbstractXCodeMojo
 {
 
+  private static XCodePluginLogger logger = new XCodePluginLogger();
+  static {
+     if(null == LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName())) {
+       LogManager.getLogManager().addLogger(logger);
+     }
+   }
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    Logger logger = LogManager.getLogManager().getLogger(AbstractXCodeMojo.class.getPackage().getName());
+    final String loggerName = XCodePluginLogger.getLoggerName();
+    
+    Logger logger = LogManager.getLogManager().getLogger(loggerName);
 
     if (logger == null) {
       getLog().error(
-            "Cannot setup logging infrastructure. Logger '" + AbstractXCodeMojo.class.getPackage().getName()
+            "Cannot setup logging infrastructure. Logger '" + loggerName
                   + "' was null.");
     }
     else if (logger instanceof XCodePluginLogger) {
@@ -47,7 +56,7 @@ public class LoggerMojo extends AbstractXCodeMojo
     }
     else {
       getLog().error(
-            "Cannot setup logging infrastructure. Logger '" + AbstractXCodeMojo.class.getPackage().getName()
+            "Cannot setup logging infrastructure. Logger '" + loggerName
                   + "' is not an instance of '" + XCodePluginLogger.class.getName() + "' It was found to be a '"
                   + logger.getClass().getName() + "'.");
     }
