@@ -26,10 +26,11 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Build;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -42,13 +43,20 @@ public class XCodeManagerTest extends XCodeTest
 {
 
   private static File projectDirectory;
+  
+  //
+  // keep the reference to the logger. Otherwise the logger
+  // might be garbage collected.
+  //
+  private static Logger logger;
 
   @BeforeClass
-  public static void setupProjectDirectory()
+  public static void setup()
   {
-
     projectDirectory = new File(new File(".").getAbsoluteFile(), "target/tests/"
           + XCodeManagerTest.class.getName());
+    logger = new XCodePluginLogger();
+    LogManager.getLogManager().addLogger(logger);
   }
 
   @Before
@@ -66,7 +74,6 @@ public class XCodeManagerTest extends XCodeTest
   @Test
   public void straightForwardTestBuildLibWithoutPredecessors() throws Exception
   {
-
     Map<String, String> managedOptions = new HashMap<String, String>();
     managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), "MyLibrary.xcodeproj");
     managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), "Release");
@@ -75,7 +82,6 @@ public class XCodeManagerTest extends XCodeTest
     final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), new File(projectDirectory,
           "MyLibrary/src/xcode"), System.out, null, options);
 
-    Log log = EasyMock.createMock(Log.class);
     MavenProject mavenProject = EasyMock.createMock(MavenProject.class);
     Build build = EasyMock.createMock(Build.class);
 
@@ -90,7 +96,7 @@ public class XCodeManagerTest extends XCodeTest
     // dependency resolution. We build here a project without any
     // predecessor.
 
-    new XCodeManager(log).callXcodeBuild(context);
+    new XCodeManager().callXcodeBuild(context);
   }
 
   //
@@ -102,8 +108,6 @@ public class XCodeManagerTest extends XCodeTest
   @Test
   public void invalidConfigurationTest() throws Exception
   {
-
-    Log log = EasyMock.createMock(Log.class);
     MavenProject mavenProject = EasyMock.createMock(MavenProject.class);
     Build build = EasyMock.createMock(Build.class);
 
@@ -121,15 +125,13 @@ public class XCodeManagerTest extends XCodeTest
     Options options = new Options(null, managedOptions);
     final XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null,
           options);
-    new XCodeManager(log).callXcodeBuild(context);
+    new XCodeManager().callXcodeBuild(context);
 
   }
 
   @Test(expected = IOException.class)
   public void damagedPrintStreamProvidedTest() throws Exception
   {
-
-    Log log = EasyMock.createMock(Log.class);
     MavenProject mavenProject = EasyMock.createMock(MavenProject.class);
     Build build = EasyMock.createMock(Build.class);
 
@@ -155,7 +157,7 @@ public class XCodeManagerTest extends XCodeTest
         setError();
       }
     }, null, options);
-    new XCodeManager(log).callXcodeBuild(context);
+    new XCodeManager().callXcodeBuild(context);
 
   }
 }
