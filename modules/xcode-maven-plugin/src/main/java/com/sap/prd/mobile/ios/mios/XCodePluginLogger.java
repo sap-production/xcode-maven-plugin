@@ -121,17 +121,13 @@ public class XCodePluginLogger extends Logger
           }
         }
         else
+        {
           getErrorManager().error("Cannot handle log message with level '" + record.getLevel() + "'.", null, ErrorManager.GENERIC_FAILURE);
+        }
       }
     });
   }
 
-  @Override
-  public synchronized void removeHandler(Handler handler) throws SecurityException
-  {
-    throw new UnsupportedOperationException();
-  }
-  
   public void setLog(Log log) {
 
     if(log == null)
