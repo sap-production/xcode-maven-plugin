@@ -48,13 +48,15 @@ public class EffectiveBuildSettings
   public static final String BUILT_PRODUCTS_DIR = "BUILT_PRODUCTS_DIR";
   public static final String CONFIGURATION_BUILD_DIR = "CONFIGURATION_BUILD_DIR";
 
+  private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
+
+  
   private final static Map<XCodeContext, Properties> buildSettings = new HashMap<XCodeContext, Properties>();
 
   public static String getBuildSetting(XCodeContext context, Log log, String key) throws XCodeException
   {
     String buildSetting = getBuildSettings(context, log).getProperty(key);
-    Logger logger = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
-    logger.finer("Build settings for context '" + context + "'. Key: '" + key + "' resolved to: " + buildSetting);
+    LOGGER.finer("Build settings for context '" + context + "'. Key: '" + key + "' resolved to: " + buildSetting);
     return buildSetting;
   }
 
@@ -67,11 +69,10 @@ public class EffectiveBuildSettings
     if (_buildSettings == null) {
       _buildSettings = extractBuildSettings(context);
       buildSettings.put(context, _buildSettings);
-      log.info("Build settings for context: " + context + " loaded:" + toString(_buildSettings));
+      LOGGER.info("Build settings for context: " + context + " loaded:" + toString(_buildSettings));
     }
     else {
-      Logger logger = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
-      logger.finer("Build settings for key: '" + context + " found in cache.");
+      LOGGER.finer("Build settings for key: '" + context + " found in cache.");
     }
 
     return _buildSettings;
