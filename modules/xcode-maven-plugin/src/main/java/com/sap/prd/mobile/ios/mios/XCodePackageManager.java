@@ -25,10 +25,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
@@ -39,15 +40,14 @@ import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 class XCodePackageManager
 {
 
-  final Log log;
+  private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
   final ArchiverManager archiverManager;
   final MavenProjectHelper projectHelper;
   private static final String ZIPPED_BUNDLE_SUFFIX = "xcode-bundle-zip";
 
-  XCodePackageManager(final Log log, final ArchiverManager archiverManager, final MavenProjectHelper projectHelper)
+  XCodePackageManager(final ArchiverManager archiverManager, final MavenProjectHelper projectHelper)
   {
 
-    this.log = log;
     this.archiverManager = archiverManager;
     this.projectHelper = projectHelper;
   }
@@ -83,7 +83,7 @@ class XCodePackageManager
       File bundleDirectory = XCodeBuildLayout.getBundleDirectory(compileDir, bundleName);
 
       if (!bundleDirectory.exists()) {
-        log.info("Bundle directory '" + bundleDirectory + "' does not exist. Bundle will not be attached.");
+        LOGGER.info("Bundle directory '" + bundleDirectory + "' does not exist. Bundle will not be attached.");
         continue;
       }
       final File bundleFile = new File(new File(project.getBuild().getDirectory()), bundleName + ".bundle");
@@ -91,7 +91,7 @@ class XCodePackageManager
       try {
 
         archive("zip", bundleDirectory, bundleFile, new String[] { "**/*" }, null);
-        log.info("Bundle zip file created (" + bundleFile + ")");
+        LOGGER.info("Bundle zip file created (" + bundleFile + ")");
       }
       catch (XCodeException ex) {
         throw new RuntimeException("Could not archive header directory '" + bundleDirectory + "'", ex);
@@ -137,7 +137,7 @@ class XCodePackageManager
     try {
 
       archive("tar", mainArtifact, mainArtifactTarFile, new String[] { "**/*" }, null);
-      log.info("header tar file created (" + mainArtifactTarFile + ")");
+      LOGGER.info("header tar file created (" + mainArtifactTarFile + ")");
     }
     catch (XCodeException ex) {
       throw new RuntimeException("Could not archive main artifact directory '" + mainArtifact + "'", ex);
@@ -151,19 +151,18 @@ class XCodePackageManager
   private void setMainArtifact(final MavenProject project, final File mainArtifactTarFile)
   {
     project.getArtifact().setFile(mainArtifactTarFile);
-    log.info("Main artifact file '" + mainArtifactTarFile + "' attached for " + project.getArtifact());
+    LOGGER.info("Main artifact file '" + mainArtifactTarFile + "' attached for " + project.getArtifact());
   }
 
   void packageHeaders(final XCodeContext xcodeContext, MavenProject project,
         String relativeAlternatePublicHeaderFolderPath) throws IOException, XCodeException
   {
-    final File publicHeaderFolderPath = getPublicHeaderFolderPath(log,
-          EffectiveBuildSettings.getBuildSetting(xcodeContext, log, EffectiveBuildSettings.BUILT_PRODUCTS_DIR),
-          EffectiveBuildSettings.getBuildSetting(xcodeContext, log, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH),
+    final File publicHeaderFolderPath = getPublicHeaderFolderPath(EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.BUILT_PRODUCTS_DIR),
+          EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH),
           relativeAlternatePublicHeaderFolderPath);
 
     if (!publicHeaderFolderPath.canRead()) {
-      log.warn("Public header folder path '" + publicHeaderFolderPath + "' cannot be read. Unable to package headers.");
+      LOGGER.warning("Public header folder path '" + publicHeaderFolderPath + "' cannot be read. Unable to package headers.");
       return;
     }
 
@@ -174,7 +173,7 @@ class XCodePackageManager
     try {
 
       archive("tar", publicHeaderFolderPath, headersFile, new String[] { "**/*.h" }, null);
-      log.info("header tar file created (" + headersFile + ")");
+      LOGGER.info("header tar file created (" + headersFile + ")");
     }
     catch (XCodeException ex) {
       throw new RuntimeException("Could not archive header directory '" + publicHeaderFolderPath + "'", ex);
@@ -222,7 +221,7 @@ class XCodePackageManager
   }
 
   static void attachLibrary(final XCodeContext xcodeContext, File buildDir,
-        final MavenProject project, final MavenProjectHelper projectHelper, Log log)
+        final MavenProject project, final MavenProjectHelper projectHelper)
   {
 
     final File fatBinary = XCodeBuildLayout.getBinary(buildDir, xcodeContext.getConfiguration(), xcodeContext.getSDK(),
@@ -235,7 +234,7 @@ class XCodePackageManager
 
     projectHelper.attachArtifact(project, "a", classifier, fatBinary);
 
-    log.info("Archive file '" + fatBinary + "' attached as side artifact for '" + project.getArtifact()
+    LOGGER.info("Archive file '" + fatBinary + "' attached as side artifact for '" + project.getArtifact()
           + "' with classifier '" + classifier + "'.");
   }
 
@@ -255,8 +254,8 @@ class XCodePackageManager
     }
   }
 
-  static File getPublicHeaderFolderPath(final Log log, String builtProductDirInsideXcodeProject,
-        String publicHeaderFolderPathInsideXcodeProject, String relativeAlternatePublicHeaderFolderPath)
+  static File getPublicHeaderFolderPath(String builtProductDirInsideXcodeProject, String publicHeaderFolderPathInsideXcodeProject,
+        String relativeAlternatePublicHeaderFolderPath)
         throws XCodeException
   {
 
@@ -267,7 +266,7 @@ class XCodePackageManager
 
       relativePublicHeaderFolderPath = relativePublicHeaderFolderPathInXcodeProject;
 
-      log.info(
+      LOGGER.info(
         "Using public header folder path as it is configured in the xcode project: '"
               + relativePublicHeaderFolderPathInXcodeProject + "'.");
 
@@ -288,7 +287,7 @@ class XCodePackageManager
                     + ") is not a parent folder of the public header path configured inside the xcode project ("
                     + relativePublicHeaderFolderPathInXcodeProject + ").");
 
-      log.info(
+      LOGGER.info(
         "Using public header folder path as it is defined inside the xcode-maven-plugin ("
               + relativeAlternatePublicHeaderFolderPath
               + "). In the xcode project '" + relativePublicHeaderFolderPathInXcodeProject

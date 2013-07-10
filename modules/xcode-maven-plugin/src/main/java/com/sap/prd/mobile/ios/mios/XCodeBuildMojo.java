@@ -39,7 +39,7 @@ public class XCodeBuildMojo extends BuildContextAwareMojo
   {
 
     try {
-      XCodeManager xcodeMgr = new XCodeManager(getLog());
+      XCodeManager xcodeMgr = new XCodeManager();
 
       if (getPackagingType() == PackagingType.FRAMEWORK) {
         // we do not provide a sdk for frameworks as the target should assure that all required sdks are built

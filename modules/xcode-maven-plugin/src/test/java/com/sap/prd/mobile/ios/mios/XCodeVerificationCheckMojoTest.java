@@ -29,12 +29,13 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.Test;
 import org.sonatype.aether.artifact.Artifact;
 
@@ -47,6 +48,11 @@ import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
 public class XCodeVerificationCheckMojoTest
 {
 
+  private static Logger log = new XCodePluginLogger();
+  static {
+    LogManager.getLogManager().addLogger(log);
+  }
+
   @Test
   public void testNoGav() throws Exception
   {
@@ -56,7 +62,7 @@ public class XCodeVerificationCheckMojoTest
 
     for (Check check : checks.getCheck())
     {
-      Artifact dep = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
+      Artifact dep = XCodeVerificationCheckMojo.parseDependency(check);
       if (dep != null)
       {
         dependencies.add(dep);
@@ -74,7 +80,7 @@ public class XCodeVerificationCheckMojoTest
 
     for (Check check : checks.getCheck())
     {
-      Artifact dep = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
+      Artifact dep = XCodeVerificationCheckMojo.parseDependency(check);
       if (dep != null) {
         dependencies.add(dep);
       }
@@ -151,7 +157,7 @@ public class XCodeVerificationCheckMojoTest
     for (Check check : checks.getCheck())
     {
       try {
-        XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
+        XCodeVerificationCheckMojo.parseDependency(check);
         fail("Dependency could be parsed. Expected was missing attribute '" + attNameFix + "'.");
       }
       catch (XCodeException ex) {
@@ -159,7 +165,7 @@ public class XCodeVerificationCheckMojoTest
 
       Method m = Check.class.getMethod(getSetterName(attNameFix), new Class[] { String.class });
       m.invoke(checks.getCheck().get(0), new Object[] { attValueFix });
-      Artifact dependency = XCodeVerificationCheckMojo.parseDependency(check, new SystemStreamLog());
+      Artifact dependency = XCodeVerificationCheckMojo.parseDependency(check);
 
       if (dependency == null)
       {

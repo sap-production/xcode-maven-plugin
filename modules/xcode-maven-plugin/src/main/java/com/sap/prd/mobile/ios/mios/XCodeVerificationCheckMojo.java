@@ -49,6 +49,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
@@ -75,7 +77,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.sonatype.aether.RepositorySystem;
@@ -112,6 +113,7 @@ import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
 public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 {
   private final static String COLON = ":", DOUBLE_SLASH = "//";
+  private static final Logger log = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
 
   private enum Protocol
   {
@@ -481,7 +483,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
   private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException,
         DuplicateRealmException, MalformedURLException
   {
-    final org.sonatype.aether.artifact.Artifact artifact = parseDependency(check, getLog());
+    final org.sonatype.aether.artifact.Artifact artifact = parseDependency(check);
 
     final ClassLoader loader = this.getClass().getClassLoader();
 
@@ -503,8 +505,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
           org.apache.maven.artifact.Artifact.SCOPE_RUNTIME,
           org.apache.maven.artifact.Artifact.SCOPE_SYSTEM)); // do not resolve dependencies with scope "test".
 
-    final XCodeDownloadManager downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSession,
-          getLog());
+    final XCodeDownloadManager downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSession);
 
     final Set<org.sonatype.aether.artifact.Artifact> theEmptyOmitsSet = Collections.emptySet();
     final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
@@ -530,7 +531,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  static org.sonatype.aether.artifact.Artifact parseDependency(final Check check, final Log log)
+  static org.sonatype.aether.artifact.Artifact parseDependency(final Check check)
         throws XCodeException
   {
     final String groupId = check.getGroupId();

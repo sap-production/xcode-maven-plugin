@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
@@ -44,10 +46,10 @@ import org.sonatype.aether.repository.RemoteRepository;
 
 class XCodePrepareBuildManager
 {
-
+  private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
+  
   private final static String TYPE_HEADERS = "headers.tar", TYPE_ARCHIVE = "a";
 
-  private final Log log;
   private final ArchiverManager archiverManager;
   private final XCodeDownloadManager downloadManager;
   private final boolean useSymbolicLinks;
@@ -55,14 +57,13 @@ class XCodePrepareBuildManager
 
   private boolean preferFatLibs;
 
-  XCodePrepareBuildManager(final Log log, final ArchiverManager archiverManager,
+  XCodePrepareBuildManager(final ArchiverManager archiverManager,
         final RepositorySystemSession repoSystemSession, final RepositorySystem repoSystem,
         final List<RemoteRepository> projectRepos, final boolean useSymbolicLinks,
         final Map<String, String> additionalPackagingTypes)
   {
-    this.log = log;
     this.archiverManager = archiverManager;
-    this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession, log);
+    this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);
     this.useSymbolicLinks = useSymbolicLinks;
 
     if (additionalPackagingTypes == null) {
@@ -90,14 +91,14 @@ class XCodePrepareBuildManager
     final Iterator<Artifact> dependentArtifacts = project.getArtifacts().iterator();
 
     if (!dependentArtifacts.hasNext()) {
-      log.info("No dependencies found.");
+      LOGGER.info("No dependencies found.");
     }
 
     while (dependentArtifacts.hasNext()) {
 
       final Artifact mainArtifact = (Artifact) dependentArtifacts.next();
 
-      log.info("Preparing dependency: " + mainArtifact.getId());
+      LOGGER.info("Preparing dependency: " + mainArtifact.getId());
 
       if (PackagingType.LIB.getMavenPackaging().equals(mainArtifact.getType())) {
         prepareLibrary(project, configurations, sdks, mainArtifact);
@@ -109,12 +110,12 @@ class XCodePrepareBuildManager
 
         final PackagingTypeAction packagingTypeAction = PackagingTypeAction.valueOf(additionalPackagingTypes
           .get(mainArtifact.getType()));
-        log.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + packagingTypeAction);
+        LOGGER.info("Packaging type '" + mainArtifact.getType() + "' found in pom. Action: " + packagingTypeAction);
         packagingTypeAction.perform(archiverManager, project, mainArtifact);
       }
       else {
 
-        log.warn("Unknown dependency type detected: '" + mainArtifact.getType() + "'. The corresponding dependency '"
+        LOGGER.warning("Unknown dependency type detected: '" + mainArtifact.getType() + "'. The corresponding dependency '"
               + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId() + ":" + mainArtifact.getVersion()
               + "' will be ignored.");
       }
@@ -138,7 +139,7 @@ class XCodePrepareBuildManager
           prepareHeaders(project, xcodeConfiguration, sdk, mainArtifact);
         }
         catch (SideArtifactNotFoundException e) {
-          log.info("Headers not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId()
+          LOGGER.info("Headers not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId()
                 + ":"
                 + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
         }
@@ -168,7 +169,7 @@ class XCodePrepareBuildManager
       prepareBundles(project, mainArtifact);
     }
     catch (SideArtifactNotFoundException e) {
-      log.info("Bundle not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId() + ":"
+      LOGGER.info("Bundle not found for: '" + mainArtifact.getGroupId() + ":" + mainArtifact.getArtifactId() + ":"
             + mainArtifact.getVersion() + ":" + mainArtifact.getType() + "'.");
     }
   }
@@ -199,7 +200,7 @@ class XCodePrepareBuildManager
             xcodeConfiguration + "-" + sdk, TYPE_ARCHIVE).getFile();
     }
     catch (SideArtifactNotFoundException ex) {
-      log.info("Library not found for: " + primaryArtifact.getGroupId() + ":"
+      LOGGER.info("Library not found for: " + primaryArtifact.getGroupId() + ":"
             + primaryArtifact.getArtifactId() + ":" + primaryArtifact.getVersion() + ":"
             + primaryArtifact.getClassifier()
             + ":" + primaryArtifact.getType());
@@ -245,7 +246,7 @@ class XCodePrepareBuildManager
       createDirectory(target);
       com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "zip", source, target);
 
-      log.info("Bundle unarchived from " + source + " to " + target);
+      LOGGER.info("Bundle unarchived from " + source + " to " + target);
 
     }
   }
@@ -267,7 +268,7 @@ class XCodePrepareBuildManager
     com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, "tar", primaryArtifact.getFile(),
           mainArtifactExtracted);
 
-    log.info("Main artifact extracted to '" + mainArtifactExtracted + "'.");
+    LOGGER.info("Main artifact extracted to '" + mainArtifactExtracted + "'.");
 
     File bundleFile = new File(mainArtifactExtracted, "bundles.txt");
     if (!bundleFile.exists())
@@ -306,7 +307,7 @@ class XCodePrepareBuildManager
             TYPE_ARCHIVE).getFile();
     }
     catch (SideArtifactNotFoundException ex) {
-      log.info("There does not exist a fat library for the artifact " + primaryArtifact.getId());
+      LOGGER.info("There does not exist a fat library for the artifact " + primaryArtifact.getId());
       return null;
     }
   }
@@ -332,15 +333,15 @@ class XCodePrepareBuildManager
     //
     if (sdks.contains("iphoneos")) {
       if (!lipoHelper.containsArmv())
-        log.warn("Fat library '" + lipoHelper.getFatLibrary() + "' does not contain a library for armv*.");
+        LOGGER.warning("Fat library '" + lipoHelper.getFatLibrary() + "' does not contain a library for armv*.");
       else
-        log.info("Fat library '" + lipoHelper.getFatLibrary() + "'contains a library for armv*.");
+        LOGGER.info("Fat library '" + lipoHelper.getFatLibrary() + "'contains a library for armv*.");
     }
     else if (sdks.contains("iphonesimulator")) {
       if (!lipoHelper.containsI386())
-        log.warn("Fat library '" + lipoHelper.getFatLibrary() + "' does not contain a library for i386.");
+        LOGGER.warning("Fat library '" + lipoHelper.getFatLibrary() + "' does not contain a library for i386.");
       else
-        log.info("Fat library '" + lipoHelper.getFatLibrary() + "'contains a library for i386.");
+        LOGGER.info("Fat library '" + lipoHelper.getFatLibrary() + "'contains a library for i386.");
     }
   }
 
@@ -379,8 +380,8 @@ class XCodePrepareBuildManager
         extractFramework(project, primaryArtifact, configuration, frameworkArtifact.getFile());
       }
       catch (SideArtifactNotFoundException e) {
-        log
-          .warn("Framework '"
+        LOGGER
+          .warning("Framework '"
                 + primaryArtifact
                 + "' does not contain configuration specific variant. Will download the generic framework for configuration '"
                 + configuration + "'.");
@@ -422,7 +423,7 @@ class XCodePrepareBuildManager
           throw new MojoExecutionException("Cannot unarchive framework from " + source + " to " + target);
         }
 
-        log.info("Framework unarchived from " + source + " to " + target);
+        LOGGER.info("Framework unarchived from " + source + " to " + target);
       }
     }
   }

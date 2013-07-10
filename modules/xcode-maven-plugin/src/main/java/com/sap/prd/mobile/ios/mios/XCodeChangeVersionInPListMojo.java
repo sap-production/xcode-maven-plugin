@@ -84,7 +84,7 @@ public class XCodeChangeVersionInPListMojo extends BuildContextAwareMojo
             ensurePListFileIsWritable(infoPlistFile);
 
             for (UpdateVersionInPListTask updateVersionInPListTask : updateTasks) {
-              updateVersionInPListTask.setPListFile(infoPlistFile).setVersion(project.getVersion()).setLog(getLog())
+              updateVersionInPListTask.setPListFile(infoPlistFile).setVersion(project.getVersion())
                 .execute();
             }
 

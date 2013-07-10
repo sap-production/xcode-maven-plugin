@@ -126,13 +126,11 @@ public class XCodePackageDSymMojo extends BuildContextAwareMojo
   {
     final String generateDSym = EffectiveBuildSettings.getBuildSetting(
           getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
-                config, sdk), getLog(),
-          EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
+                config, sdk), EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
 
     final String debugFormat = EffectiveBuildSettings.getBuildSetting(
           getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
-                config, sdk), getLog(),
-          EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT);
+                config, sdk), EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT);
 
     return (generateDSym == null || generateDSym.equalsIgnoreCase("YES")
           && (debugFormat != null && debugFormat

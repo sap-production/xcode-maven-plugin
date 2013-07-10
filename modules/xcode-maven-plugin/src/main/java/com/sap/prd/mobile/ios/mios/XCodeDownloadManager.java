@@ -25,8 +25,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
-import org.apache.maven.plugin.logging.Log;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
@@ -45,18 +47,18 @@ import org.sonatype.aether.util.artifact.DefaultArtifact;
 class XCodeDownloadManager
 {
 
+  private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
+
   private final List<RemoteRepository> projectRepos;
   private final RepositorySystem repoSystem;
   private final RepositorySystemSession repoSession;
-  private final Log log;
 
   XCodeDownloadManager(final List<RemoteRepository> projectRepos,
-        final RepositorySystem repoSystem, final RepositorySystemSession repoSession, Log log)
+        final RepositorySystem repoSystem, final RepositorySystemSession repoSession)
   {
     this.projectRepos = projectRepos;
     this.repoSystem = repoSystem;
     this.repoSession = repoSession;
-    this.log = log;
   }
 
   org.sonatype.aether.artifact.Artifact resolveArtifact(final org.sonatype.aether.artifact.Artifact artifact)
@@ -123,21 +125,21 @@ class XCodeDownloadManager
         if (scopes.contains(node.getDependency().getScope()) && (!_omits.contains(node.getDependency().getArtifact())))
         {
           artifacts.add(node.getDependency().getArtifact());
-          if (log.isDebugEnabled())
+          if (LOGGER.isLoggable(Level.FINER))
           {
             final Artifact depArtifact = node.getDependency().getArtifact();
             final Artifact rootArtifact = root.getDependency().getArtifact();;
-            log.debug(String.format("Adding transitive dependency '%s:%s:%s' for artifact '%s:%s:%s'",
+            LOGGER.finer(String.format("Adding transitive dependency '%s:%s:%s' for artifact '%s:%s:%s'",
                   depArtifact.getGroupId(), depArtifact.getArtifactId(), depArtifact.getVersion(),
                   rootArtifact.getGroupId(), rootArtifact.getArtifactId(), rootArtifact.getVersion()));
           }
           return true;
         }
-        if (log.isDebugEnabled())
+        if (LOGGER.isLoggable(Level.FINER))
         {
           final Artifact depArtifact = node.getDependency().getArtifact();
           final Artifact rootArtifact = root.getDependency().getArtifact();;
-          log.debug(String.format(
+          LOGGER.finer(String.format(
                 "Omitting transitive dependency '%s:%s:%s' and the transitive envelope for artifact '%s:%s:%s'",
                 depArtifact.getGroupId(), depArtifact.getArtifactId(), depArtifact.getVersion(),
                 rootArtifact.getGroupId(), rootArtifact.getArtifactId(), rootArtifact.getVersion()));
