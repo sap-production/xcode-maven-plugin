@@ -59,25 +59,57 @@ public class XCodePluginLogger extends Logger
       {
         Level level = record.getLevel();
         if(level == Level.ALL || level == Level.FINE || level == Level.FINER || level == Level.FINEST || level == Level.CONFIG)
-          log.debug(record.getMessage(), record.getThrown());
-        if(level == Level.INFO)
-          log.info(record.getMessage(), record.getThrown());
-        else if(level == Level.WARNING)
-          log.warn(record.getMessage(), record.getThrown());
-        else if(level == Level.SEVERE)
-          log.error(record.getMessage(), record.getThrown());
+        {
+          if(record.getThrown() == null)
+          {
+            log.debug(record.getMessage());
+          } 
+          else
+          { 
+            log.debug(record.getMessage(), record.getThrown());
+          }
+        } 
+        else if(level == Level.INFO)
+        {
+          if(record.getThrown() == null)
+          {
+            log.info(record.getMessage());
+          }
+          else 
+          {
+            log.info(record.getMessage(), record.getThrown());
+          }
+        }
+        else if(level == Level.WARNING) 
+        {
+          if(record.getThrown() == null)
+          {
+            log.warn(record.getMessage());
+          }
+          else 
+          {
+            log.warn(record.getMessage(), record.getThrown());
+          }
+        }
+        else if(level == Level.SEVERE) 
+        {
+          if(record.getThrown() == null)
+          {
+            log.error(record.getMessage());
+          }
+          else 
+          {
+            log.error(record.getMessage(), record.getThrown());
+          }
+        }
         else
+        {
           getErrorManager().error("Cannot handle log message with level '" + record.getLevel() + "'.", null, ErrorManager.GENERIC_FAILURE);
+        }
       }
     });
   }
 
-  @Override
-  public synchronized void removeHandler(Handler handler) throws SecurityException
-  {
-    throw new UnsupportedOperationException();
-  }
-  
   public void setLog(Log log) {
 
     if(log == null)
