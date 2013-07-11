@@ -21,11 +21,14 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.plexus.util.cli.CommandLineException;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.codehaus.plexus.util.cli.Commandline;
+import org.codehaus.plexus.util.cli.StreamConsumer;
 
 public class Forker
 {
@@ -33,9 +36,37 @@ public class Forker
   public static int forkProcess(final PrintStream out, final File executionDirectory, final String... args)
         throws IOException
   {
-
     if (out == null)
       throw new IllegalArgumentException("Print stream for log handling was not provided.");
+
+    final boolean[] troubleWithOutputStream = {false};
+
+    int returnCode = forkProcess(new StreamConsumer() {
+
+      @Override
+      public void consumeLine(String line)
+      {
+        if (out.checkError())
+            troubleWithOutputStream[0] = true;
+
+        if(!troubleWithOutputStream[0])
+            out.println(line);
+
+        if (out.checkError())
+          troubleWithOutputStream[0] = true;
+      }
+    }, executionDirectory, args);
+
+    if(troubleWithOutputStream[0])
+      throw new IOException("Cannot handle log output. PrintStream that should be used for log handling is damaged.");
+
+    out.flush();
+
+    return returnCode;
+  }
+
+  private static int forkProcess(StreamConsumer streamConsumer, final File executionDirectory, final String... args) throws IOException
+  {
 
     if (args == null || args.length == 0)
       throw new IllegalArgumentException("No arguments has been provided.");
@@ -45,63 +76,22 @@ public class Forker
         throw new IllegalArgumentException("Invalid argument '" + arg + "' provided with arguments '"
               + Arrays.asList(args) + "'.");
 
-    final ProcessBuilder builder = new ProcessBuilder(args);
-
-    if (executionDirectory != null)
-      builder.directory(executionDirectory);
-
-    builder.redirectErrorStream(true);
-
-    InputStream is = null;
-
-    //
-    // TODO: check if there is any support for forking processes in
-    // maven/plexus
-    //
-
     try {
 
-      final Process process = builder.start();
+        final String command = StringUtils.join(args, " ");
 
-      is = process.getInputStream();
+        streamConsumer.consumeLine("Executing command: " + command);
 
-      handleLog(is, out);
+        final Commandline cl = new Commandline(command);
 
-      return process.waitFor();
+        if(executionDirectory != null) {
+            cl.setWorkingDirectory(executionDirectory);
+        }
 
+        return CommandLineUtils.executeCommandLine(cl, streamConsumer, streamConsumer);
+
+    } catch(CommandLineException ex) {
+      throw new IOException(ex);
     }
-    catch (InterruptedException e) {
-      throw new RuntimeException(
-            e.getClass().getName()
-                  + " caught during while waiting for a forked process. This exception is not expected to be caught at that time.",
-            e);
-    }
-    finally {
-      //
-      // Exception raised during close operation below are not reported.
-      // That is actually bad.
-      // We do not have any logging facility here and we cannot throw the
-      // exception since this would swallow any
-      // other exception raised in the try block.
-      // May be we should revisit that ...
-      //
-      IOUtils.closeQuietly(is);
-    }
-  }
-
-  private static void handleLog(final InputStream is, final PrintStream out) throws IOException
-  {
-
-    if (out.checkError())
-      throw new IOException("Cannot handle log output. PrintStream that should be used for log handling is damaged.");
-
-    byte[] buff = new byte[1024];
-    for (int i; (i = is.read(buff)) != -1;) {
-      out.write(buff, 0, i);
-      if (out.checkError())
-        throw new IOException("Cannot handle log output from xcodebuild. Underlying PrintStream indicates problems.");
-    }
-
-    out.flush();
   }
 }
