@@ -30,7 +30,6 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public class LoggerMojo extends AbstractXCodeMojo
 {
-
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
