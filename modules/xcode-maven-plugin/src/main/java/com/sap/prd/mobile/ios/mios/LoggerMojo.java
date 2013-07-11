@@ -19,11 +19,13 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 
 /**
  * @goal setup-logging
@@ -41,7 +43,18 @@ public class LoggerMojo extends AbstractXCodeMojo
                   + "' was null.");
     }
     else if (logger instanceof XCodePluginLogger) {
-      ((XCodePluginLogger) logger).setLog(getLog());
+      XCodePluginLogger _logger = ((XCodePluginLogger) logger);
+      Log mavenLogger = getLog();
+      _logger.setLog(mavenLogger);
+      if(mavenLogger.isDebugEnabled())
+      {
+        _logger.setLevel(Level.ALL);
+      }
+      else 
+      {
+        _logger.setLevel(Level.INFO);
+      }
+      
       getLog().debug("Logging infrastructure has been setup.");
     }
     else {
