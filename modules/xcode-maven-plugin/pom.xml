@@ -20,6 +20,9 @@
   <properties>
     <license.roots>src/main,src/site,src/test/java,src/test/projects</license.roots>  <!--  skip src/test/resources as these files are used for file comparison and must not be changed-->
     <jaxb.verification.checks.1_0_0.sources>${project.build.directory}/generated-sources/jaxb/verification-checks/1.0.0</jaxb.verification.checks.1_0_0.sources>
+    <verification.api.groupId>${project.groupId}</verification.api.groupId>
+    <verification.api.artifactId>verification-check-api</verification.api.artifactId>
+    <verification.api.version>1.0.0-SNAPSHOT</verification.api.version>
   </properties>
 
   <build>
@@ -102,9 +105,14 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>${verification.api.groupId}</groupId>
+      <artifactId>${verification.api.artifactId}</artifactId>
+      <version>${verification.api.version}</version>
+    </dependency>
+   <dependency>
       <groupId>com.sap.prd.mobile.ios.mios</groupId>
-      <artifactId>verification-check-api</artifactId>
-      <version>1.0.0</version>
+      <artifactId>utils</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>

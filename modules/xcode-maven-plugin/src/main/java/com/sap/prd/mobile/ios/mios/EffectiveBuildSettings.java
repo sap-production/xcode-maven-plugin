@@ -33,23 +33,26 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.logging.Log;
 
 public class EffectiveBuildSettings implements IEffectiveBuildSettings
 {
 
   private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
 
-  
   private final static Map<IXCodeContext, Properties> buildSettings = new HashMap<IXCodeContext, Properties>();
 
   @Override
-  public String getBuildSettingByKey(IXCodeContext context, Log log, String key) throws XCodeException
+  public String getBuildSettingByKey(IXCodeContext context, String key)
   {
-    return getBuildSetting(context, key);
+    try {
+      return getBuildSetting(context, key);
+    }
+    catch (XCodeException e) {
+      throw new IllegalStateException("Cannot obtain build setting for key '" + key + "' for configuration '"
+            + context.getConfiguration() + "' and sdk '" + context.getSDK() + "'.", e);
+    }
   }
 
-  
   public static String getBuildSetting(IXCodeContext context, String key) throws XCodeException
   {
     String buildSetting = getBuildSettings(context).getProperty(key);
@@ -94,7 +97,8 @@ public class EffectiveBuildSettings implements IEffectiveBuildSettings
     managedOptions.put(Options.ManagedOption.SHOWBUILDSETTINGS.getOptionName(), null);
 
     XCodeContext showBuildSettingsContext = new XCodeContext(buildActions, context.getProjectRootDirectory(),
-          context.getOut(), new Settings(context.getSettings().getUserSettings(), context.getSettings().getManagedSettings()), new Options(options.getUserOptions(), managedOptions));
+          context.getOut(), new Settings(context.getSettings().getUserSettings(), context.getSettings()
+            .getManagedSettings()), new Options(options.getUserOptions(), managedOptions));
 
     final CommandLineBuilder cmdLineBuilder = new CommandLineBuilder(showBuildSettingsContext);
     PrintStream out = null;

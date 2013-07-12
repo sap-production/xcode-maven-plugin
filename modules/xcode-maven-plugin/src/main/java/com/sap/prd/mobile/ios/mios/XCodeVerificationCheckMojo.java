@@ -392,7 +392,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       final Class<?> verificationCheckClass = Class.forName(checkDesc.getClazz(), true, verificationCheckRealm);
 
       getLog().debug(
-            String.format("Verificaiton check class %s has been loaded by %s.", verificationCheckClass.getName(),
+            String.format("Verification check class %s has been loaded by %s.", verificationCheckClass.getName(),
                   verificationCheckClass.getClassLoader()));
       getLog().debug(
             String.format("Verification check super class %s has been loaded by %s.", verificationCheckClass
@@ -410,7 +410,6 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
           verificationCheck.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
           verificationCheck.setMavenProject(project);
           verificationCheck.setEffectiveBuildSettings(new EffectiveBuildSettings());
-          verificationCheck.setLog(getLog());
           try {
             verificationCheck.check();
           }
@@ -510,7 +509,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
     final Set<org.sonatype.aether.artifact.Artifact> theEmptyOmitsSet = Collections.emptySet();
     final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
-          new Dependency(getXcodeMavenPluginGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes,
+          new Dependency(getVerificationAPIGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes,
           theEmptyOmitsSet);
     final Set<org.sonatype.aether.artifact.Artifact> artifacts = downloadManager
       .resolveArtifactWithTransitveDependencies(new Dependency(artifact,
@@ -571,7 +570,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  org.sonatype.aether.artifact.Artifact getXcodeMavenPluginGav() throws XCodeException
+  org.sonatype.aether.artifact.Artifact getVerificationAPIGav() throws XCodeException
   {
 
     InputStream is = null;
@@ -587,13 +586,13 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       Properties props = new Properties();
       props.load(is);
 
-      final String groupId = props.getProperty("xcode-plugin-groupId");
-      final String artifactId = props.getProperty("xcode-plugin-artifactId");
-      final String version = props.getProperty("xcode-plugin-version");
+      final String groupId = props.getProperty("verification.api.groupId");
+      final String artifactId = props.getProperty("verification.api.artifactId");
+      final String version = props.getProperty("verification.api.version");
       return new DefaultArtifact(groupId, artifactId, "jar", version);
     }
     catch (final IOException ex) {
-      throw new XCodeException("Cannot get the GAV for the xcode-maven-plugin", ex);
+      throw new XCodeException("Cannot get the GAV for the verification API", ex);
     }
     finally {
       IOUtils.closeQuietly(is);

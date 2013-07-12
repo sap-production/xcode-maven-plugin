@@ -18,8 +18,9 @@
         This dependency has been added in order to test the setup of the class loader used for loading the verification checks.
         This dependency must be ommited inside the class loader.
       -->
-      <groupId>org.apache.velocity</groupId>
-      <artifactId>velocity</artifactId>
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-guice</artifactId>
+      <version>2.9.1</version>
     </dependency>
     <dependency>
 
