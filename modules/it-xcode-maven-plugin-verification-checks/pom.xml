@@ -34,7 +34,8 @@
     </dependency>
     <dependency>
       <groupId>com.sap.prd.mobile.ios.mios</groupId>
-      <artifactId>xcode-maven-plugin</artifactId>
+      <artifactId>verification-check-api</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
