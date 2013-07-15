@@ -84,12 +84,12 @@
       <dependency>
         <groupId>com.sap.prd.mobile.ios.mios</groupId>
         <artifactId>xcode-maven-plugin-utils</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
       </dependency>
       <dependency>
         <groupId>com.sap.prd.mobile.ios.mios</groupId>
         <artifactId>verification-check-api</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
       </dependency>
       <dependency>
         <groupId>com.sap.prd.mobile.ios.mios</groupId>
