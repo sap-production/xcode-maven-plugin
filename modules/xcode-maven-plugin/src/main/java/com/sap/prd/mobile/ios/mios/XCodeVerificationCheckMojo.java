@@ -511,6 +511,9 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
           new Dependency(getVerificationAPIGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes,
           theEmptyOmitsSet);
+    
+    omits.add(getVerificationAPIGav());
+
     final Set<org.sonatype.aether.artifact.Artifact> artifacts = downloadManager
       .resolveArtifactWithTransitveDependencies(new Dependency(artifact,
             org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
