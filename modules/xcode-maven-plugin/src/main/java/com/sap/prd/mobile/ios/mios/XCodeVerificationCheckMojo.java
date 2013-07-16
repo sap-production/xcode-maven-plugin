@@ -32,6 +32,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -89,7 +90,7 @@ import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
  */
 public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 {
-  private final static String COLON = ":";
+  private final static String COLON = ":", DOUBLE_SLASH = "//";
 
   private enum Protocol
   {
@@ -100,7 +101,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       Reader getCheckDefinitions(String location) throws IOException
       {
         HttpClient httpClient = new DefaultHttpClient();
-        HttpGet get = new HttpGet(getName() + COLON + location);
+        HttpGet get = new HttpGet(getName() + COLON + DOUBLE_SLASH + location);
 
         String response = httpClient.execute(get, new BasicResponseHandler());
         return new StringReader(response);
@@ -113,19 +114,18 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       Reader getCheckDefinitions(String location) throws IOException
       {
         HttpClient httpClient = new DefaultHttpClient();
-        HttpGet get = new HttpGet(getName() + COLON + location);
+        HttpGet get = new HttpGet(getName() + COLON + DOUBLE_SLASH + location);
 
         String response = httpClient.execute(get, new BasicResponseHandler());
         return new StringReader(response);
       }
-
     },
     FILE() {
 
       @Override
       Reader getCheckDefinitions(String location) throws IOException
       {
-        if (location.startsWith("//")) location = location.substring(2);
+        if (location.startsWith(DOUBLE_SLASH)) location = location.substring(DOUBLE_SLASH.length());
         final File f = new File(location);
         if (!f.canRead()) {
           throw new IOException("Cannot read checkDefintionFile '" + f + "'.");
@@ -151,32 +151,35 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       }
       return sb.toString();
     }
+
+    static Protocol getProtocol(String protocol) throws InvalidProtocolException {
+      try {
+        return Protocol.valueOf(protocol.toUpperCase(Locale.ENGLISH));
+      } catch(final IllegalArgumentException ex) {
+        throw new InvalidProtocolException(protocol, ex);
+      }
+    }
   }
 
   static class NoProtocolException extends XCodeException
   {
 
-    private static final long serialVersionUID = -7510547403353515108L;
-
-    NoProtocolException(String message)
-    {
-      this(message, null);
-    }
+    private static final long serialVersionUID = -5510547403353575108L;
 
     NoProtocolException(String message, Throwable cause)
     {
       super(message, cause);
     }
   };
-
+  
   static class InvalidProtocolException extends XCodeException
   {
 
     private static final long serialVersionUID = -5510547403353515108L;
 
-    InvalidProtocolException(String message)
+    InvalidProtocolException(String message, Throwable cause)
     {
-      super(message);
+      super(message, cause);
     }
   };
 
@@ -520,15 +523,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
             "CheckDefinitionFile was not configured. Cannot perform verification checks. Define check definition file with paramater 'xcode.verification.checks.definitionFile'.");
     }
 
-    Location location;
-    try {
-      location = Location.getLocation(checkDefinitionFileLocation);
-    }
-    catch (NoProtocolException e) {
-      throw new NoProtocolException(format("No protocol found: %s. Provide a protocol [%s]" +
-            " for parameter 'xcode.verification.checks.definitionFile', e.g. http://example.com/checkDefinitions.xml.",
-            checkDefinitionFileLocation, Protocol.getProtocols()), e);
-    }
+    final Location location = Location.getLocation(checkDefinitionFileLocation);
 
     try {
       Protocol protocol = Protocol.valueOf(location.protocol);
@@ -536,7 +531,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
     catch (IllegalArgumentException ex) {
       throw new InvalidProtocolException(format("Invalid protocol provided: '%s'. Supported values are:'%s'.",
-            location.protocol, Protocol.getProtocols()));
+            location.protocol, Protocol.getProtocols()), ex);
     }
     catch (IOException ex) {
       throw new IOException(format("Cannot get check definitions from '%s'.", checkDefinitionFileLocation), ex);
@@ -545,16 +540,51 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
   static class Location
   {
-    static Location getLocation(final String locationUriString) throws NoProtocolException
+    static Location getLocation(final String locationUriString) throws InvalidProtocolException, NoProtocolException, MalformedURLException
     {
-      URI uri = URI.create(locationUriString.trim());
-      String protocol = uri.getScheme();
-      if (protocol == null) throw new NoProtocolException(locationUriString);
-      String location = uri.getPath();
-      if (location == null) {
-        location = uri.getSchemeSpecificPart();
+      final URL url;
+
+      try {
+        url = new URL(locationUriString.trim());
+      } catch (MalformedURLException ex) {
+
+        //
+        // trouble with protocol ???
+        //
+ 
+        try {
+
+          if(URI.create(locationUriString).getScheme() == null)
+          {
+            throw new NoProtocolException(String.format("Provide a protocol [%s] for parameter 'xcode.verification.checks.definitionFile'", Protocol.getProtocols()), ex);
+          }
+        } catch(RuntimeException ignore) {
+          //
+          // in this case we throw already the MalformedUrlExcpetion that indicates a problem with 
+          // the URL
+          //
+        }
+
+        throw ex;
+
       }
-      return new Location(protocol, location);
+
+      final Protocol protocol = Protocol.getProtocol(url.getProtocol());
+      final String location;
+      if(protocol == Protocol.FILE) 
+      {
+        location = url.getPath();
+      } else if (protocol == Protocol.HTTP || protocol == Protocol.HTTPS) {
+
+        final String host = url.getHost();
+        final String path = url.getPath();
+        final int port = url.getPort();
+
+        location = host + ((port != -1) ? COLON + port : "") + path;
+      } else {
+        throw new IllegalStateException(String.format("Unknown protocol: '%s'." + url.getProtocol()));
+      }
+      return new Location(protocol.getName(), location);
     }
 
     final String protocol;
