@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,8 +38,8 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.Test;
 import org.sonatype.aether.artifact.Artifact;
 
+import com.sap.prd.mobile.ios.mios.XCodeVerificationCheckMojo.InvalidProtocolException;
 import com.sap.prd.mobile.ios.mios.XCodeVerificationCheckMojo.Location;
-import com.sap.prd.mobile.ios.mios.XCodeVerificationCheckMojo.NoProtocolException;
 import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Check;
 import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
 
@@ -136,7 +137,7 @@ public class XCodeVerificationCheckMojoTest
     XCodeVerificationCheckMojo.getChecksDescriptor("ftp://example.com");
   }
 
-  @Test(expected = XCodeVerificationCheckMojo.NoProtocolException.class)
+  @Test(expected = MalformedURLException.class)
   public void testGetCheckDescriptorWithoutProtocol() throws Exception, IOException
   {
     XCodeVerificationCheckMojo.getChecksDescriptor("example.com");
@@ -184,57 +185,57 @@ public class XCodeVerificationCheckMojoTest
     return new String(c);
   }
 
-  @Test(expected = XCodeVerificationCheckMojo.NoProtocolException.class)
-  public void testValidateLocationNoColon() throws NoProtocolException
+  @Test(expected = MalformedURLException.class)
+  public void testValidateLocationNoColon() throws InvalidProtocolException, MalformedURLException
   {
     testValidateLocation("a/b/c.xml", "FILE", "a/b/c.xml");
   }
 
   @Test
-  public void testValidateLocationNoDoubleSlash() throws NoProtocolException
+  public void testValidateLocationNoDoubleSlash() throws InvalidProtocolException, MalformedURLException
   {
     testValidateLocation("file:a/b/c.xml", "FILE", "a/b/c.xml");
   }
 
   @Test
-  public void testValidateLocationSingleSlash() throws NoProtocolException
+  public void testValidateLocationSingleSlash() throws InvalidProtocolException, MalformedURLException
   {
     testValidateLocation("file:/a/b/c.xml", "FILE", "/a/b/c.xml");
   }
 
   @Test
-  public void testValidateLocationDoubleSlashOnly() throws NoProtocolException
+  public void testValidateLocationDoubleSlashOnly() throws InvalidProtocolException, MalformedURLException
   {
     // a is interpreted as host according to specification
     testValidateLocation("file://a/b/c.xml", "FILE", "/b/c.xml");
   }
 
   @Test
-  public void testValidateLocationDoubleSlashNoHost() throws NoProtocolException
+  public void testValidateLocationDoubleSlashNoHost() throws InvalidProtocolException, MalformedURLException
   {
     testValidateLocation("file:///a/b/c.xml", "FILE", "/a/b/c.xml");
   }
 
   @Test
-  public void testValidateLocationDoubleSlashWithHost() throws NoProtocolException
+  public void testValidateLocationDoubleSlashWithHost() throws InvalidProtocolException, MalformedURLException
   {
     testValidateLocation("file://localhost/a/b/c.xml", "FILE", "/a/b/c.xml");
   }
 
   @Test
-  public void testValidateLocationSpaces() throws NoProtocolException
+  public void testValidateLocationSpaces() throws InvalidProtocolException, MalformedURLException
   {
     testValidateLocation(" file://localhost/a/b/c.xml  ", "FILE", "/a/b/c.xml");
   }
 
-  @Test
-  public void testValidateLocationUnknownProtocol() throws NoProtocolException
+  @Test(expected=MalformedURLException.class)
+  public void testValidateLocationUnknownProtocol() throws InvalidProtocolException, MalformedURLException
   {
     testValidateLocation(" xyz://localhost/a/b/c.xml  ", "XYZ", "/a/b/c.xml");
   }
 
   private void testValidateLocation(String uri, String expectedProtocol, String expectedLocation)
-        throws NoProtocolException
+        throws InvalidProtocolException, MalformedURLException
   {
     Location validateLocation = XCodeVerificationCheckMojo.Location.getLocation(uri);
     assertEquals(expectedProtocol, validateLocation.protocol);
