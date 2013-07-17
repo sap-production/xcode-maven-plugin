@@ -152,10 +152,12 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       return sb.toString();
     }
 
-    static Protocol getProtocol(String protocol) throws InvalidProtocolException {
+    static Protocol getProtocol(String protocol) throws InvalidProtocolException
+    {
       try {
         return Protocol.valueOf(protocol.toUpperCase(Locale.ENGLISH));
-      } catch(final IllegalArgumentException ex) {
+      }
+      catch (final IllegalArgumentException ex) {
         throw new InvalidProtocolException(protocol, ex);
       }
     }
@@ -571,17 +573,15 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
       final Protocol protocol = Protocol.getProtocol(url.getProtocol());
       final String location;
-      if(protocol == Protocol.FILE) 
+      if (protocol == Protocol.FILE)
       {
         location = url.getPath();
-      } else if (protocol == Protocol.HTTP || protocol == Protocol.HTTPS) {
-
-        final String host = url.getHost();
-        final String path = url.getPath();
-        final int port = url.getPort();
-
-        location = host + ((port != -1) ? COLON + port : "") + path;
-      } else {
+      }
+      else if (protocol == Protocol.HTTP || protocol == Protocol.HTTPS) {
+        location = locationUriString.trim().substring(
+              protocol.getName().length() + COLON.length() + DOUBLE_SLASH.length());
+      }
+      else {
         throw new IllegalStateException(String.format("Unknown protocol: '%s'." + url.getProtocol()));
       }
       return new Location(protocol.getName(), location);
