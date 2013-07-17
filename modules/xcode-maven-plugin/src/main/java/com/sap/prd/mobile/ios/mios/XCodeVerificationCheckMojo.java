@@ -30,9 +30,16 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +50,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
@@ -50,8 +63,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.scheme.SchemeSocketFactory;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -114,6 +135,65 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       Reader getCheckDefinitions(String location) throws IOException
       {
         HttpClient httpClient = new DefaultHttpClient();
+        try {
+          SSLContext sslcontext = SSLContext.getInstance("TLS");
+          X509TrustManager trustManager = new X509TrustManager() {
+            
+            @Override
+            public X509Certificate[] getAcceptedIssuers()
+            {
+              return null;
+            }
+            
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
+            {
+            }
+            
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
+            {
+            }
+          };
+          X509HostnameVerifier hostNameVerifier = new X509HostnameVerifier() {
+            
+            @Override
+            public boolean verify(String arg0, SSLSession arg1)
+            {
+              return true;
+            }
+            
+            @Override
+            public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException
+            {
+            }
+            
+            @Override
+            public void verify(String host, X509Certificate cert) throws SSLException
+            {
+            }
+            
+            @Override
+            public void verify(String host, SSLSocket ssl) throws IOException
+            {
+            }
+          };
+
+          final int port = new URL(getName() + COLON + DOUBLE_SLASH + location).getPort();
+          sslcontext.init(null, new TrustManager[] {trustManager}, null);
+          SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslcontext);
+          sslSocketFactory.setHostnameVerifier(hostNameVerifier);
+          ClientConnectionManager clientConnectionManager = httpClient.getConnectionManager();
+          SchemeRegistry sr = clientConnectionManager.getSchemeRegistry();
+          sr.register(new Scheme(getName(), sslSocketFactory, port));
+        }
+        catch (NoSuchAlgorithmException e) {
+          e.printStackTrace();
+        }
+        catch (KeyManagementException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
         HttpGet get = new HttpGet(getName() + COLON + DOUBLE_SLASH + location);
 
         String response = httpClient.execute(get, new BasicResponseHandler());
