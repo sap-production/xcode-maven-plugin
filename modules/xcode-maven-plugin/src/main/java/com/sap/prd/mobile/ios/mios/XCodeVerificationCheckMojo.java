@@ -422,8 +422,10 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       throw new MojoExecutionException(
             "Could not load verification check '"
                   + checkDesc.getClazz()
-                  + "'. May be your classpath has not been properly extended. Additional dependencies need to be provided with 'xcode.additionalClasspathElements'. "
-                  + ex.getMessage(), ex);
+                  + "'. May be your classpath has not been properly extended. "
+                  +
+                  "Provide the GAV of the project containing the check as attributes as part of the check defintion in the check configuration file.",
+            ex);
     }
     catch (NoClassDefFoundError err) {
       getLog().error(String.format("Could not load verification check '%s'. " +

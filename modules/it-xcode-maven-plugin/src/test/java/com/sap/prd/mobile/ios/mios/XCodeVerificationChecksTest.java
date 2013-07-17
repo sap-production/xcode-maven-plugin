@@ -244,7 +244,7 @@ public class XCodeVerificationChecksTest extends XCodeTest
   }
 
   @Test
-  public void testVerificationCheckClassPathNotExtendedSpecified() throws Exception
+  public void testVerificationCheckClassPathNotExtended() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = getTestName();
@@ -271,9 +271,7 @@ public class XCodeVerificationChecksTest extends XCodeTest
       fail("Expected Exception was not thrown");
     }
     catch (Exception ex) {
-      assertTrue(ex.getMessage().contains("May be your classpath has not been properly extended."));
-      assertTrue(ex.getMessage().contains(
-            "Additional dependencies need to be provided with 'xcode.additionalClasspathElements'."));
+      assertTrue(ex.getMessage().contains("May be your classpath has not been properly extended"));
     }
   }
 }
