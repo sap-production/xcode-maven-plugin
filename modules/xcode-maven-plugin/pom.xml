@@ -22,7 +22,7 @@
     <jaxb.verification.checks.1_0_0.sources>${project.build.directory}/generated-sources/jaxb/verification-checks/1.0.0</jaxb.verification.checks.1_0_0.sources>
     <verification.api.groupId>${project.groupId}</verification.api.groupId>
     <verification.api.artifactId>verification-check-api</verification.api.artifactId>
-    <verification.api.version>1.0.0-SNAPSHOT</verification.api.version>
+    <verification.api.version>1.0.0</verification.api.version>
   </properties>
 
   <build>
