@@ -10,7 +10,25 @@ Release Notes
 
 ===
 
-* 1.9.4
+* 1.11.0
+
+** Features
+
+*** Xcode Maven Plugin API for verification checks defined.
+
+  For details, please see {{{./verification-check-mojo.html}here}}.
+
+** Bug fixes
+
+*** Access check definition file
+
+  Fixed problem when accessing the check definition file for verification checks (see release 1.9.3) via http and https.
+
+*** 
+
+===
+
+* 1.10.0
 
 ** Features
 
@@ -46,7 +64,7 @@ Release Notes
 
 *** Verification Check infrastructure for applications
 
-  Applications are reviewed by Apple during the upload into the Appstore. In order to reduce the risk to be rejected
+  Applications are reviewed by Apple during the upload into the AppStore. In order to reduce the risk to be rejected
   during that upload some checks could be applied to the application prior to the upload. The infrastructure for
   such tests is provided. For details see {{{./verification-check-mojo.html}here}}. Only the infrastructure is provided,
   the verification checks themselves are not contained in the xcode-maven-plugin.

@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-final class Options
+final class Options implements IOptions
 {
 
   enum ManagedOption
@@ -94,17 +94,21 @@ final class Options
     validateUserOptions(this.userOptions);
   }
 
-  Map<String, String> getUserOptions()
+  public Map<String, String> getUserOptions()
   {
     return userOptions;
   }
 
-  Map<String, String> getManagedOptions()
+  public Map<String, String> getManagedOptions()
   {
     return managedOptions;
   }
 
-  Map<String, String> getAllOptions()
+  /* (non-Javadoc)
+   * @see com.sap.prd.mobile.ios.mios.IOptions#getAllOptions()
+   */
+  @Override
+  public Map<String, String> getAllOptions()
   {
     final Map<String, String> result = new HashMap<String, String>();
 

@@ -26,12 +26,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.LogManager;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.monitor.logging.DefaultLog;
-import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -39,7 +39,6 @@ import org.junit.rules.TemporaryFolder;
 public class UpdateVersionInPListTaskTest
 {
 
-  private final static DefaultLog log = new DefaultLog(new ConsoleLogger(ConsoleLogger.LEVEL_DEBUG, "MyLogger"));
 
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
@@ -47,6 +46,11 @@ public class UpdateVersionInPListTaskTest
   private File infoPListMaster = new File("src/test/resources/MyApp-Info.plist");
   private File infoPlist = null;
 
+  @BeforeClass
+  public static void setupStatic() {
+    LogManager.getLogManager().addLogger(new XCodePluginLogger());
+  }
+  
   @Before
   public void setup() throws IOException
   {
@@ -59,7 +63,7 @@ public class UpdateVersionInPListTaskTest
   public void testUpdateCFBundleShortVersionString() throws Exception
   {
     final String newVersion = "1.2." + System.currentTimeMillis();
-    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newVersion).setLog(log)
+    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newVersion)
       .execute();
     assertVersion("CFBundleShortVersionString", newVersion, infoPlist);
   }
@@ -70,14 +74,14 @@ public class UpdateVersionInPListTaskTest
     final String newVersion = "1.2." + System.currentTimeMillis();
     final String newSnapshotVersion = newVersion + "-SNAPSHOT";
     new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newSnapshotVersion)
-      .setLog(log).execute();
+      .execute();
     assertVersion("CFBundleShortVersionString", newVersion, infoPlist);
   }
 
   public void testUpdateCFBundleShortVersionStringWithFourDotVersion() throws Exception
   {
     final String newVersion = "1.2.3." + System.currentTimeMillis();
-    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newVersion).setLog(log)
+    new UpdateCFBundleShortVersionStringInPListTask().setPListFile(infoPlist).setVersion(newVersion)
       .execute();
     assertVersion("CFBundleVersion", "1.2.3", infoPlist);
   }
@@ -86,7 +90,7 @@ public class UpdateVersionInPListTaskTest
   public void testUpdateCFBundleVersion() throws Exception
   {
     final String newVersion = "1.2." + System.currentTimeMillis();
-    new UpdateCFBundleVersionInPListTask().setPListFile(infoPlist).setVersion(newVersion).setLog(log).execute();
+    new UpdateCFBundleVersionInPListTask().setPListFile(infoPlist).setVersion(newVersion).execute();
     assertVersion("CFBundleVersion", newVersion, infoPlist);
   }
 
@@ -95,7 +99,7 @@ public class UpdateVersionInPListTaskTest
   {
     final String newVersionWithoutSnapshot = "1.2." + System.currentTimeMillis();
     final String newVersionWithSnapshot = newVersionWithoutSnapshot + "-SNAPSHOT";
-    new UpdateCFBundleVersionInPListTask().setPListFile(infoPlist).setVersion(newVersionWithSnapshot).setLog(log)
+    new UpdateCFBundleVersionInPListTask().setPListFile(infoPlist).setVersion(newVersionWithSnapshot)
       .execute();
     assertVersion("CFBundleVersion", newVersionWithoutSnapshot, infoPlist);
   }

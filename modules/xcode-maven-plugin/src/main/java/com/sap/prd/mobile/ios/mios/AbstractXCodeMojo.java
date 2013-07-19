@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.LogManager;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -34,7 +35,26 @@ import org.apache.maven.project.MavenProject;
  */
 public abstract class AbstractXCodeMojo extends AbstractMojo
 {
+  //
+  // This variable here ensures that a reference to the logger is kept.
+  // According to the API doc of the java.util.logging framework it is required
+  // to keep a reference. Otherwise it might happen that the logger is garbage
+  // collected. This in turn must not happen since the logger keeps a
+  // reference to the maven logger that could not be restored. This variable
+  // should not be accessed. Instead use the LogManager to get the instance.
+  //
+  private static XCodePluginLogger logger = null;
+  
+  static {
 
+    if(null == LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName())) {
+
+      logger = new XCodePluginLogger();
+      LogManager.getLogManager().addLogger(logger);
+      logger.finest(String.format("XCode plugin logger has been created: %s", logger.getName()));
+    }
+  }
+  
   /**
    * The original Xcode sources located in the <code>src/xcode</code> directory stay untouched
    * during the whole Maven build. However, as we might have to modify the info.plist or the project

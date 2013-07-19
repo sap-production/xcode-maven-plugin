@@ -22,6 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.LogManager;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -50,10 +51,16 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
    */
   protected MavenProject project;
 
+  private static XCodePluginLogger logger = new XCodePluginLogger();
+  static {
+     if(null == LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName())) {
+       LogManager.getLogManager().addLogger(logger);
+     }
+   }
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-
     final Properties projectProperties = project.getProperties();
 
     if (!projectProperties.containsKey(XCODE_SOURCE_DIRECTORY)) {

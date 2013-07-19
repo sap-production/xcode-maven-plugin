@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-final class Settings
+final class Settings implements ISettings
 {
 
   private final static String XCODE_OUTPUT_DIRECTORY = "build";
@@ -128,7 +128,19 @@ final class Settings
     }
   }
 
-  final Map<String, String> getAllSettings()
+  public final Map<String, String> getUserSettings() {
+    return Collections.unmodifiableMap(this.userSettings);
+  }
+  
+  public final Map<String, String> getManagedSettings() {
+    return Collections.unmodifiableMap(this.managedSettings);
+  }
+  
+  /* (non-Javadoc)
+   * @see com.sap.prd.mobile.ios.mios.ISettings#getAllSettings()
+   */
+  @Override
+  public final Map<String, String> getAllSettings()
   {
     Map<String, String> result = new HashMap<String, String>(this.userSettings.size() + this.managedSettings.size());
     result.putAll(this.userSettings);

@@ -22,10 +22,10 @@ package com.sap.prd.mobile.ios.mios;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.util.logging.LogManager;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
-import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -63,9 +63,7 @@ public class AppIDUpdateTest extends XCodeTest
   public void testUpdateAppID() throws Exception
   {
 
-    final Log log = EasyMock.createNiceMock(Log.class);
-
-    EasyMock.replay(log);
+    LogManager.getLogManager().addLogger(new XCodePluginLogger());
 
     File infoPlistFile = new File(projectDirectory, "MyApp/src/xcode/MyApp-Info.plist");
 
@@ -74,7 +72,7 @@ public class AppIDUpdateTest extends XCodeTest
     assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.tip.production.inhouse.epdist",
           plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
 
-    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal", log);
+    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal");
 
     PListAccessor plist = new PListAccessor(infoPlistFile);
     assertEquals("com.sap.tip.production.inhouse.epdist.internal",

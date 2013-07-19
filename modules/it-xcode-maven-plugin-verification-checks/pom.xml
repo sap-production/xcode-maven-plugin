@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.sap.prd.mobile.ios.mios</groupId>
     <artifactId>parent</artifactId>
-    <version>1.11.0-SNAPSHOT</version>
+    <version>1.11.0</version>
     <relativePath>../../parent</relativePath>
   </parent>
   <properties>
@@ -18,8 +18,9 @@
         This dependency has been added in order to test the setup of the class loader used for loading the verification checks.
         This dependency must be ommited inside the class loader.
       -->
-      <groupId>org.apache.velocity</groupId>
-      <artifactId>velocity</artifactId>
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-guice</artifactId>
+      <version>2.9.1</version>
     </dependency>
     <dependency>
 
@@ -33,7 +34,8 @@
     </dependency>
     <dependency>
       <groupId>com.sap.prd.mobile.ios.mios</groupId>
-      <artifactId>xcode-maven-plugin</artifactId>
+      <artifactId>verification-check-api</artifactId>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 </project>

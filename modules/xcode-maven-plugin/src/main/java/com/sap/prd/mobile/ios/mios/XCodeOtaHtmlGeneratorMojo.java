@@ -113,7 +113,6 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
                 plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION),
                 ipaClassifier, otaClassifier, buildHtmlTemplate, getProperties());
-          otaManager.setLogger(getLog());
 
           if (otaManager.generateOtaHTML()) {
 

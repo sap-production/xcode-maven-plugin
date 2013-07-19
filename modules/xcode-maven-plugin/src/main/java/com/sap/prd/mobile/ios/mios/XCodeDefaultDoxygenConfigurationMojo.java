@@ -57,11 +57,9 @@ public class XCodeDefaultDoxygenConfigurationMojo extends BuildContextAwareMojo
           XCodeContext context = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);
 
           try {
-            String doxygenInputDir = EffectiveBuildSettings.getBuildSetting(context, getLog(),
-                  EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
+            String doxygenInputDir = EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
 
-            String configurationBuildDir = EffectiveBuildSettings.getBuildSetting(context, getLog(),
-                  EffectiveBuildSettings.CONFIGURATION_BUILD_DIR);
+            String configurationBuildDir = EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.CONFIGURATION_BUILD_DIR);
 
             projectProperties.setProperty("doxygen.input.dir",
                   new File(configurationBuildDir, doxygenInputDir).getAbsolutePath());

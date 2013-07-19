@@ -81,7 +81,7 @@ public class XCodeVerificationChecksTest extends XCodeTest
         fail();
     } catch(VerificationException ex) {
       v.verifyTextInLog("Adding transitive dependency 'junit:junit:4.8.2'");
-      v.verifyTextInLog("Omitting transitive dependency 'org.apache.velocity:velocity:1.7'");
+      v.verifyTextInLog("Omitting transitive dependency 'org.sonatype.sisu:sisu-guice:2.9.1'");
       v.verifyTextInLog("Verification check 'com.sap.prd.mobile.ios.mios.TestMetadataCheck failed. 7430190670433136460");
     }
   }
@@ -165,7 +165,7 @@ public class XCodeVerificationChecksTest extends XCodeTest
           
         });
       v.verifyTextInLog("Adding transitive dependency 'junit:junit:4.8.2'");
-      v.verifyTextInLog("Omitting transitive dependency 'org.apache.velocity:velocity:1.7'");
+      v.verifyTextInLog("Omitting transitive dependency 'org.sonatype.sisu:sisu-guice:2.9.1'");
       v.verifyTextInLog("[WARNING] Verification check 'com.sap.prd.mobile.ios.mios.TestMetadataCheck failed. 7430190670433136460");
   }
 
@@ -244,7 +244,7 @@ public class XCodeVerificationChecksTest extends XCodeTest
   }
 
   @Test
-  public void testVerificationCheckClassPathNotExtendedSpecified() throws Exception
+  public void testVerificationCheckClassPathNotExtended() throws Exception
   {
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
     final String testName = getTestName();
@@ -271,9 +271,7 @@ public class XCodeVerificationChecksTest extends XCodeTest
       fail("Expected Exception was not thrown");
     }
     catch (Exception ex) {
-      assertTrue(ex.getMessage().contains("May be your classpath has not been properly extended."));
-      assertTrue(ex.getMessage().contains(
-            "Additional dependencies need to be provided with 'xcode.additionalClasspathElements'."));
+      assertTrue(ex.getMessage().contains("May be your classpath has not been properly extended"));
     }
   }
 }

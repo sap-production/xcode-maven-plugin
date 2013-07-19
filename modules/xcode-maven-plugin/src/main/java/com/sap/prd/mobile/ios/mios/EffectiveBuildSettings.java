@@ -29,33 +29,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.logging.Log;
 
-public class EffectiveBuildSettings
+public class EffectiveBuildSettings implements IEffectiveBuildSettings
 {
-  public static final String PRODUCT_NAME = "PRODUCT_NAME";
-  public static final String SRC_ROOT = "SRCROOT";
-  public static final String GCC_GENERATE_DEBUGGING_SYMBOLS = "GCC_GENERATE_DEBUGGING_SYMBOLS";
-  public static final String DEBUG_INFORMATION_FORMAT = "DEBUG_INFORMATION_FORMAT";
-  public static final String CODE_SIGN_IDENTITY = "CODE_SIGN_IDENTITY";
-  public static final String CODESIGNING_FOLDER_PATH = "CODESIGNING_FOLDER_PATH";
-  public static final String INFOPLIST_FILE = "INFOPLIST_FILE";
-  public static final String PUBLIC_HEADERS_FOLDER_PATH = "PUBLIC_HEADERS_FOLDER_PATH";
-  public static final String BUILT_PRODUCTS_DIR = "BUILT_PRODUCTS_DIR";
-  public static final String CONFIGURATION_BUILD_DIR = "CONFIGURATION_BUILD_DIR";
 
-  private final static Map<XCodeContext, Properties> buildSettings = new HashMap<XCodeContext, Properties>();
+  private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
 
-  public static String getBuildSetting(XCodeContext context, Log log, String key) throws XCodeException
+  private final static Map<IXCodeContext, Properties> buildSettings = new HashMap<IXCodeContext, Properties>();
+
+  @Override
+  public String getBuildSettingByKey(IXCodeContext context, String key)
   {
-    String buildSetting = getBuildSettings(context, log).getProperty(key);
-    debug(log, "Build settings for context '" + context + "'. Key: '" + key + "' resolved to: " + buildSetting);
+    try {
+      return getBuildSetting(context, key);
+    }
+    catch (XCodeException e) {
+      throw new IllegalStateException("Cannot obtain build setting for key '" + key + "' for configuration '"
+            + context.getConfiguration() + "' and sdk '" + context.getSDK() + "'.", e);
+    }
+  }
+
+  public static String getBuildSetting(IXCodeContext context, String key) throws XCodeException
+  {
+    String buildSetting = getBuildSettings(context).getProperty(key);
+    LOGGER.finer("Build settings for context '" + context + "'. Key: '" + key + "' resolved to: " + buildSetting);
     return buildSetting;
   }
 
-  private static synchronized Properties getBuildSettings(final XCodeContext context, final Log log)
+  private static synchronized Properties getBuildSettings(final IXCodeContext context)
         throws XCodeException
   {
 
@@ -64,10 +69,10 @@ public class EffectiveBuildSettings
     if (_buildSettings == null) {
       _buildSettings = extractBuildSettings(context);
       buildSettings.put(context, _buildSettings);
-      log.info("Build settings for context: " + context + " loaded:" + toString(_buildSettings));
+      LOGGER.info("Build settings for context: " + context + " loaded:" + toString(_buildSettings));
     }
     else {
-      debug(log, "Build settings for key: '" + context + " found in cache.");
+      LOGGER.finer("Build settings for key: '" + context + " found in cache.");
     }
 
     return _buildSettings;
@@ -84,15 +89,16 @@ public class EffectiveBuildSettings
     return sb.toString();
   }
 
-  private static Properties extractBuildSettings(final XCodeContext context) throws XCodeException
+  private static Properties extractBuildSettings(final IXCodeContext context) throws XCodeException
   {
     List<String> buildActions = Collections.emptyList();
-    Options options = context.getOptions();
+    IOptions options = context.getOptions();
     Map<String, String> managedOptions = new HashMap<String, String>(options.getManagedOptions());
     managedOptions.put(Options.ManagedOption.SHOWBUILDSETTINGS.getOptionName(), null);
 
     XCodeContext showBuildSettingsContext = new XCodeContext(buildActions, context.getProjectRootDirectory(),
-          context.getOut(), context.getSettings(), new Options(options.getUserOptions(), managedOptions));
+          context.getOut(), new Settings(context.getSettings().getUserSettings(), context.getSettings()
+            .getManagedSettings()), new Options(options.getUserOptions(), managedOptions));
 
     final CommandLineBuilder cmdLineBuilder = new CommandLineBuilder(showBuildSettingsContext);
     PrintStream out = null;
@@ -123,10 +129,5 @@ public class EffectiveBuildSettings
     finally {
       IOUtils.closeQuietly(out);
     }
-  }
-
-  private static void debug(Log log, String message)
-  {
-    log.debug(EffectiveBuildSettings.class.getName() + ": " + message);
   }
 }

@@ -32,6 +32,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,7 +46,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
@@ -49,11 +62,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.sonatype.aether.RepositorySystem;
@@ -71,9 +88,12 @@ import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
  * Provides the possibility to perform verification checks.<br>
  * The check classes and their severities are described in an additional xml document, defined in
  * <code>xcode.verification.checks.definitionFile</code>.<br>
- * The specific checks have to be implemented in a separate project. The coordinates of that
- * projects needs to be provided on the <code>check</code> node belonging to the test as attributes
- * <code>groupId</code>, <code>artifactId</code> and <code>version</code>.<br>
+ * The specific checks have to be implemented in separate projects. These projects define dependency
+ * to Xcode Maven Pugin Verification API and must not reference the xcode-maven-plugin project.
+ * The Xcode Maven Plugin Verification API project could be found <a href=https://github.com/sap-production/xcode-maven-plugin-verification-api>here</a>
+ * The coordinates of that projects need to be provided on the
+ * <code>check</code> node belonging to the test as attributes <code>groupId</code>,
+ * <code>artifactId</code> and <code>version</code>.<br>
  * The classpath for this goal will be extended by the jars found under the specified GAVs. <br>
  * Example checks definition:
  * 
@@ -89,7 +109,8 @@ import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
  */
 public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 {
-  private final static String COLON = ":";
+  private final static String COLON = ":", DOUBLE_SLASH = "//";
+  private static final Logger log = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
 
   private enum Protocol
   {
@@ -100,7 +121,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       Reader getCheckDefinitions(String location) throws IOException
       {
         HttpClient httpClient = new DefaultHttpClient();
-        HttpGet get = new HttpGet(getName() + COLON + location);
+        HttpGet get = new HttpGet(getName() + COLON + DOUBLE_SLASH + location);
 
         String response = httpClient.execute(get, new BasicResponseHandler());
         return new StringReader(response);
@@ -113,19 +134,77 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       Reader getCheckDefinitions(String location) throws IOException
       {
         HttpClient httpClient = new DefaultHttpClient();
-        HttpGet get = new HttpGet(getName() + COLON + location);
+        try {
+          SSLContext sslcontext = SSLContext.getInstance("TLS");
+          X509TrustManager trustManager = new X509TrustManager() {
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers()
+            {
+              return null;
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
+            {
+            }
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
+            {
+            }
+          };
+          X509HostnameVerifier hostNameVerifier = new X509HostnameVerifier() {
+
+            @Override
+            public boolean verify(String arg0, SSLSession arg1)
+            {
+              return true;
+            }
+
+            @Override
+            public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException
+            {
+            }
+
+            @Override
+            public void verify(String host, X509Certificate cert) throws SSLException
+            {
+            }
+
+            @Override
+            public void verify(String host, SSLSocket ssl) throws IOException
+            {
+            }
+          };
+
+          final int port = new URL(getName() + COLON + DOUBLE_SLASH + location).getPort();
+          sslcontext.init(null, new TrustManager[] { trustManager }, null);
+          SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslcontext);
+          sslSocketFactory.setHostnameVerifier(hostNameVerifier);
+          ClientConnectionManager clientConnectionManager = httpClient.getConnectionManager();
+          SchemeRegistry sr = clientConnectionManager.getSchemeRegistry();
+          sr.register(new Scheme(getName(), sslSocketFactory, port));
+        }
+        catch (NoSuchAlgorithmException e) {
+          e.printStackTrace();
+        }
+        catch (KeyManagementException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        HttpGet get = new HttpGet(getName() + COLON + DOUBLE_SLASH + location);
 
         String response = httpClient.execute(get, new BasicResponseHandler());
         return new StringReader(response);
       }
-
     },
     FILE() {
 
       @Override
       Reader getCheckDefinitions(String location) throws IOException
       {
-        if (location.startsWith("//")) location = location.substring(2);
+        if (location.startsWith(DOUBLE_SLASH)) location = location.substring(DOUBLE_SLASH.length());
         final File f = new File(location);
         if (!f.canRead()) {
           throw new IOException("Cannot read checkDefintionFile '" + f + "'.");
@@ -151,17 +230,22 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       }
       return sb.toString();
     }
+
+    static Protocol getProtocol(String protocol) throws InvalidProtocolException
+    {
+      try {
+        return Protocol.valueOf(protocol.toUpperCase(Locale.ENGLISH));
+      }
+      catch (final IllegalArgumentException ex) {
+        throw new InvalidProtocolException(protocol, ex);
+      }
+    }
   }
 
   static class NoProtocolException extends XCodeException
   {
 
-    private static final long serialVersionUID = -7510547403353515108L;
-
-    NoProtocolException(String message)
-    {
-      this(message, null);
-    }
+    private static final long serialVersionUID = -5510547403353575108L;
 
     NoProtocolException(String message, Throwable cause)
     {
@@ -174,9 +258,9 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
     private static final long serialVersionUID = -5510547403353515108L;
 
-    InvalidProtocolException(String message)
+    InvalidProtocolException(String message, Throwable cause)
     {
-      super(message);
+      super(message, cause);
     }
   };
 
@@ -204,7 +288,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
   protected List<RemoteRepository> projectRepos;
 
   /**
-   * Parameter, which conrols the verification goal execution. By default, the verification goal
+   * Parameter, which controls the verification goal execution. By default, the verification goal
    * will be skipped.
    * 
    * @parameter expression="${xcode.verification.checks.skip}" default-value="true"
@@ -214,7 +298,13 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
   /**
    * The location where the check definition file is present. Could be a file on the local file
-   * system or a remote located file, accessed via HTTP.
+   * system or a remote located file, accessed via http or https. <br>
+   * Examples:
+   * <ul>
+   * <li>-Dxcode.verification.checks.definitionFile=file:./checkDefinitionFile.xml
+   * <li>-Dxcode.verification.checks.definitionFile=http://example.com/checkDefinitionFile.xml
+   * <li>-Dxcode.verification.checks.definitionFile=https://example.com/checkDefinitionFile.xml
+   * </ul>
    * 
    * @parameter expression="${xcode.verification.checks.definitionFile}"
    * @since 1.9.3
@@ -305,7 +395,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       final Class<?> verificationCheckClass = Class.forName(checkDesc.getClazz(), true, verificationCheckRealm);
 
       getLog().debug(
-            String.format("Verificaiton check class %s has been loaded by %s.", verificationCheckClass.getName(),
+            String.format("Verification check class %s has been loaded by %s.", verificationCheckClass.getName(),
                   verificationCheckClass.getClassLoader()));
       getLog().debug(
             String.format("Verification check super class %s has been loaded by %s.", verificationCheckClass
@@ -322,7 +412,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
           final VerificationCheck verificationCheck = (VerificationCheck) verificationCheckClass.newInstance();
           verificationCheck.setXcodeContext(getXCodeContext(SourceCodeLocation.WORKING_COPY, configuration, sdk));
           verificationCheck.setMavenProject(project);
-          verificationCheck.setLog(getLog());
+          verificationCheck.setEffectiveBuildSettings(new EffectiveBuildSettings());
           try {
             verificationCheck.check();
           }
@@ -340,8 +430,10 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       throw new MojoExecutionException(
             "Could not load verification check '"
                   + checkDesc.getClazz()
-                  + "'. May be your classpath has not been properly extended. Additional dependencies need to be provided with 'xcode.additionalClasspathElements'. "
-                  + ex.getMessage(), ex);
+                  + "'. May be your classpath has not been properly extended. "
+                  +
+                  "Provide the GAV of the project containing the check as attributes as part of the check defintion in the check configuration file.",
+            ex);
     }
     catch (NoClassDefFoundError err) {
       getLog().error(String.format("Could not load verification check '%s'. " +
@@ -396,7 +488,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
   private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException,
         DuplicateRealmException, MalformedURLException
   {
-    final org.sonatype.aether.artifact.Artifact artifact = parseDependency(check, getLog());
+    final org.sonatype.aether.artifact.Artifact artifact = parseDependency(check);
 
     final ClassLoader loader = this.getClass().getClassLoader();
 
@@ -418,13 +510,15 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
           org.apache.maven.artifact.Artifact.SCOPE_RUNTIME,
           org.apache.maven.artifact.Artifact.SCOPE_SYSTEM)); // do not resolve dependencies with scope "test".
 
-    final XCodeDownloadManager downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSession,
-          getLog());
+    final XCodeDownloadManager downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSession);
 
     final Set<org.sonatype.aether.artifact.Artifact> theEmptyOmitsSet = Collections.emptySet();
     final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
-          new Dependency(getXcodeMavenPluginGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes,
+          new Dependency(getVerificationAPIGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes,
           theEmptyOmitsSet);
+
+    omits.add(getVerificationAPIGav());
+
     final Set<org.sonatype.aether.artifact.Artifact> artifacts = downloadManager
       .resolveArtifactWithTransitveDependencies(new Dependency(artifact,
             org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
@@ -445,7 +539,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  static org.sonatype.aether.artifact.Artifact parseDependency(final Check check, final Log log)
+  static org.sonatype.aether.artifact.Artifact parseDependency(final Check check)
         throws XCodeException
   {
     final String groupId = check.getGroupId();
@@ -484,7 +578,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  org.sonatype.aether.artifact.Artifact getXcodeMavenPluginGav() throws XCodeException
+  org.sonatype.aether.artifact.Artifact getVerificationAPIGav() throws XCodeException
   {
 
     InputStream is = null;
@@ -500,13 +594,13 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       Properties props = new Properties();
       props.load(is);
 
-      final String groupId = props.getProperty("xcode-plugin-groupId");
-      final String artifactId = props.getProperty("xcode-plugin-artifactId");
-      final String version = props.getProperty("xcode-plugin-version");
+      final String groupId = props.getProperty("verification.api.groupId");
+      final String artifactId = props.getProperty("verification.api.artifactId");
+      final String version = props.getProperty("verification.api.version");
       return new DefaultArtifact(groupId, artifactId, "jar", version);
     }
     catch (final IOException ex) {
-      throw new XCodeException("Cannot get the GAV for the xcode-maven-plugin", ex);
+      throw new XCodeException("Cannot get the GAV for the verification API", ex);
     }
     finally {
       IOUtils.closeQuietly(is);
@@ -520,15 +614,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
             "CheckDefinitionFile was not configured. Cannot perform verification checks. Define check definition file with paramater 'xcode.verification.checks.definitionFile'.");
     }
 
-    Location location;
-    try {
-      location = Location.getLocation(checkDefinitionFileLocation);
-    }
-    catch (NoProtocolException e) {
-      throw new NoProtocolException(format("No protocol found: %s. Provide a protocol [%s]" +
-            " for parameter 'xcode.verification.checks.definitionFile', e.g. http://example.com/checkDefinitions.xml.",
-            checkDefinitionFileLocation, Protocol.getProtocols()), e);
-    }
+    final Location location = Location.getLocation(checkDefinitionFileLocation);
 
     try {
       Protocol protocol = Protocol.valueOf(location.protocol);
@@ -536,7 +622,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
     catch (IllegalArgumentException ex) {
       throw new InvalidProtocolException(format("Invalid protocol provided: '%s'. Supported values are:'%s'.",
-            location.protocol, Protocol.getProtocols()));
+            location.protocol, Protocol.getProtocols()), ex);
     }
     catch (IOException ex) {
       throw new IOException(format("Cannot get check definitions from '%s'.", checkDefinitionFileLocation), ex);
@@ -545,16 +631,54 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
   static class Location
   {
-    static Location getLocation(final String locationUriString) throws NoProtocolException
+    static Location getLocation(final String locationUriString) throws InvalidProtocolException, NoProtocolException,
+          MalformedURLException
     {
-      URI uri = URI.create(locationUriString.trim());
-      String protocol = uri.getScheme();
-      if (protocol == null) throw new NoProtocolException(locationUriString);
-      String location = uri.getPath();
-      if (location == null) {
-        location = uri.getSchemeSpecificPart();
+      final URL url;
+
+      try {
+        url = new URL(locationUriString.trim());
       }
-      return new Location(protocol, location);
+      catch (MalformedURLException ex) {
+
+        //
+        // trouble with protocol ???
+        //
+
+        try {
+
+          if (URI.create(locationUriString).getScheme() == null)
+          {
+            throw new NoProtocolException(String.format(
+                  "Provide a protocol [%s] for parameter 'xcode.verification.checks.definitionFile'",
+                  Protocol.getProtocols()), ex);
+          }
+        }
+        catch (RuntimeException ignore) {
+          //
+          // in this case we throw already the MalformedUrlExcpetion that indicates a problem with 
+          // the URL
+          //
+        }
+
+        throw ex;
+
+      }
+
+      final Protocol protocol = Protocol.getProtocol(url.getProtocol());
+      final String location;
+      if (protocol == Protocol.FILE)
+      {
+        location = url.getPath();
+      }
+      else if (protocol == Protocol.HTTP || protocol == Protocol.HTTPS) {
+        location = locationUriString.trim().substring(
+              protocol.getName().length() + COLON.length() + DOUBLE_SLASH.length());
+      }
+      else {
+        throw new IllegalStateException(String.format("Unknown protocol: '%s'." + url.getProtocol()));
+      }
+      return new Location(protocol.getName(), location);
     }
 
     final String protocol;
