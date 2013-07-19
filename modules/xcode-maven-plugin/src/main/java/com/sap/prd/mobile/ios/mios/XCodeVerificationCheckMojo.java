@@ -88,9 +88,12 @@ import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
  * Provides the possibility to perform verification checks.<br>
  * The check classes and their severities are described in an additional xml document, defined in
  * <code>xcode.verification.checks.definitionFile</code>.<br>
- * The specific checks have to be implemented in a separate project. The coordinates of that
- * projects need to be provided on the <code>check</code> node belonging to the test as attributes
- * <code>groupId</code>, <code>artifactId</code> and <code>version</code>.<br>
+ * The specific checks have to be implemented in separate projects. These projects define dependency
+ * to Xcode Maven Pugin Verification API and must not reference the xcode-maven-plugin project.
+ * The Xcode Maven Plugin Verification API project could be found <a href=https://github.com/sap-production/xcode-maven-plugin-verification-api>here</a>
+ * The coordinates of that projects need to be provided on the
+ * <code>check</code> node belonging to the test as attributes <code>groupId</code>,
+ * <code>artifactId</code> and <code>version</code>.<br>
  * The classpath for this goal will be extended by the jars found under the specified GAVs. <br>
  * Example checks definition:
  * 
@@ -134,41 +137,41 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
         try {
           SSLContext sslcontext = SSLContext.getInstance("TLS");
           X509TrustManager trustManager = new X509TrustManager() {
-            
+
             @Override
             public X509Certificate[] getAcceptedIssuers()
             {
               return null;
             }
-            
+
             @Override
             public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
             {
             }
-            
+
             @Override
             public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
             {
             }
           };
           X509HostnameVerifier hostNameVerifier = new X509HostnameVerifier() {
-            
+
             @Override
             public boolean verify(String arg0, SSLSession arg1)
             {
               return true;
             }
-            
+
             @Override
             public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException
             {
             }
-            
+
             @Override
             public void verify(String host, X509Certificate cert) throws SSLException
             {
             }
-            
+
             @Override
             public void verify(String host, SSLSocket ssl) throws IOException
             {
@@ -176,7 +179,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
           };
 
           final int port = new URL(getName() + COLON + DOUBLE_SLASH + location).getPort();
-          sslcontext.init(null, new TrustManager[] {trustManager}, null);
+          sslcontext.init(null, new TrustManager[] { trustManager }, null);
           SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslcontext);
           sslSocketFactory.setHostnameVerifier(hostNameVerifier);
           ClientConnectionManager clientConnectionManager = httpClient.getConnectionManager();
@@ -249,7 +252,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       super(message, cause);
     }
   };
-  
+
   static class InvalidProtocolException extends XCodeException
   {
 
@@ -295,14 +298,14 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
   /**
    * The location where the check definition file is present. Could be a file on the local file
-   * system or a remote located file, accessed via http or https.
-   * <br>
-   * Examples: 
+   * system or a remote located file, accessed via http or https. <br>
+   * Examples:
    * <ul>
    * <li>-Dxcode.verification.checks.definitionFile=file:./checkDefinitionFile.xml
    * <li>-Dxcode.verification.checks.definitionFile=http://example.com/checkDefinitionFile.xml
    * <li>-Dxcode.verification.checks.definitionFile=https://example.com/checkDefinitionFile.xml
    * </ul>
+   * 
    * @parameter expression="${xcode.verification.checks.definitionFile}"
    * @since 1.9.3
    */
@@ -513,7 +516,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
           new Dependency(getVerificationAPIGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes,
           theEmptyOmitsSet);
-    
+
     omits.add(getVerificationAPIGav());
 
     final Set<org.sonatype.aether.artifact.Artifact> artifacts = downloadManager
@@ -628,25 +631,30 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
   static class Location
   {
-    static Location getLocation(final String locationUriString) throws InvalidProtocolException, NoProtocolException, MalformedURLException
+    static Location getLocation(final String locationUriString) throws InvalidProtocolException, NoProtocolException,
+          MalformedURLException
     {
       final URL url;
 
       try {
         url = new URL(locationUriString.trim());
-      } catch (MalformedURLException ex) {
+      }
+      catch (MalformedURLException ex) {
 
         //
         // trouble with protocol ???
         //
- 
+
         try {
 
-          if(URI.create(locationUriString).getScheme() == null)
+          if (URI.create(locationUriString).getScheme() == null)
           {
-            throw new NoProtocolException(String.format("Provide a protocol [%s] for parameter 'xcode.verification.checks.definitionFile'", Protocol.getProtocols()), ex);
+            throw new NoProtocolException(String.format(
+                  "Provide a protocol [%s] for parameter 'xcode.verification.checks.definitionFile'",
+                  Protocol.getProtocols()), ex);
           }
-        } catch(RuntimeException ignore) {
+        }
+        catch (RuntimeException ignore) {
           //
           // in this case we throw already the MalformedUrlExcpetion that indicates a problem with 
           // the URL
