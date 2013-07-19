@@ -32,7 +32,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.Socket;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -90,7 +89,7 @@ import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
  * The check classes and their severities are described in an additional xml document, defined in
  * <code>xcode.verification.checks.definitionFile</code>.<br>
  * The specific checks have to be implemented in a separate project. The coordinates of that
- * projects needs to be provided on the <code>check</code> node belonging to the test as attributes
+ * projects need to be provided on the <code>check</code> node belonging to the test as attributes
  * <code>groupId</code>, <code>artifactId</code> and <code>version</code>.<br>
  * The classpath for this goal will be extended by the jars found under the specified GAVs. <br>
  * Example checks definition:
@@ -286,7 +285,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
   protected List<RemoteRepository> projectRepos;
 
   /**
-   * Parameter, which conrols the verification goal execution. By default, the verification goal
+   * Parameter, which controls the verification goal execution. By default, the verification goal
    * will be skipped.
    * 
    * @parameter expression="${xcode.verification.checks.skip}" default-value="true"
@@ -296,8 +295,14 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
   /**
    * The location where the check definition file is present. Could be a file on the local file
-   * system or a remote located file, accessed via HTTP.
-   * 
+   * system or a remote located file, accessed via http or https.
+   * <br>
+   * Examples: 
+   * <ul>
+   * <li>-Dxcode.verification.checks.definitionFile=file:./checkDefinitionFile.xml
+   * <li>-Dxcode.verification.checks.definitionFile=http://example.com/checkDefinitionFile.xml
+   * <li>-Dxcode.verification.checks.definitionFile=https://example.com/checkDefinitionFile.xml
+   * </ul>
    * @parameter expression="${xcode.verification.checks.definitionFile}"
    * @since 1.9.3
    */
