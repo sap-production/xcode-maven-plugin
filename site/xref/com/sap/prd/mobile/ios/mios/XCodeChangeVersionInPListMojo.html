@@ -94,7 +94,7 @@
 <a class="jxr_linenumber" name="84" href="#84">84</a>              ensurePListFileIsWritable(infoPlistFile);
 <a class="jxr_linenumber" name="85" href="#85">85</a>  
 <a class="jxr_linenumber" name="86" href="#86">86</a>              <strong class="jxr_keyword">for</strong> (UpdateVersionInPListTask updateVersionInPListTask : updateTasks) {
-<a class="jxr_linenumber" name="87" href="#87">87</a>                updateVersionInPListTask.setPListFile(infoPlistFile).setVersion(project.getVersion()).setLog(getLog())
+<a class="jxr_linenumber" name="87" href="#87">87</a>                updateVersionInPListTask.setPListFile(infoPlistFile).setVersion(project.getVersion())
 <a class="jxr_linenumber" name="88" href="#88">88</a>                  .execute();
 <a class="jxr_linenumber" name="89" href="#89">89</a>              }
 <a class="jxr_linenumber" name="90" href="#90">90</a>  

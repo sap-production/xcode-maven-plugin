@@ -94,28 +94,43 @@
 <a class="jxr_linenumber" name="84" href="#84">84</a>      <strong class="jxr_keyword">if</strong> (!libFile.exists()) {
 <a class="jxr_linenumber" name="85" href="#85">85</a>        errorMsgs.add(<span class="jxr_string">"Missing the required library file '"</span> + relativeLibPath + <span class="jxr_string">"'"</span>);
 <a class="jxr_linenumber" name="86" href="#86">86</a>      }
-<a class="jxr_linenumber" name="87" href="#87">87</a>  
-<a class="jxr_linenumber" name="88" href="#88">88</a>    }
-<a class="jxr_linenumber" name="89" href="#89">89</a>  
-<a class="jxr_linenumber" name="90" href="#90">90</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> validateLink(String from, String to)
-<a class="jxr_linenumber" name="91" href="#91">91</a>    {
-<a class="jxr_linenumber" name="92" href="#92">92</a>      File fromLink = <strong class="jxr_keyword">new</strong> File(fmwkDir, from);
-<a class="jxr_linenumber" name="93" href="#93">93</a>      File toFile = <strong class="jxr_keyword">new</strong> File(fmwkDir, to);
-<a class="jxr_linenumber" name="94" href="#94">94</a>      <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="95" href="#95">95</a>        <strong class="jxr_keyword">if</strong> (!FileUtils.isSymbolicLink(fromLink)) {
-<a class="jxr_linenumber" name="96" href="#96">96</a>          errorMsgs.add(<span class="jxr_string">"Expected inside the framework a symbolic link from '"</span> + from + <span class="jxr_string">"' to '"</span> + to + <span class="jxr_string">"'"</span>);
-<a class="jxr_linenumber" name="97" href="#97">97</a>        }
-<a class="jxr_linenumber" name="98" href="#98">98</a>        <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!fromLink.getCanonicalPath().equals(toFile.getCanonicalPath())) {
-<a class="jxr_linenumber" name="99" href="#99">99</a>          errorMsgs.add(<span class="jxr_string">"The link '"</span> + from + <span class="jxr_string">"' does not point to '"</span> + to + <span class="jxr_string">"'"</span>);
-<a class="jxr_linenumber" name="100" href="#100">100</a>       }
-<a class="jxr_linenumber" name="101" href="#101">101</a>     }
-<a class="jxr_linenumber" name="102" href="#102">102</a>     <strong class="jxr_keyword">catch</strong> (IOException ioe) {
-<a class="jxr_linenumber" name="103" href="#103">103</a>       errorMsgs.add(<span class="jxr_string">"Could not validate the symbolic link from '"</span> + from + <span class="jxr_string">"' to '"</span> + to + <span class="jxr_string">"': "</span> + ioe.getMessage());
-<a class="jxr_linenumber" name="104" href="#104">104</a>     }
-<a class="jxr_linenumber" name="105" href="#105">105</a> 
-<a class="jxr_linenumber" name="106" href="#106">106</a>   }
-<a class="jxr_linenumber" name="107" href="#107">107</a> 
-<a class="jxr_linenumber" name="108" href="#108">108</a> }
+<a class="jxr_linenumber" name="87" href="#87">87</a>      <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="88" href="#88">88</a>        <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="89" href="#89">89</a>          <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">new</strong> FatLibAnalyzer(libFile).containsI386()) {
+<a class="jxr_linenumber" name="90" href="#90">90</a>            errorMsgs
+<a class="jxr_linenumber" name="91" href="#91">91</a>              .add(<span class="jxr_string">"'"</span>
+<a class="jxr_linenumber" name="92" href="#92">92</a>                    + libFile.getAbsolutePath()
+<a class="jxr_linenumber" name="93" href="#93">93</a>                    + <span class="jxr_string">"' does not contain i386 architecture. You should configure your project accordingly to build "</span> +
+<a class="jxr_linenumber" name="94" href="#94">94</a>                    <span class="jxr_string">"for the simulator architecture, otherwise the applications, which are using this framework will "</span> +
+<a class="jxr_linenumber" name="95" href="#95">95</a>                    <span class="jxr_string">"not be able to run in Simulator. For this, set the 'Build Active Architecture Only' to 'NO' for both"</span> +
+<a class="jxr_linenumber" name="96" href="#96">96</a>                    <span class="jxr_string">"'Release' and 'Debug' configuration."</span>);
+<a class="jxr_linenumber" name="97" href="#97">97</a>          }
+<a class="jxr_linenumber" name="98" href="#98">98</a>        }
+<a class="jxr_linenumber" name="99" href="#99">99</a>        <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="100" href="#100">100</a>         errorMsgs.add(<span class="jxr_string">"Error ocurred during validation of the library '"</span> + libFile.getAbsolutePath() + <span class="jxr_string">"' for i386"</span>);
+<a class="jxr_linenumber" name="101" href="#101">101</a>       }
+<a class="jxr_linenumber" name="102" href="#102">102</a>     }
+<a class="jxr_linenumber" name="103" href="#103">103</a>   }
+<a class="jxr_linenumber" name="104" href="#104">104</a> 
+<a class="jxr_linenumber" name="105" href="#105">105</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> validateLink(String from, String to)
+<a class="jxr_linenumber" name="106" href="#106">106</a>   {
+<a class="jxr_linenumber" name="107" href="#107">107</a>     File fromLink = <strong class="jxr_keyword">new</strong> File(fmwkDir, from);
+<a class="jxr_linenumber" name="108" href="#108">108</a>     File toFile = <strong class="jxr_keyword">new</strong> File(fmwkDir, to);
+<a class="jxr_linenumber" name="109" href="#109">109</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="110" href="#110">110</a>       <strong class="jxr_keyword">if</strong> (!FileUtils.isSymbolicLink(fromLink)) {
+<a class="jxr_linenumber" name="111" href="#111">111</a>         errorMsgs.add(<span class="jxr_string">"Expected inside the framework a symbolic link from '"</span> + from + <span class="jxr_string">"' to '"</span> + to + <span class="jxr_string">"'"</span>);
+<a class="jxr_linenumber" name="112" href="#112">112</a>       }
+<a class="jxr_linenumber" name="113" href="#113">113</a>       <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!fromLink.getCanonicalPath().equals(toFile.getCanonicalPath())) {
+<a class="jxr_linenumber" name="114" href="#114">114</a>         errorMsgs.add(<span class="jxr_string">"The link '"</span> + from + <span class="jxr_string">"' does not point to '"</span> + to + <span class="jxr_string">"'"</span>);
+<a class="jxr_linenumber" name="115" href="#115">115</a>       }
+<a class="jxr_linenumber" name="116" href="#116">116</a>     }
+<a class="jxr_linenumber" name="117" href="#117">117</a>     <strong class="jxr_keyword">catch</strong> (IOException ioe) {
+<a class="jxr_linenumber" name="118" href="#118">118</a>       errorMsgs.add(<span class="jxr_string">"Could not validate the symbolic link from '"</span> + from + <span class="jxr_string">"' to '"</span> + to + <span class="jxr_string">"': "</span> + ioe.getMessage());
+<a class="jxr_linenumber" name="119" href="#119">119</a>     }
+<a class="jxr_linenumber" name="120" href="#120">120</a> 
+<a class="jxr_linenumber" name="121" href="#121">121</a>   }
+<a class="jxr_linenumber" name="122" href="#122">122</a> 
+<a class="jxr_linenumber" name="123" href="#123">123</a> }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>
