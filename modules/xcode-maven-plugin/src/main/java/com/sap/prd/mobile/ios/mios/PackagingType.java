@@ -39,6 +39,9 @@ public enum PackagingType
 
   public static PackagingType getByMavenType(String mavenPackaging) throws UnknownPackagingTypeException
   {
+    if (mavenPackaging == null)
+      throw new IllegalArgumentException("No packaging provided.");
+
     for (PackagingType type : PackagingType.values())
     {
       if (type.getMavenPackaging().equals(mavenPackaging))

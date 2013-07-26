@@ -327,7 +327,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
 
     try {
-      getPackagingType();
+      PackagingType.getByMavenType(packaging);
     }
     catch (PackagingType.UnknownPackagingTypeException ex)
     {

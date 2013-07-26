@@ -184,7 +184,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     }
 
     try {
-    if (getPackagingType() == PackagingType.APP)
+    if (PackagingType.getByMavenType(packaging) == PackagingType.APP)
     {
       try
       {
