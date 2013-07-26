@@ -183,6 +183,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
       throw new MojoExecutionException(e.getMessage(), e);
     }
 
+    try {
     if (getPackagingType() == PackagingType.APP)
     {
       try
@@ -198,6 +199,10 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
       catch (XCodeException e) {
         throw new MojoExecutionException(e.getMessage(), e);
       }
+    }
+    } catch(PackagingType.UnknownPackagingTypeException ex) {
+      getLog().warn("Unknown packaing type detected.", ex);
+     
     }
 
     projectHelper.attachArtifact(project, "xml", "versions", versionsXmlFile);

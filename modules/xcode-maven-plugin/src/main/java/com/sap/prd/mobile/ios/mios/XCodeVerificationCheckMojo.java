@@ -327,6 +327,17 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
 
     try {
+      getPackagingType();
+    }
+    catch (PackagingType.UnknownPackagingTypeException ex)
+    {
+      getLog().info(
+            "Packaging type is " + packaging
+                  + ". There is no need to apply verification checks for this packaging type.");
+      return;
+    }
+
+    try {
 
       final Checks checks = getChecks(checkDefinitionFile);
 
@@ -372,6 +383,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
   private Exception performCheck(ClassRealm verificationCheckRealm, final Check checkDesc)
         throws MojoExecutionException
   {
+
     getLog().info(String.format("Performing verification check '%s'.", checkDesc.getClazz()));
 
     if (getLog().isDebugEnabled()) {
