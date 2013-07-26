@@ -10,7 +10,21 @@ Release Notes
 
 ===
 
+* 1.11.1
+
+** Features
+
+  <No new features>
+
+** Bug Fixes
+
+  Fix crashing build when running verification checks for module builds.
+
 * 1.11.0
+
++--
+  Use 1.11.1 instead since 1.11.0 crashes when executing verification checks with module builds.
++--
 
 ** Features
 
@@ -23,9 +37,7 @@ Release Notes
 *** Access check definition file
 
   Fixed problem when accessing the check definition file for verification checks (see release 1.9.3) via http and https.
-
-*** 
-
+ 
 ===
 
 * 1.10.0
