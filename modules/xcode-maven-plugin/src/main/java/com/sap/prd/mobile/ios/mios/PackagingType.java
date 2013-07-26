@@ -37,7 +37,7 @@ public enum PackagingType
     return packagingName;
   }
 
-  public static PackagingType getByMavenType(String mavenPackaging)
+  public static PackagingType getByMavenType(String mavenPackaging) throws UnknownPackagingTypeException
   {
     for (PackagingType type : PackagingType.values())
     {
@@ -46,6 +46,16 @@ public enum PackagingType
         return type;
       }
     }
-    throw new IllegalArgumentException("Maven Packaging type '" + mavenPackaging + "' does not exist");
+    throw new UnknownPackagingTypeException("Packaging type '" + mavenPackaging + "' is not handled by xcode-maven-plugin.");
+  }
+  
+  static class UnknownPackagingTypeException extends XCodeException{
+
+    private static final long serialVersionUID = -4039520479565138503L;
+
+    UnknownPackagingTypeException(String message)
+    {
+      super(message);
+    }
   }
 }

@@ -29,6 +29,8 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
+import com.sap.prd.mobile.ios.mios.PackagingType.UnknownPackagingTypeException;
+
 /**
  * Base class for Xcode specific mojos
  * 
@@ -158,14 +160,26 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
       if (packaging == null)
         throw new NullPointerException("Packaging was not set.");
 
-      if (getPackagingType() == PackagingType.APP) {
-        getLog().info(
-              "No SDKs in POM set. Using default configurations for applications: " + defaultAppSdks);
-        return commaSeparatedStringToSet(defaultAppSdks);
+      try {
+
+        PackagingType packagingType = getPackagingType();
+
+        if (packagingType == PackagingType.APP) {
+
+          getLog().info(
+                "No SDKs in POM set. Using default configurations for applications: " + defaultAppSdks);
+          return commaSeparatedStringToSet(defaultAppSdks);
+        }
+        else if (packagingType == PackagingType.LIB || packagingType == PackagingType.FRAMEWORK) {
+          getLog().info(
+                "No SDKs in POM set. Using default configurations for libraries: " + defaultLibSdks);
+          return commaSeparatedStringToSet(defaultLibSdks);
+        }
       }
-      getLog().info(
-            "No SDKs in POM set. Using default configurations for libraries: " + defaultLibSdks);
-      return commaSeparatedStringToSet(defaultLibSdks);
+      catch (PackagingType.UnknownPackagingTypeException e) {
+        getLog().info("Unknown PackagingType found.", e);
+        return Collections.emptySet();
+      }
     }
     getLog().info("SDKs have been explicitly set in POM: " + sdks);
     return sdks;
@@ -178,15 +192,27 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
       if (packaging == null)
         throw new NullPointerException("Packaging was not set.");
 
-      if (getPackagingType() == PackagingType.APP) {
-        getLog().info(
-              "No configurations in POM set. Using default configurations for applications: "
-                    + defaultAppConfigurations);
-        return commaSeparatedStringToSet(defaultAppConfigurations);
+      try {
+        PackagingType packagingType = getPackagingType();
+
+        if (packagingType == PackagingType.APP) {
+          getLog().info(
+                "No configurations in POM set. Using default configurations for applications: "
+                      + defaultAppConfigurations);
+          return commaSeparatedStringToSet(defaultAppConfigurations);
+        }
+        else if (packagingType == PackagingType.LIB || packagingType == PackagingType.FRAMEWORK) {
+          getLog()
+            .info(
+                  "No configurations in POM set. Using default configurations for libraries: "
+                        + defaultLibConfigurations);
+          return commaSeparatedStringToSet(defaultLibConfigurations);
+        }
       }
-      getLog().info(
-            "No configurations in POM set. Using default configurations for libraries: " + defaultLibConfigurations);
-      return commaSeparatedStringToSet(defaultLibConfigurations);
+      catch (PackagingType.UnknownPackagingTypeException e) {
+        getLog().info("Unknown PackagingType found.", e);
+        return Collections.emptySet();
+      }
     }
     getLog().info("Configurations have been explicitly set in POM: " + configurations);
     return configurations;
@@ -284,7 +310,7 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     return new File(rootDir, zipFileName);
   }
 
-  protected PackagingType getPackagingType()
+  protected PackagingType getPackagingType() throws UnknownPackagingTypeException
   {
     return PackagingType.getByMavenType(packaging);
   }
