@@ -41,7 +41,7 @@ public class XCodeBuildMojo extends BuildContextAwareMojo
     try {
       XCodeManager xcodeMgr = new XCodeManager();
 
-      if (getPackagingType() == PackagingType.FRAMEWORK) {
+      if (PackagingType.getByMavenType(packaging) == PackagingType.FRAMEWORK) {
         // we do not provide a sdk for frameworks as the target should assure that all required sdks are built
         for (String configuration : getConfigurations()) {
           XCodeContext ctx = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration,

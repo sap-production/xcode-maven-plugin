@@ -29,8 +29,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
-import com.sap.prd.mobile.ios.mios.PackagingType.UnknownPackagingTypeException;
-
 /**
  * Base class for Xcode specific mojos
  * 
@@ -157,12 +155,9 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   {
     if (sdks == null || sdks.isEmpty()) {
 
-      if (packaging == null)
-        throw new NullPointerException("Packaging was not set.");
-
       try {
 
-        PackagingType packagingType = getPackagingType();
+        PackagingType packagingType = PackagingType.getByMavenType(packaging);
 
         if (packagingType == PackagingType.APP) {
 
@@ -189,11 +184,8 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
   {
     if (configurations == null || configurations.isEmpty()) {
 
-      if (packaging == null)
-        throw new NullPointerException("Packaging was not set.");
-
       try {
-        PackagingType packagingType = getPackagingType();
+        PackagingType packagingType = PackagingType.getByMavenType(packaging);
 
         if (packagingType == PackagingType.APP) {
           getLog().info(
@@ -308,10 +300,5 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
     }
     getLog().info("Zip file '" + zipFileName + "' created.");
     return new File(rootDir, zipFileName);
-  }
-
-  protected PackagingType getPackagingType() throws UnknownPackagingTypeException
-  {
-    return PackagingType.getByMavenType(packaging);
   }
 }
