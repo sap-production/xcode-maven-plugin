@@ -71,8 +71,10 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
+import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.collection.DependencyCollectionException;
@@ -535,11 +537,26 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
       .resolveArtifactWithTransitveDependencies(new Dependency(artifact,
             org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
 
-    final ClassRealm childClassRealm = classRealm.createChildRealm(classRealm.getId() + "-" + check.getClazz());
+    final ClassRealm childClassRealm = classRealm.createChildRealm(getUniqueRealmId(classRealm.getWorld(),
+          classRealm.getId() + "-" + check.getClazz()));
 
     addDependencies(childClassRealm, artifacts);
 
     return childClassRealm;
+  }
+
+  private String getUniqueRealmId(final ClassWorld world, final String realmIdPrefix)
+  {
+    String uniqueRealmIdCandidate = null;
+    int i = 0;
+    while (true) {
+      uniqueRealmIdCandidate = realmIdPrefix + "-" + i;
+      if (world.getClassRealm(uniqueRealmIdCandidate) == null)
+      {
+        return uniqueRealmIdCandidate;
+      }
+      i++;
+    }
   }
 
   private void addDependencies(final ClassRealm childClassRealm, Set<org.sonatype.aether.artifact.Artifact> artifacts)
