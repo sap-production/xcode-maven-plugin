@@ -74,7 +74,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
-import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.collection.DependencyCollectionException;
@@ -359,9 +358,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
           }
         }
         catch (DuplicateRealmException ex) {
-          throw new MojoExecutionException(
-                String.format("Check '%s' was configured twice in check definition file '%s'", check.getClazz(),
-                      checkDefinitionFile), ex);
+          throw new MojoExecutionException(ex.getMessage(), ex);
         }
       }
 
