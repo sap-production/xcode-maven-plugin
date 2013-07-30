@@ -152,12 +152,6 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
             project.getVersion(), syncInfoFile, getDependencies(), os);
 
     }
-    catch (JAXBException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
-    catch (SAXException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
@@ -172,12 +166,6 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     try {
       new VersionInfoPListManager().createVersionInfoPlistFile(project.getGroupId(), project.getArtifactId(),
             project.getVersion(), syncInfoFile, getDependencies(), versionsPlistFile);
-    }
-    catch (JAXBException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
-    }
-    catch (SAXException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
     }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
@@ -261,7 +249,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     CodeSignManager.sign(csi, appFolder, true);
   }
 
-  private List<Dependency> getDependencies() throws JAXBException, SAXException, IOException
+  private List<Dependency> getDependencies() throws IOException
   {
 
     List<Dependency> result = new ArrayList<Dependency>();
@@ -271,15 +259,25 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
       final Artifact mainArtifact = (Artifact) it.next();
 
+      org.sonatype.aether.artifact.Artifact sideArtifact = null;
+
       try {
-        org.sonatype.aether.artifact.Artifact sideArtifact = new XCodeDownloadManager(projectRepos, repoSystem,
+
+        sideArtifact = new XCodeDownloadManager(projectRepos, repoSystem,
               repoSession).resolveSideArtifact(mainArtifact, "versions", "xml");
+
         getLog().info("Version information retrieved for artifact: " + mainArtifact);
 
         result.add(VersionInfoXmlManager.parseDependency(sideArtifact.getFile()));
       }
+      catch (SAXException e) {
+        getLog().warn(String.format("Version file '%s' for artifact '%s' contains invalid content (Non parsable XML). Ignoring this file.", (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
+      }
+      catch (JAXBException e) {
+        getLog().info(String.format("Version file '%s' for artifact '%s' contains invalid content (Scheme violation). Ignoring this file.", (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
+      }
       catch (SideArtifactNotFoundException e) {
-        getLog().info("Could not retrieve version information for artifact:" + mainArtifact);
+        getLog().warn("Could not retrieve version information for artifact:" + mainArtifact);
       }
     }
     return result;
