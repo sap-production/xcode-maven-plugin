@@ -35,7 +35,6 @@
           <target>1.6</target>
         </configuration>
       </plugin>
-
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
         <executions>
@@ -92,9 +91,19 @@
         </executions>
       </plugin>
  
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
       
-
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -182,17 +191,6 @@
                 <phase>test</phase>
                 <goals>
                   <goal>emma</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
                 </goals>
               </execution>
             </executions>
