@@ -22,6 +22,8 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Properties;
 
 import junit.framework.Assert;
@@ -32,6 +34,7 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Test;
 
 public class DependencyToZipToBundleTest extends XCodeTest
@@ -58,29 +61,18 @@ public class DependencyToZipToBundleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_ZIP_REPO_DIR, zipRepository.getAbsolutePath());
 
     final ProjectModifier projectModifier = new ChainProjectModifier(new FileCopyProjectModifier(
-          alternateTestSourceDirApp, "pom.xml"), new ProjectModifier() {
+          alternateTestSourceDirApp, "pom.xml"), new AbstractProjectModifier() {
 
       @Override
       public void execute() throws Exception
       {
         final File pom = new File(testExecutionDirectory, "pom.xml");
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
 
-        try {
-          fis = new FileInputStream(pom);
-          final Model model = new MavenXpp3Reader().read(fis);
-          fis.close();
-          fos = new FileOutputStream(pom);
+          final Model model = getModel(pom);
           Plugin plugin = model.getBuild().getPlugins().get(0);
           ((Xpp3Dom) plugin.getConfiguration()).getChild("additionalPackagingTypes").getChild("html5")
             .setValue("BUNDLE");
-          new MavenXpp3Writer().write(fos, model);
-        }
-        finally {
-          IOUtils.closeQuietly(fis);
-          IOUtils.closeQuietly(fos);
-        }
+          persistModel(pom, model);
       }
     });
 
