@@ -346,6 +346,7 @@ public abstract class XCodeTest
 
       verifier.deleteArtifacts("com.sap.production.ios.tests");
 
+      verifier.setAutoclean(false);
       verifier.executeGoals(targets, envVars);
 
       verifier.verifyErrorFreeLog();
@@ -510,18 +511,33 @@ public abstract class XCodeTest
             + remoteRepository);
   }
 
-  protected static String getMavenXcodePluginVersion() throws IOException
+  protected static String getMavenXcodePluginGroupId() throws IOException
   {
-    Properties properties = new Properties();
-    properties.load(XCodeTest.class.getResourceAsStream("/project.properties"));
-    final String xcodePluginVersion = properties.getProperty("xcode-plugin-version");
-
-    if (xcodePluginVersion.equals("${project.version}"))
-      throw new IllegalStateException(
-            "Variable ${project.version} was not replaced. May be running \"mvn clean install\" beforehand might solve this issue.");
-    return xcodePluginVersion;
+    return getProjectProperty("groupId");
   }
 
+  protected static String getMavenXcodePluginArtifactId() throws IOException
+  {
+    return getProjectProperty("artifactId");
+  }
+
+  protected static String getMavenXcodePluginVersion() throws IOException
+  {
+    return getProjectProperty("version");
+  }
+
+  private static String getProjectProperty(String key) throws IOException {
+    Properties properties = new Properties();
+    properties.load(XCodeTest.class.getResourceAsStream("/misc/project.properties"));
+
+    final String value = properties.getProperty("xcode-plugin-" + key);
+
+    if (value.equals("${project." + key + "}"))
+      throw new IllegalStateException(
+            "Variable ${project." + key + "} was not replaced. May be running \"mvn clean install\" beforehand might solve this issue.");
+    return value;
+  }
+  
   protected static File getTargetDirectory() throws IOException
   {
     return new File(new File(".").getCanonicalFile(), "target");

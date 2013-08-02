@@ -13,15 +13,6 @@
     <license.roots>src/main,src/test/java,src/test/projects</license.roots> <!--  skip src/test/resources as these files are used for file comparison and must not be changed-->
   </properties>
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>project.properties</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
