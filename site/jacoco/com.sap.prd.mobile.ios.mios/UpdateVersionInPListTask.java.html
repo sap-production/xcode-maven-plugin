@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>UpdateVersionInPListTask.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">UpdateVersionInPListTask.java</span></div><h1>UpdateVersionInPListTask.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+<span class="fc" id="L27">abstract class UpdateVersionInPListTask</span>
+{
+  protected File plistFile;
+  protected String version;
+<span class="fc" id="L31">  protected final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());</span>
+
+  final UpdateVersionInPListTask setPListFile(File plistFile)
+  {
+<span class="fc" id="L35">    this.plistFile = plistFile;</span>
+<span class="fc" id="L36">    return this;</span>
+  }
+
+  final UpdateVersionInPListTask setVersion(String version)
+  {
+<span class="fc" id="L41">    this.version = version;</span>
+<span class="fc" id="L42">    return this;</span>
+  }
+
+  void execute() throws XCodeException
+  {
+
+<span class="pc bpc" id="L48" title="2 of 4 branches missed.">    if (version == null || version.isEmpty()) {</span>
+<span class="nc" id="L49">      throw new IllegalArgumentException(&quot;No version provided: '&quot; + version + &quot;'.&quot;);</span>
+    }
+
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">    if (plistFile == null) {</span>
+<span class="nc" id="L53">      throw new IllegalArgumentException(&quot;No PlistFile provided.&quot;);</span>
+    }
+
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">    if (!plistFile.exists())</span>
+<span class="nc" id="L57">      throw new IllegalArgumentException(&quot;PlistFile '&quot; + plistFile + &quot;' does not exist.&quot;);</span>
+
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">    if (!plistFile.isFile()) {</span>
+<span class="nc" id="L60">      throw new IllegalArgumentException(&quot;PlistFile '&quot; + plistFile + &quot;' is not a file.&quot;);</span>
+    }
+<span class="fc" id="L62">  }</span>
+
+  protected void updateProperty(File plistFile, String key, String newValue) throws XCodeException
+  {
+
+    try {
+
+<span class="fc" id="L69">      final PListAccessor infoPlistAccessor = new PListAccessor(plistFile);</span>
+
+<span class="fc" id="L71">      final String oldValue = infoPlistAccessor.getStringValue(key);</span>
+
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">      if (oldValue == null) {</span>
+
+<span class="nc" id="L75">        infoPlistAccessor.addStringValue(key, newValue);</span>
+<span class="nc" id="L76">        LOGGER.info(key + &quot; was not present in PList '&quot; + infoPlistAccessor.getPlistFile()</span>
+              + &quot;. Entry has been added with value '&quot; + newValue + &quot;'.&quot;);
+<span class="nc" id="L78">        return;</span>
+
+      }
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">      else if (oldValue.equals(newValue)) {</span>
+<span class="nc" id="L82">        LOGGER.info(key + &quot; in PList '&quot; + infoPlistAccessor.getPlistFile() + &quot;' file is already up-to-date (&quot; + oldValue</span>
+              + &quot;). No update needed.&quot;);
+<span class="nc" id="L84">        return;</span>
+      }
+
+<span class="fc" id="L87">      infoPlistAccessor.updateStringValue(key, newValue);</span>
+<span class="fc" id="L88">      LOGGER.info(&quot;PList file '&quot; + infoPlistAccessor.getPlistFile() + &quot;' updated: Set &quot; + key + &quot; from old value &quot;</span>
+            + oldValue + &quot; to new value '&quot; + version + &quot;'.&quot;);
+    }
+<span class="nc" id="L91">    catch (IOException e) {</span>
+<span class="nc" id="L92">      throw new XCodeException(e.getMessage(), e);</span>
+<span class="fc" id="L93">    }</span>
+<span class="fc" id="L94">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

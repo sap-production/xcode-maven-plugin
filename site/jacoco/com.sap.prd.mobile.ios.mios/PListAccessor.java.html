@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PListAccessor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">PListAccessor.java</span></div><h1>PListAccessor.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import static org.apache.commons.io.IOUtils.closeQuietly;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.Scanner;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+
+public class PListAccessor
+{
+  public static final String KEY_BUNDLE_IDENTIFIER = &quot;CFBundleIdentifier&quot;;
+  public static final String KEY_BUNDLE_VERSION = &quot;CFBundleVersion&quot;;
+  public static final String KEY_BUNDLE_SHORT_VERSION_STRING = &quot;CFBundleShortVersionString&quot;;
+
+  private final File plist;
+
+  public PListAccessor(File file)
+<span class="fc" id="L44">  {</span>
+<span class="fc" id="L45">    plist = file;</span>
+<span class="fc" id="L46">  }</span>
+
+  public File getPlistFile()
+  {
+<span class="fc" id="L50">    return plist;</span>
+  }
+
+  public String getStringValue(String key) throws IOException
+  {
+<span class="fc bfc" id="L55" title="All 2 branches covered.">    if (!plist.exists())</span>
+    {
+<span class="fc" id="L57">      throw new FileNotFoundException(&quot;The Plist &quot; + plist.getAbsolutePath() + &quot; does not exist.&quot;);</span>
+    }
+
+    try
+    {
+<span class="fc" id="L62">      String command = &quot;/usr/libexec/PlistBuddy -c \&quot;Print :&quot; + key + &quot;\&quot; \&quot;&quot; + plist.getAbsolutePath() + &quot;\&quot;&quot;;</span>
+
+<span class="fc" id="L64">      System.out.println(&quot;[INFO] PlistBuddy Print command is: '&quot; + command + &quot;'.&quot;);</span>
+
+<span class="fc" id="L66">      String[] args = new String[] { &quot;bash&quot;, &quot;-c&quot;, command };</span>
+<span class="fc" id="L67">      Process p = Runtime.getRuntime().exec(args);</span>
+<span class="fc" id="L68">      p.waitFor();</span>
+
+<span class="fc" id="L70">      int exitValue = p.exitValue();</span>
+
+<span class="fc bfc" id="L72" title="All 2 branches covered.">      if (exitValue == 0)</span>
+      {
+<span class="fc" id="L74">        InputStream is = p.getInputStream();</span>
+        try {
+<span class="fc" id="L76">          return new Scanner(is).useDelimiter(&quot;\\Z&quot;).next();</span>
+        }
+        finally {
+<span class="pc" id="L79">          closeQuietly(is);</span>
+        }
+      }
+
+<span class="fc" id="L83">      String errorMessage = &quot;&lt;n/a&gt;&quot;;</span>
+
+      try {
+<span class="fc" id="L86">        errorMessage = new Scanner(p.getErrorStream()).useDelimiter(&quot;\\Z&quot;).next();</span>
+      }
+<span class="nc" id="L88">      catch (Exception ex) {</span>
+<span class="nc" id="L89">        System.out.println(&quot;[ERROR] Exception caught during retrieving error message of command '&quot; + command + &quot;': &quot;</span>
+              + ex);
+<span class="fc" id="L91">      }</span>
+
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">      if (errorMessage.contains(&quot;:&quot; + key + &quot;\&quot;, Does Not Exist&quot;)) {</span>
+        // ugly string parsing above, but no other known way ...
+<span class="fc" id="L95">        return null;</span>
+      }
+
+<span class="nc" id="L98">      throw new IllegalStateException(&quot;Execution of \&quot;&quot; + StringUtils.join(args, &quot; &quot;)</span>
+            + &quot;\&quot; command failed. Error message is: &quot; + errorMessage + &quot;. Return code was: '&quot; + exitValue + &quot;'.&quot;);
+    }
+<span class="nc" id="L101">    catch (InterruptedException e)</span>
+    {
+<span class="nc" id="L103">      throw new RuntimeException(e);</span>
+    }
+  }
+
+  public void updateStringValue(String key, String value) throws IOException
+  {
+<span class="fc bfc" id="L109" title="All 2 branches covered.">    if (!plist.exists())</span>
+    {
+<span class="fc" id="L111">      throw new FileNotFoundException(&quot;Plist file '&quot; + plist + &quot;' not found.&quot;);</span>
+    }
+
+    try
+    {
+<span class="fc" id="L116">      String command = &quot;/usr/libexec/PlistBuddy -x -c \&quot;Set :&quot; + key + &quot; &quot; + value + &quot;\&quot; \&quot;&quot; + plist.getAbsolutePath()</span>
+            + &quot;\&quot;&quot;;
+<span class="fc" id="L118">      System.out.println(&quot;[INFO] PlistBuddy Set command is: '&quot; + command + &quot;'.&quot;);</span>
+<span class="fc" id="L119">      String[] args = new String[] { &quot;bash&quot;, &quot;-c&quot;, command };</span>
+<span class="fc" id="L120">      Process p = Runtime.getRuntime().exec(args);</span>
+<span class="fc" id="L121">      p.waitFor();</span>
+<span class="fc" id="L122">      int exitValue = p.exitValue();</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">      if (exitValue != 0)</span>
+      {
+<span class="fc" id="L125">        String errorMessage = &quot;n/a&quot;;</span>
+        try {
+<span class="fc" id="L127">          errorMessage = new Scanner(p.getErrorStream()).useDelimiter(&quot;\\Z&quot;).next();</span>
+        }
+<span class="nc" id="L129">        catch (Exception ex) {</span>
+<span class="nc" id="L130">          System.out.println(&quot;[ERROR] Exception caught during retrieving error message of command '&quot; + command + &quot;': &quot;</span>
+                + ex);
+<span class="fc" id="L132">        }</span>
+<span class="fc" id="L133">        throw new IllegalStateException(&quot;Execution of \&quot;&quot; + StringUtils.join(args, &quot; &quot;) + &quot;\&quot; command failed: &quot;</span>
+              + errorMessage + &quot;. Exit code was: &quot; + exitValue);
+      }
+    }
+<span class="nc" id="L137">    catch (InterruptedException e)</span>
+    {
+<span class="nc" id="L139">      throw new RuntimeException(e);</span>
+<span class="fc" id="L140">    }</span>
+<span class="fc" id="L141">  }</span>
+
+  public void addStringValue(String key, String value) throws IOException
+  {
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">    if (!plist.exists())</span>
+    {
+<span class="nc" id="L147">      throw new FileNotFoundException(&quot;Plist file '&quot; + plist + &quot;' not found.&quot;);</span>
+    }
+
+    try
+    {
+<span class="fc" id="L152">      String command = &quot;/usr/libexec/PlistBuddy -x -c \&quot;Add :&quot; + key + &quot; string &quot; + value + &quot;\&quot; \&quot;&quot;</span>
+            + plist.getAbsolutePath() + &quot;\&quot;&quot;;
+<span class="fc" id="L154">      System.out.println(&quot;[INFO] PlistBuddy Add command is: '&quot; + command + &quot;'.&quot;);</span>
+<span class="fc" id="L155">      String[] args = new String[] { &quot;bash&quot;, &quot;-c&quot;, command };</span>
+<span class="fc" id="L156">      Process p = Runtime.getRuntime().exec(args);</span>
+<span class="fc" id="L157">      p.waitFor();</span>
+<span class="fc" id="L158">      int exitValue = p.exitValue();</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">      if (exitValue != 0)</span>
+      {
+<span class="nc" id="L161">        String errorMessage = &quot;n/a&quot;;</span>
+        try {
+<span class="nc" id="L163">          errorMessage = new Scanner(p.getErrorStream()).useDelimiter(&quot;\\Z&quot;).next();</span>
+        }
+<span class="nc" id="L165">        catch (Exception ex) {</span>
+<span class="nc" id="L166">          System.out.println(&quot;[ERROR] Exception caught during retrieving error message of command '&quot; + command + &quot;': &quot;</span>
+                + ex);
+<span class="nc" id="L168">        }</span>
+<span class="nc" id="L169">        throw new IllegalStateException(&quot;Execution of \&quot;&quot; + StringUtils.join(args, &quot; &quot;) + &quot;\&quot; command failed: &quot;</span>
+              + errorMessage + &quot;. Exit code was: &quot; + exitValue);
+      }
+    }
+<span class="nc" id="L173">    catch (InterruptedException e)</span>
+    {
+<span class="nc" id="L175">      throw new RuntimeException(e);</span>
+<span class="fc" id="L176">    }</span>
+<span class="fc" id="L177">  }</span>
+
+  public void addStringValueToDict(String key, String value, String dictKey) throws IOException
+  {
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">    if (!plist.exists())</span>
+    {
+<span class="nc" id="L183">      throw new FileNotFoundException(&quot;Plist file '&quot; + plist + &quot;' not found.&quot;);</span>
+    }
+
+    try
+    {
+<span class="fc" id="L188">      String command = &quot;/usr/libexec/PlistBuddy -x -c \&quot;Add :&quot; + dictKey + &quot;:&quot; + key + &quot; string &quot; + value + &quot;\&quot; \&quot;&quot;</span>
+            + plist.getAbsolutePath() + &quot;\&quot;&quot;;
+<span class="fc" id="L190">      System.out.println(&quot;[INFO] PlistBuddy Add command is: '&quot; + command + &quot;'.&quot;);</span>
+<span class="fc" id="L191">      String[] args = new String[] { &quot;bash&quot;, &quot;-c&quot;, command };</span>
+<span class="fc" id="L192">      Process p = Runtime.getRuntime().exec(args);</span>
+<span class="fc" id="L193">      p.waitFor();</span>
+<span class="fc" id="L194">      int exitValue = p.exitValue();</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">      if (exitValue != 0)</span>
+      {
+<span class="nc" id="L197">        String errorMessage = &quot;n/a&quot;;</span>
+        try {
+<span class="nc" id="L199">          errorMessage = new Scanner(p.getErrorStream()).useDelimiter(&quot;\\Z&quot;).next();</span>
+        }
+<span class="nc" id="L201">        catch (Exception ex) {</span>
+<span class="nc" id="L202">          System.out.println(&quot;[ERROR] Exception caught during retrieving error message of command '&quot; + command + &quot;': &quot;</span>
+                + ex);
+<span class="nc" id="L204">        }</span>
+<span class="nc" id="L205">        throw new IllegalStateException(&quot;Execution of \&quot;&quot; + StringUtils.join(args, &quot; &quot;) + &quot;\&quot; command failed: &quot;</span>
+              + errorMessage + &quot;. Exit code was: &quot; + exitValue);
+      }
+    }
+<span class="nc" id="L209">    catch (InterruptedException e)</span>
+    {
+<span class="nc" id="L211">      throw new RuntimeException(e);</span>
+<span class="fc" id="L212">    }</span>
+<span class="fc" id="L213">  }</span>
+
+  public void addElement(String key, String type) throws IOException
+  {
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">    if (!plist.exists())</span>
+    {
+<span class="nc" id="L219">      throw new FileNotFoundException(&quot;Plist file '&quot; + plist + &quot;' not found.&quot;);</span>
+    }
+    try
+    {
+<span class="fc" id="L223">      String command = &quot;/usr/libexec/PlistBuddy -x -c \&quot;Add :&quot; + key + &quot; &quot; + type + &quot;  &quot; + &quot;\&quot; \&quot;&quot;</span>
+            + plist.getAbsolutePath() + &quot;\&quot;&quot;;
+<span class="fc" id="L225">      System.out.println(&quot;[INFO] PlistBuddy Add command is: '&quot; + command + &quot;'.&quot;);</span>
+<span class="fc" id="L226">      String[] args = new String[] { &quot;bash&quot;, &quot;-c&quot;, command };</span>
+<span class="fc" id="L227">      Process p = Runtime.getRuntime().exec(args);</span>
+<span class="fc" id="L228">      p.waitFor();</span>
+<span class="fc" id="L229">      int exitValue = p.exitValue();</span>
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">      if (exitValue != 0)</span>
+      {
+<span class="nc" id="L232">        String errorMessage = &quot;n/a&quot;;</span>
+        try {
+<span class="nc" id="L234">          errorMessage = new Scanner(p.getErrorStream()).useDelimiter(&quot;\\Z&quot;).next();</span>
+        }
+<span class="nc" id="L236">        catch (Exception ex) {</span>
+<span class="nc" id="L237">          System.out.println(&quot;[ERROR] Exception caught during retrieving error message of command '&quot; + command + &quot;': &quot;</span>
+                + ex);
+<span class="nc" id="L239">        }</span>
+<span class="nc" id="L240">        throw new IllegalStateException(&quot;Execution of \&quot;&quot; + StringUtils.join(args, &quot; &quot;) + &quot;\&quot; command failed: &quot;</span>
+              + errorMessage + &quot;. Exit code was: &quot; + exitValue);
+      }
+    }
+<span class="nc" id="L244">    catch (InterruptedException e)</span>
+    {
+<span class="nc" id="L246">      throw new RuntimeException(e);</span>
+<span class="fc" id="L247">    }</span>
+<span class="fc" id="L248">  }</span>
+
+  public void addDictToArray(String dict, String array) throws IOException
+  {
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">    if (!plist.exists())</span>
+    {
+<span class="nc" id="L254">      throw new FileNotFoundException(&quot;Plist file '&quot; + plist + &quot;' not found.&quot;);</span>
+    }
+
+    try
+    {
+<span class="fc" id="L259">      String command = &quot;/usr/libexec/PlistBuddy -x -c \&quot;Add :&quot; + array + &quot;:&quot; + dict + &quot; dict &quot; + &quot;\&quot; \&quot;&quot;</span>
+            + plist.getAbsolutePath() + &quot;\&quot;&quot;;
+<span class="fc" id="L261">      System.out.println(&quot;[INFO] PlistBuddy Add command is: '&quot; + command + &quot;'.&quot;);</span>
+<span class="fc" id="L262">      String[] args = new String[] { &quot;bash&quot;, &quot;-c&quot;, command };</span>
+<span class="fc" id="L263">      Process p = Runtime.getRuntime().exec(args);</span>
+<span class="fc" id="L264">      p.waitFor();</span>
+<span class="fc" id="L265">      int exitValue = p.exitValue();</span>
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">      if (exitValue != 0)</span>
+      {
+<span class="nc" id="L268">        String errorMessage = &quot;n/a&quot;;</span>
+        try {
+<span class="nc" id="L270">          errorMessage = new Scanner(p.getErrorStream()).useDelimiter(&quot;\\Z&quot;).next();</span>
+        }
+<span class="nc" id="L272">        catch (Exception ex) {</span>
+<span class="nc" id="L273">          System.out.println(&quot;[ERROR] Exception caught during retrieving error message of command '&quot; + command + &quot;': &quot;</span>
+                + ex);
+<span class="nc" id="L275">        }</span>
+<span class="nc" id="L276">        throw new IllegalStateException(&quot;Execution of \&quot;&quot; + StringUtils.join(args, &quot; &quot;) + &quot;\&quot; command failed: &quot;</span>
+              + errorMessage + &quot;. Exit code was: &quot; + exitValue);
+      }
+    }
+<span class="nc" id="L280">    catch (InterruptedException e)</span>
+    {
+<span class="nc" id="L282">      throw new RuntimeException(e);</span>
+<span class="fc" id="L283">    }</span>
+<span class="fc" id="L284">  }</span>
+
+  public void createPlist() throws IOException
+  {
+
+    try
+    {
+<span class="fc" id="L291">      String command = &quot;/usr/libexec/PlistBuddy -x -c \&quot;Save \&quot; \&quot;&quot; + plist.getAbsolutePath() + &quot;\&quot;&quot;;</span>
+<span class="fc" id="L292">      System.out.println(&quot;[INFO] PlistBuddy Add command is: '&quot; + command + &quot;'.&quot;);</span>
+<span class="fc" id="L293">      String[] args = new String[] { &quot;bash&quot;, &quot;-c&quot;, command };</span>
+
+<span class="fc" id="L295">      Process p = Runtime.getRuntime().exec(args);</span>
+
+<span class="fc" id="L297">      p.waitFor();</span>
+
+<span class="fc" id="L299">      int exitValue = p.exitValue();</span>
+
+<span class="pc bpc" id="L301" title="1 of 2 branches missed.">      if (exitValue != 0)</span>
+      {
+<span class="nc" id="L303">        String errorMessage = &quot;n/a&quot;;</span>
+        try {
+<span class="nc" id="L305">          errorMessage = new Scanner(p.getErrorStream()).useDelimiter(&quot;\\Z&quot;).next();</span>
+        }
+<span class="nc" id="L307">        catch (Exception ex) {</span>
+<span class="nc" id="L308">          System.out.println(&quot;[ERROR] Exception caught during retrieving error message of command '&quot; + command + &quot;': &quot;</span>
+                + ex);
+<span class="nc" id="L310">        }</span>
+<span class="nc" id="L311">        throw new IllegalStateException(&quot;Execution of \&quot;&quot; + StringUtils.join(args, &quot; &quot;) + &quot;\&quot; command failed: &quot;</span>
+              + errorMessage + &quot;. Exit code was: &quot; + exitValue);
+      }
+    }
+<span class="nc" id="L315">    catch (InterruptedException e)</span>
+    {
+<span class="nc" id="L317">      throw new RuntimeException(e);</span>
+<span class="fc" id="L318">    }</span>
+<span class="fc" id="L319">  }</span>
+
+  public String printValue(String key) throws IOException
+  {
+
+    try
+    {
+<span class="fc" id="L326">      String command = &quot;/usr/libexec/PlistBuddy -c \&quot;Print :&quot; + key + &quot;\&quot; \&quot;&quot; + plist.getAbsolutePath() + &quot;\&quot;&quot;;</span>
+<span class="fc" id="L327">      System.out.println(&quot;[INFO] PlistBuddy Add command is: '&quot; + command + &quot;'.&quot;);</span>
+<span class="fc" id="L328">      String[] args = new String[] { &quot;bash&quot;, &quot;-c&quot;, command };</span>
+
+<span class="fc" id="L330">      Process p = Runtime.getRuntime().exec(args);</span>
+
+<span class="fc" id="L332">      InputStream is = p.getInputStream();</span>
+<span class="fc" id="L333">      p.waitFor();</span>
+<span class="fc" id="L334">      int exitValue = p.exitValue();</span>
+
+<span class="fc bfc" id="L336" title="All 2 branches covered.">      if (exitValue != 0)</span>
+      {
+<span class="fc" id="L338">        String errorMessage = &quot;n/a&quot;;</span>
+        try {
+<span class="fc" id="L340">          errorMessage = new Scanner(p.getErrorStream()).useDelimiter(&quot;\\Z&quot;).next();</span>
+        }
+<span class="nc" id="L342">        catch (Exception ex) {</span>
+<span class="nc" id="L343">          System.out.println(&quot;[ERROR] Exception caught during retrieving error message of command '&quot; + command + &quot;': &quot;</span>
+                + ex);
+<span class="fc" id="L345">        }</span>
+<span class="fc" id="L346">        throw new IllegalStateException(&quot;Execution of \&quot;&quot; + StringUtils.join(args, &quot; &quot;) + &quot;\&quot; command failed: &quot;</span>
+              + errorMessage + &quot;. Exit code was: &quot; + exitValue);
+      }
+
+<span class="fc" id="L350">      byte[] buff = new byte[64];</span>
+<span class="fc" id="L351">      StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">      for (int i = 0; (i = is.read(buff)) != -1;) {</span>
+<span class="fc" id="L353">        sb.append(new String(buff, 0, i));</span>
+      }
+<span class="fc" id="L355">      BufferedReader reader = new BufferedReader(new StringReader(sb.toString()));</span>
+
+      try {
+<span class="fc" id="L358">        return reader.readLine();</span>
+      }
+      finally {
+<span class="pc" id="L361">        IOUtils.closeQuietly(reader);</span>
+      }
+    }
+
+<span class="nc" id="L365">    catch (InterruptedException e)</span>
+    {
+<span class="nc" id="L367">      throw new RuntimeException(e);</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>
