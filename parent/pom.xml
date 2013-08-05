@@ -193,11 +193,6 @@
           <version>2.1.2</version>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>emma-maven-plugin</artifactId>
-          <version>1.0-alpha-3</version>
-        </plugin>
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
           <version>3.1</version>
