@@ -66,8 +66,8 @@ public class CleanMojoTest extends XCodeTest
     additionalSystemProperties.put("archive.dir", testOneArchiveDirectoryForAll.getAbsolutePath());
     additionalSystemProperties.put("mios.ota-service.url", "http://apple-ota.wdf.sap.corp:8080/ota-service/HTML");
 
-    test(null, testName, new File(getTestRootDirectory(), "moduleBuild"), asList("clean", "deploy"),
-          THE_EMPTY_LIST, additionalSystemProperties, pomReplacements, new NullProjectModifier());
+    test(new XCodeTestParameters(null, testName, new File(getTestRootDirectory(), "moduleBuild"), asList("clean", "deploy"),
+          THE_EMPTY_LIST, additionalSystemProperties, pomReplacements, new NullProjectModifier()));
   }
 
   @Test

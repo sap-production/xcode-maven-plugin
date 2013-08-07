@@ -32,7 +32,8 @@ public class XCodeVerificationCheckModuleTests extends XCodeTest
 {
 
   @Test
-  public void testModuleBuild() throws Exception {
+  public void testModuleBuild() throws Exception
+  {
 
     final String testName = getTestName();
 
@@ -43,59 +44,53 @@ public class XCodeVerificationCheckModuleTests extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-    
-    final List<String> additionalSystemProperties = Arrays.asList("-Dxcode.verification.checks.skip=false", "-Dxcode.verification.checks.definitionFile=file:./checkDefinitions.xml");
 
-    test(null, testName, new File(getTestRootDirectory(), "moduleBuild"),
-          Arrays.asList("clean", "install", getMavenXcodePluginGroupId() + ":" + getMavenXcodePluginArtifactId() + ":" + getMavenXcodePluginVersion() + ":" + "verification-check"),
-          additionalSystemProperties,
-          null, pomReplacements, new ChainProjectModifier(new ProjectModifier() {
+    final List<String> additionalCommandLineOptions = Arrays.asList("-Dxcode.verification.checks.skip=false",
+          "-Dxcode.verification.checks.definitionFile=file:./checkDefinitions.xml");
 
-            @Override
-            void execute() throws Exception
-            {
-              FileUtils.copyDirectory(new File(testExecutionDirectory, "MyApp"), new File(testExecutionDirectory, "MyApp2"));
-            }
-          }, new AbstractProjectModifier() {
+    XCodeTestParameters params = new XCodeTestParameters();
+    params.testName = testName;
+    params.projectDirectory = new File(getTestRootDirectory(), "moduleBuild");
+    params.addTargets("clean", "install");
+    params.addTargets(getMavenXcodePluginGroupId() + ":" + getMavenXcodePluginArtifactId() + ":"
+          + getMavenXcodePluginVersion() + ":" + "verification-check");
+    params.additionalCommandLineOptions = additionalCommandLineOptions;
+    params.pomReplacements = pomReplacements;
+    params.modifier = new ModuleProjectModifier();
 
-            @Override
-            void execute() throws Exception
-            {
-              final File pom = new File(testExecutionDirectory, "MyApp2/pom.xml");
-              Model model = getModel(pom);
-              model.setArtifactId("MyApp2");
-              persistModel(pom, model);
-            }
-          }, new AbstractProjectModifier() {
-
-            @Override
-            void execute() throws Exception
-            {
-              final File myAppProjectFile = new File(testExecutionDirectory, "MyApp2/src/xcode/MyApp.xcodeproj");
-              FileUtils.copyDirectory(myAppProjectFile, new File(testExecutionDirectory, "MyApp2/src/xcode/MyApp2.xcodeproj"));
-              FileUtils.deleteDirectory(myAppProjectFile);
-            }
-          }, new AbstractProjectModifier() {
-
-            @Override
-            void execute() throws Exception
-            {
-              final File pom = new File(testExecutionDirectory, "pom.xml");
-              Model model = getModel(pom);
-              List<String> modules = model.getModules();
-              modules.add("MyApp2/pom.xml");
-              persistModel(pom, model);
-            }
-          }, new ProjectModifier() {
-
-            @Override
-            void execute() throws Exception
-            {
-              String checks = FileUtils.readFileToString(new File("src/test/resources/checkDefinitions.xml"));
-              checks = checks.replaceAll("\\$\\{SERVERITY\\}", "WARNING");
-              checks = checks.replaceAll("\\$\\{xcode.maven.plugin.version\\}", getMavenXcodePluginVersion()); //plugin version is not acurate, but does work.
-              FileUtils.writeStringToFile(new File(testExecutionDirectory, "checkDefinitions.xml"), checks);
-            }
-          }));
+    test(params);
   }
+
+  private class ModuleProjectModifier extends AbstractProjectModifier
+  {
+
+    @Override
+    void execute() throws Exception
+    {
+      FileUtils.copyDirectory(new File(testExecutionDirectory, "MyApp"), new File(testExecutionDirectory, "MyApp2"));
+
+      final File pom = new File(testExecutionDirectory, "MyApp2/pom.xml");
+      Model model = getModel(pom);
+      model.setArtifactId("MyApp2");
+      persistModel(pom, model);
+
+      final File myAppProjectFile = new File(testExecutionDirectory, "MyApp2/src/xcode/MyApp.xcodeproj");
+      FileUtils
+        .copyDirectory(myAppProjectFile, new File(testExecutionDirectory, "MyApp2/src/xcode/MyApp2.xcodeproj"));
+      FileUtils.deleteDirectory(myAppProjectFile);
+
+      final File pom2 = new File(testExecutionDirectory, "pom.xml");
+      model = getModel(pom2);
+      List<String> modules = model.getModules();
+      modules.add("MyApp2/pom.xml");
+      persistModel(pom2, model);
+
+      String checks = FileUtils.readFileToString(new File("src/test/resources/checkDefinitions.xml"));
+      checks = checks.replaceAll("\\$\\{SERVERITY\\}", "WARNING");
+      checks = checks.replaceAll("\\$\\{xcode.maven.plugin.version\\}", getMavenXcodePluginVersion()); //plugin version is not acurate, but does work.
+      FileUtils.writeStringToFile(new File(testExecutionDirectory, "checkDefinitions.xml"), checks);
+    }
+
+  }
+
 }

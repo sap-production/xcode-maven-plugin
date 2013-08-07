@@ -66,7 +66,6 @@ public abstract class XCodeTest
   static final String PROP_NAME_ZIP_REPO_DIR = "ziprepo.directory";
   static final String PROP_NAME_DYNAMIC_VERSION = "dynamicVersion";
   static final String PROP_NAME_FRAMEWORK_VERSION = "frameworkVersion";
-  
 
   private static File localRepo = null;
   private static String activeProfiles = null;
@@ -264,52 +263,50 @@ public abstract class XCodeTest
         Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier)
         throws Exception
   {
-    return test(_verifier, testName, projectDirectory, Arrays.asList(new String[] { target }),
-          additionalCommandLineOptions, additionalSystemProperties, pomReplacements, modifier);
+    return test(new XCodeTestParameters(_verifier, testName, projectDirectory, Arrays.asList(new String[] { target }),
+          additionalCommandLineOptions, additionalSystemProperties, pomReplacements, modifier));
   }
 
-  protected static Verifier test(final Verifier _verifier, final String testName, final File projectDirectory,
-        List<String> targets, List<String> additionalCommandLineOptions,
-        Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier)
+  protected static Verifier test(XCodeTestParameters params)
         throws Exception
   {
 
     final PrintStream originalOut = System.out;
 
-    if (additionalSystemProperties == null) {
-      additionalSystemProperties = new HashMap<String, String>();
+    if (params.additionalSystemProperties == null) {
+      params.additionalSystemProperties = new HashMap<String, String>();
     }
 
-    final String projectName = projectDirectory.getName();
+    final String projectName = params.projectDirectory.getName();
 
     final Verifier verifier;
     final File testExecutionFolder;
 
-    if (_verifier != null) {
-      testExecutionFolder = new File(_verifier.getBasedir()).getCanonicalFile();
-      verifier = _verifier;
+    if (params._verifier != null) {
+      testExecutionFolder = new File(params._verifier.getBasedir()).getCanonicalFile();
+      verifier = params._verifier;
     }
     else {
-      testExecutionFolder = getTestExecutionDirectory(testName, projectName);
+      testExecutionFolder = getTestExecutionDirectory(params.testName, projectName);
       verifier = new Verifier(testExecutionFolder.getAbsolutePath());
     }
 
-    prepareTestExectutionFolder(projectDirectory, testExecutionFolder);
+    prepareTestExectutionFolder(params.projectDirectory, testExecutionFolder);
 
-    modifier.setTestExecutionDirectory(testExecutionFolder);
-    modifier.execute();
+    params.modifier.setTestExecutionDirectory(testExecutionFolder);
+    params.modifier.execute();
 
-    rewritePom(new File(testExecutionFolder, "pom.xml"), pomReplacements);
+    rewritePom(new File(testExecutionFolder, "pom.xml"), params.pomReplacements);
 
     try {
 
       final Properties testSystemProperties = filterProperties(System
         .getProperties());
 
-      testSystemProperties.putAll(additionalSystemProperties);
+      testSystemProperties.putAll(params.additionalSystemProperties);
 
       System.out
-        .println("SystemProperties used during integration test for '" + testName + "/" + projectName + "': \n"
+        .println("SystemProperties used during integration test for '" + params.testName + "/" + projectName + "': \n"
               + testSystemProperties);
 
       final List<String> commandLineOptions = new ArrayList<String>();
@@ -337,8 +334,8 @@ public abstract class XCodeTest
 
       }
 
-      if (additionalCommandLineOptions != null)
-        commandLineOptions.addAll(additionalCommandLineOptions);
+      if (params.additionalCommandLineOptions != null)
+        commandLineOptions.addAll(params.additionalCommandLineOptions);
 
       verifier.setCliOptions(commandLineOptions);
 
@@ -347,7 +344,7 @@ public abstract class XCodeTest
       verifier.deleteArtifacts("com.sap.production.ios.tests");
 
       verifier.setAutoclean(false);
-      verifier.executeGoals(targets, envVars);
+      verifier.executeGoals(params.targets, envVars);
 
       verifier.verifyErrorFreeLog();
 
@@ -526,7 +523,8 @@ public abstract class XCodeTest
     return getProjectProperty("version");
   }
 
-  private static String getProjectProperty(String key) throws IOException {
+  private static String getProjectProperty(String key) throws IOException
+  {
     Properties properties = new Properties();
     properties.load(XCodeTest.class.getResourceAsStream("/misc/project.properties"));
 
@@ -534,10 +532,11 @@ public abstract class XCodeTest
 
     if (value.equals("${project." + key + "}"))
       throw new IllegalStateException(
-            "Variable ${project." + key + "} was not replaced. May be running \"mvn clean install\" beforehand might solve this issue.");
+            "Variable ${project." + key
+                  + "} was not replaced. May be running \"mvn clean install\" beforehand might solve this issue.");
     return value;
   }
-  
+
   protected static File getTargetDirectory() throws IOException
   {
     return new File(new File(".").getCanonicalFile(), "target");
@@ -570,4 +569,5 @@ public abstract class XCodeTest
     ScriptRunner.copyAndExecuteScript(System.out, "/com/sap/prd/mobile/ios/mios/unzip.sh", workingDirectory,
           sourceFile.getCanonicalPath(), destinationFolder.getCanonicalPath());
   }
+
 }

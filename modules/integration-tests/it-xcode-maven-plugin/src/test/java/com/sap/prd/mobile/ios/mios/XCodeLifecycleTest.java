@@ -48,7 +48,7 @@ public class XCodeLifecycleTest extends XCodeTest
 
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." +  String.valueOf(System.currentTimeMillis()));
+    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
 
     test(testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "deploy",
           THE_EMPTY_LIST,
@@ -68,8 +68,9 @@ public class XCodeLifecycleTest extends XCodeTest
               persistModel(pom, model);
             }
           });
-    
-    assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir() + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
+
+    assertFalse(FileUtils.isSymbolicLink(new File(verifier.getBasedir()
+          + "/target/libs/Release-iphoneos/com.sap.ondevice.production.ios.tests/MyLibrary/libMyLibrary.a")));
   }
 
   @Test
@@ -164,29 +165,31 @@ public class XCodeLifecycleTest extends XCodeTest
     final File testSourceDirLib = new File(testRootDirectory, "straight-forward/MyLibrary");
     final File testSourceDirApp = new File(testRootDirectory, "straight-forward/MyApp");
     final File alternateTestSourceDirApp = new File(testRootDirectory, "deviant-source-directory/MyApp");
-    
-    class RelocateProjectProjectModifier extends AbstractProjectModifier {
+
+    class RelocateProjectProjectModifier extends AbstractProjectModifier
+    {
 
       @Override
       void execute() throws Exception
       {
-        
+
         final String relocationTarget = "abc";
         final File pom = new File(testExecutionDirectory, "pom.xml");
 
         final Model model = getModel(pom);
         model.getProperties().setProperty("xcode.sourceDirectory", relocationTarget);
-        persistModel(pom,  model);
+        persistModel(pom, model);
 
-        File src = new File(testExecutionDirectory,  "src/xcode");
+        File src = new File(testExecutionDirectory, "src/xcode");
         org.apache.commons.io.FileUtils.copyDirectory(src, new File(testExecutionDirectory, relocationTarget));
         org.apache.commons.io.FileUtils.deleteDirectory(src);
-        
+
         final String filePath = relocationTarget + "/MyApp.xcodeproj/project.pbxproj";
-        org.apache.commons.io.FileUtils.copyFile(new File(alternateTestSourceDirApp, filePath), new File(testExecutionDirectory, filePath));
+        org.apache.commons.io.FileUtils.copyFile(new File(alternateTestSourceDirApp, filePath), new File(
+              testExecutionDirectory, filePath));
       }
     }
-    
+
     final String testName = getTestName();
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
 
@@ -221,12 +224,13 @@ public class XCodeLifecycleTest extends XCodeTest
     final File testSourceDirApp = new File(testRootDirectory, "straight-forward/MyApp");
     final File alternateTestSourceDirApp = new File(testRootDirectory, "deviant-source-directory-2/MyApp");
 
-    class RelocateProjectProjectModifier extends AbstractProjectModifier {
+    class RelocateProjectProjectModifier extends AbstractProjectModifier
+    {
 
       @Override
       void execute() throws Exception
       {
-        
+
         final String relocationTarget = "";
         final File pom = new File(testExecutionDirectory, "pom.xml");
 
@@ -234,12 +238,13 @@ public class XCodeLifecycleTest extends XCodeTest
         model.getProperties().setProperty("xcode.sourceDirectory", relocationTarget);
         persistModel(pom, model);
 
-        File src = new File(testExecutionDirectory,  "src/xcode");
+        File src = new File(testExecutionDirectory, "src/xcode");
         org.apache.commons.io.FileUtils.copyDirectory(src, new File(testExecutionDirectory, relocationTarget));
         org.apache.commons.io.FileUtils.deleteDirectory(src);
-        
+
         final String filePath = relocationTarget + "/MyApp.xcodeproj/project.pbxproj";
-        org.apache.commons.io.FileUtils.copyFile(new File(alternateTestSourceDirApp, filePath), new File(testExecutionDirectory, filePath));
+        org.apache.commons.io.FileUtils.copyFile(new File(alternateTestSourceDirApp, filePath), new File(
+              testExecutionDirectory, filePath));
       }
     }
 
@@ -253,7 +258,7 @@ public class XCodeLifecycleTest extends XCodeTest
     Properties pomReplacements = new Properties();
     pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
-    
+
     test(testName, testSourceDirLib, "deploy",
           THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new RelocateProjectProjectModifier());
 
@@ -281,11 +286,10 @@ public class XCodeLifecycleTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, "1.0." + String.valueOf(System.currentTimeMillis()));
 
     test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyLibrary"), "install",
-          THE_EMPTY_LIST,
-          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
-    
-    test(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"), Arrays.asList(new String[] {"initialize", "initialize"}),
-          THE_EMPTY_LIST, 
-          THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
+
+    test(new XCodeTestParameters(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
+          Arrays.asList(new String[] { "initialize", "initialize" }),
+          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier()));
   }
 }

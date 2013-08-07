@@ -4,12 +4,13 @@
 .idea/
 *.iml
 /modules/archetype/target/
-/modules/it-xcode-maven-plugin/target/
-/modules/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/src/xcode/build/
+/modules/integration-tests/it-xcode-maven-plugin-verification-checks/target/
+/modules/integration-tests/it-xcode-maven-plugin/target/
+/modules/integration-tests/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/src/xcode/build/
 /modules/xcode-maven-plugin/target/
 /modules/plist-parser/target/
-/modules/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/target/
-/modules/it-xcode-maven-plugin/src/test/projects/multiple-targets/MultipleTargets/target/
+/modules/integration-tests/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/target/
+/modules/integration-tests/it-xcode-maven-plugin/src/test/projects/multiple-targets/MultipleTargets/target/
 /parent/target/
 project.xcworkspace/
 xcuserdata/

@@ -1,5 +1,5 @@
 /*
- * #%L
+s * #%L
  * it-xcode-maven-plugin
  * %%
  * Copyright (C) 2012 SAP AG
@@ -22,15 +22,9 @@ package com.sap.prd.mobile.ios.mios;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.Verifier;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
