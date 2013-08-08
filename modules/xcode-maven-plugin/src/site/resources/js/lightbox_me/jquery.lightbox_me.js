@@ -2,7 +2,7 @@
 * #%L
 * $ lightbox_me
 * %%
-*  By: Buck Wilson
+* Copyright (C) 2011 Buck Wilson
 * %%
 * Version : 2.3
 *
