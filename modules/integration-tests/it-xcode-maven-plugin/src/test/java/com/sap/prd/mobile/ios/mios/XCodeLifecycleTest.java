@@ -290,6 +290,6 @@ public class XCodeLifecycleTest extends XCodeTest
 
     test(new XCodeTestParameters(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           Arrays.asList(new String[] { "initialize", "initialize" }),
-          THE_EMPTY_LIST, THE_EMPTY_MAP, pomReplacements, new NullProjectModifier()));
+          THE_EMPTY_LIST, THE_EMPTY_MAP, new HashMap(pomReplacements), new NullProjectModifier()));
   }
 }

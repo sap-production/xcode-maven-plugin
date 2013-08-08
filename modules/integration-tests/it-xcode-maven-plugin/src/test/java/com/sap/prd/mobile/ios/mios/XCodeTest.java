@@ -263,8 +263,9 @@ public abstract class XCodeTest
         Map<String, String> additionalSystemProperties, Properties pomReplacements, ProjectModifier modifier)
         throws Exception
   {
+    
     return test(new XCodeTestParameters(_verifier, testName, projectDirectory, Arrays.asList(new String[] { target }),
-          additionalCommandLineOptions, additionalSystemProperties, pomReplacements, modifier));
+          additionalCommandLineOptions, additionalSystemProperties, new HashMap(pomReplacements), modifier));
   }
 
   protected static Verifier test(XCodeTestParameters params)
@@ -272,10 +273,6 @@ public abstract class XCodeTest
   {
 
     final PrintStream originalOut = System.out;
-
-    if (params.additionalSystemProperties == null) {
-      params.additionalSystemProperties = new HashMap<String, String>();
-    }
 
     final String projectName = params.projectDirectory.getName();
 
@@ -413,7 +410,7 @@ public abstract class XCodeTest
     }
   }
 
-  private static void rewritePom(File pomFile, Properties pomReplacements)
+  private static void rewritePom(File pomFile, Map<String, String> pomReplacements)
         throws IOException
   {
 
@@ -425,8 +422,8 @@ public abstract class XCodeTest
     if (pom.indexOf("${" + PROP_NAME_DYNAMIC_VERSION + "}") == -1)
       throw new IllegalStateException("Dynamic version is not used in pom file (" + pomFile + ").");
 
-    for (String key : pomReplacements.stringPropertyNames()) {
-      pom = pom.replaceAll("\\$\\{" + key + "\\}", pomReplacements.getProperty(key));
+    for (Map.Entry<String, String> entry : pomReplacements.entrySet()) {
+      pom = pom.replaceAll("\\$\\{" + entry.getKey() + "\\}", entry.getValue());
     }
 
     pom = pom.replaceAll("\\$\\{xcode.maven.plugin.version\\}", getMavenXcodePluginVersion());

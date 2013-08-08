@@ -20,11 +20,14 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
 import org.junit.Test;
 
@@ -32,33 +35,60 @@ public class XCodeVerificationCheckModuleTests extends XCodeTest
 {
 
   @Test
-  public void testModuleBuild() throws Exception
+  public void testModuleBuildCleanInstallSeparateGoal() throws Exception
   {
 
+    XCodeTestParameters params = prepareParameters("clean", "install",
+          getMavenXcodePluginGroupId() + ":" + getMavenXcodePluginArtifactId() + ":"
+                + getMavenXcodePluginVersion() + ":" + "verification-check");
+
+    Verifier v = test(params);
+
+    v.verifyTextInLog("Verification check 'com.sap.prd.mobile.ios.mios.TestMetadataCheck failed. 7430190670433136460");
+  }
+
+  @Test
+  public void testModuleBuildCleanInstall() throws Exception
+  {
+    XCodeTestParameters params = prepareParameters("clean", "install");
+
+    Verifier v = test(params);
+
+    v.verifyTextInLog("Verification check 'com.sap.prd.mobile.ios.mios.TestMetadataCheck failed. 7430190670433136460");
+  }
+
+  @Test
+  public void testModuleBuildCleanPackageSeparateGoal() throws Exception
+  {
+    XCodeTestParameters params = prepareParameters("clean", "package",
+          getMavenXcodePluginGroupId() + ":" + getMavenXcodePluginArtifactId() + ":"
+                + getMavenXcodePluginVersion() + ":" + "verification-check");
+
+    Verifier v = test(params);
+
+    v.verifyTextInLog("Verification check 'com.sap.prd.mobile.ios.mios.TestMetadataCheck failed. 7430190670433136460");
+  }
+
+  private XCodeTestParameters prepareParameters(String... targets) throws IOException
+  {
     final String testName = getTestName();
 
     final String dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
 
     final File remoteRepositoryDirectory = getRemoteRepositoryDirectory(getClass().getName());
 
-    Properties pomReplacements = new Properties();
-    pomReplacements.setProperty(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
-    pomReplacements.setProperty(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
+    Map<String, String> pomReplacements = new HashMap<String, String>();
+    pomReplacements.put(PROP_NAME_DEPLOY_REPO_DIR, remoteRepositoryDirectory.getAbsolutePath());
+    pomReplacements.put(PROP_NAME_DYNAMIC_VERSION, dynamicVersion);
 
     final List<String> additionalCommandLineOptions = Arrays.asList("-Dxcode.verification.checks.skip=false",
           "-Dxcode.verification.checks.definitionFile=file:./checkDefinitions.xml");
 
-    XCodeTestParameters params = new XCodeTestParameters();
-    params.testName = testName;
-    params.projectDirectory = new File(getTestRootDirectory(), "moduleBuild");
-    params.addTargets("clean", "install");
-    params.addTargets(getMavenXcodePluginGroupId() + ":" + getMavenXcodePluginArtifactId() + ":"
-          + getMavenXcodePluginVersion() + ":" + "verification-check");
-    params.additionalCommandLineOptions = additionalCommandLineOptions;
-    params.pomReplacements = pomReplacements;
-    params.modifier = new ModuleProjectModifier();
-
-    test(params);
+    XCodeTestParameters.Builder builder = new XCodeTestParameters.Builder();
+    builder.setTestName(testName).setProjectDirectory(new File(getTestRootDirectory(), "moduleBuild"))
+      .addAdditionalCommandLineOptions(additionalCommandLineOptions).addPomReplacements(pomReplacements)
+      .setModifier(new ModuleProjectModifier()).addTargets(targets);
+    return builder.create();
   }
 
   private class ModuleProjectModifier extends AbstractProjectModifier
