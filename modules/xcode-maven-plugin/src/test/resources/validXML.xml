@@ -11,7 +11,7 @@
 		<version>1.0.0</version>
 	</coordinates>
 	<scm>
-		<connection>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH</connection>
+		<connection>scm:perforce:PERFORCE_HOST:PORT://MY_DEPOT_PATH</connection>
 		<revision>4711</revision>
 	</scm>
 	<dependencies>
@@ -22,7 +22,7 @@
 				<version>1.0.1</version>
 			</coordinates>
 			<scm>
-				<connection>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH</connection>
+				<connection>scm:perforce:PERFORCE_HOST:PORT://MY_DEPOT_PATH</connection>
     			<revision>4711</revision>
 			</scm>
 			<dependencies>
@@ -33,7 +33,7 @@
 						<version>1.0.1</version>
 					</coordinates>
 					<scm>
-						<connection>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH</connection>
+						<connection>scm:perforce:PERFORCE_HOST:PORT://MY_DEPOT_PATH</connection>
     					<revision>4711</revision>
 					</scm>
 				</dependency>

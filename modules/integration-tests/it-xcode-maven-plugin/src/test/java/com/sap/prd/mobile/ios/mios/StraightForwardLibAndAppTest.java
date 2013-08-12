@@ -220,9 +220,9 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   {
     File versionsXmlInIpa = new File(extractedIpaFolder, "Payload/MyApp.app/versions.xml");
     File versionsXmlInAppZip = new File(appstoreFolder, "MyApp.app/versions.xml");
-    assertTrue(versionsXmlInIpa.exists());
-    assertTrue(versionsXmlInAppZip.exists());
-    File versionsTestXMLFile = new File("src/test/resources/MyApp-versions.xml");
+    assertTrue(String.format("Versions file '%s' does exist in the IPA.", versionsXmlInIpa), versionsXmlInIpa.exists());
+    assertTrue(String.format("Versions file '%s' does exist in the application zip file.", versionsXmlInAppZip), versionsXmlInAppZip.exists());
+    File versionsTestXMLFile = new File("src/test/resources/MyApp-versions-in-IPA.xml");
 
     compareFilesContainingDynamicVersions(dynamicVersion, versionsTestXMLFile, versionsXmlInAppZip);
   }
