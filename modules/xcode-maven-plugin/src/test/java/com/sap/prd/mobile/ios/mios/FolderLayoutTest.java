@@ -19,6 +19,8 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.ARTIFACT_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.GROUP_ID;
 import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
@@ -38,7 +40,7 @@ public class FolderLayoutTest
 
     final File f = new File(".").getAbsoluteFile();
     assertEquals(new File(f, "libs/Release-iphoneos/groupId/artifactId"),
-          (FolderLayout.getFolderForExtractedLibsWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId")));
+          (FolderLayout.getFolderForExtractedLibsWithGA(getProject(f), "Release", "iphoneos", GROUP_ID, ARTIFACT_ID)));
   }
 
   @Test
@@ -48,7 +50,7 @@ public class FolderLayoutTest
     final File f = new File(".").getAbsoluteFile();
     assertEquals(new File(f, "headers/Release-iphoneos/groupId/artifactId"),
           FolderLayout
-            .getFolderForExtractedHeadersWithGA(getProject(f), "Release", "iphoneos", "groupId", "artifactId"));
+            .getFolderForExtractedHeadersWithGA(getProject(f), "Release", "iphoneos", GROUP_ID, ARTIFACT_ID));
   }
 
   @Test

@@ -148,12 +148,12 @@ public class XCodeLifecycleTest extends XCodeTest
     final String configuration = "Release";
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + dynamicVersion + "/MyApp_release-"
+          TestConstants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + dynamicVersion + "/MyApp_release-"
                 + dynamicVersion + "-"
                 + configuration + "-iphoneos.ipa").exists());
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + dynamicVersion + "/MyApp_release-"
+          TestConstants.GROUP_ID_WITH_SLASH + "/MyApp_release/" + dynamicVersion + "/MyApp_release-"
                 + dynamicVersion + "-AppStoreMetadata.zip")
       .exists());
   }
@@ -212,7 +212,7 @@ public class XCodeLifecycleTest extends XCodeTest
     final String configuration = "Release";
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
+          TestConstants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
                 + configuration + "-iphoneos.ipa").exists());
   }
 
@@ -268,7 +268,7 @@ public class XCodeLifecycleTest extends XCodeTest
     final String configuration = "Release";
 
     assertTrue(new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
+          TestConstants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
                 + configuration + "-iphoneos.ipa").exists());
   }
 
@@ -290,6 +290,6 @@ public class XCodeLifecycleTest extends XCodeTest
 
     test(new XCodeTestParameters(null, testName, new File(getTestRootDirectory(), "straight-forward/MyApp"),
           Arrays.asList(new String[] { "initialize", "initialize" }),
-          THE_EMPTY_LIST, THE_EMPTY_MAP, new HashMap(pomReplacements), new NullProjectModifier()));
+          THE_EMPTY_LIST, THE_EMPTY_MAP, propertiesToStringMap(pomReplacements), new NullProjectModifier()));
   }
 }

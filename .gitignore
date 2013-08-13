@@ -18,3 +18,4 @@ xcuserdata/
 *~
 #*#
 bin
+modules/xcode-maven-plugin/src/test/projects/MyLib3/

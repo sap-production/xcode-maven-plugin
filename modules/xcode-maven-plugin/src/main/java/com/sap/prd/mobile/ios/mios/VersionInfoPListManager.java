@@ -19,6 +19,10 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.ARTIFACT_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.GROUP_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.VERSION;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -67,9 +71,9 @@ public class VersionInfoPListManager
       plistAccessor.createPlist();
 
       plistAccessor.addElement("coordinates", "dict");
-      plistAccessor.addStringValueToDict("groupId", groupId, "coordinates");
-      plistAccessor.addStringValueToDict("artifactId", artifactId, "coordinates");
-      plistAccessor.addStringValueToDict("version", version, "coordinates");
+      plistAccessor.addStringValueToDict(GROUP_ID, groupId, "coordinates");
+      plistAccessor.addStringValueToDict(ARTIFACT_ID, artifactId, "coordinates");
+      plistAccessor.addStringValueToDict(VERSION, version, "coordinates");
 
       plistAccessor.addElement("scm", "dict");
       plistAccessor.addStringValueToDict("connection", connectionString, "scm");
@@ -93,11 +97,11 @@ public class VersionInfoPListManager
       Dependency dep = dependencies.get(i);
 
       plistAccessor.addDictToArray("coordinates", _path);
-      plistAccessor.addStringValueToDict("groupId", dep.getCoordinates().getGroupId(), _path
+      plistAccessor.addStringValueToDict(GROUP_ID, dep.getCoordinates().getGroupId(), _path
             + ":coordinates");
-      plistAccessor.addStringValueToDict("artifactId", dep.getCoordinates().getArtifactId(), _path
+      plistAccessor.addStringValueToDict(ARTIFACT_ID, dep.getCoordinates().getArtifactId(), _path
             + ":coordinates");
-      plistAccessor.addStringValueToDict("version", dep.getCoordinates().getVersion(), _path
+      plistAccessor.addStringValueToDict(VERSION, dep.getCoordinates().getVersion(), _path
             + ":coordinates");
 
       plistAccessor.addDictToArray("scm", _path);

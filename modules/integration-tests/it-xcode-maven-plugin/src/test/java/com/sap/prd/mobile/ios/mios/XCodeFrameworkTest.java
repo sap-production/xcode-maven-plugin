@@ -91,7 +91,7 @@ public class XCodeFrameworkTest extends XCodeTest
 
     //
     // Check the configuration independent framework
-    final String frameworkArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion
+    final String frameworkArtifactFilePrefix = TestConstants.GROUP_ID_WITH_SLASH + "/" + fmwkName + "/" + dynamicVersion
           + "/" + fmwkName
           + "-" + dynamicVersion;
     File repoArtifactRelease = new File(remoteRepositoryDirectory, frameworkArtifactFilePrefix + "-Release." + Types.FRAMEWORK);
@@ -150,11 +150,11 @@ public class XCodeFrameworkTest extends XCodeTest
           additionalSystemParameters, pomReplacements, new NullProjectModifier());
 
     Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/frameworks/Release/"
-          + Constants.GROUP_ID
+          + TestConstants.GROUP_ID
           + "/MyFramework/MyFramework.framework").exists());
     verifier.verifyTextInLog("' does not contain configuration specific variant. Will download the generic framework for configuration 'Release'.");
 
-    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
+    final String myAppVersionRepoDir = TestConstants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
     final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
     File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-"
           + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");
@@ -189,10 +189,10 @@ public class XCodeFrameworkTest extends XCodeTest
           additionalSystemParameters, pomReplacements, new NullProjectModifier());
 
     Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/frameworks/Release/"
-          + Constants.GROUP_ID
+          + TestConstants.GROUP_ID
           + "/MyFramework/MyFramework.framework").exists());
 
-    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
+    final String myAppVersionRepoDir = TestConstants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
     final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
     File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-"
           + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");

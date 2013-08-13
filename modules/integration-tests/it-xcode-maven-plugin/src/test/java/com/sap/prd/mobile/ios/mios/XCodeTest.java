@@ -19,6 +19,9 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.ARTIFACT_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.GROUP_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -265,7 +268,7 @@ public abstract class XCodeTest
   {
     
     return test(new XCodeTestParameters(_verifier, testName, projectDirectory, Arrays.asList(new String[] { target }),
-          additionalCommandLineOptions, additionalSystemProperties, new HashMap(pomReplacements), modifier));
+          additionalCommandLineOptions, additionalSystemProperties, propertiesToStringMap(pomReplacements), modifier));
   }
 
   protected static Verifier test(XCodeTestParameters params)
@@ -507,17 +510,17 @@ public abstract class XCodeTest
 
   protected static String getMavenXcodePluginGroupId() throws IOException
   {
-    return getProjectProperty("groupId");
+    return getProjectProperty(GROUP_ID);
   }
 
   protected static String getMavenXcodePluginArtifactId() throws IOException
   {
-    return getProjectProperty("artifactId");
+    return getProjectProperty(ARTIFACT_ID);
   }
 
   protected static String getMavenXcodePluginVersion() throws IOException
   {
-    return getProjectProperty("version");
+    return getProjectProperty(VERSION);
   }
 
   private static String getProjectProperty(String key) throws IOException
@@ -567,4 +570,14 @@ public abstract class XCodeTest
           sourceFile.getCanonicalPath(), destinationFolder.getCanonicalPath());
   }
 
+  public static Map<String, String> propertiesToStringMap(Properties properties) {
+    Map<String, String> map = new HashMap<String, String>();
+    for(Entry<Object, Object> entry : properties.entrySet()) {
+      if(!(entry.getKey() instanceof String)) throw new IllegalArgumentException("Key is not a String: "+entry.getKey());
+      if(!(entry.getValue() instanceof String)) throw new IllegalArgumentException("Value is not a String: "+entry.getValue());
+      map.put((String)entry.getKey(), (String)entry.getValue());
+    }
+    return map;
+  }
+  
 }

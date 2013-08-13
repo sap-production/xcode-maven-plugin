@@ -58,25 +58,25 @@ public class DependencyTest extends XCodeTest
     final String configuration = "Release";
 
     final File testExecutionDirectory = getTestExecutionDirectory(testName, "MyApp");
-    assertTrue(new File(testExecutionDirectory, "target/headers/" + configuration + "-iphoneos/" + Constants.GROUP_ID
+    assertTrue(new File(testExecutionDirectory, "target/headers/" + configuration + "-iphoneos/" + TestConstants.GROUP_ID
           + "/MyLibraryA").exists());
-    assertTrue(new File(testExecutionDirectory, "target/headers/" + configuration + "-iphoneos/" + Constants.GROUP_ID
+    assertTrue(new File(testExecutionDirectory, "target/headers/" + configuration + "-iphoneos/" + TestConstants.GROUP_ID
           + "/MyLibraryB").exists());
 
-    assertTrue(new File(testExecutionDirectory, "target/libs/" + configuration + "-iphoneos/" + Constants.GROUP_ID
+    assertTrue(new File(testExecutionDirectory, "target/libs/" + configuration + "-iphoneos/" + TestConstants.GROUP_ID
           + "/MyLibraryA").exists());
-    assertTrue(new File(testExecutionDirectory, "target/libs/" + configuration + "-iphoneos/" + Constants.GROUP_ID
+    assertTrue(new File(testExecutionDirectory, "target/libs/" + configuration + "-iphoneos/" + TestConstants.GROUP_ID
           + "/MyLibraryB").exists());
 
     // check if the zipped xcodeproj can be built after unzipping
-    final String myLibAVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyLibraryA/" + dynamicVersion;
+    final String myLibAVersionRepoDir = TestConstants.GROUP_ID_WITH_SLASH + "/MyLibraryA/" + dynamicVersion;
     final String myLibAArtifactFilePrefix = myLibAVersionRepoDir + "/MyLibraryA-" + dynamicVersion;
     File xcodeprojLibAZip = new File(remoteRepositoryDirectory, myLibAArtifactFilePrefix + "-"
           + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");
     assertTrue(xcodeprojLibAZip.exists());
     assertUnpackAndCompile(xcodeprojLibAZip);
 
-    final String myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
+    final String myAppVersionRepoDir = TestConstants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
     final String myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
     File xcodeprojAppZip = new File(remoteRepositoryDirectory, myAppArtifactFilePrefix + "-"
           + XCodePackageXcodeprojMojo.XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip");

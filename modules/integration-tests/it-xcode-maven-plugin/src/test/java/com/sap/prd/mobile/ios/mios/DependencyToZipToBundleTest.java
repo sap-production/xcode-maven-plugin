@@ -74,7 +74,7 @@ public class DependencyToZipToBundleTest extends XCodeTest
           null, pomReplacements, projectModifier);
 
     File tmp = new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/html5/"
-          + Constants.GROUP_ID + "/MyZip/MyZip.bundle/dummy.txt");
+          + TestConstants.GROUP_ID + "/MyZip/MyZip.bundle/dummy.txt");
 
     Assert.assertTrue("File '" + tmp + "' not found", tmp.exists());
   }
