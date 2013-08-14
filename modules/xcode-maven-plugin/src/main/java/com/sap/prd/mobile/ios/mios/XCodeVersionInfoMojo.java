@@ -19,6 +19,8 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -172,25 +174,26 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     }
 
     try {
-    if (PackagingType.getByMavenType(packaging) == PackagingType.APP)
-    {
-      try
+      if (PackagingType.getByMavenType(packaging) == PackagingType.APP)
       {
-        copyVersionsFilesAndSign();
-      }
-      catch (IOException e) {
-        throw new MojoExecutionException(e.getMessage(), e);
-      }
-      catch (ExecutionResultVerificationException e) {
-        throw new MojoExecutionException(e.getMessage(), e);
-      }
-      catch (XCodeException e) {
-        throw new MojoExecutionException(e.getMessage(), e);
+        try
+        {
+          copyVersionsFilesAndSign();
+        }
+        catch (IOException e) {
+          throw new MojoExecutionException(e.getMessage(), e);
+        }
+        catch (ExecutionResultVerificationException e) {
+          throw new MojoExecutionException(e.getMessage(), e);
+        }
+        catch (XCodeException e) {
+          throw new MojoExecutionException(e.getMessage(), e);
+        }
       }
     }
-    } catch(PackagingType.UnknownPackagingTypeException ex) {
+    catch (PackagingType.UnknownPackagingTypeException ex) {
       getLog().warn("Unknown packaing type detected.", ex);
-     
+
     }
 
     projectHelper.attachArtifact(project, "xml", "versions", versionsXmlFile);
@@ -243,9 +246,11 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
   private void sign(File rootDir, String configuration, String sdk) throws IOException, XCodeException
   {
     String csi = EffectiveBuildSettings.getBuildSetting(
-          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk),
+          EffectiveBuildSettings.CODE_SIGN_IDENTITY);
     File appFolder = new File(EffectiveBuildSettings.getBuildSetting(
-          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk),
+          EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
     CodeSignManager.sign(csi, appFolder, true);
   }
 
@@ -259,27 +264,38 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
       final Artifact mainArtifact = (Artifact) it.next();
 
-      org.sonatype.aether.artifact.Artifact sideArtifact = null;
-
       try {
 
-        sideArtifact = new XCodeDownloadManager(projectRepos, repoSystem,
+        org.sonatype.aether.artifact.Artifact sideArtifact = new XCodeDownloadManager(projectRepos, repoSystem,
               repoSession).resolveSideArtifact(mainArtifact, "versions", "xml");
 
         getLog().info("Version information retrieved for artifact: " + mainArtifact);
 
-        result.add(VersionInfoXmlManager.parseDependency(sideArtifact.getFile()));
-      }
-      catch (SAXException e) {
-        getLog().warn(String.format("Version file '%s' for artifact '%s' contains invalid content (Non parsable XML). Ignoring this file.", (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
-      }
-      catch (JAXBException e) {
-        getLog().info(String.format("Version file '%s' for artifact '%s' contains invalid content (Scheme violation). Ignoring this file.", (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
+        addParsedVersionsXmlDependency(result, sideArtifact);
+
       }
       catch (SideArtifactNotFoundException e) {
         getLog().warn("Could not retrieve version information for artifact:" + mainArtifact);
       }
     }
     return result;
+  }
+
+  void addParsedVersionsXmlDependency(List<Dependency> result,
+        org.sonatype.aether.artifact.Artifact sideArtifact) throws IOException
+  {
+    try {
+      result.add(VersionInfoXmlManager.parseDependency(sideArtifact.getFile()));
+    }
+    catch (SAXException e) {
+      getLog().warn(format(
+            "Version file '%s' for artifact '%s' contains invalid content (Non parsable XML). Ignoring this file.",
+            (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
+    }
+    catch (JAXBException e) {
+      getLog().warn(format(
+            "Version file '%s' for artifact '%s' contains invalid content (Scheme violation). Ignoring this file.",
+            (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
+    }
   }
 }

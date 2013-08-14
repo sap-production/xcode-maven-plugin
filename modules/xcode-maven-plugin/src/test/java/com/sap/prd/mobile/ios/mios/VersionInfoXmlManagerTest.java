@@ -22,14 +22,18 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.JAXBException;
 
 import junit.framework.Assert;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.util.IOUtil;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import com.sap.prd.mobile.ios.mios.VersionInfoXmlManager;
 import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
@@ -117,5 +121,21 @@ public class VersionInfoXmlManagerTest
       IOUtils.closeQuietly(os);
     }
   }
+  
+  @Test(expected=javax.xml.bind.UnmarshalException.class)
+  public void testInvalidVersionInfoContentHtml() throws JAXBException, SAXException, IOException {
+    VersionInfoXmlManager.parseDependency(new File("src/test/resources/versions-invalidHtml.xml"));
+  }
 
+  @Test(expected=org.xml.sax.SAXParseException.class)
+  public void testInvalidVersionInfoContentEmpty() throws JAXBException, SAXException, IOException {
+    VersionInfoXmlManager.parseDependency(new File("src/test/resources/versions-invalidEmpty.xml"));
+  }
+  
+  @Test(expected=java.io.FileNotFoundException.class)
+  public void testInvalidVersionInfoFileDoesNotExist() throws JAXBException, SAXException, IOException {
+    VersionInfoXmlManager.parseDependency(new File("src/test/resources/versions-invalidDoesNotExist.xml"));
+  }
+
+  
 }
