@@ -18,4 +18,5 @@ xcuserdata/
 *~
 #*#
 bin
+modules/xcode-maven-plugin/src/test/projects/MyLib2/
 modules/xcode-maven-plugin/src/test/projects/MyLib3/
