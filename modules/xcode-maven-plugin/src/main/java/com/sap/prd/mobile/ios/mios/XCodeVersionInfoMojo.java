@@ -132,6 +132,13 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
    */
   private boolean failOnMissingSyncInfo;
 
+  /**
+   * If <code>true</code> confidential information is removed from artifacts to be released.
+   * 
+   * @parameter expression="${xcode.hideConfidentialInformation}" default-value="true"
+   */
+  private boolean hideConfidentialInformation;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -177,7 +184,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     }
     try {
       new VersionInfoPListManager().createVersionInfoPlistFile(project.getGroupId(), project.getArtifactId(),
-            project.getVersion(), syncInfoFile, getDependencies(), versionsPlistFile);
+            project.getVersion(), syncInfoFile, getDependencies(), versionsPlistFile, hideConfidentialInformation);
     }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
@@ -236,8 +243,14 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           final ExecResult originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
 
           try {
-            transformVersionsXml(versionsXmlInBuild, versionsXmlInApp);
-          } catch(Exception e) {
+            if (hideConfidentialInformation) {
+              transformVersionsXml(versionsXmlInBuild, versionsXmlInApp);
+            }
+            else {
+              FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);
+            }
+          }
+          catch (Exception e) {
             throw new MojoExecutionException("Could not transform versions.xml: " + e.getMessage(), e);
           }
 
@@ -262,7 +275,8 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
         throws ParserConfigurationException, SAXException, IOException, TransformerFactoryConfigurationError,
         TransformerException, XCodeException
   {
-    final InputStream transformerRule = getClass().getClassLoader().getResourceAsStream("versionInfoCensorTransformation.xml");
+    final InputStream transformerRule = getClass().getClassLoader().getResourceAsStream(
+          "versionInfoCensorTransformation.xml");
 
     if (transformerRule == null)
     {
@@ -282,7 +296,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
       IOUtils.closeQuietly(transformerRule);
     }
   }
-  
+
   private void sign(File rootDir, String configuration, String sdk) throws IOException, XCodeException
   {
     String csi = EffectiveBuildSettings.getBuildSetting(

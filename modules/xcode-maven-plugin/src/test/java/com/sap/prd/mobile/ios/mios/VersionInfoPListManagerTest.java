@@ -51,8 +51,8 @@ public class VersionInfoPListManagerTest
   {
     tempFolder.newFolder("versionPListTest");
     plistFile = new File(tempFolder.getRoot(), "versions.plist");
-    new VersionInfoPListManager().createVersionInfoPlistFile(GROUP_ID, ARTIFACT_ID, "1.0.0", new File(".",
-          "src/test/resources/sync.info"), new ArrayList<Dependency>(), plistFile);
+    new VersionInfoPListManager().createVersionInfoPlistFile("groupId", "artifactId", "1.0.0", new File(".",
+          "src/test/resources/sync.info"), new ArrayList<Dependency>(), plistFile, true);
     plistAccessor = new PListAccessor(plistFile);
   }
 
@@ -93,7 +93,7 @@ public class VersionInfoPListManagerTest
 
     List<Dependency> dependencies = new ArrayList<Dependency>();
     dependencies.add(dep);
-    new VersionInfoPListManager().addDependencyToPlist(dependencies, plistAccessor, "dependencies:");
+    new VersionInfoPListManager().addDependencyToPlist(dependencies, plistAccessor, "dependencies:", true);
 
     Assert.assertEquals("depArtifactId", plistAccessor.printValue("dependencies:0:coordinates:artifactId"));
     Assert.assertEquals("depGroupId", plistAccessor.printValue("dependencies:0:coordinates:groupId"));
@@ -138,7 +138,7 @@ public class VersionInfoPListManagerTest
     List<Dependency> dependencies = new ArrayList<Dependency>();
     dependencies.add(dep);
 
-    new VersionInfoPListManager().addDependencyToPlist(dependencies, plistAccessor, "dependencies:");
+    new VersionInfoPListManager().addDependencyToPlist(dependencies, plistAccessor, "dependencies:", true);
 
     Assert.assertEquals("transitivDepArtifactId",
           plistAccessor.printValue("dependencies:0:dependencies:0:coordinates:artifactId"));

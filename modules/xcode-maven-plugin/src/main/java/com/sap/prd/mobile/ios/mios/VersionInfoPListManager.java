@@ -37,7 +37,7 @@ public class VersionInfoPListManager
 {
 
   void createVersionInfoPlistFile(final String groupId, final String artifactId, final String version,
-        final File syncInfoFile, List<Dependency> dependencies, File file)
+        final File syncInfoFile, List<Dependency> dependencies, File file, boolean hideConfidentialInformation)
         throws MojoExecutionException
   {
 
@@ -47,7 +47,8 @@ public class VersionInfoPListManager
 
       versionInfo.load(new FileInputStream(syncInfoFile));
 
-      createVersionInfoPlistFile(groupId, artifactId, version, versionInfo, dependencies, file);
+      createVersionInfoPlistFile(groupId, artifactId, version, versionInfo, dependencies, file,
+            hideConfidentialInformation);
 
     }
     catch (IOException e) {
@@ -56,21 +57,12 @@ public class VersionInfoPListManager
   }
 
   private void createVersionInfoPlistFile(final String groupId, final String artifactId, final String version,
-        Properties versionInfo, List<Dependency> dependencies, File file)
+        Properties versionInfo, List<Dependency> dependencies, File file, boolean hideConfidentialInformation)
         throws MojoExecutionException
   {
     try {
 
-      final String port = versionInfo.getProperty("port");
-      
-      final int colonIndex = port.indexOf(":");
-      
-      if (colonIndex == -1)
-      {
-        throw new MojoExecutionException("No colon found in perforce port : '" + port + "'.");
-      }
-      
-      final String connectionString = port.substring( colonIndex +  ":".length());
+      final String connectionString = getConnectionString(versionInfo, hideConfidentialInformation);
 
       PListAccessor plistAccessor = new PListAccessor(file);
       plistAccessor.createPlist();
@@ -84,7 +76,7 @@ public class VersionInfoPListManager
       plistAccessor.addStringValueToDict("connection", connectionString, "scm");
       plistAccessor.addStringValueToDict("revision", versionInfo.getProperty("changelist"), "scm");
 
-      addDependencyToPlist(dependencies, plistAccessor, "dependencies:");
+      addDependencyToPlist(dependencies, plistAccessor, "dependencies:", hideConfidentialInformation);
 
     }
 
@@ -93,7 +85,30 @@ public class VersionInfoPListManager
     }
   }
 
-  void addDependencyToPlist(List<Dependency> dependencies, PListAccessor plistAccessor, String path) throws IOException
+  private String getConnectionString(Properties versionInfo, boolean hideConfidentialInformation)
+        throws MojoExecutionException
+  {
+    if (!hideConfidentialInformation) {
+      return "scm:perforce:"
+            + versionInfo.getProperty("port") + ":" + getDepotPath(versionInfo.getProperty("depotpath"));
+    }
+    else {
+
+      final String port = versionInfo.getProperty("port");
+
+      final int colonIndex = port.indexOf(":");
+
+      if (colonIndex == -1)
+      {
+        throw new MojoExecutionException("No colon found in perforce port : '" + port + "'.");
+      }
+      return port.substring(colonIndex + ":".length());
+      
+    }
+  }
+
+  void addDependencyToPlist(List<Dependency> dependencies, PListAccessor plistAccessor, String path,
+        boolean hideConfidentialInformation) throws IOException
   {
 
     for (int i = 0; i < dependencies.size(); i++) {
@@ -110,9 +125,23 @@ public class VersionInfoPListManager
             + ":coordinates");
 
       plistAccessor.addDictToArray("scm", _path);
+      String port = getScmPort(dep, hideConfidentialInformation);
+      plistAccessor.addStringValueToDict("connection", port, _path + ":scm");
+      plistAccessor.addStringValueToDict("revision", dep.getScm().getRevision(), _path + ":scm");
+      addDependencyToPlist(dep.getDependencies(), plistAccessor, _path + ":dependencies:", hideConfidentialInformation);
+
+    }
+  }
+
+  private String getScmPort(Dependency dep, boolean hideConfidentialInformation)
+  {
+    if (!hideConfidentialInformation) {
+      return dep.getScm().getConnection();
+    } else {
+
       String[] parts = dep.getScm().getConnection().split(":");
       String port;
-      if(parts.length == 1) 
+      if (parts.length == 1)
       {
         port = parts[0];
       }
@@ -120,11 +149,19 @@ public class VersionInfoPListManager
       {
         port = parts[3]; //scm:perforce:PERFORCE_HOST:PORT:PATH
       }
-      plistAccessor.addStringValueToDict("connection", port, _path + ":scm");
-      plistAccessor.addStringValueToDict("revision", dep.getScm().getRevision(), _path + ":scm");
-      addDependencyToPlist(dep.getDependencies(), plistAccessor, _path + ":dependencies:");
-
+      return port;
+      
     }
+  }
+
+  private static final String THREEDOTS = "...";
+
+  private static String getDepotPath(String fullDepotPath)
+  {
+    if (fullDepotPath.endsWith(THREEDOTS)) {
+      fullDepotPath = fullDepotPath.substring(0, fullDepotPath.length() - THREEDOTS.length());
+    }
+    return fullDepotPath;
   }
 
 }
