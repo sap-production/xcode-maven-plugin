@@ -19,6 +19,9 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.ARTIFACT_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.GROUP_ID;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,7 +51,7 @@ public class VersionInfoPListManagerTest
   {
     tempFolder.newFolder("versionPListTest");
     plistFile = new File(tempFolder.getRoot(), "versions.plist");
-    new VersionInfoPListManager().createVersionInfoPlistFile("groupId", "artifactId", "1.0.0", new File(".",
+    new VersionInfoPListManager().createVersionInfoPlistFile(GROUP_ID, ARTIFACT_ID, "1.0.0", new File(".",
           "src/test/resources/sync.info"), new ArrayList<Dependency>(), plistFile);
     plistAccessor = new PListAccessor(plistFile);
   }
@@ -58,8 +61,8 @@ public class VersionInfoPListManagerTest
   {
 
     Assert.assertTrue(plistFile.exists());
-    Assert.assertEquals("groupId", plistAccessor.printValue("coordinates:groupId"));
-    Assert.assertEquals("artifactId", plistAccessor.printValue("coordinates:artifactId"));
+    Assert.assertEquals(GROUP_ID, plistAccessor.printValue("coordinates:groupId"));
+    Assert.assertEquals(ARTIFACT_ID, plistAccessor.printValue("coordinates:artifactId"));
     Assert.assertEquals("1.0.0", plistAccessor.printValue("coordinates:version"));
 
     Assert.assertEquals("scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/", plistAccessor.printValue("scm:connection"));

@@ -19,6 +19,12 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.ARTIFACT_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.CLASSIFIER;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.EXTENSION;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.GROUP_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.VERSION;
+
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
@@ -29,11 +35,11 @@ class GAVUtil
   {
     // For our use case we expect all parameter to be not null (or empty).
     // Our use case is handling side artifacts with requires a classifier an an extension.
-    ensureNotNullOrEmpty(groupId, "groupId");
-    ensureNotNullOrEmpty(artifactId, "artifactId");
-    ensureNotNullOrEmpty(version, "version");
-    ensureNotNullOrEmpty(extension, "extension");
-    ensureNotNullOrEmpty(classifier, "classifier");
+    ensureNotNullOrEmpty(groupId, GROUP_ID);
+    ensureNotNullOrEmpty(artifactId, ARTIFACT_ID);
+    ensureNotNullOrEmpty(version, VERSION);
+    ensureNotNullOrEmpty(extension, EXTENSION);
+    ensureNotNullOrEmpty(classifier, CLASSIFIER);
 
     return groupId + ":" + artifactId + ":" + extension + ":" + classifier + ":" + version;
   }

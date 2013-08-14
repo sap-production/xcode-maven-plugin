@@ -19,9 +19,14 @@
  */
 package com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2;
 
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.ARTIFACT_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.GROUP_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.VERSION;
+import static java.lang.String.format;
+
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(propOrder = { "groupId", "artifactId", "version" })
+@XmlType(propOrder = { GROUP_ID, ARTIFACT_ID, VERSION })
 public class Coordinates
 {
 
@@ -62,7 +67,7 @@ public class Coordinates
   @Override
   public String toString()
   {
-    return "Coordinates [groupId=" + groupId + ", artifactId=" + artifactId + ", version=" + version + "]";
+    return format("Coordinates [%s=%s, %s=%s, %s=%s]", GROUP_ID, groupId, ARTIFACT_ID, artifactId, VERSION, version);
   }
 
 }

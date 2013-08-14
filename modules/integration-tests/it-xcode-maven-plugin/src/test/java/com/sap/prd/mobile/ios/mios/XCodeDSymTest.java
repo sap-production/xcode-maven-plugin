@@ -56,7 +56,7 @@ public class XCodeDSymTest extends XCodeTest
     final String configuration = "Release";
 
     File dsymUploadFile = new File(remoteRepositoryDirectory,
-            Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
+            TestConstants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion + "-"
                     + configuration + "-iphoneos-app.dSYM.zip");
     
     assertTrue(dsymUploadFile.exists());

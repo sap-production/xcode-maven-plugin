@@ -58,10 +58,16 @@ public class LoggerMojo extends AbstractXCodeMojo
       getLog().debug("Logging infrastructure has been setup.");
     }
     else {
-      getLog().error(
+      getLog().warn(
             "Cannot setup logging infrastructure. Logger '" + AbstractXCodeMojo.class.getPackage().getName()
                   + "' is not an instance of '" + XCodePluginLogger.class.getName() + "' It was found to be a '"
-                  + logger.getClass().getName() + "'.");
+                  + logger.getClass().getName() + "'. Will use reasonable defaults.");
+      
+      if (XCodePluginLogger.class.getName().equals(logger.getClass().getName())) {
+        getLog().warn(
+              "ClassLoader of current logger is: " + logger.getClass().getClassLoader() + ". ClassLoder of "
+                    + XCodePluginLogger.class.getName() + " is " + XCodePluginLogger.class.getClassLoader() + ".");
+      }
     }
   }
 }

@@ -20,21 +20,16 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.Properties;
 
 import junit.framework.Assert;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.junit.Test;
 
-public class DependencyToZipToCopyTest extends XCodeTest
+public class DependencyToZipToBundleTest extends XCodeTest
 {
 
   @Test
@@ -58,29 +53,18 @@ public class DependencyToZipToCopyTest extends XCodeTest
     pomReplacements.setProperty(PROP_NAME_ZIP_REPO_DIR, zipRepository.getAbsolutePath());
 
     final ProjectModifier projectModifier = new ChainProjectModifier(new FileCopyProjectModifier(
-          alternateTestSourceDirApp, "pom.xml"), new ProjectModifier() {
+          alternateTestSourceDirApp, "pom.xml"), new AbstractProjectModifier() {
 
       @Override
       public void execute() throws Exception
       {
         final File pom = new File(testExecutionDirectory, "pom.xml");
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
 
-        try {
-          fis = new FileInputStream(pom);
-          final Model model = new MavenXpp3Reader().read(fis);
-          fis.close();
-          fos = new FileOutputStream(pom);
+          final Model model = getModel(pom);
           Plugin plugin = model.getBuild().getPlugins().get(0);
           ((Xpp3Dom) plugin.getConfiguration()).getChild("additionalPackagingTypes").getChild("html5")
-            .setValue("COPY");
-          new MavenXpp3Writer().write(fos, model);
-        }
-        finally {
-          IOUtils.closeQuietly(fis);
-          IOUtils.closeQuietly(fos);
-        }
+            .setValue("BUNDLE");
+          persistModel(pom, model);
       }
     });
 
@@ -90,15 +74,8 @@ public class DependencyToZipToCopyTest extends XCodeTest
           null, pomReplacements, projectModifier);
 
     File tmp = new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/html5/"
-          + Constants.GROUP_ID + "/MyZip/MyZip-1.0.0.zip");
+          + TestConstants.GROUP_ID + "/MyZip/MyZip.bundle/dummy.txt");
 
     Assert.assertTrue("File '" + tmp + "' not found", tmp.exists());
-
-    File tmpWithDep = new File(getTestExecutionDirectory(testName, "MyApp"),
-          "target/xcode-deps/html5/"
-                + Constants.GROUP_ID + "/MyZipWithDep/MyZipWithDep-1.0.0.zip");
-
-    Assert.assertTrue("File '" + tmpWithDep + "' not found", tmpWithDep.exists());
-
   }
 }

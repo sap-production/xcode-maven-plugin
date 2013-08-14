@@ -1,6 +1,6 @@
 /*
  * #%L
- * it-xcode-maven-plugin
+ * xcode-maven-plugin
  * %%
  * Copyright (C) 2012 SAP AG
  * %%
@@ -17,16 +17,15 @@
  * limitations under the License.
  * #L%
  */
-package com.sap.prd.mobile.ios.mios;
+package com.sap.prd.mobile.ios.mios.versioninfo;
 
-abstract class Constants
+public class Coordinates
 {
 
-  private Constants()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  final static String GROUP_ID = "com.sap.ondevice.production.ios.tests";
-  final static String GROUP_ID_WITH_SLASH = GROUP_ID.replaceAll("\\.", "/");
+  public static final String GROUP_ID = "groupId";
+  public static final String ARTIFACT_ID = "artifactId";
+  public static final String VERSION = "version";
+  public static final String EXTENSION = "extension";
+  public static final String CLASSIFIER = "classifier";
+  
 }

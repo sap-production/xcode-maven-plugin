@@ -62,7 +62,7 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   {
 
     dynamicVersion = "1.0." + String.valueOf(System.currentTimeMillis());
-    myLibArtifactFilePrefix = Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + dynamicVersion + "/MyLibrary-"
+    myLibArtifactFilePrefix = TestConstants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + dynamicVersion + "/MyLibrary-"
           + dynamicVersion;
     testName = StraightForwardLibAndAppTest.class.getName() + File.separator
           + Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -90,7 +90,7 @@ public class StraightForwardLibAndAppTest extends XCodeTest
           THE_EMPTY_LIST,
           additionalSystemProperties, pomReplacements, new NullProjectModifier());
 
-    myAppVersionRepoDir = Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
+    myAppVersionRepoDir = TestConstants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion;
     myAppArtifactFilePrefix = myAppVersionRepoDir + "/MyApp-" + dynamicVersion;
 
     final File tmpFolder = new File(getTargetDirectory(), "tests/tmp");

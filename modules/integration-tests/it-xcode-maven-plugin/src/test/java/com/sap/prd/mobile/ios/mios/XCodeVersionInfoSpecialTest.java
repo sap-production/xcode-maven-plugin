@@ -61,10 +61,10 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
           THE_EMPTY_MAP, pomReplacements, new NullProjectModifier());
 
     File libraryVersionsInfo = new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion
+          TestConstants.GROUP_ID_WITH_SLASH + "/MyLibrary/" + dynamicVersion + "/MyLibrary-" + dynamicVersion
                 + "-versions.xml");
     libraryVersionsInfo.delete();
-    verifier.deleteArtifacts(Constants.GROUP_ID_WITH_SLASH);
+    verifier.deleteArtifacts(TestConstants.GROUP_ID_WITH_SLASH);
     assertTrue(!libraryVersionsInfo.exists());
 
     test(testName, new File(getTestRootDirectory(), "versions-info/MyApp"), "deploy",
@@ -75,7 +75,7 @@ public class XCodeVersionInfoSpecialTest extends XCodeTest
       .getAbsoluteFile();
 
     File versionFileApp = new File(remoteRepositoryDirectory,
-          Constants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion
+          TestConstants.GROUP_ID_WITH_SLASH + "/MyApp/" + dynamicVersion + "/MyApp-" + dynamicVersion
                 + "-versions.xml");
     assertTrue(versionFileApp.exists());
 

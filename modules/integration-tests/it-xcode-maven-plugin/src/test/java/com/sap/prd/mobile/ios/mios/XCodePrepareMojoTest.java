@@ -61,18 +61,18 @@ public class XCodePrepareMojoTest extends XCodeTest
     final String configuration = "Release";
 
     Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/libs/" + configuration
-          + "-iphoneos/" + Constants.GROUP_ID + "/MyLibrary/libMyLibrary.a").exists());
-    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + Constants.GROUP_ID
+          + "-iphoneos/" + TestConstants.GROUP_ID + "/MyLibrary/libMyLibrary.a").exists());
+    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + TestConstants.GROUP_ID
           + "/MyLibrary/MyLibrary.bundle").exists());
-    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + Constants.GROUP_ID
+    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + TestConstants.GROUP_ID
           + "/MyLibrary/MyLibrary.bundle/test.txt").exists());
-    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + Constants.GROUP_ID
+    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + TestConstants.GROUP_ID
           + "/MyLibrary/MyLibrary.raw.bundle/test.txt").exists());
-    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + Constants.GROUP_ID
+    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + TestConstants.GROUP_ID
           + "/MyLibrary/MyLibrary.raw.bundle/testDirectory/test.txt").exists());
-    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + Constants.GROUP_ID
+    Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/bundles/" + TestConstants.GROUP_ID
           + "/MyLibrary/Resources/Another.bundle/test.txt").exists());
     Assert.assertTrue(new File(getTestExecutionDirectory(testName, "MyApp"), "target/headers/" + configuration
-          + "-iphoneos/" + Constants.GROUP_ID + "/MyLibrary/PrintOutObject.h").exists());
+          + "-iphoneos/" + TestConstants.GROUP_ID + "/MyLibrary/PrintOutObject.h").exists());
   }
 }

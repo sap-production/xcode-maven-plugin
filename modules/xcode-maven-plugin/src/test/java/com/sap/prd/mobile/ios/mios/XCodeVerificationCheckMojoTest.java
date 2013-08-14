@@ -19,6 +19,9 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.ARTIFACT_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.GROUP_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.VERSION;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
 
@@ -91,37 +94,37 @@ public class XCodeVerificationCheckMojoTest
   @Test
   public void testMissingGroupId() throws Exception
   {
-    testPartOfGavInvalidOrMissing("src/test/checks/noGroupId.xml", "groupId", "myGroupId");
+    testPartOfGavInvalidOrMissing("src/test/checks/noGroupId.xml", GROUP_ID, "myGroupId");
   }
 
   @Test
   public void testMissingArtifactId() throws Exception
   {
-    testPartOfGavInvalidOrMissing("src/test/checks/noArtifactId.xml", "artifactId", "myArtifactId");
+    testPartOfGavInvalidOrMissing("src/test/checks/noArtifactId.xml", ARTIFACT_ID, "myArtifactId");
   }
 
   @Test
   public void testMissingVersion() throws Exception
   {
-    testPartOfGavInvalidOrMissing("src/test/checks/noVersion.xml", "version", "1.0.0");
+    testPartOfGavInvalidOrMissing("src/test/checks/noVersion.xml", VERSION, "1.0.0");
   }
 
   @Test
   public void testEmptyGroupId() throws Exception
   {
-    testPartOfGavInvalidOrMissing("src/test/checks/emptyGroupId.xml", "groupId", "myGroupId");
+    testPartOfGavInvalidOrMissing("src/test/checks/emptyGroupId.xml", GROUP_ID, "myGroupId");
   }
 
   @Test
   public void testEmptyArtifactId() throws Exception
   {
-    testPartOfGavInvalidOrMissing("src/test/checks/emptyArtifactId.xml", "artifactId", "myArtifactId");
+    testPartOfGavInvalidOrMissing("src/test/checks/emptyArtifactId.xml", ARTIFACT_ID, "myArtifactId");
   }
 
   @Test
   public void testEmptyVersion() throws Exception
   {
-    testPartOfGavInvalidOrMissing("src/test/checks/emptyVersion.xml", "version", "1.0.0");
+    testPartOfGavInvalidOrMissing("src/test/checks/emptyVersion.xml", VERSION, "1.0.0");
   }
 
   @Test

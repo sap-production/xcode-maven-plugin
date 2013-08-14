@@ -34,7 +34,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.junit.Test;
 
-public class DependencyToZipToBundleTest extends XCodeTest
+public class DependencyToZipToCopyTest extends XCodeTest
 {
 
   @Test
@@ -74,7 +74,7 @@ public class DependencyToZipToBundleTest extends XCodeTest
           fos = new FileOutputStream(pom);
           Plugin plugin = model.getBuild().getPlugins().get(0);
           ((Xpp3Dom) plugin.getConfiguration()).getChild("additionalPackagingTypes").getChild("html5")
-            .setValue("BUNDLE");
+            .setValue("COPY");
           new MavenXpp3Writer().write(fos, model);
         }
         finally {
@@ -90,8 +90,15 @@ public class DependencyToZipToBundleTest extends XCodeTest
           null, pomReplacements, projectModifier);
 
     File tmp = new File(getTestExecutionDirectory(testName, "MyApp"), "target/xcode-deps/html5/"
-          + Constants.GROUP_ID + "/MyZip/MyZip.bundle/dummy.txt");
+          + TestConstants.GROUP_ID + "/MyZip/MyZip-1.0.0.zip");
 
     Assert.assertTrue("File '" + tmp + "' not found", tmp.exists());
+
+    File tmpWithDep = new File(getTestExecutionDirectory(testName, "MyApp"),
+          "target/xcode-deps/html5/"
+                + TestConstants.GROUP_ID + "/MyZipWithDep/MyZipWithDep-1.0.0.zip");
+
+    Assert.assertTrue("File '" + tmpWithDep + "' not found", tmpWithDep.exists());
+
   }
 }
