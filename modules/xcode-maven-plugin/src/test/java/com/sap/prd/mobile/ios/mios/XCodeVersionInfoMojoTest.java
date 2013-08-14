@@ -23,15 +23,24 @@ import static java.lang.String.format;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+
+import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
+import org.junit.Assert;
 import org.junit.Test;
 import org.sonatype.aether.artifact.Artifact;
+import org.xml.sax.SAXException;
 
 import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
+
 
 public class XCodeVersionInfoMojoTest
 {
@@ -87,4 +96,30 @@ public class XCodeVersionInfoMojoTest
     }
   }
 
+  public void testTransformVersionsXmlRegular() throws IOException, ParserConfigurationException, SAXException,
+        TransformerFactoryConfigurationError, TransformerException, XCodeException
+  {
+    File originalXml = new File("src/test/resources/validXML.xml");
+    File transformedXml = File.createTempFile("testTransformVersionsXmlRegular", ".xml");
+    
+    new XCodeVersionInfoMojo().transformVersionsXml(originalXml, transformedXml);
+    
+    String original = toString(originalXml);
+    String transformed = toString(transformedXml);
+    System.out.println("ORIGINAL: "+original);
+    System.out.println("TRANSFORMED: "+transformed);
+    Assert.assertTrue("Does not contain 'PERFORCE_HOST': "+original, original.contains("PERFORCE_HOST"));
+    Assert.assertFalse("Still contains 'PERFORCE_HOST': " + transformed, transformed.contains("PERFORCE_HOST"));
+    Assert.assertTrue("Does not contain '<connection>PORT</connection>': " + transformed, transformed.contains("<connection>PORT</connection>"));
+  }
+  
+  private String toString(File transformedXml) throws IOException
+  {
+    FileInputStream fileInputStream = new FileInputStream(transformedXml);
+    try {
+      return IOUtils.toString(fileInputStream);
+    } finally {
+      IOUtils.closeQuietly(fileInputStream);
+    }
+  }
 }

@@ -258,7 +258,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     }
   }
 
-  private void transformVersionsXml(File versionsXmlInBuild, File versionsXmlInApp)
+  void transformVersionsXml(File versionsXmlInBuild, File versionsXmlInApp)
         throws ParserConfigurationException, SAXException, IOException, TransformerFactoryConfigurationError,
         TransformerException, XCodeException
   {
