@@ -35,7 +35,6 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
 
 public class VersionInfoPListManager
 {
-  private static final String THREEDOTS = "...";
 
   void createVersionInfoPlistFile(final String groupId, final String artifactId, final String version,
         final File syncInfoFile, List<Dependency> dependencies, File file)
@@ -128,11 +127,4 @@ public class VersionInfoPListManager
     }
   }
 
-  private static String getDepotPath(String fullDepotPath)
-  {
-    if (fullDepotPath.endsWith(THREEDOTS)) {
-      fullDepotPath = fullDepotPath.substring(0, fullDepotPath.length() - THREEDOTS.length());
-    }
-    return fullDepotPath;
-  }
 }
