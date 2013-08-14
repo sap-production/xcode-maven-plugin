@@ -262,7 +262,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
         throws ParserConfigurationException, SAXException, IOException, TransformerFactoryConfigurationError,
         TransformerException, XCodeException
   {
-    final InputStream transformerRule = getClass().getClassLoader().getResourceAsStream("transformation.xml");
+    final InputStream transformerRule = getClass().getClassLoader().getResourceAsStream("versionInfoCensorTransformation.xml");
 
     if (transformerRule == null)
     {
