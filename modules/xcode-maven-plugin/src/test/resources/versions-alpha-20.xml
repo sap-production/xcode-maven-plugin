@@ -6,7 +6,7 @@
 		<version>1.0.1</version>
 	</coordinates>
 	<scm>
-		<repository>MY_PERFORCE_PORT</repository>
+		<repository>PERFORCE_HOST:PORT</repository>
 		<path>//MY_DEPOT_PATH/...</path>
 		<snapshotId>4711</snapshotId>
 	</scm>

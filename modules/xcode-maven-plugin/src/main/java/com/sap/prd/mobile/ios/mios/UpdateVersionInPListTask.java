@@ -28,7 +28,12 @@ abstract class UpdateVersionInPListTask
 {
   protected File plistFile;
   protected String version;
-  protected final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());
+  protected final static Logger LOGGER;
+  
+  static {
+    LOGGER = new XCodePluginLogger();
+    LogManager.getLogManager().addLogger(LOGGER);
+  }
 
   final UpdateVersionInPListTask setPListFile(File plistFile)
   {

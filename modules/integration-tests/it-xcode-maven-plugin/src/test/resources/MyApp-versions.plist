@@ -27,7 +27,7 @@
 			<key>scm</key>
 			<dict>
 				<key>connection</key>
-				<string>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/</string>
+				<string>PORT</string>
 				<key>revision</key>
 				<string>4711</string>
 			</dict>
@@ -36,7 +36,7 @@
 	<key>scm</key>
 	<dict>
 		<key>connection</key>
-		<string>scm:perforce:MY_PERFORCE_PORT://MY_DEPOT_PATH/</string>
+		<string>PORT</string>
 		<key>revision</key>
 		<string>1234</string>
 	</dict>

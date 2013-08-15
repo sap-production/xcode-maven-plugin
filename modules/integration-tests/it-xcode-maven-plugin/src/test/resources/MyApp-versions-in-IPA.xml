@@ -2,11 +2,24 @@
 <versions xmlns="urn:xml.sap.com:XCodePlugin:VersionInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.2.2" xsi:schemaLocation="urn:xml.sap.com:XCodePlugin:VersionInfo http://nexus.wdf.sap.corp:8081/nexus/content/repositories/deploy.release.ondevice.hosted/com/sap/prd/mobile/ios/mios/versionschema/1.2.2/versionschema-1.2.2.xsd">
     <coordinates>
         <groupId>com.sap.ondevice.production.ios.tests</groupId>
-        <artifactId>MyLibrary</artifactId>
+        <artifactId>MyApp</artifactId>
         <version>${dynamicVersion}</version>
     </coordinates>
     <scm>
-        <connection>scm:perforce:PERFORCE_HOST:PORT://MY_DEPOT_PATH/</connection>
-        <revision>4711</revision>
+        <connection>PORT</connection>
+        <revision>1234</revision>
     </scm>
+    <dependencies>
+        <dependency>
+            <coordinates>
+                <groupId>com.sap.ondevice.production.ios.tests</groupId>
+                <artifactId>MyLibrary</artifactId>
+                <version>${dynamicVersion}</version>
+            </coordinates>
+            <scm>
+                <connection>PORT</connection>
+                <revision>4711</revision>
+            </scm>
+        </dependency>
+    </dependencies>
 </versions>

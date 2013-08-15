@@ -10,6 +10,22 @@ Release Notes
 
 ===
 
+* 1.12.0
+
+** Features
+
+*** Anonymize SCM location
+
+   It is possible to provide the transitive envelope of an artifact inside a versions.xml file that could be deployed as
+   side artifact. In this file the scm information (changelist, scm server) is provided. With this change it is possible
+   to anonymize the scm server so that only parts of the server are exposed. The scm information will be anonymized if
+   flag {{{./attach-version-info-mojo.html#hideConfidentialInformation}hideConfidentialInformation}}
+   is set to <<<true>>>. 
+
+** Bug Fixes
+
+   <No bug fixes>
+
 * 1.11.2
 
 ** Features

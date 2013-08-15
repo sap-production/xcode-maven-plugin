@@ -21,14 +21,24 @@ package com.sap.prd.mobile.ios.mios;
 
 import static java.lang.String.format;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -122,6 +132,13 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
    */
   private boolean failOnMissingSyncInfo;
 
+  /**
+   * If <code>true</code> confidential information is removed from artifacts to be released.
+   * 
+   * @parameter expression="${xcode.hideConfidentialInformation}" default-value="true"
+   */
+  private boolean hideConfidentialInformation;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
@@ -167,7 +184,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     }
     try {
       new VersionInfoPListManager().createVersionInfoPlistFile(project.getGroupId(), project.getArtifactId(),
-            project.getVersion(), syncInfoFile, getDependencies(), versionsPlistFile);
+            project.getVersion(), syncInfoFile, getDependencies(), versionsPlistFile, hideConfidentialInformation);
     }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
@@ -225,7 +242,18 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
             .getCodesignEntitlementsInformation(appFolder);
           final ExecResult originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
 
-          FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);
+          try {
+            if (hideConfidentialInformation) {
+              transformVersionsXml(versionsXmlInBuild, versionsXmlInApp);
+            }
+            else {
+              FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);
+            }
+          }
+          catch (Exception e) {
+            throw new MojoExecutionException("Could not transform versions.xml: " + e.getMessage(), e);
+          }
+
           getLog().info("Versions.xml file copied from: '" + versionsXmlInBuild + " ' to ' " + versionsXmlInApp);
           FileUtils.copyFile(versionsPListInBuild, versionsPListInApp);
           getLog().info("Versions.plist file copied from: '" + versionsPListInBuild + " ' to ' " + versionsPListInApp);
@@ -240,6 +268,32 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           CodeSignManager.verify(originalSecurityCMSMessageInfo, resignedSecurityCMSMessageInfo);
         }
       }
+    }
+  }
+
+  void transformVersionsXml(File versionsXmlInBuild, File versionsXmlInApp)
+        throws ParserConfigurationException, SAXException, IOException, TransformerFactoryConfigurationError,
+        TransformerException, XCodeException
+  {
+    final InputStream transformerRule = getClass().getClassLoader().getResourceAsStream(
+          "versionInfoCensorTransformation.xml");
+
+    if (transformerRule == null)
+    {
+      throw new XCodeException("Could not read transformer rule.");
+    }
+
+    try
+    {
+      final Transformer transformer = TransformerFactory.newInstance().newTransformer(
+            new StreamSource(transformerRule));
+      transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+      transformer.transform(new StreamSource(versionsXmlInBuild), new StreamResult(versionsXmlInApp));
+    }
+    finally {
+      IOUtils.closeQuietly(transformerRule);
     }
   }
 
