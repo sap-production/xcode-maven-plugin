@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.sap.prd.mobile.ios.mios</groupId>
   <artifactId>integration-test-aggregator</artifactId>
-  <version>1.12.0</version>
+  <version>1.12.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
