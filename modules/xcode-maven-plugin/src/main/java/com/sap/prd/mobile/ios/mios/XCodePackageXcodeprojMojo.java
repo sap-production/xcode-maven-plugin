@@ -142,12 +142,14 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
 
     String xprojZipFileName = project.getArtifactId() + "-" + XCODEPROJ_WITH_DEPS_CLASSIFIER + ".zip";
 
+    final String projectBuildDirectory = project.getBuild().getDirectory();
+
     try {
-      File targetFolder = new File(project.getBuild().getDirectory());
+      final File targetFolder = new File(projectBuildDirectory);
       if (!targetFolder.isDirectory()) {
         targetFolder.mkdirs();
       }
-      String relativeTargetDirName = FileUtils.getRelativePath(project.getBuild().getDirectory(), project.getBasedir()
+      String relativeTargetDirName = FileUtils.getRelativePath(projectBuildDirectory, project.getBasedir()
         .getAbsolutePath(), "/");
       String relativeSrcDirName = FileUtils.getRelativePath(FolderLayout.getSourceFolder(project).getAbsolutePath(),
             project.getBasedir().getAbsolutePath(), "/");
@@ -184,8 +186,7 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
             "Could not package the Xcode project with all its dependencies into a zip file.", e);
     }
 
-    projectHelper.attachArtifact(project, "zip", XCODEPROJ_WITH_DEPS_CLASSIFIER, new File(project.getBuild()
-      .getDirectory(), xprojZipFileName));
+    projectHelper.attachArtifact(project, "zip", XCODEPROJ_WITH_DEPS_CLASSIFIER, new File(projectBuildDirectory, xprojZipFileName));
 
   }
 
