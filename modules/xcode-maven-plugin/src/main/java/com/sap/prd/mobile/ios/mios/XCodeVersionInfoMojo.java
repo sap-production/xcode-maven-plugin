@@ -21,7 +21,6 @@ package com.sap.prd.mobile.ios.mios;
 
 import static java.lang.String.format;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
