@@ -344,12 +344,12 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     catch (SAXException e) {
       getLog().warn(format(
             "Version file '%s' for artifact '%s' contains invalid content (Non parsable XML). Ignoring this file.",
-            (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
+            (sideArtifact.getFile() != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
     }
     catch (JAXBException e) {
       getLog().warn(format(
             "Version file '%s' for artifact '%s' contains invalid content (Scheme violation). Ignoring this file.",
-            (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
+            (sideArtifact.getFile() != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
     }
   }
 }
