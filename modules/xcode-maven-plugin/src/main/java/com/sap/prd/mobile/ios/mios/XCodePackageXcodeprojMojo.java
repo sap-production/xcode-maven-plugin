@@ -20,9 +20,7 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.io.FilePermission;
 import java.io.IOException;
-import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -149,17 +147,8 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
     try {
       final File targetFolder = new File(projectBuildDirectory);
 
-      if (!targetFolder.exists()) {
-        if(!targetFolder.mkdirs())
-        {
-          throw new IllegalStateException(String.format("The maven build directory '%s' does not exist and cannot be created.", targetFolder));
-        }
-      } else {
-        if(!targetFolder.isDirectory())
-        {
-          throw new IllegalStateException(String.format("'%s' is the maven build directory but was found not to be a directory.", targetFolder));
-        }
-      }
+      FileUtils.mkdirs(targetFolder);
+
       String relativeTargetDirName = FileUtils.getRelativePath(projectBuildDirectory, project.getBasedir()
         .getAbsolutePath(), "/");
       String relativeSrcDirName = FileUtils.getRelativePath(FolderLayout.getSourceFolder(project).getAbsolutePath(),
