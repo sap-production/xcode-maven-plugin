@@ -38,7 +38,7 @@ import org.apache.maven.project.MavenProjectHelper;
 public class XCodeFatLibraryMojo extends AbstractXCodeMojo
 {
 
-  public static String FAT_LIBRARY_CLASSIFIER_SUFFIX = "-fat-binary";
+  public final static String FAT_LIBRARY_CLASSIFIER_SUFFIX = "-fat-binary";
 
   /**
    * @component
@@ -74,7 +74,9 @@ public class XCodeFatLibraryMojo extends AbstractXCodeMojo
             configuration, sdk, project.getArtifactId()).getAbsolutePath());
     }
     final File fatBinaryDestDirectory = new File(new File(project.getBuild().getDirectory()), configuration);
-    fatBinaryDestDirectory.mkdirs();
+    
+    FileUtils.mkdirs(fatBinaryDestDirectory);
+
     final File fatLibrary = new File(fatBinaryDestDirectory, "lib" + project.getArtifactId() + ".a");
 
     lipoCommand.add("-output");
