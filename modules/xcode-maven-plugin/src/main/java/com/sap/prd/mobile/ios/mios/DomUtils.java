@@ -64,7 +64,7 @@ public class DomUtils
       throw new IllegalArgumentException("No encoding provided.");
 
     final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    transformerFactory.setAttribute("indent-number", new Integer(2));
+    transformerFactory.setAttribute("indent-number", Integer.valueOf(2));
     final Transformer t = transformerFactory.newTransformer();
 
     t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
