@@ -74,11 +74,15 @@ public class VersionInfoXmlManager
         throws MojoExecutionException
   {
 
+    InputStream is = null;
+
     try {
+
+      is = new FileInputStream(syncInfoFile);
 
       final Properties versionInfo = new Properties();
 
-      versionInfo.load(new FileInputStream(syncInfoFile));
+      versionInfo.load(is);
 
       createVersionInfoFile(groupId, artifactId, version, versionInfo, dependencies, versionInfoStream);
 
@@ -88,6 +92,8 @@ public class VersionInfoXmlManager
     }
     catch (JAXBException e) {
       throw new MojoExecutionException("Could not load sync info from file '" + syncInfoFile + "'.", e);
+    } finally {
+      IOUtils.closeQuietly(is);
     }
   }
 

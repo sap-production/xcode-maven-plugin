@@ -26,9 +26,11 @@ import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.VERSION;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
@@ -41,11 +43,15 @@ public class VersionInfoPListManager
         throws MojoExecutionException
   {
 
+    InputStream is = null;
+    
     try {
+
+      is = new FileInputStream(syncInfoFile);
 
       final Properties versionInfo = new Properties();
 
-      versionInfo.load(new FileInputStream(syncInfoFile));
+      versionInfo.load(is);
 
       createVersionInfoPlistFile(groupId, artifactId, version, versionInfo, dependencies, file,
             hideConfidentialInformation);
@@ -53,6 +59,8 @@ public class VersionInfoPListManager
     }
     catch (IOException e) {
       throw new MojoExecutionException("Could not load sync info from file '" + syncInfoFile + "'.", e);
+    } finally {
+      IOUtils.closeQuietly(is);
     }
   }
 
