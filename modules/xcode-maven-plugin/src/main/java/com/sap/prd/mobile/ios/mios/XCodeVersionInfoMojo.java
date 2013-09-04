@@ -179,7 +179,10 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
     final File versionsPlistFile = new File(project.getBuild().getDirectory(), "versions.plist");
     if (versionsPlistFile.exists()) {
-      versionsPlistFile.delete();
+      if(!versionsPlistFile.delete())
+      {
+        throw new IllegalStateException(String.format("Cannot delete already existing plist file (%s)", versionsPlistFile));
+      }
     }
     try {
       new VersionInfoPListManager().createVersionInfoPlistFile(project.getGroupId(), project.getArtifactId(),
