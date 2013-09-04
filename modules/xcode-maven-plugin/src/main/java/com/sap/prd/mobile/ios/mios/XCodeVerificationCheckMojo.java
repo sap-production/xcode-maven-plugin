@@ -468,9 +468,9 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
         throws MojoExecutionException
   {
     boolean mustFailedTheBuild = false;
-    for (Check failedCheck : failedChecks.keySet()) {
-      handleException(failedCheck, failedChecks.get(failedCheck));
-      if (failedCheck.getSeverity().equalsIgnoreCase("ERROR")) {
+    for (Map.Entry<Check, Exception> entry : failedChecks.entrySet()) {
+      handleException(entry.getKey(), entry.getValue());
+      if (entry.getKey().getSeverity().equalsIgnoreCase("ERROR")) {
         mustFailedTheBuild = true;
       }
     }
