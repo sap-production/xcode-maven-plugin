@@ -244,9 +244,8 @@ public class FileUtils
   {
     System.out.println("[INFO] Creating symbolic link. Source:" + source.getAbsolutePath() + ", target: "
           + target.getAbsolutePath() + ".");
-    if(!target.getParentFile().mkdirs()) {
-      throw new IOException(String.format("Cannot create the directory (%s) that should contain the symbolic link (%s).", target.getParentFile(), target));
-    }
+
+    mkdirs(target.getParentFile());
 
     int returnValue = Forker.forkProcess(System.out, null, "ln", "-sf", source.getAbsolutePath(),
           target.getAbsolutePath());
