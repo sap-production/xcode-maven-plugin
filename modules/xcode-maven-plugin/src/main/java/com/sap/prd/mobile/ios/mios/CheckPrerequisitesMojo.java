@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,7 +43,6 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public class CheckPrerequisitesMojo extends AbstractXCodeMojo
 {
-
   public final static String MIN_XCODE_VERSION = "4.4";
 
   @Override
@@ -50,10 +50,10 @@ public class CheckPrerequisitesMojo extends AbstractXCodeMojo
   {
     try {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      PrintStream out = new PrintStream(bos);
+      PrintStream out = new PrintStream(bos, true, Charset.defaultCharset().name());
       int exitCode = Forker.forkProcess(out, new File("."), new String[] { "xcodebuild", "-version" });
       if (exitCode == 0) {
-        String output = bos.toString();
+        String output = bos.toString(Charset.defaultCharset().name());
         DefaultArtifactVersion version = getVersion(output);
         String buildVersion = getBuildVersion(output);
         getLog().info("Using Xcode " + version + " " + buildVersion);

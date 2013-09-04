@@ -20,11 +20,15 @@
 package com.sap.prd.mobile.ios.mios;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Model;
@@ -98,7 +102,7 @@ public class UpdateVersionInPomMojo extends BuildContextAwareMojo
     Reader r = null;
 
     try {
-      r = new FileReader(pom);
+      r = new InputStreamReader(new FileInputStream(pom), Charset.defaultCharset().name());
 
       Model model = new MavenXpp3Reader().read(r);
       r.close();
@@ -115,7 +119,7 @@ public class UpdateVersionInPomMojo extends BuildContextAwareMojo
 
     try {
 
-      w = new FileWriter(pom);
+      w = new OutputStreamWriter(new FileOutputStream(pom), Charset.defaultCharset().name());
       new MavenXpp3Writer().write(w, model);
 
     }

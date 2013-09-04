@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -230,7 +231,7 @@ public class FileUtils
     if (file == null || !file.exists())
       return false;
 
-    PrintStream printStream = new PrintStream(new ByteArrayOutputStream());
+    PrintStream printStream = new PrintStream(new ByteArrayOutputStream(), true, Charset.defaultCharset().name());
     try {
       int result = Forker.forkProcess(printStream, file.getParentFile(), "test", "-L", file.getName());
       return result == 0;

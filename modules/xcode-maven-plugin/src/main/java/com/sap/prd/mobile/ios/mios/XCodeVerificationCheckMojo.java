@@ -30,9 +30,11 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -59,6 +61,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -387,15 +390,21 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
     if (getLog().isDebugEnabled()) {
 
+      final Charset defaultCharset = Charset.defaultCharset();
       final ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
-      final PrintStream ps = new PrintStream(byteOs);
-
+      final PrintStream ps;
+      try {
+       ps = new PrintStream(byteOs, true, defaultCharset.name());
+      } catch(UnsupportedEncodingException ex) {
+        throw new MojoExecutionException(String.format("Charset '%s' cannot be found.", defaultCharset.name()));
+      }
+      
       try {
         verificationCheckRealm.display(ps);
         ps.close();
         getLog().debug(
               String.format("Using classloader for loading verification check '%s':%s%s", checkDesc.getClazz(),
-                    System.getProperty("line.separator"), new String(byteOs.toByteArray())));
+                    System.getProperty("line.separator"), new String(byteOs.toByteArray(), defaultCharset)));
       }
       finally {
         IOUtils.closeQuietly(ps);
