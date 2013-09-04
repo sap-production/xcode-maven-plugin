@@ -42,6 +42,8 @@ public class FileUtils
 
   public static void mkdirs(final File f) throws IOException
   {
+    if(f.exists() && !f.isDirectory())
+      throw new IOException(String.format("'%s' does already exist but is not a directory.", f));
 
     if (!f.exists() && !f.mkdirs())
       throw new IOException("Could not create folder '" + f + "'.");
