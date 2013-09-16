@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -109,13 +110,13 @@ class FatLibAnalyzer
 
   private String getDetailedLipoInfo() throws IOException
   {
-
+    final String defaultCharSet = Charset.defaultCharset().name();
     ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
-    PrintStream ps = new PrintStream(byteOs);
+    PrintStream ps = new PrintStream(byteOs, true, defaultCharSet);
     try {
       Forker.forkProcess(ps, null, "lipo", "-detailed_info", fatLib.getAbsolutePath());
 
-      return new String(byteOs.toByteArray());
+      return new String(byteOs.toByteArray(), defaultCharSet);
     }
     finally {
       IOUtils.closeQuietly(ps);

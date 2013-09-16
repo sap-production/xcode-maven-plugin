@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.Scanner;
 
 import org.apache.commons.io.IOUtils;
@@ -73,7 +74,7 @@ public class PListAccessor
       {
         InputStream is = p.getInputStream();
         try {
-          return new Scanner(is).useDelimiter("\\Z").next();
+          return new Scanner(is, Charset.defaultCharset().name()).useDelimiter("\\Z").next();
         }
         finally {
           closeQuietly(is);
@@ -83,7 +84,7 @@ public class PListAccessor
       String errorMessage = "<n/a>";
 
       try {
-        errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+        errorMessage = new Scanner(p.getErrorStream(), Charset.defaultCharset().name()).useDelimiter("\\Z").next();
       }
       catch (Exception ex) {
         System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
@@ -124,7 +125,7 @@ public class PListAccessor
       {
         String errorMessage = "n/a";
         try {
-          errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+          errorMessage = new Scanner(p.getErrorStream(), Charset.defaultCharset().name()).useDelimiter("\\Z").next();
         }
         catch (Exception ex) {
           System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
@@ -160,7 +161,7 @@ public class PListAccessor
       {
         String errorMessage = "n/a";
         try {
-          errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+          errorMessage = new Scanner(p.getErrorStream(), Charset.defaultCharset().name()).useDelimiter("\\Z").next();
         }
         catch (Exception ex) {
           System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
@@ -196,7 +197,7 @@ public class PListAccessor
       {
         String errorMessage = "n/a";
         try {
-          errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+          errorMessage = new Scanner(p.getErrorStream(), Charset.defaultCharset().name()).useDelimiter("\\Z").next();
         }
         catch (Exception ex) {
           System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
@@ -231,7 +232,7 @@ public class PListAccessor
       {
         String errorMessage = "n/a";
         try {
-          errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+          errorMessage = new Scanner(p.getErrorStream(), Charset.defaultCharset().name()).useDelimiter("\\Z").next();
         }
         catch (Exception ex) {
           System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
@@ -267,7 +268,7 @@ public class PListAccessor
       {
         String errorMessage = "n/a";
         try {
-          errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+          errorMessage = new Scanner(p.getErrorStream(), Charset.defaultCharset().name()).useDelimiter("\\Z").next();
         }
         catch (Exception ex) {
           System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
@@ -302,7 +303,7 @@ public class PListAccessor
       {
         String errorMessage = "n/a";
         try {
-          errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+          errorMessage = new Scanner(p.getErrorStream(), Charset.defaultCharset().name()).useDelimiter("\\Z").next();
         }
         catch (Exception ex) {
           System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
@@ -337,7 +338,7 @@ public class PListAccessor
       {
         String errorMessage = "n/a";
         try {
-          errorMessage = new Scanner(p.getErrorStream()).useDelimiter("\\Z").next();
+          errorMessage = new Scanner(p.getErrorStream(), Charset.defaultCharset().name()).useDelimiter("\\Z").next();
         }
         catch (Exception ex) {
           System.out.println("[ERROR] Exception caught during retrieving error message of command '" + command + "': "
@@ -350,7 +351,7 @@ public class PListAccessor
       byte[] buff = new byte[64];
       StringBuilder sb = new StringBuilder();
       for (int i = 0; (i = is.read(buff)) != -1;) {
-        sb.append(new String(buff, 0, i));
+        sb.append(new String(buff, 0, i, Charset.defaultCharset().name()));
       }
       BufferedReader reader = new BufferedReader(new StringReader(sb.toString()));
 

@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +43,8 @@ public class FileUtils
 
   public static void mkdirs(final File f) throws IOException
   {
+    if(f.exists() && !f.isDirectory())
+      throw new IOException(String.format("'%s' does already exist but is not a directory.", f));
 
     if (!f.exists() && !f.mkdirs())
       throw new IOException("Could not create folder '" + f + "'.");
@@ -228,7 +231,7 @@ public class FileUtils
     if (file == null || !file.exists())
       return false;
 
-    PrintStream printStream = new PrintStream(new ByteArrayOutputStream());
+    PrintStream printStream = new PrintStream(new ByteArrayOutputStream(), true, Charset.defaultCharset().name());
     try {
       int result = Forker.forkProcess(printStream, file.getParentFile(), "test", "-L", file.getName());
       return result == 0;
@@ -242,7 +245,9 @@ public class FileUtils
   {
     System.out.println("[INFO] Creating symbolic link. Source:" + source.getAbsolutePath() + ", target: "
           + target.getAbsolutePath() + ".");
-    target.getParentFile().mkdirs();
+
+    mkdirs(target.getParentFile());
+
     int returnValue = Forker.forkProcess(System.out, null, "ln", "-sf", source.getAbsolutePath(),
           target.getAbsolutePath());
     if (returnValue != 0) {

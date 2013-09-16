@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -105,7 +106,7 @@ public class EffectiveBuildSettings implements IEffectiveBuildSettings
     ByteArrayOutputStream os = null;
     try {
       os = new ByteArrayOutputStream();
-      out = new PrintStream(os);
+      out = new PrintStream(os, true, Charset.defaultCharset().name());
 
       final int returnValue = Forker.forkProcess(out, context.getProjectRootDirectory(),
             cmdLineBuilder.createBuildCall());
@@ -114,7 +115,7 @@ public class EffectiveBuildSettings implements IEffectiveBuildSettings
         if (out != null)
           out.flush();
         throw new XCodeException("Could not execute xcodebuild -showBuildSettings command for configuration "
-              + context.getConfiguration() + " and sdk " + context.getSDK() + ": " + new String(os.toByteArray()));
+              + context.getConfiguration() + " and sdk " + context.getSDK() + ": " + new String(os.toByteArray(), Charset.defaultCharset().name()));
       }
 
       out.flush();

@@ -21,7 +21,6 @@ package com.sap.prd.mobile.ios.mios;
 
 import static java.lang.String.format;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -180,7 +179,10 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
     final File versionsPlistFile = new File(project.getBuild().getDirectory(), "versions.plist");
     if (versionsPlistFile.exists()) {
-      versionsPlistFile.delete();
+      if(!versionsPlistFile.delete())
+      {
+        throw new IllegalStateException(String.format("Cannot delete already existing plist file (%s)", versionsPlistFile));
+      }
     }
     try {
       new VersionInfoPListManager().createVersionInfoPlistFile(project.getGroupId(), project.getArtifactId(),
@@ -344,12 +346,12 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
     catch (SAXException e) {
       getLog().warn(format(
             "Version file '%s' for artifact '%s' contains invalid content (Non parsable XML). Ignoring this file.",
-            (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
+            (sideArtifact.getFile() != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
     }
     catch (JAXBException e) {
       getLog().warn(format(
             "Version file '%s' for artifact '%s' contains invalid content (Scheme violation). Ignoring this file.",
-            (sideArtifact != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
+            (sideArtifact.getFile() != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
     }
   }
 }
