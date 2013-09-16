@@ -6,7 +6,6 @@
   <packaging>pom</packaging>
 
   <properties>
-    <maven.deploy.skip>true</maven.deploy.skip>
     <findbugs.includeTests>true</findbugs.includeTests>
     <jacocoVersion>0.6.3.201306030806</jacocoVersion>
   </properties>
