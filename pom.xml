@@ -58,6 +58,12 @@
         </plugin>
        </plugins>
     </pluginManagement>
+
+    <plugin>
+      <groupId>org.jacoco</groupId>
+      <artifactId>jacoco-maven-plugin</artifactId>
+    </plugin>
+
   </build>  
 
   <reporting>
