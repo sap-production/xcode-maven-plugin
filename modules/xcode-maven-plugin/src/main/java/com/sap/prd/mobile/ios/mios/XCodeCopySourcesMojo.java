@@ -49,7 +49,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
     final File baseDirectory = project.getBasedir();
-    final File checkoutDirectory = getCheckoutDirectory();
+    final File checkoutDirectory = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(getCheckoutDirectory());
     final String buildDirPath = getProjectBuildDirectory();
 
     getLog().info("Base directory: " + baseDirectory);
@@ -79,7 +79,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
           return !(checkoutDirectory.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
                 originalLibDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
                 originalHeadersDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
-          originalXcodeDepsDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()));
+                originalXcodeDepsDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()));
         }
 
       });

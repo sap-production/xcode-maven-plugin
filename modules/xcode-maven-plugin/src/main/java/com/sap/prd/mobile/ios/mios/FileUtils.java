@@ -309,5 +309,36 @@ public class FileUtils
       throw new RuntimeException(e);
     }
   }
+  
+  static String getCanonicalPath(File f) throws IORuntimeException
+  {
+    try {
+      return f.getCanonicalPath();
+    }
+    catch (final IOException ex) {
+      throw new IORuntimeException(ex.getMessage(), ex);
+    }
+  }
 
+  static File getCanonicalFile(File f) throws IORuntimeException
+  {
+    try {
+      return f.getCanonicalFile();
+    }
+    catch (final IOException ex) {
+      throw new IORuntimeException(ex.getMessage(), ex);
+    }
+  }
+  
+  public static class IORuntimeException extends RuntimeException {
+    
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -833352788241793404L;
+
+    public IORuntimeException(String message, Throwable cause) {
+      super(message, cause);
+    }
+  }
 }
