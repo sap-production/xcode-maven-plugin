@@ -48,7 +48,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
-    final File baseDirectory = project.getBasedir();
+    final File baseDirectory = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(project.getBasedir());
     final File checkoutDirectory = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(getCheckoutDirectory());
     final String buildDirPath = getProjectBuildDirectory();
 
@@ -56,15 +56,21 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
     getLog().info("Checkout directory: " + checkoutDirectory);
     getLog().info("BuildDirPath: " + buildDirPath);
 
-    final File originalLibDir = new File(project.getBuild().getDirectory(), FolderLayout.LIBS_DIR_NAME);
-    final File copyOfLibDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.LIBS_DIR_NAME);
+    final File originalLibDir = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(new File(project.getBuild()
+      .getDirectory(), FolderLayout.LIBS_DIR_NAME));
+    final File copyOfLibDir = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(new File(checkoutDirectory,
+          buildDirPath + "/" + FolderLayout.LIBS_DIR_NAME));
 
-    final File originalHeadersDir = new File(project.getBuild().getDirectory(), FolderLayout.HEADERS_DIR_NAME);
-    final File copyOfHeadersDir = new File(checkoutDirectory, buildDirPath + "/" + FolderLayout.HEADERS_DIR_NAME);
+    final File originalHeadersDir = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(new File(project.getBuild()
+      .getDirectory(), FolderLayout.HEADERS_DIR_NAME));
+    final File copyOfHeadersDir = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(new File(checkoutDirectory,
+          buildDirPath + "/" + FolderLayout.HEADERS_DIR_NAME));
 
-    final File originalXcodeDepsDir = new File(project.getBuild().getDirectory(), FolderLayout.XCODE_DEPS_TARGET_FOLDER);
-    final File copyOfXcodeDepsDir = new File(checkoutDirectory, buildDirPath + "/"
-          + FolderLayout.XCODE_DEPS_TARGET_FOLDER);
+    final File originalXcodeDepsDir = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(new File(project
+      .getBuild().getDirectory(), FolderLayout.XCODE_DEPS_TARGET_FOLDER));
+    final File copyOfXcodeDepsDir = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(new File(checkoutDirectory,
+          buildDirPath + "/"
+                + FolderLayout.XCODE_DEPS_TARGET_FOLDER));
 
     try {
 
@@ -74,12 +80,14 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       copy(baseDirectory, checkoutDirectory, new FileFilter() {
 
         @Override
-        public boolean accept(File pathname)
+        public boolean accept(final File pathname)
         {
-          return !(checkoutDirectory.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
-                originalLibDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
-                originalHeadersDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()) ||
-                originalXcodeDepsDir.getAbsoluteFile().equals(pathname.getAbsoluteFile()));
+          final File canonicalPathName = com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile(pathname);
+
+          return !(checkoutDirectory.getAbsoluteFile().equals(canonicalPathName) ||
+                originalLibDir.getAbsoluteFile().equals(canonicalPathName) ||
+                originalHeadersDir.getAbsoluteFile().equals(canonicalPathName) ||
+                originalXcodeDepsDir.getAbsoluteFile().equals(canonicalPathName));
         }
 
       });
