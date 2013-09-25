@@ -93,7 +93,7 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
     validateFrmkStructure(fmwkDir);
 
     String artifactName = productName + "." + Types.FRAMEWORK;
-    zipFmwk(builtProductsDir, artifactName, fmwkDirName);
+    zipFmwk(builtProductsDir, artifactName, productName + ".embeddedframework" /*fmwkDirName*/);
 
     File frameworkArtifact = new File(builtProductsDir, artifactName);
     return frameworkArtifact;
