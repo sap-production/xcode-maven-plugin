@@ -102,7 +102,7 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
   private void zipFmwk(File workingDirectory, String artifactName, String zipDirName) throws MojoExecutionException
   {
     try {
-      String[] zipCmd = new String[] { "zip", "-r", "-y", "-q", artifactName, zipDirName };
+      String[] zipCmd = new String[] { "zip", "-r", "-y", "-q", artifactName, zipDirName, zipDirName.replaceAll("framework", "embeddedframework") };
       getLog().info("Executing: " + StringUtils.join(zipCmd, ' '));
       int exitCode = Forker.forkProcess(System.out, workingDirectory, zipCmd);
       if (exitCode != 0) {
