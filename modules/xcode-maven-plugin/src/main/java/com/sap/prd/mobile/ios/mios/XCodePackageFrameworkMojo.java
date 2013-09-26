@@ -93,7 +93,7 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
     validateFrmkStructure(fmwkDir);
 
     String artifactName = productName + "." + Types.FRAMEWORK;
-    zipFmwk(builtProductsDir, artifactName, productName + ".embeddedframework" /*fmwkDirName*/);
+    zipFmwk(builtProductsDir, artifactName, fmwkDirName);
 
     File frameworkArtifact = new File(builtProductsDir, artifactName);
     return frameworkArtifact;
@@ -102,7 +102,7 @@ public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
   private void zipFmwk(File workingDirectory, String artifactName, String zipDirName) throws MojoExecutionException
   {
     try {
-      String[] zipCmd = new String[] { "zip", "-r", "-y", "-q", artifactName, zipDirName };
+      String[] zipCmd = new String[] { "zip", "-r", "-y", "-q", artifactName, zipDirName, zipDirName.replaceAll("framework", "embeddedframework") };
       getLog().info("Executing: " + StringUtils.join(zipCmd, ' '));
       int exitCode = Forker.forkProcess(System.out, workingDirectory, zipCmd);
       if (exitCode != 0) {
