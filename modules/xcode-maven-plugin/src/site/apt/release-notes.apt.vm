@@ -10,6 +10,29 @@ Release Notes
 
 ===
 
+* 1.13.0
+
+** Features
+
+***  Enable FindBugs and JaCoCo 
+
+   In order to optimize our code, we have enabled JaCoCo code coverage and FindBugs static analysis.
+   For more information, see  {{http://findbugs.sourceforge.net/}} and {{http://www.eclemma.org/jacoco/}}.
+
+***  Embedded Framework Packaging
+
+   If you configure your Xcode project to build an Xcode framework (see {{https://github.com/kstenerud/iOS-Universal-Framework}}) 
+   it is possible to execute this build from the Xcode Maven Plugin and upload the build results to the binary repository.
+   Additionally to the framework artifact, the generated embedded framework will be packaged and prepared for deployment.
+
+** Bug Fixes
+
+*** Fix: Filesystem not strict case sensitive.
+
+   Mac file system does not properly distinguish between upper and lower case characters.
+   Inside java files with case differences are considered to be not equal. This causes trouble during build preparation (copy files step).
+   To avoid such problems, we use only canonical files.
+
 * 1.12.0
 
 ** Features
