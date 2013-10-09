@@ -112,7 +112,7 @@
 <a class="jxr_linenumber" name="102" href="#102">102</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> zipFmwk(File workingDirectory, String artifactName, String zipDirName) <strong class="jxr_keyword">throws</strong> MojoExecutionException
 <a class="jxr_linenumber" name="103" href="#103">103</a>   {
 <a class="jxr_linenumber" name="104" href="#104">104</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="105" href="#105">105</a>       String[] zipCmd = <strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"zip"</span>, <span class="jxr_string">"-r"</span>, <span class="jxr_string">"-y"</span>, <span class="jxr_string">"-q"</span>, artifactName, zipDirName };
+<a class="jxr_linenumber" name="105" href="#105">105</a>       String[] zipCmd = <strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"zip"</span>, <span class="jxr_string">"-r"</span>, <span class="jxr_string">"-y"</span>, <span class="jxr_string">"-q"</span>, artifactName, zipDirName, zipDirName.replaceAll(<span class="jxr_string">"framework"</span>, <span class="jxr_string">"embeddedframework"</span>) };
 <a class="jxr_linenumber" name="106" href="#106">106</a>       getLog().info(<span class="jxr_string">"Executing: "</span> + StringUtils.join(zipCmd, ' '));
 <a class="jxr_linenumber" name="107" href="#107">107</a>       <strong class="jxr_keyword">int</strong> exitCode = Forker.forkProcess(System.out, workingDirectory, zipCmd);
 <a class="jxr_linenumber" name="108" href="#108">108</a>       <strong class="jxr_keyword">if</strong> (exitCode != 0) {

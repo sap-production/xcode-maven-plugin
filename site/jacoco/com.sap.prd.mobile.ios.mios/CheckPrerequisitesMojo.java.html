@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>CheckPrerequisitesMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">CheckPrerequisitesMojo.java</span></div><h1>CheckPrerequisitesMojo.java</h1><pre class="source lang-java linenums">package com.sap.prd.mobile.ios.mios;
+
+/*
+ * #%L
+ * Xcode Maven Plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+
+/**
+ * Assures that the following required prerequisites are fulfilled:
+ * &lt;ul&gt;
+ * &lt;li&gt;Xcode version {@value #MIN_XCODE_VERSION} or higher is installed&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * @goal check-prerequisites
+ * 
+ */
+<span class="nc" id="L44">public class CheckPrerequisitesMojo extends AbstractXCodeMojo</span>
+{
+  public final static String MIN_XCODE_VERSION = &quot;4.4&quot;;
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+    try {
+<span class="nc" id="L52">      ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
+<span class="nc" id="L53">      PrintStream out = new PrintStream(bos, true, Charset.defaultCharset().name());</span>
+<span class="nc" id="L54">      int exitCode = Forker.forkProcess(out, new File(&quot;.&quot;), new String[] { &quot;xcodebuild&quot;, &quot;-version&quot; });</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">      if (exitCode == 0) {</span>
+<span class="nc" id="L56">        String output = bos.toString(Charset.defaultCharset().name());</span>
+<span class="nc" id="L57">        DefaultArtifactVersion version = getVersion(output);</span>
+<span class="nc" id="L58">        String buildVersion = getBuildVersion(output);</span>
+<span class="nc" id="L59">        getLog().info(&quot;Using Xcode &quot; + version + &quot; &quot; + buildVersion);</span>
+<span class="nc" id="L60">        checkVersions(version, buildVersion);</span>
+<span class="nc" id="L61">      }</span>
+      else {
+<span class="nc" id="L63">        throw new MojoExecutionException(&quot;Could not get xcodebuild version (exit code = &quot; + exitCode + &quot;)&quot;);</span>
+      }
+    }
+<span class="nc" id="L66">    catch (IOException e) {</span>
+<span class="nc" id="L67">      throw new MojoExecutionException(&quot;Could not get xcodebuild version&quot;, e);</span>
+<span class="nc" id="L68">    }</span>
+<span class="nc" id="L69">  }</span>
+
+  private DefaultArtifactVersion getVersion(String output) throws MojoExecutionException
+  {
+<span class="nc" id="L73">    Pattern versionPattern = Pattern.compile(&quot;Xcode (\\d+(\\.\\d+)+)&quot;, Pattern.CASE_INSENSITIVE);</span>
+<span class="nc" id="L74">    Matcher versionMatcher = versionPattern.matcher(output);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">    if (versionMatcher.find()) {</span>
+<span class="nc" id="L76">      return new DefaultArtifactVersion(versionMatcher.group(1));</span>
+    }
+<span class="nc" id="L78">    throw new MojoExecutionException(&quot;Could not get xcodebuild version&quot;);</span>
+  }
+
+  private String getBuildVersion(String output) throws MojoExecutionException
+  {
+<span class="nc" id="L83">    Pattern buildPattern = Pattern.compile(&quot;Build version (\\w+)&quot;, Pattern.CASE_INSENSITIVE);</span>
+<span class="nc" id="L84">    Matcher buildMatcher = buildPattern.matcher(output);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">    if (buildMatcher.find()) {</span>
+<span class="nc" id="L86">      return buildMatcher.group(1);</span>
+    }
+<span class="nc" id="L88">    throw new MojoExecutionException(&quot;Could not get xcodebuild build version&quot;);</span>
+  }
+
+  private void checkVersions(DefaultArtifactVersion version, String buildVersion) throws MojoExecutionException
+  {
+<span class="nc" id="L93">    DefaultArtifactVersion minXcodeVersion = new DefaultArtifactVersion(MIN_XCODE_VERSION);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">    if (version.compareTo(minXcodeVersion) &lt; 0) {</span>
+<span class="nc" id="L95">      throw new MojoExecutionException(&quot;Xcode &quot; + MIN_XCODE_VERSION + &quot; (or higher) is required (installed: &quot; + version</span>
+            + &quot; &quot; + buildVersion + &quot;)&quot;);
+    }
+<span class="nc" id="L98">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

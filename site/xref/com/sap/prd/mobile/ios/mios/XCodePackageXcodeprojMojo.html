@@ -152,76 +152,77 @@
 <a class="jxr_linenumber" name="142" href="#142">142</a> 
 <a class="jxr_linenumber" name="143" href="#143">143</a>     String xprojZipFileName = project.getArtifactId() + <span class="jxr_string">"-"</span> + XCODEPROJ_WITH_DEPS_CLASSIFIER + <span class="jxr_string">".zip"</span>;
 <a class="jxr_linenumber" name="144" href="#144">144</a> 
-<a class="jxr_linenumber" name="145" href="#145">145</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="146" href="#146">146</a>       File targetFolder = <strong class="jxr_keyword">new</strong> File(project.getBuild().getDirectory());
-<a class="jxr_linenumber" name="147" href="#147">147</a>       <strong class="jxr_keyword">if</strong> (!targetFolder.isDirectory()) {
-<a class="jxr_linenumber" name="148" href="#148">148</a>         targetFolder.mkdirs();
-<a class="jxr_linenumber" name="149" href="#149">149</a>       }
-<a class="jxr_linenumber" name="150" href="#150">150</a>       String relativeTargetDirName = FileUtils.getRelativePath(project.getBuild().getDirectory(), project.getBasedir()
-<a class="jxr_linenumber" name="151" href="#151">151</a>         .getAbsolutePath(), <span class="jxr_string">"/"</span>);
-<a class="jxr_linenumber" name="152" href="#152">152</a>       String relativeSrcDirName = FileUtils.getRelativePath(FolderLayout.getSourceFolder(project).getAbsolutePath(),
-<a class="jxr_linenumber" name="153" href="#153">153</a>             project.getBasedir().getAbsolutePath(), <span class="jxr_string">"/"</span>);
-<a class="jxr_linenumber" name="154" href="#154">154</a> 
-<a class="jxr_linenumber" name="155" href="#155">155</a>       Set&lt;String&gt; includes = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="145" href="#145">145</a>     <strong class="jxr_keyword">final</strong> String projectBuildDirectory = project.getBuild().getDirectory();
+<a class="jxr_linenumber" name="146" href="#146">146</a> 
+<a class="jxr_linenumber" name="147" href="#147">147</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="148" href="#148">148</a>       <strong class="jxr_keyword">final</strong> File targetFolder = <strong class="jxr_keyword">new</strong> File(projectBuildDirectory);
+<a class="jxr_linenumber" name="149" href="#149">149</a> 
+<a class="jxr_linenumber" name="150" href="#150">150</a>       FileUtils.mkdirs(targetFolder);
+<a class="jxr_linenumber" name="151" href="#151">151</a> 
+<a class="jxr_linenumber" name="152" href="#152">152</a>       String relativeTargetDirName = FileUtils.getRelativePath(projectBuildDirectory, project.getBasedir()
+<a class="jxr_linenumber" name="153" href="#153">153</a>         .getAbsolutePath(), <span class="jxr_string">"/"</span>);
+<a class="jxr_linenumber" name="154" href="#154">154</a>       String relativeSrcDirName = FileUtils.getRelativePath(FolderLayout.getSourceFolder(project).getAbsolutePath(),
+<a class="jxr_linenumber" name="155" href="#155">155</a>             project.getBasedir().getAbsolutePath(), <span class="jxr_string">"/"</span>);
 <a class="jxr_linenumber" name="156" href="#156">156</a> 
-<a class="jxr_linenumber" name="157" href="#157">157</a>       includes.add(relativeSrcDirName); <em class="jxr_comment">// src/xcode folder</em>
-<a class="jxr_linenumber" name="158" href="#158">158</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/xcode-deps/frameworks"</span>);
-<a class="jxr_linenumber" name="159" href="#159">159</a> 
-<a class="jxr_linenumber" name="160" href="#160">160</a>       zip(Arrays.asList(<span class="jxr_string">"zip"</span>, <span class="jxr_string">"-r"</span>, <span class="jxr_string">"-y"</span>, <span class="jxr_string">"-q"</span>, relativeTargetDirName + <span class="jxr_string">"/"</span> + xprojZipFileName), includes, excludes);
+<a class="jxr_linenumber" name="157" href="#157">157</a>       Set&lt;String&gt; includes = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="158" href="#158">158</a> 
+<a class="jxr_linenumber" name="159" href="#159">159</a>       includes.add(relativeSrcDirName); <em class="jxr_comment">// src/xcode folder</em>
+<a class="jxr_linenumber" name="160" href="#160">160</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/xcode-deps/frameworks"</span>);
 <a class="jxr_linenumber" name="161" href="#161">161</a> 
-<a class="jxr_linenumber" name="162" href="#162">162</a>       includes.clear();
+<a class="jxr_linenumber" name="162" href="#162">162</a>       zip(Arrays.asList(<span class="jxr_string">"zip"</span>, <span class="jxr_string">"-r"</span>, <span class="jxr_string">"-y"</span>, <span class="jxr_string">"-q"</span>, relativeTargetDirName + <span class="jxr_string">"/"</span> + xprojZipFileName), includes, excludes);
 <a class="jxr_linenumber" name="163" href="#163">163</a> 
-<a class="jxr_linenumber" name="164" href="#164">164</a>       includes.add(<span class="jxr_string">"pom.xml"</span>);
-<a class="jxr_linenumber" name="165" href="#165">165</a>       includes.add(<span class="jxr_string">"sync.info"</span>);
-<a class="jxr_linenumber" name="166" href="#166">166</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/bundles"</span>);
-<a class="jxr_linenumber" name="167" href="#167">167</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/headers"</span>);
-<a class="jxr_linenumber" name="168" href="#168">168</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/libs"</span>);
-<a class="jxr_linenumber" name="169" href="#169">169</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/xcode-deps"</span>);
-<a class="jxr_linenumber" name="170" href="#170">170</a> 
-<a class="jxr_linenumber" name="171" href="#171">171</a>       Collection&lt;String&gt; myExcludes = excludes == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;() : <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;(excludes);
-<a class="jxr_linenumber" name="172" href="#172">172</a>       myExcludes.add(relativeTargetDirName + <span class="jxr_string">"/xcode-deps/frameworks/*"</span>);
-<a class="jxr_linenumber" name="173" href="#173">173</a> 
-<a class="jxr_linenumber" name="174" href="#174">174</a>       <strong class="jxr_keyword">if</strong> (additionalArchivePaths != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="175" href="#175">175</a>         includes.addAll(additionalArchivePaths);
-<a class="jxr_linenumber" name="176" href="#176">176</a>       }
-<a class="jxr_linenumber" name="177" href="#177">177</a> 
-<a class="jxr_linenumber" name="178" href="#178">178</a>       zip(Arrays.asList(<span class="jxr_string">"zip"</span>, <span class="jxr_string">"-r"</span>, <span class="jxr_string">"-g"</span>, <span class="jxr_string">"-q"</span>, relativeTargetDirName + <span class="jxr_string">"/"</span> + xprojZipFileName), includes, myExcludes);
+<a class="jxr_linenumber" name="164" href="#164">164</a>       includes.clear();
+<a class="jxr_linenumber" name="165" href="#165">165</a> 
+<a class="jxr_linenumber" name="166" href="#166">166</a>       includes.add(<span class="jxr_string">"pom.xml"</span>);
+<a class="jxr_linenumber" name="167" href="#167">167</a>       includes.add(<span class="jxr_string">"sync.info"</span>);
+<a class="jxr_linenumber" name="168" href="#168">168</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/bundles"</span>);
+<a class="jxr_linenumber" name="169" href="#169">169</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/headers"</span>);
+<a class="jxr_linenumber" name="170" href="#170">170</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/libs"</span>);
+<a class="jxr_linenumber" name="171" href="#171">171</a>       includes.add(relativeTargetDirName + <span class="jxr_string">"/xcode-deps"</span>);
+<a class="jxr_linenumber" name="172" href="#172">172</a> 
+<a class="jxr_linenumber" name="173" href="#173">173</a>       Collection&lt;String&gt; myExcludes = excludes == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;() : <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;(excludes);
+<a class="jxr_linenumber" name="174" href="#174">174</a>       myExcludes.add(relativeTargetDirName + <span class="jxr_string">"/xcode-deps/frameworks/*"</span>);
+<a class="jxr_linenumber" name="175" href="#175">175</a> 
+<a class="jxr_linenumber" name="176" href="#176">176</a>       <strong class="jxr_keyword">if</strong> (additionalArchivePaths != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="177" href="#177">177</a>         includes.addAll(additionalArchivePaths);
+<a class="jxr_linenumber" name="178" href="#178">178</a>       }
 <a class="jxr_linenumber" name="179" href="#179">179</a> 
-<a class="jxr_linenumber" name="180" href="#180">180</a>       getLog().info(<span class="jxr_string">"Packaged the Xcode project with all its dependencies into the zip file "</span> + xprojZipFileName);
-<a class="jxr_linenumber" name="181" href="#181">181</a>     }
-<a class="jxr_linenumber" name="182" href="#182">182</a>     <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="183" href="#183">183</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(
-<a class="jxr_linenumber" name="184" href="#184">184</a>             <span class="jxr_string">"Could not package the Xcode project with all its dependencies into a zip file."</span>, e);
-<a class="jxr_linenumber" name="185" href="#185">185</a>     }
-<a class="jxr_linenumber" name="186" href="#186">186</a> 
-<a class="jxr_linenumber" name="187" href="#187">187</a>     projectHelper.attachArtifact(project, <span class="jxr_string">"zip"</span>, XCODEPROJ_WITH_DEPS_CLASSIFIER, <strong class="jxr_keyword">new</strong> File(project.getBuild()
-<a class="jxr_linenumber" name="188" href="#188">188</a>       .getDirectory(), xprojZipFileName));
-<a class="jxr_linenumber" name="189" href="#189">189</a> 
-<a class="jxr_linenumber" name="190" href="#190">190</a>   }
-<a class="jxr_linenumber" name="191" href="#191">191</a> 
-<a class="jxr_linenumber" name="192" href="#192">192</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> zip(List&lt;String&gt; zipCommandParts, Collection&lt;String&gt; includes, Collection&lt;String&gt; excludes)
-<a class="jxr_linenumber" name="193" href="#193">193</a>         <strong class="jxr_keyword">throws</strong> IOException, MojoExecutionException
-<a class="jxr_linenumber" name="194" href="#194">194</a>   {
-<a class="jxr_linenumber" name="195" href="#195">195</a> 
-<a class="jxr_linenumber" name="196" href="#196">196</a>     ArrayList&lt;String&gt; zipCmdCall = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
-<a class="jxr_linenumber" name="197" href="#197">197</a> 
-<a class="jxr_linenumber" name="198" href="#198">198</a>     zipCmdCall.addAll(zipCommandParts);
-<a class="jxr_linenumber" name="199" href="#199">199</a>     zipCmdCall.addAll(includes);
-<a class="jxr_linenumber" name="200" href="#200">200</a> 
-<a class="jxr_linenumber" name="201" href="#201">201</a>     <strong class="jxr_keyword">if</strong> (excludes != <strong class="jxr_keyword">null</strong> &amp;&amp; !excludes.isEmpty()) {
-<a class="jxr_linenumber" name="202" href="#202">202</a>       zipCmdCall.add(<span class="jxr_string">"-x"</span>);
-<a class="jxr_linenumber" name="203" href="#203">203</a>       zipCmdCall.addAll(excludes);
-<a class="jxr_linenumber" name="204" href="#204">204</a>     }
-<a class="jxr_linenumber" name="205" href="#205">205</a> 
-<a class="jxr_linenumber" name="206" href="#206">206</a>     getLog().info(<span class="jxr_string">"Executing: "</span> + StringUtils.join(zipCmdCall, ' '));
-<a class="jxr_linenumber" name="207" href="#207">207</a>     <strong class="jxr_keyword">int</strong> exitCode = Forker.forkProcess(System.out, project.getBasedir(), zipCmdCall.toArray(<strong class="jxr_keyword">new</strong> String[] {}));
-<a class="jxr_linenumber" name="208" href="#208">208</a>     <strong class="jxr_keyword">if</strong> (exitCode != 0) {
-<a class="jxr_linenumber" name="209" href="#209">209</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(
-<a class="jxr_linenumber" name="210" href="#210">210</a>             <span class="jxr_string">"Could not package the Xcode project with all its dependencies into a zip file."</span>);
-<a class="jxr_linenumber" name="211" href="#211">211</a>     }
-<a class="jxr_linenumber" name="212" href="#212">212</a>   }
-<a class="jxr_linenumber" name="213" href="#213">213</a> 
-<a class="jxr_linenumber" name="214" href="#214">214</a> }
+<a class="jxr_linenumber" name="180" href="#180">180</a>       zip(Arrays.asList(<span class="jxr_string">"zip"</span>, <span class="jxr_string">"-r"</span>, <span class="jxr_string">"-g"</span>, <span class="jxr_string">"-q"</span>, relativeTargetDirName + <span class="jxr_string">"/"</span> + xprojZipFileName), includes, myExcludes);
+<a class="jxr_linenumber" name="181" href="#181">181</a> 
+<a class="jxr_linenumber" name="182" href="#182">182</a>       getLog().info(<span class="jxr_string">"Packaged the Xcode project with all its dependencies into the zip file "</span> + xprojZipFileName);
+<a class="jxr_linenumber" name="183" href="#183">183</a>     }
+<a class="jxr_linenumber" name="184" href="#184">184</a>     <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="185" href="#185">185</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(
+<a class="jxr_linenumber" name="186" href="#186">186</a>             <span class="jxr_string">"Could not package the Xcode project with all its dependencies into a zip file."</span>, e);
+<a class="jxr_linenumber" name="187" href="#187">187</a>     }
+<a class="jxr_linenumber" name="188" href="#188">188</a> 
+<a class="jxr_linenumber" name="189" href="#189">189</a>     projectHelper.attachArtifact(project, <span class="jxr_string">"zip"</span>, XCODEPROJ_WITH_DEPS_CLASSIFIER, <strong class="jxr_keyword">new</strong> File(projectBuildDirectory, xprojZipFileName));
+<a class="jxr_linenumber" name="190" href="#190">190</a> 
+<a class="jxr_linenumber" name="191" href="#191">191</a>   }
+<a class="jxr_linenumber" name="192" href="#192">192</a> 
+<a class="jxr_linenumber" name="193" href="#193">193</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> zip(List&lt;String&gt; zipCommandParts, Collection&lt;String&gt; includes, Collection&lt;String&gt; excludes)
+<a class="jxr_linenumber" name="194" href="#194">194</a>         <strong class="jxr_keyword">throws</strong> IOException, MojoExecutionException
+<a class="jxr_linenumber" name="195" href="#195">195</a>   {
+<a class="jxr_linenumber" name="196" href="#196">196</a> 
+<a class="jxr_linenumber" name="197" href="#197">197</a>     ArrayList&lt;String&gt; zipCmdCall = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
+<a class="jxr_linenumber" name="198" href="#198">198</a> 
+<a class="jxr_linenumber" name="199" href="#199">199</a>     zipCmdCall.addAll(zipCommandParts);
+<a class="jxr_linenumber" name="200" href="#200">200</a>     zipCmdCall.addAll(includes);
+<a class="jxr_linenumber" name="201" href="#201">201</a> 
+<a class="jxr_linenumber" name="202" href="#202">202</a>     <strong class="jxr_keyword">if</strong> (excludes != <strong class="jxr_keyword">null</strong> &amp;&amp; !excludes.isEmpty()) {
+<a class="jxr_linenumber" name="203" href="#203">203</a>       zipCmdCall.add(<span class="jxr_string">"-x"</span>);
+<a class="jxr_linenumber" name="204" href="#204">204</a>       zipCmdCall.addAll(excludes);
+<a class="jxr_linenumber" name="205" href="#205">205</a>     }
+<a class="jxr_linenumber" name="206" href="#206">206</a> 
+<a class="jxr_linenumber" name="207" href="#207">207</a>     getLog().info(<span class="jxr_string">"Executing: "</span> + StringUtils.join(zipCmdCall, ' '));
+<a class="jxr_linenumber" name="208" href="#208">208</a>     <strong class="jxr_keyword">int</strong> exitCode = Forker.forkProcess(System.out, project.getBasedir(), zipCmdCall.toArray(<strong class="jxr_keyword">new</strong> String[] {}));
+<a class="jxr_linenumber" name="209" href="#209">209</a>     <strong class="jxr_keyword">if</strong> (exitCode != 0) {
+<a class="jxr_linenumber" name="210" href="#210">210</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoExecutionException(
+<a class="jxr_linenumber" name="211" href="#211">211</a>             <span class="jxr_string">"Could not package the Xcode project with all its dependencies into a zip file."</span>);
+<a class="jxr_linenumber" name="212" href="#212">212</a>     }
+<a class="jxr_linenumber" name="213" href="#213">213</a>   }
+<a class="jxr_linenumber" name="214" href="#214">214</a> 
+<a class="jxr_linenumber" name="215" href="#215">215</a> }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>

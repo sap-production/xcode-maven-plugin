@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>PreDeployMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">PreDeployMojo.java</span></div><h1>PreDeployMojo.java</h1><pre class="source lang-java linenums">package com.sap.prd.mobile.ios.mios;
+
+/*
+ * #%L
+ * Xcode Maven Plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
+import org.sonatype.aether.transfer.TransferCancelledException;
+import org.sonatype.aether.transfer.TransferEvent;
+import org.sonatype.aether.transfer.TransferListener;
+
+/**
+ * Registers a TransferListener on Aether that reacts on successful deployments. For each ipa file
+ * deployed successfully a pointer file is written. This pointer file redirects to XXX
+ * 
+ * 
+ * @goal pre-deploy
+ * 
+ */
+<span class="nc" id="L43">public class PreDeployMojo extends AbstractDeployMojo</span>
+{
+
+  /**
+   * The folder used for hudson archiving
+   * 
+   * @parameter expression=&quot;${archive.dir}&quot; default-value=&quot;${project.build.directory}&quot;
+   */
+  private File archiveFolder;
+
+  private final static String HTML_TEMPLATE = &quot;&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=\&quot;refresh\&quot; content=\&quot;0; URL=$LOCATION\&quot;&gt;&quot; +
+        &quot;&lt;body&gt;You will be redirected within the next few seconds.&lt;br /&gt;&quot; +
+        &quot;In case this does not work click &lt;a href=\&quot;$LOCATION\&quot;&gt;here&lt;/a&gt;&lt;/body&gt;&lt;/html&gt;&quot;;
+
+  /**
+   * Returns the unique archive folder for this specific project (containing folders with groupId
+   * and artifactId)
+   * 
+   * @param rootArchiveFolder
+   * @param project
+   * @return
+   */
+  static File getProjectArchiveFolder(File rootArchiveFolder, MavenProject project)
+  {
+<span class="nc" id="L67">    return new File(new File(new File(rootArchiveFolder, &quot;artifacts&quot;), project.getGroupId()), project.getArtifactId());</span>
+  }
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+    try {
+<span class="nc" id="L74">      archiveFolder = archiveFolder.getCanonicalFile();</span>
+    }
+<span class="nc" id="L76">    catch (IOException ex) {</span>
+<span class="nc" id="L77">      throw new MojoExecutionException(ex.getMessage(), ex);</span>
+<span class="nc" id="L78">    }</span>
+
+<span class="nc" id="L80">    createArchiveFolder(archiveFolder);</span>
+
+<span class="nc" id="L82">    getLog().info(&quot;Using archive directory: '&quot; + archiveFolder + &quot;'.&quot;);</span>
+
+    try {
+
+      //
+      // [Q] Why do we use reflection here? What about a simple downcast to DefaultRepositorySystemSession?
+      // [A] We cannot downcast since the downcast fails. The DefaultRepositorySystemSession that is available
+      //     here is loaded by another class loader than the DefaultRepositorySystemSession used by the actual class.
+      //     Hence we are in different runtime packages and the downcast is not possible.
+
+<span class="nc" id="L92">      final TransferListener transferListener = getTransferListener();</span>
+
+<span class="nc" id="L94">      final TransferListener prepareIpaPointerFileTransferListener = new PrepareIpaPointerFileTransferListener(</span>
+            transferListener);
+
+<span class="nc" id="L97">      setTransferListener(prepareIpaPointerFileTransferListener);</span>
+
+<span class="nc" id="L99">      getLog().info(</span>
+            &quot;The previously used transfer listener was: '&quot; + toString(transferListener) + &quot;'.&quot;);
+    }
+<span class="nc" id="L102">    catch (RuntimeException e) {</span>
+<span class="nc" id="L103">      throw e;</span>
+    }
+<span class="nc" id="L105">    catch (Exception e) {</span>
+<span class="nc" id="L106">      throw new MojoExecutionException(</span>
+            &quot;Cannot set transfer listener for creating artifact redirect HTML files: &quot; + e.getMessage(), e);
+<span class="nc" id="L108">    }</span>
+<span class="nc" id="L109">  }</span>
+
+  private static void createArchiveFolder(File archiveFolder) throws MojoExecutionException
+  {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">    if (archiveFolder.isFile())</span>
+<span class="nc" id="L114">      throw new MojoExecutionException(&quot;Archive folder '&quot; + archiveFolder + &quot;' is a file rather than a directory.&quot;);</span>
+
+<span class="nc bnc" id="L116" title="All 4 branches missed.">    if (!archiveFolder.exists() &amp;&amp; !archiveFolder.mkdirs())</span>
+<span class="nc" id="L117">      throw new MojoExecutionException(&quot;Cannot create archive folder '&quot; + archiveFolder + &quot;'.&quot;);</span>
+<span class="nc" id="L118">  }</span>
+
+<span class="nc" id="L120">  class PrepareIpaPointerFileTransferListener implements TransferListener</span>
+  {
+    private TransferListener forward;
+
+    PrepareIpaPointerFileTransferListener(TransferListener forward)
+<span class="nc" id="L125">    {</span>
+<span class="nc" id="L126">      this.forward = forward;</span>
+<span class="nc" id="L127">    }</span>
+
+    TransferListener getForward()
+    {
+<span class="nc" id="L131">      return this.forward;</span>
+    }
+
+    @Override
+    public void transferSucceeded(TransferEvent event)
+    {
+<span class="nc bnc" id="L137" title="All 2 branches missed.">      if (forward != null)</span>
+<span class="nc" id="L138">        forward.transferSucceeded(event);</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">      if (event.getRequestType().equals(TransferEvent.RequestType.GET)) return;</span>
+
+<span class="nc bnc" id="L142" title="All 2 branches missed.">      if (event.getResource().getResourceName().endsWith(&quot;maven-metadata.xml&quot;)) {</span>
+
+<span class="nc" id="L144">        getLog().debug(&quot;No redirect html file will be created for '&quot; + event.getResource().getResourceName() + &quot;'.&quot;);</span>
+<span class="nc" id="L145">        return;</span>
+      }
+
+      try {
+
+<span class="nc" id="L150">        final String url = event.getResource().getRepositoryUrl() + event.getResource().getResourceName();</span>
+<span class="nc" id="L151">        final String html = HTML_TEMPLATE.replaceAll(&quot;\\$LOCATION&quot;, url);</span>
+
+<span class="nc" id="L153">        final File projectArchiveFolder = getProjectArchiveFolder(archiveFolder, project);</span>
+<span class="nc" id="L154">        final File redirect = new File(projectArchiveFolder, getArtifactRedirectHtmlFileName(url));</span>
+
+<span class="nc" id="L156">        writeArtifactRedirectHtmlFile(redirect, url, html);</span>
+
+<span class="nc" id="L158">        getLog().info(&quot;Redirect file '&quot; + redirect + &quot;' written for '&quot; + url + &quot;'.&quot;);</span>
+
+      }
+<span class="nc" id="L161">      catch (RuntimeException ex) {</span>
+
+<span class="nc" id="L163">        getLog()</span>
+          .error(&quot;Could not create artifact redirect HTML file for '&quot; + event.getResource().getResourceName(), ex);
+<span class="nc" id="L165">      }</span>
+<span class="nc" id="L166">    }</span>
+
+    @Override
+    public void transferStarted(TransferEvent event) throws TransferCancelledException
+    {
+<span class="nc bnc" id="L171" title="All 2 branches missed.">      if (forward != null)</span>
+<span class="nc" id="L172">        forward.transferStarted(event);</span>
+<span class="nc" id="L173">    }</span>
+
+    @Override
+    public void transferProgressed(TransferEvent event) throws TransferCancelledException
+    {
+<span class="nc bnc" id="L178" title="All 2 branches missed.">      if (forward != null)</span>
+<span class="nc" id="L179">        forward.transferProgressed(event);</span>
+<span class="nc" id="L180">    }</span>
+
+    @Override
+    public void transferInitiated(TransferEvent event) throws TransferCancelledException
+    {
+<span class="nc bnc" id="L185" title="All 2 branches missed.">      if (forward != null)</span>
+<span class="nc" id="L186">        forward.transferInitiated(event);</span>
+<span class="nc" id="L187">    }</span>
+
+    @Override
+    public void transferFailed(TransferEvent event)
+    {
+<span class="nc bnc" id="L192" title="All 2 branches missed.">      if (forward != null)</span>
+<span class="nc" id="L193">        forward.transferFailed(event);</span>
+<span class="nc" id="L194">    }</span>
+
+    @Override
+    public void transferCorrupted(TransferEvent event) throws TransferCancelledException
+    {
+<span class="nc bnc" id="L199" title="All 2 branches missed.">      if (forward != null)</span>
+<span class="nc" id="L200">        forward.transferCorrupted(event);</span>
+<span class="nc" id="L201">    }</span>
+
+    private void writeArtifactRedirectHtmlFile(final File redirect, final String url, final String html)
+    {
+<span class="nc" id="L205">      FileOutputStream fos = null;</span>
+
+      try {
+
+<span class="nc bnc" id="L209" title="All 4 branches missed.">        if (!redirect.getParentFile().exists() &amp;&amp; !redirect.getParentFile().mkdirs())</span>
+<span class="nc" id="L210">          throw new IOException(&quot;Cannot create folder '&quot; + redirect.getParentFile() + &quot;'.&quot;);</span>
+
+<span class="nc" id="L212">        fos = new FileOutputStream(redirect);</span>
+
+<span class="nc" id="L214">        IOUtils.write(html, fos, &quot;UTF-8&quot;);</span>
+      }
+<span class="nc" id="L216">      catch (IOException ex) {</span>
+<span class="nc" id="L217">        throw new RuntimeException(ex);</span>
+      }
+      finally {
+<span class="nc" id="L220">        IOUtils.closeQuietly(fos);</span>
+<span class="nc" id="L221">      }</span>
+<span class="nc" id="L222">    }</span>
+
+    private String getArtifactRedirectHtmlFileName(final String url)
+    {
+      //E.g. MyApp-1.0.0-20120821.132955-1-Release-iphoneos-ota.htm 
+<span class="nc" id="L227">      String artifactFileName = url.substring(url.lastIndexOf(&quot;/&quot;) + 1);</span>
+<span class="nc" id="L228">      return getRedirectHtmlFilename(artifactFileName, project.getArtifactId());</span>
+    }
+
+  }
+
+  static String getRedirectHtmlFilename(String artifactFileName, String artifactId)
+  {
+<span class="fc" id="L235">    String search = &quot;-&quot;;</span>
+<span class="fc" id="L236">    int nthElement = 0;</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">    if (artifactFileName.endsWith(XCodeOtaHtmlGeneratorMojo.OTA_CLASSIFIER_APPENDIX + &quot;.&quot;</span>
+          + XCodeOtaHtmlGeneratorMojo.OTA_HTML_FILE_APPENDIX)) {
+<span class="fc" id="L239">      nthElement = 3;</span>
+    }
+<span class="fc bfc" id="L241" title="All 2 branches covered.">    else if (artifactFileName.endsWith(&quot;-AppStoreMetaData.zip&quot;)) {</span>
+<span class="fc" id="L242">      nthElement = 1;</span>
+    }
+<span class="fc bfc" id="L244" title="All 2 branches covered.">    else if (artifactFileName.endsWith(&quot;-app.dSYM.zip&quot;)) {</span>
+<span class="fc" id="L245">      nthElement = 3;</span>
+    }
+<span class="fc bfc" id="L247" title="All 2 branches covered.">    else if (artifactFileName.endsWith(&quot;-app.zip&quot;)) {</span>
+<span class="fc" id="L248">      nthElement = 3;</span>
+    }
+<span class="fc bfc" id="L250" title="All 2 branches covered.">    else if (artifactFileName.endsWith(&quot;.ipa&quot;)) {</span>
+<span class="fc" id="L251">      nthElement = 2;</span>
+    }
+<span class="fc bfc" id="L253" title="All 2 branches covered.">    else if (artifactFileName.endsWith(&quot;versions.xml&quot;)) {</span>
+<span class="fc" id="L254">      nthElement = 1;</span>
+    }
+<span class="fc bfc" id="L256" title="All 2 branches covered.">    else if (artifactFileName.endsWith(&quot;.pom&quot;)) {</span>
+<span class="fc" id="L257">      nthElement = 1;</span>
+<span class="fc" id="L258">      search = &quot;.&quot;;</span>
+    }
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">    else if (artifactFileName.endsWith(&quot;-fat-binary.a&quot;)) {</span>
+<span class="nc" id="L261">      nthElement = 3;</span>
+    }
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">    else if (artifactFileName.endsWith(&quot;.a&quot;)) {</span>
+<span class="nc" id="L264">      nthElement = 2;</span>
+    }
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">    else if (artifactFileName.endsWith(&quot;.headers.tar&quot;)) {</span>
+<span class="nc" id="L267">      nthElement = 2;</span>
+    }
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">    else if (artifactFileName.endsWith(&quot;.tar&quot;)) {</span>
+<span class="nc" id="L270">      nthElement = 1;</span>
+<span class="nc" id="L271">      search = &quot;.&quot;;</span>
+    }
+
+<span class="fc" id="L274">    int idx = getNthIndexFromBack(artifactFileName, search, nthElement);</span>
+<span class="fc bfc" id="L275" title="All 2 branches covered.">    if (idx &gt;= 0) {</span>
+<span class="fc" id="L276">      String name = artifactId + artifactFileName.substring(idx);</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">      if (!name.endsWith(&quot;.htm&quot;)) {</span>
+<span class="fc" id="L278">        name = name + &quot;.htm&quot;;</span>
+      }
+<span class="fc" id="L280">      return name;</span>
+    }
+<span class="fc" id="L282">    return artifactId + &quot;-&quot; + artifactFileName + &quot;.htm&quot;;</span>
+  }
+
+  static int getNthIndexFromBack(String string, String searchString, int countFromBack)
+  {
+<span class="fc bfc" id="L287" title="All 2 branches covered.">    if (countFromBack &lt;= 0) return -1;</span>
+<span class="fc" id="L288">    int idx = string.length();</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">    for (int i = 0; i &lt; countFromBack; i++) {</span>
+<span class="fc" id="L290">      idx = string.substring(0, idx).lastIndexOf(searchString);</span>
+<span class="fc bfc" id="L291" title="All 2 branches covered.">      if (idx &lt;= 0) return idx;</span>
+    }
+<span class="fc" id="L293">    return idx;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

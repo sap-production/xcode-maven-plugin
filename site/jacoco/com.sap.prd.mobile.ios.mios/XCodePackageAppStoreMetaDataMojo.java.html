@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodePackageAppStoreMetaDataMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodePackageAppStoreMetaDataMojo.java</span></div><h1>XCodePackageAppStoreMetaDataMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.archiver.Archiver;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+
+/**
+ * Packages the AppStore metadata information and prepares the generated artifact for deployment.
+ * 
+ * @goal package-metadata
+ * 
+ */
+<span class="nc" id="L40">public class XCodePackageAppStoreMetaDataMojo extends BuildContextAwareMojo</span>
+{
+
+  /**
+   * @component role=&quot;org.codehaus.plexus.archiver.manager.ArchiverManager&quot;
+   * @required
+   */
+  private ArchiverManager archiverManager;
+
+  /**
+   * @component
+   */
+  private MavenProjectHelper projectHelper;
+
+  /**
+   * The folders which contains additional metatdata needed for the upload of the app into AppStore.
+   * 
+   * @parameter expression=&quot;${xcode.appStoreMetadataDirectory}&quot;
+   *            default-value=&quot;${project.basedir}/src/AppStoreMetadata&quot;;
+   */
+  private File appStoreMetadata;
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+
+    try {
+
+<span class="nc" id="L68">      packageAndAttachAppStoreMetaData();</span>
+
+    }
+<span class="nc" id="L71">    catch (IOException e) {</span>
+<span class="nc" id="L72">      throw new MojoExecutionException(e.getMessage(), e);</span>
+    }
+<span class="nc" id="L74">    catch (NoSuchArchiverException e) {</span>
+<span class="nc" id="L75">      throw new MojoExecutionException(e.getMessage(), e);</span>
+    }
+<span class="nc" id="L77">    catch (ArchiverException e) {</span>
+<span class="nc" id="L78">      throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L79">    }</span>
+
+<span class="nc" id="L81">  }</span>
+
+  private void packageAndAttachAppStoreMetaData() throws IOException, NoSuchArchiverException, ArchiverException,
+        MojoExecutionException
+  {
+
+<span class="nc" id="L87">    final String bundleIdentifier = getBundleIdentifier();</span>
+
+<span class="nc" id="L89">    final File appStoreMetaDataFolder = new File(appStoreMetadata, bundleIdentifier);</span>
+
+<span class="nc bnc" id="L91" title="All 4 branches missed.">    if (appStoreMetaDataFolder.exists() &amp;&amp; appStoreMetaDataFolder.list().length != 0) {</span>
+
+<span class="nc" id="L93">      Archiver archiver = archiverManager.getArchiver(&quot;zip&quot;);</span>
+
+<span class="nc" id="L95">      File destination = new File(new File(project.getBuild().getDirectory()), &quot;AppStoreMetadata.zip&quot;);</span>
+
+<span class="nc" id="L97">      archiver.addDirectory(appStoreMetaDataFolder, new String[] { &quot;**/*&quot; }, null);</span>
+<span class="nc" id="L98">      archiver.setDestFile(destination);</span>
+<span class="nc" id="L99">      archiver.createArchive();</span>
+<span class="nc" id="L100">      getLog().info(&quot;AppStore MetaData packaged in (&quot; + destination + &quot;)&quot;);</span>
+
+<span class="nc" id="L102">      prepareAppStoreMetaDataFileForDeployment(project, destination);</span>
+<span class="nc" id="L103">    }</span>
+    else {
+<span class="nc" id="L105">      getLog().info(</span>
+            &quot;AppStore MetaData packaging skipped. Folder &quot; + appStoreMetaDataFolder.getAbsolutePath()
+                  + &quot; doesn't exist.&quot;);
+    }
+
+<span class="nc" id="L110">  }</span>
+
+  private String getBundleIdentifier() throws MojoExecutionException
+  {
+<span class="nc" id="L114">    String bundleIdentifier = null;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">    for (String configuration : getConfigurations()) {</span>
+      try {
+
+<span class="nc" id="L118">        PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.ORIGINAL, configuration,</span>
+              &quot;iphoneos&quot;);
+<span class="nc" id="L120">        String _bundleIdentifier = plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);</span>
+
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (bundleIdentifier == null)</span>
+<span class="nc" id="L123">          bundleIdentifier = _bundleIdentifier;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        else if (!bundleIdentifier.equals(_bundleIdentifier))</span>
+<span class="nc" id="L125">          throw new IllegalStateException(&quot;Different bundle identifiers defined (&quot; + _bundleIdentifier + &quot;/&quot;</span>
+                + bundleIdentifier + &quot;)&quot;);
+      }
+<span class="nc" id="L128">      catch (IOException e) {</span>
+<span class="nc" id="L129">        throw new MojoExecutionException(e.getMessage(), e);</span>
+      }
+<span class="nc" id="L131">      catch (XCodeException e) {</span>
+<span class="nc" id="L132">        throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L133">      }</span>
+
+    }
+<span class="nc" id="L136">    return bundleIdentifier;</span>
+  }
+
+  private void prepareAppStoreMetaDataFileForDeployment(final MavenProject mavenProject, final File appStoreMetaDataFile)
+  {
+
+<span class="nc" id="L142">    projectHelper.attachArtifact(mavenProject, &quot;zip&quot;, &quot;AppStoreMetaData&quot;, appStoreMetaDataFile);</span>
+<span class="nc" id="L143">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>
