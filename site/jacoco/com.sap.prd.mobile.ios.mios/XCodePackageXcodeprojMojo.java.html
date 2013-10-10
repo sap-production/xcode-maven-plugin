@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodePackageXcodeprojMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodePackageXcodeprojMojo.java</span></div><h1>XCodePackageXcodeprojMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProjectHelper;
+
+/**
+ * Packages the Xcode project with all its resolved binary dependencies. I.e. this archive can be
+ * unzipped and directly opened in Xcode. It uses the &lt;code&gt;zip&lt;/code&gt; command for packaging. The
+ * zip command is called with the &lt;code&gt;-y&lt;/code&gt; options to preserver symbolic links and the
+ * &lt;code&gt;-r&lt;/code&gt; option to follow the paths recursively. The following files and folders get
+ * packaged:
+ * &lt;ul&gt;
+ * &lt;li&gt;
+ * &lt;code&gt;src/xcode/&lt;/code&gt; (or the directory specified by the Maven parameter xcode.sourceDirectory
+ * in you changed the default Xcode project location)&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;pom.xml&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;sync.info&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;target/bundles/&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;target/headers/&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;target/libs/&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;target/xcode-deps/&lt;/code&gt;&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * You can use the {@link #additionalArchivePaths} and the {@link #excludes}
+ * 
+ * If called from command line you have to call &lt;code&gt;mvn initialize&lt;/code&gt; before in order to make
+ * sure that all binary dependencies have been retrieved from the command line.
+ * 
+ * Please note that this goal is not part of the default lifecycle for xcode-lib and xcode-app
+ * projects.
+ * 
+ * @goal package-xcodeproj
+ * 
+ */
+<span class="nc" id="L65">public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo</span>
+{
+
+  public static final String XCODEPROJ_WITH_DEPS_CLASSIFIER = &quot;xcodeproj-with-deps&quot;;
+
+  /**
+   * You can use this parameter to define additional paths that shall be packaged into the source
+   * archive. If the path denotes a folder the folder content with all subfolders will be added. If
+   * the path points to a file only the file will be added.
+   * 
+   * Plugin configuration example:
+   * 
+   * &lt;pre&gt;
+   *   &amp;lt;build&gt;
+   *     &amp;lt;plugins&gt;
+   *       &amp;lt;plugin&gt;
+   *         &amp;lt;groupId&gt;com.sap.prd.mobile.ios.mios&amp;lt;/groupId&gt;
+   *         &amp;lt;artifactId&gt;xcode-maven-plugin&amp;lt;/artifactId&gt;
+   *         &amp;lt;extensions&gt;true&amp;lt;/extensions&gt;
+   *         &amp;lt;configuration&gt;
+   *           &amp;lt;additionalArchivePaths&gt;
+   *             &amp;lt;param&gt;src/docs&amp;lt;/param&gt;
+   *             &amp;lt;param&gt;src/uml&amp;lt;/param&gt;
+   *             ...
+   *           &amp;lt;/additionalArchivePaths&gt;
+   *          &amp;lt;/configuration&gt;  
+   *        &amp;lt;/plugin&gt;
+   *        ...
+   *       &amp;lt;/plugins&gt;
+   *     &amp;lt;/build&gt;
+   *   &amp;lt;/build&gt;
+   * &lt;/pre&gt;
+   * 
+   * @parameter
+   * @since 1.3.2
+   */
+  private List&lt;String&gt; additionalArchivePaths;
+
+  /**
+   * Specify files or file patterns to be excluded from the archive.
+   * 
+   * Configuration example:
+   * 
+   * &lt;pre&gt;
+   *   &amp;lt;build&gt;
+   *     &amp;lt;plugins&gt;
+   *       &amp;lt;plugin&gt;
+   *         &amp;lt;groupId&gt;com.sap.prd.mobile.ios.mios&amp;lt;/groupId&gt;
+   *         &amp;lt;artifactId&gt;xcode-maven-plugin&amp;lt;/artifactId&gt;
+   *         &amp;lt;extensions&gt;true&amp;lt;/extensions&gt;
+   *         &amp;lt;configuration&gt;
+   *           &amp;lt;excludes&gt;
+   *             &amp;lt;param&gt;*.tmp&amp;lt;/param&gt;
+   *             &amp;lt;param&gt;*&amp;#47;tmp/*&amp;lt;/param&gt;
+   *             ...
+   *           &amp;lt;/excludes&gt;
+   *          &amp;lt;/configuration&gt;  
+   *        &amp;lt;/plugin&gt;
+   *        ...
+   *       &amp;lt;/plugins&gt;
+   *     &amp;lt;/build&gt;
+   *   &amp;lt;/build&gt;
+   * &lt;/pre&gt;
+   * 
+   * @parameter
+   * @since 1.3.3
+   */
+  private List&lt;String&gt; excludes;
+
+  /**
+   * @component
+   */
+  private MavenProjectHelper projectHelper;
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+
+<span class="nc" id="L143">    String xprojZipFileName = project.getArtifactId() + &quot;-&quot; + XCODEPROJ_WITH_DEPS_CLASSIFIER + &quot;.zip&quot;;</span>
+
+<span class="nc" id="L145">    final String projectBuildDirectory = project.getBuild().getDirectory();</span>
+
+    try {
+<span class="nc" id="L148">      final File targetFolder = new File(projectBuildDirectory);</span>
+
+<span class="nc" id="L150">      FileUtils.mkdirs(targetFolder);</span>
+
+<span class="nc" id="L152">      String relativeTargetDirName = FileUtils.getRelativePath(projectBuildDirectory, project.getBasedir()</span>
+        .getAbsolutePath(), &quot;/&quot;);
+<span class="nc" id="L154">      String relativeSrcDirName = FileUtils.getRelativePath(FolderLayout.getSourceFolder(project).getAbsolutePath(),</span>
+            project.getBasedir().getAbsolutePath(), &quot;/&quot;);
+
+<span class="nc" id="L157">      Set&lt;String&gt; includes = new HashSet&lt;String&gt;();</span>
+
+<span class="nc" id="L159">      includes.add(relativeSrcDirName); // src/xcode folder</span>
+<span class="nc" id="L160">      includes.add(relativeTargetDirName + &quot;/xcode-deps/frameworks&quot;);</span>
+
+<span class="nc" id="L162">      zip(Arrays.asList(&quot;zip&quot;, &quot;-r&quot;, &quot;-y&quot;, &quot;-q&quot;, relativeTargetDirName + &quot;/&quot; + xprojZipFileName), includes, excludes);</span>
+
+<span class="nc" id="L164">      includes.clear();</span>
+
+<span class="nc" id="L166">      includes.add(&quot;pom.xml&quot;);</span>
+<span class="nc" id="L167">      includes.add(&quot;sync.info&quot;);</span>
+<span class="nc" id="L168">      includes.add(relativeTargetDirName + &quot;/bundles&quot;);</span>
+<span class="nc" id="L169">      includes.add(relativeTargetDirName + &quot;/headers&quot;);</span>
+<span class="nc" id="L170">      includes.add(relativeTargetDirName + &quot;/libs&quot;);</span>
+<span class="nc" id="L171">      includes.add(relativeTargetDirName + &quot;/xcode-deps&quot;);</span>
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">      Collection&lt;String&gt; myExcludes = excludes == null ? new ArrayList&lt;String&gt;() : new ArrayList&lt;String&gt;(excludes);</span>
+<span class="nc" id="L174">      myExcludes.add(relativeTargetDirName + &quot;/xcode-deps/frameworks/*&quot;);</span>
+
+<span class="nc bnc" id="L176" title="All 2 branches missed.">      if (additionalArchivePaths != null) {</span>
+<span class="nc" id="L177">        includes.addAll(additionalArchivePaths);</span>
+      }
+
+<span class="nc" id="L180">      zip(Arrays.asList(&quot;zip&quot;, &quot;-r&quot;, &quot;-g&quot;, &quot;-q&quot;, relativeTargetDirName + &quot;/&quot; + xprojZipFileName), includes, myExcludes);</span>
+
+<span class="nc" id="L182">      getLog().info(&quot;Packaged the Xcode project with all its dependencies into the zip file &quot; + xprojZipFileName);</span>
+    }
+<span class="nc" id="L184">    catch (IOException e) {</span>
+<span class="nc" id="L185">      throw new MojoExecutionException(</span>
+            &quot;Could not package the Xcode project with all its dependencies into a zip file.&quot;, e);
+<span class="nc" id="L187">    }</span>
+
+<span class="nc" id="L189">    projectHelper.attachArtifact(project, &quot;zip&quot;, XCODEPROJ_WITH_DEPS_CLASSIFIER, new File(projectBuildDirectory, xprojZipFileName));</span>
+
+<span class="nc" id="L191">  }</span>
+
+  private void zip(List&lt;String&gt; zipCommandParts, Collection&lt;String&gt; includes, Collection&lt;String&gt; excludes)
+        throws IOException, MojoExecutionException
+  {
+
+<span class="nc" id="L197">    ArrayList&lt;String&gt; zipCmdCall = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc" id="L199">    zipCmdCall.addAll(zipCommandParts);</span>
+<span class="nc" id="L200">    zipCmdCall.addAll(includes);</span>
+
+<span class="nc bnc" id="L202" title="All 4 branches missed.">    if (excludes != null &amp;&amp; !excludes.isEmpty()) {</span>
+<span class="nc" id="L203">      zipCmdCall.add(&quot;-x&quot;);</span>
+<span class="nc" id="L204">      zipCmdCall.addAll(excludes);</span>
+    }
+
+<span class="nc" id="L207">    getLog().info(&quot;Executing: &quot; + StringUtils.join(zipCmdCall, ' '));</span>
+<span class="nc" id="L208">    int exitCode = Forker.forkProcess(System.out, project.getBasedir(), zipCmdCall.toArray(new String[] {}));</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">    if (exitCode != 0) {</span>
+<span class="nc" id="L210">      throw new MojoExecutionException(</span>
+            &quot;Could not package the Xcode project with all its dependencies into a zip file.&quot;);
+    }
+<span class="nc" id="L213">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

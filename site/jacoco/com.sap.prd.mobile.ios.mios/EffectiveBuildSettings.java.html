@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>EffectiveBuildSettings.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">EffectiveBuildSettings.java</span></div><h1>EffectiveBuildSettings.java</h1><pre class="source lang-java linenums">package com.sap.prd.mobile.ios.mios;
+
+/*
+ * #%L
+ * Xcode Maven Plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import org.apache.commons.io.IOUtils;
+
+<span class="nc" id="L38">public class EffectiveBuildSettings implements IEffectiveBuildSettings</span>
+{
+
+<span class="nc" id="L41">  private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());</span>
+
+<span class="nc" id="L43">  private final static Map&lt;IXCodeContext, Properties&gt; buildSettings = new HashMap&lt;IXCodeContext, Properties&gt;();</span>
+
+  @Override
+  public String getBuildSettingByKey(IXCodeContext context, String key)
+  {
+    try {
+<span class="nc" id="L49">      return getBuildSetting(context, key);</span>
+    }
+<span class="nc" id="L51">    catch (XCodeException e) {</span>
+<span class="nc" id="L52">      throw new IllegalStateException(&quot;Cannot obtain build setting for key '&quot; + key + &quot;' for configuration '&quot;</span>
+            + context.getConfiguration() + &quot;' and sdk '&quot; + context.getSDK() + &quot;'.&quot;, e);
+    }
+  }
+
+  public static String getBuildSetting(IXCodeContext context, String key) throws XCodeException
+  {
+<span class="nc" id="L59">    String buildSetting = getBuildSettings(context).getProperty(key);</span>
+<span class="nc" id="L60">    LOGGER.finer(&quot;Build settings for context '&quot; + context + &quot;'. Key: '&quot; + key + &quot;' resolved to: &quot; + buildSetting);</span>
+<span class="nc" id="L61">    return buildSetting;</span>
+  }
+
+  private static synchronized Properties getBuildSettings(final IXCodeContext context)
+        throws XCodeException
+  {
+
+<span class="nc" id="L68">    Properties _buildSettings = buildSettings.get(context);</span>
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (_buildSettings == null) {</span>
+<span class="nc" id="L71">      _buildSettings = extractBuildSettings(context);</span>
+<span class="nc" id="L72">      buildSettings.put(context, _buildSettings);</span>
+<span class="nc" id="L73">      LOGGER.info(&quot;Build settings for context: &quot; + context + &quot; loaded:&quot; + toString(_buildSettings));</span>
+    }
+    else {
+<span class="nc" id="L76">      LOGGER.finer(&quot;Build settings for key: '&quot; + context + &quot; found in cache.&quot;);</span>
+    }
+
+<span class="nc" id="L79">    return _buildSettings;</span>
+  }
+
+  private static String toString(Properties buildSettings)
+  {
+<span class="nc" id="L84">    String ls = System.getProperty(&quot;line.separator&quot;);</span>
+<span class="nc" id="L85">    StringBuilder sb = new StringBuilder(ls);</span>
+
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    for (Map.Entry&lt;?, ?&gt; e : buildSettings.entrySet()) {</span>
+<span class="nc" id="L88">      sb.append(e.getKey()).append(&quot;=&quot;).append(e.getValue()).append(ls);</span>
+    }
+<span class="nc" id="L90">    return sb.toString();</span>
+  }
+
+  private static Properties extractBuildSettings(final IXCodeContext context) throws XCodeException
+  {
+<span class="nc" id="L95">    List&lt;String&gt; buildActions = Collections.emptyList();</span>
+<span class="nc" id="L96">    IOptions options = context.getOptions();</span>
+<span class="nc" id="L97">    Map&lt;String, String&gt; managedOptions = new HashMap&lt;String, String&gt;(options.getManagedOptions());</span>
+<span class="nc" id="L98">    managedOptions.put(Options.ManagedOption.SHOWBUILDSETTINGS.getOptionName(), null);</span>
+
+<span class="nc" id="L100">    XCodeContext showBuildSettingsContext = new XCodeContext(buildActions, context.getProjectRootDirectory(),</span>
+          context.getOut(), new Settings(context.getSettings().getUserSettings(), context.getSettings()
+            .getManagedSettings()), new Options(options.getUserOptions(), managedOptions));
+
+<span class="nc" id="L104">    final CommandLineBuilder cmdLineBuilder = new CommandLineBuilder(showBuildSettingsContext);</span>
+<span class="nc" id="L105">    PrintStream out = null;</span>
+<span class="nc" id="L106">    ByteArrayOutputStream os = null;</span>
+    try {
+<span class="nc" id="L108">      os = new ByteArrayOutputStream();</span>
+<span class="nc" id="L109">      out = new PrintStream(os, true, Charset.defaultCharset().name());</span>
+
+<span class="nc" id="L111">      final int returnValue = Forker.forkProcess(out, context.getProjectRootDirectory(),</span>
+            cmdLineBuilder.createBuildCall());
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">      if (returnValue != 0) {</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (out != null)</span>
+<span class="nc" id="L116">          out.flush();</span>
+<span class="nc" id="L117">        throw new XCodeException(&quot;Could not execute xcodebuild -showBuildSettings command for configuration &quot;</span>
+              + context.getConfiguration() + &quot; and sdk &quot; + context.getSDK() + &quot;: &quot; + new String(os.toByteArray(), Charset.defaultCharset().name()));
+      }
+
+<span class="nc" id="L121">      out.flush();</span>
+<span class="nc" id="L122">      Properties prop = new Properties();</span>
+<span class="nc" id="L123">      prop.load(new ByteArrayInputStream(os.toByteArray()));</span>
+<span class="nc" id="L124">      return prop;</span>
+
+    }
+<span class="nc" id="L127">    catch (IOException ex) {</span>
+<span class="nc" id="L128">      throw new XCodeException(&quot;Cannot extract build properties: &quot; + ex.getMessage(), ex);</span>
+    }
+    finally {
+<span class="nc" id="L131">      IOUtils.closeQuietly(out);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

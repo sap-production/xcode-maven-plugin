@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodeVersionInfoMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodeVersionInfoMojo.java</span></div><h1>XCodeVersionInfoMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import static java.lang.String.format;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProjectHelper;
+import org.sonatype.aether.RepositorySystem;
+import org.sonatype.aether.RepositorySystemSession;
+import org.sonatype.aether.repository.RemoteRepository;
+import org.xml.sax.SAXException;
+
+import com.sap.prd.mobile.ios.mios.CodeSignManager.ExecResult;
+import com.sap.prd.mobile.ios.mios.CodeSignManager.ExecutionResultVerificationException;
+import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
+
+/**
+ * Generates a &amp;lt;artifact-id&amp;gt;-&amp;lt;version&amp;gt;-version.xml for reproducibility reasons. This
+ * versions.xml contains information about the scm location and revision of the built project and
+ * all its dependencies. Expects a sync.info file in the root folder of the project as input.
+ * 
+ * 
+ * The sync.info file is a property file and must contain the following entries: &lt;code&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt; port=PORT
+ *   &lt;li&gt; depotpath=DEPOT_PATH
+ *   &lt;li&gt; changelist=CHANGELIST
+ * &lt;/ul&gt;
+ * &lt;/code&gt;
+ * 
+ * 
+ * 
+ * PORT entry is the SCM server where the project is located. &lt;br&gt;
+ * DEPOT_PATH is the path to the project on the SCM server. For Perforce projects, DEPOT_PATH has
+ * the following format //DEPOT_PATH/... &lt;br&gt;
+ * CHANGELIST is the revision synced.
+ * 
+ * 
+ * @goal attach-version-info
+ * @requiresDependencyResolution
+ */
+<span class="fc" id="L83">public class XCodeVersionInfoMojo extends BuildContextAwareMojo</span>
+{
+
+  /**
+   * 
+   * @parameter default-value=&quot;${session}&quot;
+   * @required
+   * @readonly
+   */
+  protected MavenSession mavenSession;
+
+  /**
+   * The entry point to Aether, i.e. the component doing all the work.
+   * 
+   * @component
+   */
+  protected RepositorySystem repoSystem;
+
+  /**
+   * The current repository/network configuration of Maven.
+   * 
+   * @parameter default-value=&quot;${repositorySystemSession}&quot;
+   * @readonly
+   */
+  protected RepositorySystemSession repoSession;
+
+  /**
+   * The project's remote repositories to use for the resolution of project dependencies.
+   * 
+   * @parameter default-value=&quot;${project.remoteProjectRepositories}&quot;
+   * @readonly
+   */
+  protected List&lt;RemoteRepository&gt; projectRepos;
+
+  /**
+   * @component
+   */
+  private MavenProjectHelper projectHelper;
+
+  /**
+   * @parameter expression=&quot;${sync.info.file}&quot; default-value=&quot;sync.info&quot;
+   */
+  private String syncInfo;
+
+  /**
+   * If &lt;code&gt;true&lt;/code&gt; the build fails if it does not find a sync.info file in the root directory
+   * 
+   * @parameter expression=&quot;${xcode.failOnMissingSyncInfo}&quot; default-value=&quot;false&quot;
+   */
+  private boolean failOnMissingSyncInfo;
+
+  /**
+   * If &lt;code&gt;true&lt;/code&gt; confidential information is removed from artifacts to be released.
+   * 
+   * @parameter expression=&quot;${xcode.hideConfidentialInformation}&quot; default-value=&quot;true&quot;
+   */
+  private boolean hideConfidentialInformation;
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+
+<span class="nc" id="L145">    final File syncInfoFile = new File(mavenSession.getExecutionRootDirectory(), syncInfo);</span>
+
+<span class="nc bnc" id="L147" title="All 2 branches missed.">    if (!syncInfoFile.exists()) {</span>
+
+<span class="nc bnc" id="L149" title="All 2 branches missed.">      if (failOnMissingSyncInfo)</span>
+      {
+<span class="nc" id="L151">        throw new MojoExecutionException(&quot;Sync info file '&quot; + syncInfoFile.getAbsolutePath()</span>
+              + &quot;' not found. Please configure your SCM plugin accordingly.&quot;);
+      }
+
+<span class="nc" id="L155">      getLog().info(&quot;The optional sync info file '&quot; + syncInfoFile.getAbsolutePath()</span>
+            + &quot;' not found. Cannot attach versions.xml to build results.&quot;);
+<span class="nc" id="L157">      return;</span>
+    }
+
+<span class="nc" id="L160">    getLog().info(&quot;Sync info file found: '&quot; + syncInfoFile.getAbsolutePath() + &quot;'. Creating versions.xml file.&quot;);</span>
+
+<span class="nc" id="L162">    final File versionsXmlFile = new File(project.getBuild().getDirectory(), &quot;versions.xml&quot;);</span>
+
+<span class="nc" id="L164">    FileOutputStream os = null;</span>
+
+    try {
+<span class="nc" id="L167">      os = new FileOutputStream(versionsXmlFile);</span>
+
+<span class="nc" id="L169">      new VersionInfoXmlManager().createVersionInfoFile(project.getGroupId(), project.getArtifactId(),</span>
+            project.getVersion(), syncInfoFile, getDependencies(), os);
+
+    }
+<span class="nc" id="L173">    catch (IOException e) {</span>
+<span class="nc" id="L174">      throw new MojoExecutionException(e.getMessage(), e);</span>
+    }
+    finally {
+<span class="nc" id="L177">      IOUtils.closeQuietly(os);</span>
+<span class="nc" id="L178">    }</span>
+
+<span class="nc" id="L180">    final File versionsPlistFile = new File(project.getBuild().getDirectory(), &quot;versions.plist&quot;);</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">    if (versionsPlistFile.exists()) {</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">      if(!versionsPlistFile.delete())</span>
+      {
+<span class="nc" id="L184">        throw new IllegalStateException(String.format(&quot;Cannot delete already existing plist file (%s)&quot;, versionsPlistFile));</span>
+      }
+    }
+    try {
+<span class="nc" id="L188">      new VersionInfoPListManager().createVersionInfoPlistFile(project.getGroupId(), project.getArtifactId(),</span>
+            project.getVersion(), syncInfoFile, getDependencies(), versionsPlistFile, hideConfidentialInformation);
+    }
+<span class="nc" id="L191">    catch (IOException e) {</span>
+<span class="nc" id="L192">      throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L193">    }</span>
+
+    try {
+<span class="nc bnc" id="L196" title="All 2 branches missed.">      if (PackagingType.getByMavenType(packaging) == PackagingType.APP)</span>
+      {
+        try
+        {
+<span class="nc" id="L200">          copyVersionsFilesAndSign();</span>
+        }
+<span class="nc" id="L202">        catch (IOException e) {</span>
+<span class="nc" id="L203">          throw new MojoExecutionException(e.getMessage(), e);</span>
+        }
+<span class="nc" id="L205">        catch (ExecutionResultVerificationException e) {</span>
+<span class="nc" id="L206">          throw new MojoExecutionException(e.getMessage(), e);</span>
+        }
+<span class="nc" id="L208">        catch (XCodeException e) {</span>
+<span class="nc" id="L209">          throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L210">        }</span>
+      }
+    }
+<span class="nc" id="L213">    catch (PackagingType.UnknownPackagingTypeException ex) {</span>
+<span class="nc" id="L214">      getLog().warn(&quot;Unknown packaing type detected.&quot;, ex);</span>
+
+<span class="nc" id="L216">    }</span>
+
+<span class="nc" id="L218">    projectHelper.attachArtifact(project, &quot;xml&quot;, &quot;versions&quot;, versionsXmlFile);</span>
+<span class="nc" id="L219">    getLog().info(&quot;versions.xml '&quot; + versionsXmlFile + &quot; attached as additional artifact.&quot;);</span>
+
+<span class="nc" id="L221">  }</span>
+
+  private void copyVersionsFilesAndSign() throws IOException, ExecutionResultVerificationException, XCodeException,
+        MojoExecutionException
+  {
+<span class="nc bnc" id="L226" title="All 2 branches missed.">    for (final String configuration : getConfigurations())</span>
+    {
+<span class="nc bnc" id="L228" title="All 2 branches missed.">      for (final String sdk : getSDKs())</span>
+      {
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (sdk.startsWith(&quot;iphoneos&quot;))</span>
+        {
+<span class="nc" id="L232">          File versionsXmlInBuild = new File(project.getBuild().getDirectory(), &quot;versions.xml&quot;);</span>
+<span class="nc" id="L233">          File versionsPListInBuild = new File(project.getBuild().getDirectory(), &quot;versions.plist&quot;);</span>
+
+<span class="nc" id="L235">          File rootDir = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration, sdk);</span>
+
+<span class="nc" id="L237">          String productName = getProductName(configuration, sdk);</span>
+<span class="nc" id="L238">          File appFolder = new File(rootDir, productName + &quot;.app&quot;);</span>
+<span class="nc" id="L239">          File versionsXmlInApp = new File(appFolder, &quot;versions.xml&quot;);</span>
+<span class="nc" id="L240">          File versionsPListInApp = new File(appFolder, &quot;versions.plist&quot;);</span>
+
+<span class="nc" id="L242">          CodeSignManager.verify(appFolder);</span>
+<span class="nc" id="L243">          final ExecResult originalCodesignEntitlementsInfo = CodeSignManager</span>
+            .getCodesignEntitlementsInformation(appFolder);
+<span class="nc" id="L245">          final ExecResult originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);</span>
+
+          try {
+<span class="nc bnc" id="L248" title="All 2 branches missed.">            if (hideConfidentialInformation) {</span>
+<span class="nc" id="L249">              transformVersionsXml(versionsXmlInBuild, versionsXmlInApp);</span>
+            }
+            else {
+<span class="nc" id="L252">              FileUtils.copyFile(versionsXmlInBuild, versionsXmlInApp);</span>
+            }
+          }
+<span class="nc" id="L255">          catch (Exception e) {</span>
+<span class="nc" id="L256">            throw new MojoExecutionException(&quot;Could not transform versions.xml: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L257">          }</span>
+
+<span class="nc" id="L259">          getLog().info(&quot;Versions.xml file copied from: '&quot; + versionsXmlInBuild + &quot; ' to ' &quot; + versionsXmlInApp);</span>
+<span class="nc" id="L260">          FileUtils.copyFile(versionsPListInBuild, versionsPListInApp);</span>
+<span class="nc" id="L261">          getLog().info(&quot;Versions.plist file copied from: '&quot; + versionsPListInBuild + &quot; ' to ' &quot; + versionsPListInApp);</span>
+
+<span class="nc" id="L263">          sign(rootDir, configuration, sdk);</span>
+
+<span class="nc" id="L265">          final ExecResult resignedCodesignEntitlementsInfo = CodeSignManager</span>
+            .getCodesignEntitlementsInformation(appFolder);
+<span class="nc" id="L267">          final ExecResult resignedSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);</span>
+<span class="nc" id="L268">          CodeSignManager.verify(appFolder);</span>
+<span class="nc" id="L269">          CodeSignManager.verify(originalCodesignEntitlementsInfo, resignedCodesignEntitlementsInfo);</span>
+<span class="nc" id="L270">          CodeSignManager.verify(originalSecurityCMSMessageInfo, resignedSecurityCMSMessageInfo);</span>
+<span class="nc" id="L271">        }</span>
+      }
+    }
+<span class="nc" id="L274">  }</span>
+
+  void transformVersionsXml(File versionsXmlInBuild, File versionsXmlInApp)
+        throws ParserConfigurationException, SAXException, IOException, TransformerFactoryConfigurationError,
+        TransformerException, XCodeException
+  {
+<span class="nc" id="L280">    final InputStream transformerRule = getClass().getClassLoader().getResourceAsStream(</span>
+          &quot;versionInfoCensorTransformation.xml&quot;);
+
+<span class="nc bnc" id="L283" title="All 2 branches missed.">    if (transformerRule == null)</span>
+    {
+<span class="nc" id="L285">      throw new XCodeException(&quot;Could not read transformer rule.&quot;);</span>
+    }
+
+    try
+    {
+<span class="nc" id="L290">      final Transformer transformer = TransformerFactory.newInstance().newTransformer(</span>
+            new StreamSource(transformerRule));
+<span class="nc" id="L292">      transformer.setOutputProperty(OutputKeys.STANDALONE, &quot;yes&quot;);</span>
+<span class="nc" id="L293">      transformer.setOutputProperty(OutputKeys.INDENT, &quot;yes&quot;);</span>
+<span class="nc" id="L294">      transformer.setOutputProperty(&quot;{http://xml.apache.org/xslt}indent-amount&quot;, &quot;2&quot;);</span>
+<span class="nc" id="L295">      transformer.transform(new StreamSource(versionsXmlInBuild), new StreamResult(versionsXmlInApp));</span>
+    }
+    finally {
+<span class="nc" id="L298">      IOUtils.closeQuietly(transformerRule);</span>
+<span class="nc" id="L299">    }</span>
+<span class="nc" id="L300">  }</span>
+
+  private void sign(File rootDir, String configuration, String sdk) throws IOException, XCodeException
+  {
+<span class="nc" id="L304">    String csi = EffectiveBuildSettings.getBuildSetting(</span>
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk),
+          EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+<span class="nc" id="L307">    File appFolder = new File(EffectiveBuildSettings.getBuildSetting(</span>
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk),
+          EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
+<span class="nc" id="L310">    CodeSignManager.sign(csi, appFolder, true);</span>
+<span class="nc" id="L311">  }</span>
+
+  private List&lt;Dependency&gt; getDependencies() throws IOException
+  {
+
+<span class="nc" id="L316">    List&lt;Dependency&gt; result = new ArrayList&lt;Dependency&gt;();</span>
+
+    for (@SuppressWarnings(&quot;rawtypes&quot;)
+<span class="nc bnc" id="L319" title="All 2 branches missed.">    final Iterator it = project.getDependencyArtifacts().iterator(); it.hasNext();) {</span>
+
+<span class="nc" id="L321">      final Artifact mainArtifact = (Artifact) it.next();</span>
+
+      try {
+
+<span class="nc" id="L325">        org.sonatype.aether.artifact.Artifact sideArtifact = new XCodeDownloadManager(projectRepos, repoSystem,</span>
+              repoSession).resolveSideArtifact(mainArtifact, &quot;versions&quot;, &quot;xml&quot;);
+
+<span class="nc" id="L328">        getLog().info(&quot;Version information retrieved for artifact: &quot; + mainArtifact);</span>
+
+<span class="nc" id="L330">        addParsedVersionsXmlDependency(result, sideArtifact);</span>
+
+      }
+<span class="nc" id="L333">      catch (SideArtifactNotFoundException e) {</span>
+<span class="nc" id="L334">        getLog().warn(&quot;Could not retrieve version information for artifact:&quot; + mainArtifact);</span>
+<span class="nc" id="L335">      }</span>
+<span class="nc" id="L336">    }</span>
+<span class="nc" id="L337">    return result;</span>
+  }
+
+  void addParsedVersionsXmlDependency(List&lt;Dependency&gt; result,
+        org.sonatype.aether.artifact.Artifact sideArtifact) throws IOException
+  {
+    try {
+<span class="fc" id="L344">      result.add(VersionInfoXmlManager.parseDependency(sideArtifact.getFile()));</span>
+    }
+<span class="fc" id="L346">    catch (SAXException e) {</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">      getLog().warn(format(</span>
+            &quot;Version file '%s' for artifact '%s' contains invalid content (Non parsable XML). Ignoring this file.&quot;,
+            (sideArtifact.getFile() != null ? sideArtifact.getFile() : &quot;&lt;n/a&gt;&quot;), sideArtifact));
+    }
+<span class="fc" id="L351">    catch (JAXBException e) {</span>
+<span class="pc bpc" id="L352" title="1 of 2 branches missed.">      getLog().warn(format(</span>
+            &quot;Version file '%s' for artifact '%s' contains invalid content (Scheme violation). Ignoring this file.&quot;,
+            (sideArtifact.getFile() != null ? sideArtifact.getFile() : &quot;&lt;n/a&gt;&quot;), sideArtifact));
+<span class="fc" id="L355">    }</span>
+<span class="fc" id="L356">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

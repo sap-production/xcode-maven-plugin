@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodeChangeAppIDMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodeChangeAppIDMojo.java</span></div><h1>XCodeChangeAppIDMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+
+/**
+ * Appends a suffix to the appId. No actions are taken if the suffix is not specified or the suffix
+ * has zero length.
+ * 
+ * @goal change-app-id
+ * 
+ */
+<span class="nc" id="L39">public class XCodeChangeAppIDMojo extends BuildContextAwareMojo</span>
+{
+
+<span class="fc" id="L42">  private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());</span>
+  /**
+   * This suffix gets appended to the appId as '.&amp;lt;appIdSuffix&gt;' in the &lt;code&gt;Info.plist&lt;/code&gt;
+   * before the signing takes place.
+   * 
+   * @parameter expression=&quot;${xcode.appIdSuffix}&quot;
+   * @since 1.2.0
+   */
+  private String appIdSuffix;
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+<span class="nc bnc" id="L55" title="All 4 branches missed.">    if (appIdSuffix == null || &quot;&quot;.equals(appIdSuffix.trim())) {</span>
+<span class="nc" id="L56">      return;</span>
+    }
+
+<span class="nc" id="L59">    LOGGER.info(&quot;appIdSuffix=&quot; + appIdSuffix);</span>
+
+<span class="nc" id="L61">    final Collection&lt;File&gt; alreadyUpdatedPlists = new HashSet&lt;File&gt;();</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">    for (final String configuration : getConfigurations()) {</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">      for (final String sdk : getSDKs()) {</span>
+<span class="nc" id="L65">        File infoPlistFile = null;</span>
+        try {
+<span class="nc" id="L67">          infoPlistFile = getPListFile(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);</span>
+        }
+<span class="nc" id="L69">        catch (XCodeException e) {</span>
+<span class="nc" id="L70">          throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L71">        }</span>
+<span class="nc" id="L72">        PListAccessor infoPlistAccessor = new PListAccessor(infoPlistFile);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (alreadyUpdatedPlists.contains(infoPlistFile)) {</span>
+<span class="nc" id="L74">          LOGGER.finer(&quot;PList file '&quot; + infoPlistFile.getName()</span>
+                + &quot;' was already updated for another configuration. This file will be skipped.&quot;);
+        }
+        else {
+<span class="nc" id="L78">          changeAppId(infoPlistAccessor, appIdSuffix);</span>
+<span class="nc" id="L79">          alreadyUpdatedPlists.add(infoPlistFile);</span>
+        }
+<span class="nc" id="L81">      }</span>
+    }
+<span class="nc" id="L83">  }</span>
+
+  static void changeAppId(PListAccessor infoPlistAccessor, String appIdSuffix) throws MojoExecutionException
+  {
+<span class="fc" id="L87">    ensurePListFileIsWritable(infoPlistAccessor.getPlistFile());</span>
+    try {
+<span class="fc" id="L89">      appendAppIdSuffix(infoPlistAccessor, appIdSuffix);</span>
+    }
+<span class="nc" id="L91">    catch (IOException e) {</span>
+<span class="nc" id="L92">      throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="fc" id="L93">    }</span>
+<span class="fc" id="L94">  }</span>
+
+  private static void ensurePListFileIsWritable(File pListFile) throws MojoExecutionException
+  {
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">    if (!pListFile.canWrite()) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">      if (!pListFile.setWritable(true, true))</span>
+<span class="nc" id="L100">        throw new MojoExecutionException(&quot;Could not make plist file '&quot; + pListFile + &quot;' writable.&quot;);</span>
+
+<span class="nc" id="L102">      LOGGER.info(&quot;Made PList file '&quot; + pListFile + &quot;' writable.&quot;);</span>
+    }
+<span class="fc" id="L104">  }</span>
+
+  private static void appendAppIdSuffix(PListAccessor infoPlistAccessor, String appIdSuffix)
+        throws IOException
+  {
+<span class="fc" id="L109">    String newAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER) + &quot;.&quot; + appIdSuffix;</span>
+<span class="fc" id="L110">    infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, newAppId);</span>
+<span class="fc" id="L111">    LOGGER.info(&quot;PList file '&quot; + infoPlistAccessor.getPlistFile() + &quot;' updated: Set AppId to '&quot; + newAppId + &quot;'.&quot;);</span>
+<span class="fc" id="L112">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>
