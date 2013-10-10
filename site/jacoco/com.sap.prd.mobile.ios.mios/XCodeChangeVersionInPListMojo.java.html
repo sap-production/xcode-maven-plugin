@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodeChangeVersionInPListMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodeChangeVersionInPListMojo.java</span></div><h1>XCodeChangeVersionInPListMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+
+/**
+ * Updates the properties CFBundleVersion and CFBundleShortVersionString inside the plist file(s)
+ * that is/are denoted for the given configurations and sdks. The version is updated with a version
+ * derived from the maven project version. For CFBundleVersion all version parts containing only
+ * numbers are retained. The leading numbers of the first version part containing characters are
+ * also retained. Any subsequent version part is ommited.
+ * 
+ * For CFBundleShortVersion the same strategy as described for CFBundleVersion applies. Additionally
+ * the version is truncated so that it consists of three numbers separated by two dots.
+ * 
+ * @goal change-versions-in-plist
+ * @since 1.7.0
+ */
+<span class="nc" id="L43">public class XCodeChangeVersionInPListMojo extends BuildContextAwareMojo</span>
+{
+  /**
+   * If this parameter is set to &lt;code&gt;true&lt;/code&gt; no version will be transferred into the Xcode
+   * project.
+   * 
+   * @parameter expression=&quot;${xcode.skipVersionUpdate}&quot; default-value=&quot;false&quot;
+   */
+  private boolean skipVersionUpdate;
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">    if (skipVersionUpdate) {</span>
+<span class="nc" id="L57">      getLog().info(&quot;Update of versions in info plist will be skipped.&quot;);</span>
+<span class="nc" id="L58">      return;</span>
+    }
+
+<span class="nc" id="L61">    final Collection&lt;File&gt; alreadyUpdatedPlists = new HashSet&lt;File&gt;();</span>
+
+<span class="nc" id="L63">    Collection&lt;UpdateVersionInPListTask&gt; updateTasks = new HashSet&lt;UpdateVersionInPListTask&gt;(Arrays.asList(</span>
+          new UpdateCFBundleShortVersionStringInPListTask(),
+          new UpdateCFBundleVersionInPListTask()));
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">    for (final String configuration : getConfigurations()) {</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">      for (final String sdk : getSDKs()) {</span>
+<span class="nc" id="L69">        File infoPlistFile = null;</span>
+        try {
+<span class="nc" id="L71">          infoPlistFile = getPListFile(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);</span>
+        }
+<span class="nc" id="L73">        catch (XCodeException e) {</span>
+<span class="nc" id="L74">          throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L75">        }</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (alreadyUpdatedPlists.contains(infoPlistFile)) {</span>
+<span class="nc" id="L77">          getLog().debug(&quot;Version in PList file '&quot; + infoPlistFile.getName()</span>
+                + &quot;' was already updated for another configuration. This file will be skipped.&quot;);
+        }
+        else {
+
+          try {
+
+<span class="nc" id="L84">            ensurePListFileIsWritable(infoPlistFile);</span>
+
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            for (UpdateVersionInPListTask updateVersionInPListTask : updateTasks) {</span>
+<span class="nc" id="L87">              updateVersionInPListTask.setPListFile(infoPlistFile).setVersion(project.getVersion())</span>
+                .execute();
+            }
+
+<span class="nc" id="L91">            alreadyUpdatedPlists.add(infoPlistFile);</span>
+
+          }
+<span class="nc" id="L94">          catch (XCodeException ex) {</span>
+<span class="nc" id="L95">            throw new MojoExecutionException(ex.getMessage(), ex);</span>
+<span class="nc" id="L96">          }</span>
+        }
+<span class="nc" id="L98">      }</span>
+    }
+<span class="nc" id="L100">  }</span>
+
+  private void ensurePListFileIsWritable(File pListFile) throws XCodeException
+  {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">    if (!pListFile.canWrite()) {</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">      if (!pListFile.setWritable(true, true))</span>
+<span class="nc" id="L106">        throw new XCodeException(&quot;Could not make plist file '&quot; + pListFile + &quot;' writable.&quot;);</span>
+
+<span class="nc" id="L108">      getLog().info(&quot;Made PList file '&quot; + pListFile + &quot;' writable.&quot;);</span>
+    }
+<span class="nc" id="L110">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

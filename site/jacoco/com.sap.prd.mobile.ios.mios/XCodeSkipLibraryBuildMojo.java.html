@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodeSkipLibraryBuildMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodeSkipLibraryBuildMojo.java</span></div><h1>XCodeSkipLibraryBuildMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+
+/**
+ * Prevents building of libraries or frameworks during Company Build.
+ * 
+ * The apps must be code signed. In case of signing with multiple certificates, e.g Enterprise and
+ * Company, apps must be built twice. The libraries and the frameworks do not need to be signed and
+ * must be built once.
+ * 
+ * 
+ * @goal skip-library-build
+ * 
+ */
+<span class="nc" id="L36">public class XCodeSkipLibraryBuildMojo extends AbstractXCodeMojo</span>
+{
+
+  /**
+   * If set to &lt;code&gt;true&lt;/code&gt; the build aborts with an exception if a lib (in comparison with an
+   * app) is built.
+   * 
+   * @parameter expression=&quot;${xcode.forbidLibBuild}&quot;
+   * @since 1.2.0
+   */
+  private boolean forbidLibBuild;
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+
+<span class="nc bnc" id="L52" title="All 2 branches missed.">    if (forbidLibBuild)</span>
+<span class="nc" id="L53">      throw new MojoExecutionException(</span>
+            &quot;xcode-library or xcode-framework detected (&quot;
+                  + project.getArtifact()
+                  + &quot;). Libraries and Frameworks must not be built during company builds. &quot;
+                  + &quot;They are not released separately. At the time when the company build is triggered we expect all libraries and frameworks are already contained in the repository.&quot;);
+<span class="nc" id="L58">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

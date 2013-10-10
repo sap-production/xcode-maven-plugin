@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>FatLibAnalyzer.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">FatLibAnalyzer.java</span></div><h1>FatLibAnalyzer.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+
+class FatLibAnalyzer
+{
+  private File fatLib;
+
+<span class="fc" id="L39">  private Set&lt;String&gt; architectures = null;</span>
+
+  FatLibAnalyzer(final File fatLib)
+<span class="fc" id="L42">  {</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">    if (fatLib == null)</span>
+<span class="nc" id="L44">      throw new NullPointerException();</span>
+
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">    if (!fatLib.canRead())</span>
+<span class="nc" id="L47">      throw new IllegalArgumentException(&quot;Cannot access &quot; + fatLib + &quot;.&quot;);</span>
+
+<span class="fc" id="L49">    this.fatLib = fatLib;</span>
+<span class="fc" id="L50">  }</span>
+
+  File getFatLibrary()
+  {
+<span class="nc" id="L54">    return fatLib;</span>
+  }
+
+  Set&lt;String&gt; getArchitectures() throws IOException
+  {
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">    if (architectures == null) {</span>
+
+<span class="fc" id="L61">      BufferedReader br = null;</span>
+
+      try {
+
+<span class="fc" id="L65">        br = new BufferedReader(new StringReader(getDetailedLipoInfo()));</span>
+
+<span class="fc" id="L67">        Set&lt;String&gt; architectures = new HashSet&lt;String&gt;();</span>
+
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        for (String line; (line = br.readLine()) != null;) {</span>
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">          if (!line.trim().startsWith(&quot;architecture&quot;))</span>
+<span class="fc" id="L72">            continue;</span>
+
+<span class="fc" id="L74">          String[] strings = line.split(&quot; &quot;);</span>
+
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">          if (strings.length &lt; 2)</span>
+<span class="nc" id="L77">            throw new IllegalStateException(&quot;Architecture could not be parsed: &quot; + line);</span>
+
+<span class="fc" id="L79">          String[] architecture = new String[strings.length - 1];</span>
+
+<span class="fc" id="L81">          System.arraycopy(strings, 1, architecture, 0, strings.length - 1);</span>
+
+<span class="fc" id="L83">          architectures.add(StringUtils.join(architecture, &quot; &quot;));</span>
+<span class="fc" id="L84">        }</span>
+
+<span class="fc" id="L86">        this.architectures = architectures;</span>
+      }
+      finally {
+<span class="pc" id="L89">        IOUtils.closeQuietly(br);</span>
+<span class="fc" id="L90">      }</span>
+    }
+
+<span class="fc" id="L93">    return this.architectures;</span>
+  }
+
+  boolean containsI386() throws IOException
+  {
+<span class="fc" id="L98">    return getArchitectures().contains(&quot;i386&quot;);</span>
+  }
+
+  boolean containsArmv() throws IOException
+  {
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">    for (String architecture : getArchitectures()) {</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">      if (architecture.startsWith(&quot;armv&quot;)) {</span>
+<span class="fc" id="L105">        return true;</span>
+      }
+    }
+<span class="nc" id="L108">    return false;</span>
+  }
+
+  private String getDetailedLipoInfo() throws IOException
+  {
+<span class="fc" id="L113">    final String defaultCharSet = Charset.defaultCharset().name();</span>
+<span class="fc" id="L114">    ByteArrayOutputStream byteOs = new ByteArrayOutputStream();</span>
+<span class="fc" id="L115">    PrintStream ps = new PrintStream(byteOs, true, defaultCharSet);</span>
+    try {
+<span class="fc" id="L117">      Forker.forkProcess(ps, null, &quot;lipo&quot;, &quot;-detailed_info&quot;, fatLib.getAbsolutePath());</span>
+
+<span class="fc" id="L119">      return new String(byteOs.toByteArray(), defaultCharSet);</span>
+    }
+    finally {
+<span class="pc" id="L122">      IOUtils.closeQuietly(ps);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

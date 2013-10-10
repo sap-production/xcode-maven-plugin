@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>Coordinates.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0</a> &gt; <span class="el_source">Coordinates.java</span></div><h1>Coordinates.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0;
+
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.ARTIFACT_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.GROUP_ID;
+import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.VERSION;
+import static java.lang.String.format;
+
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType(propOrder = { GROUP_ID, ARTIFACT_ID, VERSION })
+<span class="fc" id="L30">public class Coordinates</span>
+{
+
+  private String groupId;
+  private String artifactId;
+  private String version;
+
+  public String getGroupId()
+  {
+<span class="fc" id="L39">    return groupId;</span>
+  }
+
+  public void setGroupId(String groupId)
+  {
+<span class="fc" id="L44">    this.groupId = groupId;</span>
+<span class="fc" id="L45">  }</span>
+
+  public String getArtifactId()
+  {
+<span class="fc" id="L49">    return artifactId;</span>
+  }
+
+  public void setArtifactId(String artifactId)
+  {
+<span class="fc" id="L54">    this.artifactId = artifactId;</span>
+<span class="fc" id="L55">  }</span>
+
+  public String getVersion()
+  {
+<span class="fc" id="L59">    return version;</span>
+  }
+
+  public void setVersion(String version)
+  {
+<span class="fc" id="L64">    this.version = version;</span>
+<span class="fc" id="L65">  }</span>
+
+  @Override
+  public String toString()
+  {
+<span class="nc" id="L70">    return format(&quot;Coordinates [%s=%s, %s=%s, %s=%s]&quot;, GROUP_ID, groupId, ARTIFACT_ID, artifactId, VERSION, version);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>Settings.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">Settings.java</span></div><h1>Settings.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+final class Settings implements ISettings
+{
+
+  private final static String XCODE_OUTPUT_DIRECTORY = &quot;build&quot;;
+
+<span class="pc" id="L32">  enum ManagedSetting</span>
+  {
+<span class="fc" id="L34">    CODE_SIGN_IDENTITY(false, null), PROVISIONING_PROFILE(false, null), DSTROOT(true, XCODE_OUTPUT_DIRECTORY), SYMROOT(</span>
+<span class="fc" id="L35">          true, XCODE_OUTPUT_DIRECTORY), SHARED_PRECOMPS_DIR(true, XCODE_OUTPUT_DIRECTORY), OBJROOT(true,</span>
+          XCODE_OUTPUT_DIRECTORY);
+
+    private final boolean required;
+    private String defaultValue;
+
+    static ManagedSetting forName(String name)
+    {
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">      for (ManagedSetting setting : values()) {</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (setting.name().equals(name)) {</span>
+<span class="fc" id="L46">          return setting;</span>
+        }
+      }
+
+<span class="fc" id="L50">      return null;</span>
+    }
+
+    ManagedSetting(boolean required, String defaultValue)
+<span class="fc" id="L54">    {</span>
+<span class="fc" id="L55">      this.required = required;</span>
+<span class="fc" id="L56">      this.defaultValue = defaultValue;</span>
+<span class="fc" id="L57">    }</span>
+
+    boolean isRequired()
+    {
+<span class="fc" id="L61">      return required;</span>
+    }
+
+    String getDefaultValue()
+    {
+<span class="fc" id="L66">      return defaultValue;</span>
+    }
+  };
+
+<span class="fc" id="L70">  private final static Map&lt;String, String&gt; REQUIRED = new LinkedHashMap&lt;String, String&gt;(7);</span>
+
+  static {
+    // Output directories should be specified (recommended by Apple - http://developer.apple.com/devcenter/download.action?path=/wwdc_2012/wwdc_2012_session_pdfs/session_404__building_from_the_command_line_with_xcode.pdf)
+<span class="fc bfc" id="L74" title="All 2 branches covered.">    for (ManagedSetting setting : ManagedSetting.values()) {</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">      if (setting.isRequired()) {</span>
+<span class="fc" id="L76">        REQUIRED.put(setting.name(), setting.getDefaultValue());</span>
+      }
+    }
+<span class="fc" id="L79">  }</span>
+
+  private final Map&lt;String, String&gt; userSettings, managedSettings;
+
+  Settings(Map&lt;String, String&gt; userSettings, Map&lt;String, String&gt; managedSettings)
+<span class="fc" id="L84">  {</span>
+
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    if (userSettings == null) {</span>
+<span class="fc" id="L87">      this.userSettings = Collections.emptyMap();</span>
+    }
+    else {
+<span class="fc" id="L90">      this.userSettings = Collections.unmodifiableMap(new HashMap&lt;String, String&gt;(userSettings));</span>
+    }
+
+<span class="fc" id="L93">    validateUserSettings(this.userSettings);</span>
+
+<span class="fc bfc" id="L95" title="All 2 branches covered.">    if (managedSettings == null) {</span>
+<span class="fc" id="L96">      this.managedSettings = Collections.unmodifiableMap(new HashMap&lt;String, String&gt;(REQUIRED));</span>
+    }
+    else {
+
+<span class="fc" id="L100">      Map&lt;String, String&gt; _managedSettings = new HashMap&lt;String, String&gt;();</span>
+
+<span class="fc bfc" id="L102" title="All 2 branches covered.">      for (Map.Entry&lt;String, String&gt; e : managedSettings.entrySet()) {</span>
+
+<span class="pc bpc" id="L104" title="2 of 4 branches missed.">        if (e.getKey() == null || e.getKey().trim().isEmpty())</span>
+<span class="nc" id="L105">          throw new IllegalArgumentException(&quot;Empty key found in settings. Value was: '&quot; + e.getValue() + &quot;'.&quot;);</span>
+
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (ManagedSetting.forName(e.getKey().trim()) == null)</span>
+<span class="nc" id="L108">          throw new IllegalArgumentException(&quot;Setting with key '&quot; + e.getKey() + &quot;' and value '&quot; + e.getValue()</span>
+                + &quot;' was provided. This setting is managed by the plugin&quot; +
+                &quot;and must not be provided as managed setting.&quot;);
+
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        if (e.getValue() == null) {</span>
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">          if (e.getKey().equals(ManagedSetting.CODE_SIGN_IDENTITY.name())) {</span>
+<span class="nc" id="L115">            throw new IllegalArgumentException(&quot;CodesignIdentity was empty: '&quot; + e.getValue()</span>
+                  + &quot;'. If you want to use the code&quot;
+                  + &quot; sign identity defined in the xCode project configuration just do&quot;
+                  + &quot; not provide the 'codeSignIdentity' in your Maven settings.&quot;);
+          }
+
+<span class="nc" id="L121">          throw new IllegalArgumentException(&quot;No value provided for key '&quot; + e.getKey() + &quot;'.&quot;);</span>
+        }
+
+<span class="fc" id="L124">        _managedSettings.put(e.getKey(), e.getValue());</span>
+      }
+<span class="fc" id="L126">      _managedSettings.putAll(REQUIRED);</span>
+<span class="fc" id="L127">      this.managedSettings = Collections.unmodifiableMap(new HashMap&lt;String, String&gt;(_managedSettings));</span>
+    }
+<span class="fc" id="L129">  }</span>
+
+  public final Map&lt;String, String&gt; getUserSettings() {
+<span class="nc" id="L132">    return Collections.unmodifiableMap(this.userSettings);</span>
+  }
+  
+  public final Map&lt;String, String&gt; getManagedSettings() {
+<span class="nc" id="L136">    return Collections.unmodifiableMap(this.managedSettings);</span>
+  }
+  
+  /* (non-Javadoc)
+   * @see com.sap.prd.mobile.ios.mios.ISettings#getAllSettings()
+   */
+  @Override
+  public final Map&lt;String, String&gt; getAllSettings()
+  {
+<span class="fc" id="L145">    Map&lt;String, String&gt; result = new HashMap&lt;String, String&gt;(this.userSettings.size() + this.managedSettings.size());</span>
+<span class="fc" id="L146">    result.putAll(this.userSettings);</span>
+<span class="fc" id="L147">    result.putAll(this.managedSettings);</span>
+<span class="fc" id="L148">    return Collections.unmodifiableMap(result);</span>
+  }
+
+  /**
+   * @param userSettings
+   *          to be validated.
+   * @return the passed in userSettings if validation passed without exception
+   * @throws IllegalArgumentException
+   *           if the userSettings contain a key of an XCode setting that is managed by the plugin.
+   */
+  private final static Map&lt;String, String&gt; validateUserSettings(Map&lt;String, String&gt; userSettings)
+  {
+
+<span class="fc bfc" id="L161" title="All 2 branches covered.">    for (String key : userSettings.keySet()) {</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">      if (ManagedSetting.forName(key.trim()) != null) {</span>
+<span class="pc" id="L163">        throw new IllegalArgumentException(</span>
+              &quot;Setting '&quot;
+                    + key
+                    + &quot;' contained in user settings. This settings is managed by the plugin and must not be provided from outside.&quot;);
+      }
+    }
+<span class="fc" id="L169">    return userSettings;</span>
+  }
+
+  @Override
+  public String toString()
+  {
+<span class="nc" id="L175">    final String ls = System.getProperty(&quot;line.separator&quot;);</span>
+<span class="nc" id="L176">    StringBuffer buffer = new StringBuffer();</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">    for (Map.Entry&lt;String, String&gt; entry : getAllSettings().entrySet()) {</span>
+<span class="nc" id="L178">      buffer.append(&quot; &quot;).append(entry.getKey()).append(&quot;=&quot;).append(entry.getValue()).append(ls);</span>
+    }
+<span class="nc" id="L180">    return buffer.toString();</span>
+  }
+
+  @Override
+  public int hashCode()
+  {
+<span class="fc" id="L186">    final int prime = 31;</span>
+<span class="fc" id="L187">    int result = 1;</span>
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">    result = prime * result + ((managedSettings == null) ? 0 : managedSettings.hashCode());</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">    result = prime * result + ((userSettings == null) ? 0 : userSettings.hashCode());</span>
+<span class="fc" id="L190">    return result;</span>
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+<span class="nc bnc" id="L196" title="All 2 branches missed.">    if (this == obj) return true;</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">    if (obj == null) return false;</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">    if (getClass() != obj.getClass()) return false;</span>
+<span class="nc" id="L199">    Settings other = (Settings) obj;</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">    if (managedSettings == null) {</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">      if (other.managedSettings != null) return false;</span>
+    }
+<span class="nc bnc" id="L203" title="All 2 branches missed.">    else if (!managedSettings.equals(other.managedSettings)) return false;</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">    if (userSettings == null) {</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">      if (other.userSettings != null) return false;</span>
+    }
+<span class="nc bnc" id="L207" title="All 2 branches missed.">    else if (!userSettings.equals(other.userSettings)) return false;</span>
+<span class="nc" id="L208">    return true;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>
