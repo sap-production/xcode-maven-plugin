@@ -7,6 +7,10 @@ The Xcode Maven Plugin can be used to integrate Xcode projects into a Maven buil
 * Integration with a Maven repository for binary artifact distribution
 * Dependency resolution via a Maven repository between Xcode projects
 
+## Known Limitations
+
+The xcode-maven-plugin is currently only compatible with maven 3.0. For more details check https://github.com/sap-production/xcode-maven-plugin/issues/131
+
 ## Documentation
 
 For a detailed documentation please refer to the Maven generated [Plugin documentation](http://sap-production.github.com/xcode-maven-plugin/site/index.html)
