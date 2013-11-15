@@ -77,12 +77,12 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.collection.DependencyCollectionException;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.artifact.DefaultArtifact;
 
 import com.sap.prd.mobile.ios.mios.XCodeContext.SourceCodeLocation;
 import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Check;
@@ -508,7 +508,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
   private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException,
         DuplicateRealmException, MalformedURLException
   {
-    final org.sonatype.aether.artifact.Artifact artifact = parseDependency(check);
+    final org.eclipse.aether.artifact.Artifact artifact = parseDependency(check);
 
     final ClassLoader loader = this.getClass().getClassLoader();
 
@@ -532,14 +532,14 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
     final XCodeDownloadManager downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSession);
 
-    final Set<org.sonatype.aether.artifact.Artifact> theEmptyOmitsSet = Collections.emptySet();
-    final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
+    final Set<org.eclipse.aether.artifact.Artifact> theEmptyOmitsSet = Collections.emptySet();
+    final Set<org.eclipse.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
           new Dependency(getVerificationAPIGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes,
           theEmptyOmitsSet);
 
     omits.add(getVerificationAPIGav());
 
-    final Set<org.sonatype.aether.artifact.Artifact> artifacts = downloadManager
+    final Set<org.eclipse.aether.artifact.Artifact> artifacts = downloadManager
       .resolveArtifactWithTransitveDependencies(new Dependency(artifact,
             org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
 
@@ -565,16 +565,16 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private void addDependencies(final ClassRealm childClassRealm, Set<org.sonatype.aether.artifact.Artifact> artifacts)
+  private void addDependencies(final ClassRealm childClassRealm, Set<org.eclipse.aether.artifact.Artifact> artifacts)
         throws MalformedURLException
   {
-    for (org.sonatype.aether.artifact.Artifact a : artifacts)
+    for (org.eclipse.aether.artifact.Artifact a : artifacts)
     {
       childClassRealm.addURL(a.getFile().toURI().toURL());
     }
   }
 
-  static org.sonatype.aether.artifact.Artifact parseDependency(final Check check)
+  static org.eclipse.aether.artifact.Artifact parseDependency(final Check check)
         throws XCodeException
   {
     final String groupId = check.getGroupId();
@@ -613,7 +613,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  org.sonatype.aether.artifact.Artifact getVerificationAPIGav() throws XCodeException
+  org.eclipse.aether.artifact.Artifact getVerificationAPIGav() throws XCodeException
   {
 
     InputStream is = null;

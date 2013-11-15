@@ -40,7 +40,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.sonatype.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.Artifact;
 
 import com.sap.prd.mobile.ios.mios.XCodeVerificationCheckMojo.InvalidProtocolException;
 import com.sap.prd.mobile.ios.mios.XCodeVerificationCheckMojo.Location;

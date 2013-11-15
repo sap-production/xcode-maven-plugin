@@ -36,7 +36,7 @@ import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
-import org.sonatype.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.Artifact;
 import org.xml.sax.SAXException;
 
 import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;

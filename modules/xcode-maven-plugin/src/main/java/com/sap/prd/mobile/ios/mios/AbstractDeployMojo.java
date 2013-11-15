@@ -22,8 +22,8 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.transfer.TransferListener;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.transfer.TransferListener;
 
 /**
  * Registers a TransferListener on Aether that reacts on successful deployments. For each ipa file
@@ -56,7 +56,6 @@ abstract class AbstractDeployMojo extends AbstractXCodeMojo
   protected void setTransferListener(TransferListener transferListener) throws SecurityException,
         IllegalAccessException, InvocationTargetException, NoSuchMethodException
   {
-
     this.repoSession.getClass().getMethod("setTransferListener", new Class[] { TransferListener.class })
       .invoke(this.repoSession, transferListener);
 

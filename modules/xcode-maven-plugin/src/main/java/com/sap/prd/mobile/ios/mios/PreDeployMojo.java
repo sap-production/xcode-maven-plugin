@@ -28,9 +28,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.sonatype.aether.transfer.TransferCancelledException;
-import org.sonatype.aether.transfer.TransferEvent;
-import org.sonatype.aether.transfer.TransferListener;
+import org.eclipse.aether.transfer.TransferCancelledException;
+import org.eclipse.aether.transfer.TransferEvent;
+import org.eclipse.aether.transfer.TransferListener;
 
 /**
  * Registers a TransferListener on Aether that reacts on successful deployments. For each ipa file
@@ -70,6 +70,7 @@ public class PreDeployMojo extends AbstractDeployMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
+
     try {
       archiveFolder = archiveFolder.getCanonicalFile();
     }

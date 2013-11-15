@@ -22,7 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.sonatype.aether.transfer.TransferListener;
+import org.eclipse.aether.transfer.TransferListener;
 
 /**
  * Registers a TransferListener on Aether that reacts on successful deployments. For each ipa file
@@ -34,7 +34,6 @@ import org.sonatype.aether.transfer.TransferListener;
  */
 public class PostDeployMojo extends AbstractDeployMojo
 {
-
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {

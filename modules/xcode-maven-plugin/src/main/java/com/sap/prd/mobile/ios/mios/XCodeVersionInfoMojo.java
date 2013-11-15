@@ -46,9 +46,9 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProjectHelper;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.repository.RemoteRepository;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.RemoteRepository;
 import org.xml.sax.SAXException;
 
 import com.sap.prd.mobile.ios.mios.CodeSignManager.ExecResult;
@@ -322,7 +322,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
       try {
 
-        org.sonatype.aether.artifact.Artifact sideArtifact = new XCodeDownloadManager(projectRepos, repoSystem,
+        org.eclipse.aether.artifact.Artifact sideArtifact = new XCodeDownloadManager(projectRepos, repoSystem,
               repoSession).resolveSideArtifact(mainArtifact, "versions", "xml");
 
         getLog().info("Version information retrieved for artifact: " + mainArtifact);
@@ -338,7 +338,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
   }
 
   void addParsedVersionsXmlDependency(List<Dependency> result,
-        org.sonatype.aether.artifact.Artifact sideArtifact) throws IOException
+        org.eclipse.aether.artifact.Artifact sideArtifact) throws IOException
   {
     try {
       result.add(VersionInfoXmlManager.parseDependency(sideArtifact.getFile()));
