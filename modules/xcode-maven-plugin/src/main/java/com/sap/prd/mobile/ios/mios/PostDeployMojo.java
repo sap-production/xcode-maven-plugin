@@ -37,6 +37,9 @@ public class PostDeployMojo extends AbstractDeployMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
+    if(! setTransferListener) {
+      return;
+    }
     try {
 
       //

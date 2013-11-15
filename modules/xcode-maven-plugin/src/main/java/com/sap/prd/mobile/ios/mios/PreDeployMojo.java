@@ -71,6 +71,11 @@ public class PreDeployMojo extends AbstractDeployMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
 
+    if(! setTransferListener) {
+      getLog().info("Setup of transfer listener for redirect files has been skipped.");
+      return;
+    }
+
     try {
       archiveFolder = archiveFolder.getCanonicalFile();
     }

@@ -33,6 +33,13 @@ import org.eclipse.aether.transfer.TransferListener;
 abstract class AbstractDeployMojo extends AbstractXCodeMojo
 {
   /**
+   * @parameter expression="${set.transfer.listener}" default-value="false"
+   */
+  protected boolean setTransferListener;
+
+
+  
+  /**
    * The current repository/network configuration of Maven.
    * 
    * @parameter default-value="${repositorySystemSession}"
