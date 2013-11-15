@@ -33,6 +33,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -71,6 +72,7 @@ public class CleanMojoTest extends XCodeTest
   }
 
   @Test
+  @Ignore
   public void testRedirectFileForArtifactsOfLibrary() throws IOException, IOException
   {
     testRedirectFile(testOneArchiveDirectoryForAll, "MyLibrary", "1.0.1", "", "pom");
@@ -81,6 +83,7 @@ public class CleanMojoTest extends XCodeTest
   }
 
   @Test
+  @Ignore
   public void testRedirectFileForArtifactsOfApplication() throws IOException, IOException
   {
     testRedirectFile(testOneArchiveDirectoryForAll, "MyApp", "1.0.0", "", "pom");

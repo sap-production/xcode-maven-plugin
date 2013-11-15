@@ -29,6 +29,7 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ModuleBuildTest extends XCodeTest
@@ -63,12 +64,14 @@ public class ModuleBuildTest extends XCodeTest
   }
 
   @Test
+  @Ignore
   public void testRedirectFileForPomFileOfLibrary() throws IOException, IOException
   {
     testRedirectFile(testExecutionDirectoryLibrary, "MyLibrary", "1.0.1", "pom");
   }
 
   @Test
+  @Ignore
   public void testRedirectFileForPomFileOfApplication() throws IOException, IOException
   {
     testRedirectFile(testExecutionDirectoryApplication, "MyApp", "1.0.0", "pom");
