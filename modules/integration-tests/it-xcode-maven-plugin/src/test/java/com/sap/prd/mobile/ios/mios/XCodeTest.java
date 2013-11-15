@@ -337,6 +337,8 @@ public abstract class XCodeTest
       if (params.additionalCommandLineOptions != null)
         commandLineOptions.addAll(params.additionalCommandLineOptions);
 
+      commandLineOptions.add("--show-version");
+
       verifier.setCliOptions(commandLineOptions);
 
       verifier.setSystemProperties(testSystemProperties);
