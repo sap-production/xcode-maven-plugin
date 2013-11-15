@@ -61,7 +61,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -74,15 +73,18 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.artifact.DefaultArtifact;
 
 import com.sap.prd.mobile.ios.mios.XCodeContext.SourceCodeLocation;
 import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Check;
@@ -107,10 +109,8 @@ import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
  *   &lt;check groupId="my.group.id" artifactId="artifactId" version="1.0.0" severity="WARNING" class="com.my.MyVerificationCheck2"/&gt;
  * &lt;/checks&gt;
  * </pre>
- * 
- * @goal verification-check
- * 
  */
+@Mojo(name="verification-check")
 public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 {
   private final static String COLON = ":", DOUBLE_SLASH = "//";
@@ -270,34 +270,29 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
   /**
    * The entry point to Aether, i.e. the component doing all the work.
-   * 
-   * @component
    */
+  @Component
   protected RepositorySystem repoSystem;
 
   /**
    * The current repository/network configuration of Maven.
-   * 
-   * @parameter default-value="${repositorySystemSession}"
-   * @readonly
    */
+  @Parameter(readonly=true, defaultValue="${repositorySystemSession}")
   protected RepositorySystemSession repoSession;
 
   /**
    * The project's remote repositories to use for the resolution of project dependencies.
-   * 
-   * @parameter default-value="${project.remoteProjectRepositories}"
-   * @readonly
    */
+  @Parameter(readonly=true, defaultValue="${project.remoteProjectRepositories}")
   protected List<RemoteRepository> projectRepos;
 
   /**
    * Parameter, which controls the verification goal execution. By default, the verification goal
    * will be skipped.
    * 
-   * @parameter expression="${xcode.verification.checks.skip}" default-value="true"
    * @since 1.9.3
    */
+  @Parameter(property="xcode.verification.checks.skip", defaultValue="true")
   private boolean skip;
 
   /**
@@ -310,9 +305,9 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
    * <li>-Dxcode.verification.checks.definitionFile=https://example.com/checkDefinitionFile.xml
    * </ul>
    * 
-   * @parameter expression="${xcode.verification.checks.definitionFile}"
    * @since 1.9.3
    */
+  @Parameter(property="xcode.verification.checks.definitionFile")
   private String checkDefinitionFile;
 
   @Override

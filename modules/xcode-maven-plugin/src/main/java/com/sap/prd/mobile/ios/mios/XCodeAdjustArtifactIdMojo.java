@@ -21,23 +21,23 @@ package com.sap.prd.mobile.ios.mios;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Appends a suffix to the artifactId. No actions are taken if the suffix is not specified or has
  * zero length.
- * 
- * @goal change-artifact-id
- * 
  */
+@Mojo(name="change-artifact-id")
 public class XCodeAdjustArtifactIdMojo extends AbstractXCodeMojo
 {
 
   /**
    * If not empty the artifactId gets appended by '_&lt;artifactIdSuffix&gt;'
    * 
-   * @parameter expression="${xcode.artifactIdSuffix}"
    * @since 1.2.0
    */
+  @Parameter(property="xcode.artifactIdSuffix")
   private String artifactIdSuffix;
 
   @Override

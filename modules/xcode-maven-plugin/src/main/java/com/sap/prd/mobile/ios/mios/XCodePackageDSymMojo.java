@@ -24,6 +24,8 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
@@ -35,22 +37,14 @@ import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
  * Packages the debug symbols generated during the Xcode build and prepares the generated artifact
  * for deployment. The debug symbols are generated only if the "Generate Debug Symbols" in Xcode is
  * active.
- * 
- * @goal package-dsym
- * 
  */
+@Mojo(name="package-dsym")
 public class XCodePackageDSymMojo extends BuildContextAwareMojo
 {
-
-  /**
-   * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
-   * @required
-   */
+  @Component()
   private ArchiverManager archiverManager;
 
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
   @Override

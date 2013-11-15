@@ -45,6 +45,10 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -75,67 +79,47 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
  * DEPOT_PATH is the path to the project on the SCM server. For Perforce projects, DEPOT_PATH has
  * the following format //DEPOT_PATH/... <br>
  * CHANGELIST is the revision synced.
- * 
- * 
- * @goal attach-version-info
- * @requiresDependencyResolution
  */
+@Mojo(name="attach-version-info", requiresDependencyResolution=ResolutionScope.TEST)
 public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 {
-
-  /**
-   * 
-   * @parameter default-value="${session}"
-   * @required
-   * @readonly
-   */
+  @Parameter(defaultValue="${session}", required=true, readonly=true)
   protected MavenSession mavenSession;
 
   /**
    * The entry point to Aether, i.e. the component doing all the work.
-   * 
-   * @component
    */
+  @Component
   protected RepositorySystem repoSystem;
 
   /**
    * The current repository/network configuration of Maven.
-   * 
-   * @parameter default-value="${repositorySystemSession}"
-   * @readonly
    */
+  @Parameter(defaultValue="${repositorySystemSession}", readonly=true)
   protected RepositorySystemSession repoSession;
 
   /**
    * The project's remote repositories to use for the resolution of project dependencies.
-   * 
-   * @parameter default-value="${project.remoteProjectRepositories}"
-   * @readonly
    */
+  @Parameter(readonly=true, defaultValue="${project.remoteProjectRepositories}")
   protected List<RemoteRepository> projectRepos;
 
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
-  /**
-   * @parameter expression="${sync.info.file}" default-value="sync.info"
-   */
+  @Parameter(property="sync.info.file", defaultValue="sync.info")
   private String syncInfo;
 
   /**
    * If <code>true</code> the build fails if it does not find a sync.info file in the root directory
-   * 
-   * @parameter expression="${xcode.failOnMissingSyncInfo}" default-value="false"
    */
+  @Parameter(property="xcode.failOnMissingSyncInfo", defaultValue="false")
   private boolean failOnMissingSyncInfo;
 
   /**
    * If <code>true</code> confidential information is removed from artifacts to be released.
-   * 
-   * @parameter expression="${xcode.hideConfidentialInformation}" default-value="true"
    */
+  @Parameter(property="xcode.hideConfidentialInformation", defaultValue="true")
   private boolean hideConfidentialInformation;
 
   @Override

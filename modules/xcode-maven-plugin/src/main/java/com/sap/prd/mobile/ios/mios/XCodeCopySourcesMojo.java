@@ -28,18 +28,17 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Copies sources to the checkout directory below the target directory.
- * 
- * @goal copy-sources
  */
+@Mojo(name="copy-sources")
 public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 {
 
-  /**
-   * @parameter expression="${xcode.useSymbolicLinks}" default-value="false"
-   */
+  @Parameter(property="xcode.useSymbolicLinks", defaultValue="false")
   private boolean useSymbolicLinks;
 
   private boolean useSymbolicLinks()

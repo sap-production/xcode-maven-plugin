@@ -28,14 +28,14 @@ import java.util.logging.Logger;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Appends a suffix to the appId. No actions are taken if the suffix is not specified or the suffix
  * has zero length.
- * 
- * @goal change-app-id
- * 
  */
+@Mojo(name="change-app-id")
 public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
 {
 
@@ -44,9 +44,9 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
    * This suffix gets appended to the appId as '.&lt;appIdSuffix>' in the <code>Info.plist</code>
    * before the signing takes place.
    * 
-   * @parameter expression="${xcode.appIdSuffix}"
    * @since 1.2.0
    */
+  @Parameter(property="xcode.appIdSuffix")
   private String appIdSuffix;
 
   @Override

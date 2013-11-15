@@ -27,35 +27,33 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * Packages the framework built by Xcode and prepares the generated artifact for deployment.
- * 
- * @goal package-framework
- * 
  */
+@Mojo(name="package-framework")
 public class XCodePackageFrameworkMojo extends BuildContextAwareMojo
 {
   /**
    * The frameworks are built for all defined configurations, i.e Debug and Release. The parameter
    * here defines the configuration, used for the primary artifact generation.
    * 
-   * @parameter expression="${xcode.primaryFmwkConfiguration}" default-value="Release"
    * @since 1.4.2
    */
+  @Parameter(defaultValue="Release", property="xcode.primaryFmwkConfiguration")
   private String primaryFmwkConfiguration;
 
   /**
-   * 
-   * @parameter expression="${xcode.primaryFmwkSdk}" default-value="iphoneos"
    * @since 1.9.4
    */
+  @Parameter(defaultValue="iphoneos", property="xcode.primaryFmwkSdk")
   private String primaryFmwkSdk;
 
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
   @Override

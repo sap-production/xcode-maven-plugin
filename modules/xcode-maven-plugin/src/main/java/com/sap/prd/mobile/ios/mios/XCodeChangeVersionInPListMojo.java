@@ -26,6 +26,8 @@ import java.util.HashSet;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Updates the properties CFBundleVersion and CFBundleShortVersionString inside the plist file(s)
@@ -37,17 +39,16 @@ import org.apache.maven.plugin.MojoFailureException;
  * For CFBundleShortVersion the same strategy as described for CFBundleVersion applies. Additionally
  * the version is truncated so that it consists of three numbers separated by two dots.
  * 
- * @goal change-versions-in-plist
  * @since 1.7.0
  */
+@Mojo(name="change-versions-in-plist")
 public class XCodeChangeVersionInPListMojo extends BuildContextAwareMojo
 {
   /**
    * If this parameter is set to <code>true</code> no version will be transferred into the Xcode
    * project.
-   * 
-   * @parameter expression="${xcode.skipVersionUpdate}" default-value="false"
    */
+  @Parameter(property="xcode.skipVersionUpdate", defaultValue="false")
   private boolean skipVersionUpdate;
 
   @Override

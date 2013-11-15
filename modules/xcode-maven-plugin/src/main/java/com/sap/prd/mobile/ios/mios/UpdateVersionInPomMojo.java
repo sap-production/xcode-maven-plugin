@@ -22,7 +22,6 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -36,20 +35,18 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-/**
- * 
- * @goal update-version-in-pom
- * 
- */
+@Mojo(name="update-version-in-pom")
 public class UpdateVersionInPomMojo extends BuildContextAwareMojo
 {
 
   /**
-   * @parameter expression="${appendSnapshot}" default-value="true"
    * @since 1.6.1
    */
+  @Parameter(defaultValue="true", property="appendSnapshot")
   private boolean appendSnapshot;
 
   @Override

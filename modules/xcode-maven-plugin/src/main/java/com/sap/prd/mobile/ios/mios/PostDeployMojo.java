@@ -22,16 +22,15 @@ package com.sap.prd.mobile.ios.mios;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.aether.transfer.TransferListener;
 
 /**
  * Registers a TransferListener on Aether that reacts on successful deployments. For each ipa file
  * deployed successfully a pointer file is written. This pointer file redirects to XXX
- * 
- * 
- * @goal post-deploy
- * 
  */
+@Mojo(name="post-deploy")
 public class PostDeployMojo extends AbstractDeployMojo
 {
   @Override

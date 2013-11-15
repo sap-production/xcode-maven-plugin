@@ -22,6 +22,7 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.transfer.TransferListener;
 
@@ -32,19 +33,14 @@ import org.eclipse.aether.transfer.TransferListener;
  */
 abstract class AbstractDeployMojo extends AbstractXCodeMojo
 {
-  /**
-   * @parameter expression="${set.transfer.listener}" default-value="false"
-   */
+  @Parameter(property="set.transfer.listener", defaultValue="false")
   protected boolean setTransferListener;
-
 
   
   /**
    * The current repository/network configuration of Maven.
-   * 
-   * @parameter default-value="${repositorySystemSession}"
-   * @readonly
    */
+  @Parameter(readonly=true, defaultValue="${repositorySystemSession}")
   protected RepositorySystemSession repoSession;
 
   protected TransferListener getTransferListener() throws SecurityException, IllegalAccessException,

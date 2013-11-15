@@ -25,6 +25,10 @@ import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.eclipse.aether.RepositorySystem;
@@ -34,47 +38,32 @@ import org.eclipse.aether.repository.RemoteRepository;
 /**
  * Prepares the local build environment. Copies and unpacks the artifacts of the referenced projects
  * into the target folder.
- * 
- * @goal prepare-xcode-build
- * @requiresDependencyResolution
  */
+@Mojo(name="prepare-xcode-build", requiresDependencyCollection=ResolutionScope.TEST)
 public class XCodePrepareMojo extends AbstractXCodeMojo
 {
-
-  /**
-   * @parameter expression="${project}"
-   * @readonly
-   * @required
-   */
+  @Parameter(property="project", readonly=true, required=true)
   public MavenProject project;
 
-  /**
-   * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
-   * @required
-   */
+  @Component(role=ArchiverManager.class)
   private ArchiverManager archiverManager;
 
   /**
    * The entry point to Aether, i.e. the component doing all the work.
-   * 
-   * @component
    */
+  @Component
   protected RepositorySystem repoSystem;
 
   /**
    * The current repository/network configuration of Maven.
-   * 
-   * @parameter default-value="${repositorySystemSession}"
-   * @readonly
    */
+  @Parameter(defaultValue="${repositorySystemSession}", readonly=true)
   protected RepositorySystemSession repoSession;
 
   /**
    * The project's remote repositories to use for the resolution of project dependencies.
-   * 
-   * @parameter default-value="${project.remoteProjectRepositories}"
-   * @readonly
    */
+  @Parameter(defaultValue="${project.remoteProjectRepositories}", readonly=true)
   protected List<RemoteRepository> projectRepos;
 
   /**
@@ -82,19 +71,15 @@ public class XCodePrepareMojo extends AbstractXCodeMojo
    * of the sdk specific ones. In all cases the lib resolution will try to fallback to the other
    * library type if the preferred type is not available.
    * 
-   * @parameter expression="${xcode.preferFatLibs}" default-value="false"
    * @since 1.5.2
    */
+  @Parameter(property="xcode.preferFatLibs", defaultValue="false")
   protected boolean preferFatLibs;
 
-  /**
-   * @parameter expression="${xcode.useSymbolicLinks}" default-value="false"
-   */
+  @Parameter(property="xcode.useSymbolicLinks", defaultValue="false")
   private boolean useSymbolicLinks;
 
-  /**
-   * @parameter
-   */
+  @Parameter
   private Map<String, String> additionalPackagingTypes;
 
   @Override

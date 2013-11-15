@@ -76,6 +76,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.apache.maven.plugin-tools</groupId>
+        <artifactId>maven-plugin-annotations</artifactId>
+        <version>3.2</version>
+      </dependency>
+      <dependency>
         <groupId>com.sap.prd.mobile.ios.mios</groupId>
         <artifactId>xcode-maven-plugin</artifactId>
         <version>${project.version}</version>
