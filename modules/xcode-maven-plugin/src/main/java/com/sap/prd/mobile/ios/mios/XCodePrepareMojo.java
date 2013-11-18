@@ -39,7 +39,7 @@ import org.eclipse.aether.repository.RemoteRepository;
  * Prepares the local build environment. Copies and unpacks the artifacts of the referenced projects
  * into the target folder.
  */
-@Mojo(name="prepare-xcode-build", requiresDependencyCollection=ResolutionScope.TEST)
+@Mojo(name="prepare-xcode-build", requiresDependencyResolution=ResolutionScope.COMPILE)
 public class XCodePrepareMojo extends AbstractXCodeMojo
 {
   @Parameter(property="project", readonly=true, required=true)

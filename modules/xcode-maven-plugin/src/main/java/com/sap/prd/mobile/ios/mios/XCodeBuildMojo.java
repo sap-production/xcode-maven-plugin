@@ -30,7 +30,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  * Triggers the Xcode build.
  * 
  */
-@Mojo(requiresDependencyResolution=ResolutionScope.TEST, name="xcodebuild")
+@Mojo(requiresDependencyResolution=ResolutionScope.COMPILE, name="xcodebuild")
 public class XCodeBuildMojo extends BuildContextAwareMojo
 {
 

@@ -80,7 +80,7 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
  * the following format //DEPOT_PATH/... <br>
  * CHANGELIST is the revision synced.
  */
-@Mojo(name="attach-version-info", requiresDependencyResolution=ResolutionScope.TEST)
+@Mojo(name="attach-version-info", requiresDependencyResolution=ResolutionScope.COMPILE)
 public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 {
   @Parameter(defaultValue="${session}", required=true, readonly=true)
