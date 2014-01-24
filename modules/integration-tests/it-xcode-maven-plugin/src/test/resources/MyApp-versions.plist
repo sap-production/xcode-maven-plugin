@@ -27,7 +27,7 @@
 			<key>scm</key>
 			<dict>
 				<key>connection</key>
-				<string>PORT</string>
+				<string>5555</string>
 				<key>revision</key>
 				<string>4711</string>
 			</dict>
@@ -36,7 +36,7 @@
 	<key>scm</key>
 	<dict>
 		<key>connection</key>
-		<string>PORT</string>
+		<string>4444</string>
 		<key>revision</key>
 		<string>1234</string>
 	</dict>

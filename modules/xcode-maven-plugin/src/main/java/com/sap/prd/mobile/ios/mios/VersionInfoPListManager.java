@@ -155,7 +155,7 @@ public class VersionInfoPListManager
       }
       else
       {
-        port = parts[3]; //scm:perforce:PERFORCE_HOST:PORT:PATH
+        port = parts[3]; //scm:perforce:PERFORCEHOST:4321:PATH
       }
       return port;
       

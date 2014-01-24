@@ -6,7 +6,7 @@
         <version>${dynamicVersion}</version>
     </coordinates>
     <scm>
-        <connection>scm:perforce:PERFORCE_HOST:PORT://MY_DEPOT_PATH/</connection>
+        <connection>scm:perforce:PERFORCEHOST:4321://MY_DEPOT_PATH/</connection>
         <revision>1234</revision>
     </scm>
 </versions>

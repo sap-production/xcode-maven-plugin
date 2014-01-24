@@ -45,7 +45,7 @@ public class VersionInfoManagerTest
     Assert.assertEquals("MyApp", dependency.getCoordinates().getArtifactId());
     Assert.assertEquals("1.0.0", dependency.getCoordinates().getVersion());
 
-    Assert.assertEquals("scm:perforce:PERFORCE_HOST:PORT://MY_DEPOT_PATH", dependency.getScm().getConnection());
+    Assert.assertEquals("scm:perforce:PERFORCEHOST:9999://MY_DEPOT_PATH", dependency.getScm().getConnection());
     Assert.assertEquals("4711", dependency.getScm().getRevision());
     // To be continued
 

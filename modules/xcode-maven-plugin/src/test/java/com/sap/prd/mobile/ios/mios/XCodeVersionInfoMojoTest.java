@@ -108,9 +108,9 @@ public class XCodeVersionInfoMojoTest
     String transformed = toString(transformedXml);
     System.out.println("ORIGINAL: "+original);
     System.out.println("TRANSFORMED: "+transformed);
-    Assert.assertTrue("Does not contain 'PERFORCE_HOST': "+original, original.contains("PERFORCE_HOST"));
-    Assert.assertFalse("Still contains 'PERFORCE_HOST': " + transformed, transformed.contains("PERFORCE_HOST"));
-    Assert.assertTrue("Does not contain '<connection>PORT</connection>': " + transformed, transformed.contains("<connection>PORT</connection>"));
+    Assert.assertTrue("Does not contain 'PERFORCEHOST': "+original, original.contains("PERFORCEHOST"));
+    Assert.assertFalse("Still contains 'PERFORCEHOST': " + transformed, transformed.contains("PERFORCEHOST"));
+    Assert.assertTrue("Does not contain '<connection>4321</connection>': " + transformed, transformed.contains("<connection>4321</connection>"));
   }
   
   private String toString(File transformedXml) throws IOException
