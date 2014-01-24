@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<versions xmlns="urn:xml.sap.com:XCodePlugin:VersionInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.2.2" xsi:schemaLocation="urn:xml.sap.com:XCodePlugin:VersionInfo http://nexus.wdf.sap.corp:8081/nexus/content/repositories/deploy.release.ondevice.hosted/com/sap/prd/mobile/ios/mios/versionschema/1.2.2/versionschema-1.2.2.xsd">
+    <coordinates>
+        <groupId>my.group.id</groupId>
+        <artifactId>my.artifact.id</artifactId>
+        <version>1.0.0</version>
+    </coordinates>
+    <scm>
+        <connection>scm:git:ssh://veprodgerritts.dhcp.wdf.sap.corp:39418/MyProject</connection>
+        <revision>438d67367a438d67367a438d67367a438d67367a</revision>
+    </scm>
+</versions>

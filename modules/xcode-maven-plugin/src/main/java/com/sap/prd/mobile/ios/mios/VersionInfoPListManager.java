@@ -70,8 +70,8 @@ public class VersionInfoPListManager
   {
     try {
 
-      final String connectionString = getConnectionString(versionInfo, hideConfidentialInformation);
-
+      final String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, hideConfidentialInformation);
+      
       PListAccessor plistAccessor = new PListAccessor(file);
       plistAccessor.createPlist();
 
@@ -90,28 +90,6 @@ public class VersionInfoPListManager
 
     catch (IOException e) {
       throw new MojoExecutionException("Cannot create versions.plist.", e);
-    }
-  }
-
-  private String getConnectionString(Properties versionInfo, boolean hideConfidentialInformation)
-        throws MojoExecutionException
-  {
-    if (!hideConfidentialInformation) {
-      return "scm:perforce:"
-            + versionInfo.getProperty("port") + ":" + getDepotPath(versionInfo.getProperty("depotpath"));
-    }
-    else {
-
-      final String port = versionInfo.getProperty("port");
-
-      final int colonIndex = port.indexOf(":");
-
-      if (colonIndex == -1)
-      {
-        throw new MojoExecutionException("No colon found in perforce port : '" + port + "'.");
-      }
-      return port.substring(colonIndex + ":".length());
-      
     }
   }
 
@@ -161,15 +139,4 @@ public class VersionInfoPListManager
       
     }
   }
-
-  private static final String THREEDOTS = "...";
-
-  private static String getDepotPath(String fullDepotPath)
-  {
-    if (fullDepotPath.endsWith(THREEDOTS)) {
-      fullDepotPath = fullDepotPath.substring(0, fullDepotPath.length() - THREEDOTS.length());
-    }
-    return fullDepotPath;
-  }
-
 }

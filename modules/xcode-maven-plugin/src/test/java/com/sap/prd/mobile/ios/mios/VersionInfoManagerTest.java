@@ -116,5 +116,16 @@ public class VersionInfoManagerTest
       IOUtils.closeQuietly(os);
     }
   }
+  
+  @Test
+  public void testCreateVersionInfoStringGit() throws Exception {
+    final ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
+    try {
+      new VersionInfoXmlManager().createVersionInfoFile("my.group.id", "my.artifact.id", "1.0.0", new File("src/test/resources/git-sync.info"), new ArrayList<Dependency>(), byteOs);
+    } finally {
+      byteOs.close();    
+    }
+    Assert.assertEquals(IOUtil.toString(new FileInputStream("src/test/resources/git-sync.info.expected")), new String(byteOs.toByteArray()));
+  };
 
 }

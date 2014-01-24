@@ -43,36 +43,56 @@ public class VersionInfoPListManagerTest
 
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
-  private File plistFile;
-  private PListAccessor plistAccessor;
+  private File plistFilePerforce;
+  private File plistFileGit;
+  private PListAccessor plistAccessorPerforce;
+  private PListAccessor plistAccessorGit;
 
   @Before
   public void setup() throws MojoExecutionException
   {
     tempFolder.newFolder("versionPListTest");
-    plistFile = new File(tempFolder.getRoot(), "versions.plist");
+    plistFilePerforce = new File(tempFolder.getRoot(), "versions.perforce.plist");
+    plistFileGit = new File(tempFolder.getRoot(), "versions.git.plist");
     new VersionInfoPListManager().createVersionInfoPlistFile("groupId", "artifactId", "1.0.0", new File(".",
-          "src/test/resources/sync.info"), new ArrayList<Dependency>(), plistFile, true);
-    plistAccessor = new PListAccessor(plistFile);
+          "src/test/resources/sync.info"), new ArrayList<Dependency>(), plistFilePerforce, true);
+
+    new VersionInfoPListManager().createVersionInfoPlistFile("groupId", "artifactId", "1.0.0", new File(".",
+          "src/test/resources/git-sync.info"), new ArrayList<Dependency>(), plistFileGit, true);
+
+    plistAccessorPerforce = new PListAccessor(plistFilePerforce);
+    plistAccessorGit = new PListAccessor(plistFileGit);
   }
 
   @Test
-  public void testStraightForward() throws Exception
+  public void testStraightForwardPerforce() throws Exception
   {
+    Assert.assertTrue(plistFilePerforce.exists());
+    Assert.assertEquals("GroupId not set in plist file ", GROUP_ID, plistAccessorPerforce.printValue("coordinates:groupId"));
+    Assert.assertEquals(ARTIFACT_ID, plistAccessorPerforce.printValue("coordinates:artifactId"));
+    Assert.assertEquals("1.0.0", plistAccessorPerforce.printValue("coordinates:version"));
 
-    Assert.assertTrue(plistFile.exists());
-    Assert.assertEquals(GROUP_ID, plistAccessor.printValue("coordinates:groupId"));
-    Assert.assertEquals(ARTIFACT_ID, plistAccessor.printValue("coordinates:artifactId"));
-    Assert.assertEquals("1.0.0", plistAccessor.printValue("coordinates:version"));
-
-    Assert.assertEquals("9876", plistAccessor.printValue("scm:connection"));
-    Assert.assertEquals("1234", plistAccessor.printValue("scm:revision"));
+    Assert.assertEquals("9876", plistAccessorPerforce.printValue("scm:connection"));
+    Assert.assertEquals("1234", plistAccessorPerforce.printValue("scm:revision"));
   }
 
+  @Test
+  public void testStraightForwardGit() throws Exception
+  {
+    Assert.assertTrue(plistFileGit.exists());
+    Assert.assertEquals("GroupId not set in plist file ", GROUP_ID, plistAccessorGit.printValue("coordinates:groupId"));
+    Assert.assertEquals(ARTIFACT_ID, plistAccessorGit.printValue("coordinates:artifactId"));
+    Assert.assertEquals("1.0.0", plistAccessorGit.printValue("coordinates:version"));
+
+    Assert.assertEquals("39418", plistAccessorGit.printValue("scm:connection"));
+    Assert.assertEquals("438d67367a438d67367a438d67367a438d67367a", plistAccessorGit.printValue("scm:revision"));
+  }
+
+  
   @Test(expected = IllegalStateException.class)
   public void testDepDontExistsForward() throws IOException
   {
-    plistAccessor.printValue("dependencies:0");
+    plistAccessorPerforce.printValue("dependencies:0");
   }
 
   @Test
@@ -93,11 +113,11 @@ public class VersionInfoPListManagerTest
 
     List<Dependency> dependencies = new ArrayList<Dependency>();
     dependencies.add(dep);
-    new VersionInfoPListManager().addDependencyToPlist(dependencies, plistAccessor, "dependencies:", true);
+    new VersionInfoPListManager().addDependencyToPlist(dependencies, plistAccessorPerforce, "dependencies:", true);
 
-    Assert.assertEquals("depArtifactId", plistAccessor.printValue("dependencies:0:coordinates:artifactId"));
-    Assert.assertEquals("depGroupId", plistAccessor.printValue("dependencies:0:coordinates:groupId"));
-    Assert.assertEquals("depVersion", plistAccessor.printValue("dependencies:0:coordinates:version"));
+    Assert.assertEquals("depArtifactId", plistAccessorPerforce.printValue("dependencies:0:coordinates:artifactId"));
+    Assert.assertEquals("depGroupId", plistAccessorPerforce.printValue("dependencies:0:coordinates:groupId"));
+    Assert.assertEquals("depVersion", plistAccessorPerforce.printValue("dependencies:0:coordinates:version"));
 
     Assert.assertEquals("9999",
           plistAccessorPerforce.printValue("dependencies:0:scm:connection"));
@@ -138,21 +158,21 @@ public class VersionInfoPListManagerTest
     List<Dependency> dependencies = new ArrayList<Dependency>();
     dependencies.add(dep);
 
-    new VersionInfoPListManager().addDependencyToPlist(dependencies, plistAccessor, "dependencies:", true);
+    new VersionInfoPListManager().addDependencyToPlist(dependencies, plistAccessorPerforce, "dependencies:", true);
 
     Assert.assertEquals("transitivDepArtifactId",
-          plistAccessor.printValue("dependencies:0:dependencies:0:coordinates:artifactId"));
+          plistAccessorPerforce.printValue("dependencies:0:dependencies:0:coordinates:artifactId"));
     Assert.assertEquals("transitivDepGroupId",
-          plistAccessor.printValue("dependencies:0:dependencies:0:coordinates:groupId"));
+          plistAccessorPerforce.printValue("dependencies:0:dependencies:0:coordinates:groupId"));
     Assert.assertEquals("transitiveDepVersion",
-          plistAccessor.printValue("dependencies:0:dependencies:0:coordinates:version"));
+          plistAccessorPerforce.printValue("dependencies:0:dependencies:0:coordinates:version"));
 
     Assert.assertEquals("9999",
           plistAccessorPerforce.printValue("dependencies:0:dependencies:0:scm:connection"));
     Assert
-      .assertEquals("transitiveDepRevision", plistAccessor.printValue("dependencies:0:dependencies:0:scm:revision"));
+      .assertEquals("transitiveDepRevision", plistAccessorPerforce.printValue("dependencies:0:dependencies:0:scm:revision"));
 
-    plistAccessor.printValue("dependencies:0:dependencies:1:scm:revision");
+    plistAccessorPerforce.printValue("dependencies:0:dependencies:1:scm:revision");
 
   }
 }

@@ -103,18 +103,13 @@ public class VersionInfoXmlManager
   {
     try {
 
-      final String connectionString = "scm:perforce:"
-            + versionInfo.getProperty("port")
-            + ":"
-            + getDepotPath(versionInfo.getProperty("depotpath"));
-
       final Versions versions = new Versions();
 
       for (final Dependency dep : dependencies)
         versions.addDependency(dep);
 
       final SCM scm = new SCM();
-      scm.setConnection(connectionString);
+      scm.setConnection(ConnectionStringProvider.getConnectionString(versionInfo, false));
       scm.setRevision(versionInfo.getProperty("changelist"));
 
       final Coordinates coordinates = new Coordinates();

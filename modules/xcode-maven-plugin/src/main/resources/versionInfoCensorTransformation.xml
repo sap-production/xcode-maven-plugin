@@ -37,6 +37,20 @@
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
+            <xsl:when test="starts-with(., 'scm:git')">
+              <xsl:param name="fullNodeTextGIT" select="."/>
+              <xsl:param name="withoutSCMGIT" select="substring-after($fullNodeTextGIT, ':' )"/>
+              <xsl:param name="withoutGit" select="substring-after($withoutSCMGIT, ':' )"/>
+              <xsl:param name="withoutSSH" select="substring-after($withoutGit, ':' )"/>
+              <xsl:param name="gitPort" select="substring-after($withoutSSH, ':' )"/>
+              <xsl:choose>"
+                <xsl:when test="string-length($gitPort) = 0">
+                  THE GIT URL DOES NOT MATCH THE EXPECTED FORMAT: ssh://&lt;gitHost&gt;&lt;gitPort&gt;&lt;path&gt;</xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="normalize-space($gitPort)" />
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:when>
             <xsl:otherwise>
               THE SCM OF THAT PROJECT IS NOT SUPPORTED
             </xsl:otherwise>
