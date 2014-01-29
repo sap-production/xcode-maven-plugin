@@ -63,19 +63,28 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
  * 
  * The sync.info file is a property file and must contain the following entries: <code>
  * <ul>
+ *   <li> type=TYPE
  *   <li> port=PORT
  *   <li> depotpath=DEPOT_PATH
  *   <li> changelist=CHANGELIST
  * </ul>
  * </code>
- * 
- * 
- * 
- * PORT entry is the SCM server where the project is located. <br>
- * DEPOT_PATH is the path to the project on the SCM server. For Perforce projects, DEPOT_PATH has
+ *
+ * <ul>
+ *   <li>TYPE git|perforce For git based project the type property must present and contain the value "git". For perforce based projects this property should contain the value "perforce" or this property should not be present.
+ *   <li>PORT for perforce based projects: entry is the SCM server where the project is located (e.g. perforce.example.com:1666). For git based projects the url of the project on a git server (e.g. "git.example.com:29418/MyProject")<br>
+ *   <li>DEPOT_PATH This property is expected for perforce based projects only. The depot path is the path to the project on the SCM server.  DEPOT_PATH has
  * the following format //DEPOT_PATH/... <br>
- * CHANGELIST is the revision synced.
+ *   <li>CHANGELIST For perforce based projects: is the revision synced. For git based projects: the change id synced.
+ * </ul>
  * 
+ * For git based projects the sync.info file can be created with the following code snipped executed before the xcode-maven-plugin is triggered.
+ * 
+ * <pre>
+ * echo "type=git" > sync.info
+ * echo "port=scm:git:$(git remote -v |awk '/fetch/ {print $2;}')" >> sync.info
+ * echo "changelist=$(git rev-parse HEAD)" >> sync.info
+ * </pre>
  * 
  * @goal attach-version-info
  * @requiresDependencyResolution
