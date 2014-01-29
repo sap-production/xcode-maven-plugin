@@ -69,9 +69,9 @@ public class SpecificTargetTest extends XCodeTest
       while ((line = reader.readLine()) != null)
       {
         target1Built |= line
-          .equals("=== BUILD NATIVE TARGET Target1 OF PROJECT MultipleTargets WITH CONFIGURATION Release ===");
+          .matches("=== BUILD.*TARGET Target1 OF PROJECT MultipleTargets WITH CONFIGURATION Release ===");
         target2Built |= line
-          .equals("=== BUILD NATIVE TARGET Target2 OF PROJECT MultipleTargets WITH CONFIGURATION Release ===");
+          .matches("=== BUILD.*TARGET Target2 OF PROJECT MultipleTargets WITH CONFIGURATION Release ===");
       }
       Assert.assertFalse("Target1 must not be built", target1Built);
       Assert.assertTrue("Target2 must be built", target2Built);
