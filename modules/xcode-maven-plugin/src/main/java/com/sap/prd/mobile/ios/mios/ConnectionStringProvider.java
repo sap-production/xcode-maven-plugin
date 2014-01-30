@@ -32,6 +32,7 @@ public class ConnectionStringProvider {
   private static final String PROTOCOL_PREFIX_PERFORCE = "scm:perforce:";
   private static final String PROTOCOL_PREFIX_GIT = "scm:git:";
   private static final int GIT_DEFAULT_SSH_PORT= 29418;
+  private static final int PERFORCE_DEFAULT_PORT = 1666;
 
   public static String getConnectionString(final Properties versionInfo, final boolean hideConfidentialInformation) throws IOException {
     final String type = versionInfo.getProperty("type");
@@ -61,7 +62,12 @@ public class ConnectionStringProvider {
 
       if(hideConfidentialInformation) {
         try {
-          connectionString.append(new URI("perforce://" + port).getPort());
+          
+          int _port = new URI("perforce://" + port).getPort();
+          if(_port == -1) {
+            _port = PERFORCE_DEFAULT_PORT;
+          }
+          connectionString.append(_port);
         }
         catch (URISyntaxException e) {
           throw new IllegalStateException(String.format("Invalid port: %s", port));
