@@ -46,10 +46,12 @@ public class ConnectionStringProvider {
     if (type != null && type.equals("git")) {
       if(hideConfidentialInformation) {
         try {
-          int _port = new URI(port).getPort();
+          URI gitUri = new URI(port);
+          int _port = gitUri.getPort();
           if(_port == -1)
-            _port = GIT_DEFAULT_SSH_PORT; 
+            _port = GIT_DEFAULT_SSH_PORT;
           connectionString.append(_port);
+          connectionString.append(gitUri.getPath());
         }
         catch (URISyntaxException e) {
           throw new IllegalStateException(String.format("Invalid port: %s", port));
@@ -60,21 +62,24 @@ public class ConnectionStringProvider {
 
     } else {
 
+      final String depotPath = versionInfo.getProperty("depotpath");
+
       if(hideConfidentialInformation) {
         try {
+          URI perforceUri = new URI("perforce://" + port);
           
-          int _port = new URI("perforce://" + port).getPort();
+          int _port = perforceUri.getPort();
           if(_port == -1) {
             _port = PERFORCE_DEFAULT_PORT;
           }
           connectionString.append(_port);
+          connectionString.append(depotPath);
         }
         catch (URISyntaxException e) {
           throw new IllegalStateException(String.format("Invalid port: %s", port));
         }
       } else {
 
-        final String depotPath = versionInfo.getProperty("depotpath");
         if(StringUtils.isBlank(depotPath))
           throw new IllegalStateException("No depot path provided.");
 

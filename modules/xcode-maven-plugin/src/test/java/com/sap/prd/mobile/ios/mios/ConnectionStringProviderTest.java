@@ -48,7 +48,7 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("1234", connectionString);
+    Assert.assertEquals("1234//root/TEST_Project/dev/", connectionString);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("29418", connectionString); // git default ssh port.
+    Assert.assertEquals("29418/MyProject", connectionString); // git default ssh port.
   }
 
   
@@ -85,7 +85,7 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("1234", connectionString);
+    Assert.assertEquals("1234/MyProject", connectionString);
   }
   
   @Test(expected=IllegalStateException.class)

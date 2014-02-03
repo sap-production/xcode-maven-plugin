@@ -134,6 +134,8 @@ public class VersionInfoPListManager
       else
       {
         port = parts[3]; //scm:perforce:PERFORCEHOST:4321:PATH
+        if(parts.length > 4)
+          port += parts[4];
       }
       return port;
       
