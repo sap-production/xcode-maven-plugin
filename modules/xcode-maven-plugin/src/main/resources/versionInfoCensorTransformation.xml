@@ -33,7 +33,7 @@
                 <xsl:when test="string-length($perforcePort) = 0">
                   THE PERFORCE URL DOES NOT MATCH THE EXPECTED FORMAT: &lt;perforceHost&gt;&lt;perforcePort&gt;&lt;path&gt;</xsl:when>
                 <xsl:otherwise>
-                  <xsl:value-of select="normalize-space($perforcePort)" />
+                  <xsl:value-of select="normalize-space($portAndPath)" />
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:when>

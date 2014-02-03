@@ -72,7 +72,7 @@ public class VersionInfoPListManagerTest
     Assert.assertEquals(ARTIFACT_ID, plistAccessorPerforce.printValue("coordinates:artifactId"));
     Assert.assertEquals("1.0.0", plistAccessorPerforce.printValue("coordinates:version"));
 
-    Assert.assertEquals("9876", plistAccessorPerforce.printValue("scm:connection"));
+    Assert.assertEquals("9876//MY_DEPOT_PATH/...", plistAccessorPerforce.printValue("scm:connection"));
     Assert.assertEquals("1234", plistAccessorPerforce.printValue("scm:revision"));
   }
 
@@ -84,7 +84,7 @@ public class VersionInfoPListManagerTest
     Assert.assertEquals(ARTIFACT_ID, plistAccessorGit.printValue("coordinates:artifactId"));
     Assert.assertEquals("1.0.0", plistAccessorGit.printValue("coordinates:version"));
 
-    Assert.assertEquals("39418", plistAccessorGit.printValue("scm:connection"));
+    Assert.assertEquals("39418/MyProject", plistAccessorGit.printValue("scm:connection"));
     Assert.assertEquals("438d67367a438d67367a438d67367a438d67367a", plistAccessorGit.printValue("scm:revision"));
   }
 
@@ -119,7 +119,7 @@ public class VersionInfoPListManagerTest
     Assert.assertEquals("depGroupId", plistAccessorPerforce.printValue("dependencies:0:coordinates:groupId"));
     Assert.assertEquals("depVersion", plistAccessorPerforce.printValue("dependencies:0:coordinates:version"));
 
-    Assert.assertEquals("9999",
+    Assert.assertEquals("9999//DEP_DEPOT_PATH/",
           plistAccessorPerforce.printValue("dependencies:0:scm:connection"));
     Assert.assertEquals("depRevision", plistAccessorPerforce.printValue("dependencies:0:scm:revision"));
 
@@ -167,7 +167,7 @@ public class VersionInfoPListManagerTest
     Assert.assertEquals("transitiveDepVersion",
           plistAccessorPerforce.printValue("dependencies:0:dependencies:0:coordinates:version"));
 
-    Assert.assertEquals("9999",
+    Assert.assertEquals("9999//TRANS_DEP_DEPOT_PATH/",
           plistAccessorPerforce.printValue("dependencies:0:dependencies:0:scm:connection"));
     Assert
       .assertEquals("transitiveDepRevision", plistAccessorPerforce.printValue("dependencies:0:dependencies:0:scm:revision"));

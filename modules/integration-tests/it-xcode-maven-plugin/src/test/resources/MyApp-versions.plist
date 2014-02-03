@@ -27,7 +27,7 @@
 			<key>scm</key>
 			<dict>
 				<key>connection</key>
-				<string>5555</string>
+				<string>5555//MY_DEPOT_PATH/</string>
 				<key>revision</key>
 				<string>4711</string>
 			</dict>
@@ -36,7 +36,7 @@
 	<key>scm</key>
 	<dict>
 		<key>connection</key>
-		<string>4444</string>
+		<string>4444//MY_DEPOT_PATH/</string>
 		<key>revision</key>
 		<string>1234</string>
 	</dict>

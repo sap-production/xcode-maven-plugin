@@ -48,7 +48,7 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("1234", connectionString);
+    Assert.assertEquals("1234//root/TEST_Project/dev/", connectionString);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("29418", connectionString); // git default ssh port.
+    Assert.assertEquals("29418/MyProject", connectionString); // git default ssh port.
   }
 
   
@@ -85,7 +85,7 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("1234", connectionString);
+    Assert.assertEquals("1234/MyProject", connectionString);
   }
 
   @Test
@@ -97,7 +97,7 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("29418", connectionString);
+    Assert.assertEquals("29418/MyProject", connectionString);
   }
 
   @Test
@@ -109,7 +109,7 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("80", connectionString);
+    Assert.assertEquals("80/MyProject", connectionString);
   }
 
   @Test
@@ -121,7 +121,7 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("443", connectionString);
+    Assert.assertEquals("443/MyProject", connectionString);
   }
 
   @Test
@@ -133,11 +133,24 @@ public class ConnectionStringProviderTest
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
-    Assert.assertEquals("9418", connectionString);
+    Assert.assertEquals("9418/MyProject", connectionString);
   }
 
   @Test
   public void testGitHideConfidentialInformationWithoutPortAndWithoutProtocol() throws Exception {
+    
+    Properties versionInfo = new Properties();
+    versionInfo.setProperty("type", "git");
+    versionInfo.setProperty("port", "//scm.example.com/MyProject");
+    
+    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    
+    Assert.assertEquals("-1/MyProject", connectionString);
+  }
+
+  
+  @Test
+  public void testGitHideConfidentialInformationWithoutHostAndPortAndWithoutProtocol() throws Exception {
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");

@@ -67,6 +67,11 @@ public class ConnectionStringProvider {
             }
           }
           connectionString.append(_port);
+
+          if(uri.getHost() != null)
+          {
+            connectionString.append(uri.getPath());
+          }
         }
         catch (URISyntaxException e) {
           throw new IllegalStateException(String.format("Invalid port: %s", port));
@@ -77,21 +82,24 @@ public class ConnectionStringProvider {
 
     } else {
 
+      final String depotPath = versionInfo.getProperty("depotpath");
+
       if(hideConfidentialInformation) {
         try {
+          URI perforceUri = new URI("perforce://" + port);
           
-          int _port = new URI("perforce://" + port).getPort();
+          int _port = perforceUri.getPort();
           if(_port == -1) {
             _port = PERFORCE_DEFAULT_PORT;
           }
           connectionString.append(_port);
+          connectionString.append(depotPath);
         }
         catch (URISyntaxException e) {
           throw new IllegalStateException(String.format("Invalid port: %s", port));
         }
       } else {
 
-        final String depotPath = versionInfo.getProperty("depotpath");
         if(StringUtils.isBlank(depotPath))
           throw new IllegalStateException("No depot path provided.");
 
