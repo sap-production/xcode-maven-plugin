@@ -45,7 +45,7 @@ public class VersionInfoManagerTest
     Assert.assertEquals("MyApp", dependency.getCoordinates().getArtifactId());
     Assert.assertEquals("1.0.0", dependency.getCoordinates().getVersion());
 
-    Assert.assertEquals("scm:perforce:PERFORCE_HOST:PORT://MY_DEPOT_PATH", dependency.getScm().getConnection());
+    Assert.assertEquals("scm:perforce:PERFORCEHOST:9999://MY_DEPOT_PATH", dependency.getScm().getConnection());
     Assert.assertEquals("4711", dependency.getScm().getRevision());
     // To be continued
 
@@ -116,5 +116,16 @@ public class VersionInfoManagerTest
       IOUtils.closeQuietly(os);
     }
   }
+  
+  @Test
+  public void testCreateVersionInfoStringGit() throws Exception {
+    final ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
+    try {
+      new VersionInfoXmlManager().createVersionInfoFile("my.group.id", "my.artifact.id", "1.0.0", new File("src/test/resources/git-sync.info"), new ArrayList<Dependency>(), byteOs);
+    } finally {
+      byteOs.close();    
+    }
+    Assert.assertEquals(IOUtil.toString(new FileInputStream("src/test/resources/git-sync.info.expected")), new String(byteOs.toByteArray()));
+  };
 
 }
