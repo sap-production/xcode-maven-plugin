@@ -119,7 +119,7 @@ public class VersionInfoPListManager
     }
   }
 
-  private String getScmPort(Dependency dep, boolean hideConfidentialInformation)
+  static String getScmPort(Dependency dep, boolean hideConfidentialInformation)
   {
     if (!hideConfidentialInformation) {
       return dep.getScm().getConnection();
@@ -129,13 +129,29 @@ public class VersionInfoPListManager
       String port;
       if (parts.length == 1)
       {
-        port = parts[0];
+        port = parts[0]; // the connection string in the dependency hides already the confidential information.
       }
       else
       {
-        port = parts[3]; //scm:perforce:PERFORCEHOST:4321:PATH
-        if(parts.length > 4)
-          port += parts[4];
+        int index;
+        
+        if(!parts[0].equals("scm"))
+          throw new IllegalStateException(String.format("Invalid connection string: '%s'.", dep.getScm().getConnection()));
+        
+        if(parts[1].equals("perforce")) {
+          index = 3; //scm:perforce:PERFORCEHOST:4321:PATH
+        } else if(parts[1].equals("git")) {
+          index = 4; //scm:git:ssh://user@host:port/path
+        } else {
+          throw new IllegalStateException(String.format("Invalid scm type (%s) found in connection string (%s).", parts[1], dep.getScm().getConnection()));
+        }
+
+        port = parts[index];
+        if(parts.length > index + 1) {
+//          port += ":";
+          port += parts[index + 1];
+        }
+
       }
       return port;
       

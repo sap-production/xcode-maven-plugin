@@ -175,4 +175,51 @@ public class VersionInfoPListManagerTest
     plistAccessorPerforce.printValue("dependencies:0:dependencies:1:scm:revision");
 
   }
+  
+  @Test 
+  public void testScmPortForGitHideConfidentialInformation() {
+    
+    SCM scm = new SCM();
+
+    scm.setConnection("scm:git:ssh://user@git.example.com:29418/MyProject");
+    Dependency dependency = new Dependency();
+    dependency.setScm(scm);
+    String port = VersionInfoPListManager.getScmPort(dependency, true);
+    Assert.assertEquals("29418/MyProject", port);
+  }
+
+  @Test 
+  public void testScmPortForPerforceHideConfidentialInformation() {
+    SCM scm = new SCM();
+
+    scm.setConnection("scm:perforce:p4.example.com:1666://MyProject");
+    Dependency dependency = new Dependency();
+    dependency.setScm(scm);
+    String port = VersionInfoPListManager.getScmPort(dependency, true);
+    Assert.assertEquals("1666//MyProject", port);
+  }
+  
+  @Test 
+  public void testScmPortForGitShowConfidentialInformation() {
+    
+    SCM scm = new SCM();
+
+    scm.setConnection("scm:git:ssh://user@git.example.com:29418/MyProject");
+    Dependency dependency = new Dependency();
+    dependency.setScm(scm);
+    String port = VersionInfoPListManager.getScmPort(dependency, false);
+    Assert.assertEquals("scm:git:ssh://user@git.example.com:29418/MyProject", port);
+  }
+
+  @Test 
+  public void testScmPortForPerforceShowConfidentialInformation() {
+    SCM scm = new SCM();
+
+    scm.setConnection("scm:perforce:p4.example.com:1666://MyProject");
+    Dependency dependency = new Dependency();
+    dependency.setScm(scm);
+    String port = VersionInfoPListManager.getScmPort(dependency, false);
+    Assert.assertEquals("scm:perforce:p4.example.com:1666://MyProject", port);
+  }
+
 }
