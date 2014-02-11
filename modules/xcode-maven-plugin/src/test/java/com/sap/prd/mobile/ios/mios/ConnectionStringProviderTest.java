@@ -87,6 +87,67 @@ public class ConnectionStringProviderTest
     
     Assert.assertEquals("1234", connectionString);
   }
+
+  @Test
+  public void testGitHideConfidentialInformationWithoutPortProtocolSSH() throws Exception {
+    
+    Properties versionInfo = new Properties();
+    versionInfo.setProperty("type", "git");
+    versionInfo.setProperty("port", "ssh://scm.example.com/MyProject");
+    
+    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    
+    Assert.assertEquals("29418", connectionString);
+  }
+
+  @Test
+  public void testGitHideConfidentialInformationWithoutPortProtocolHTTP() throws Exception {
+    
+    Properties versionInfo = new Properties();
+    versionInfo.setProperty("type", "git");
+    versionInfo.setProperty("port", "http://scm.example.com/MyProject");
+    
+    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    
+    Assert.assertEquals("80", connectionString);
+  }
+
+  @Test
+  public void testGitHideConfidentialInformationWithoutPortProtocolHTTPS() throws Exception {
+    
+    Properties versionInfo = new Properties();
+    versionInfo.setProperty("type", "git");
+    versionInfo.setProperty("port", "https://scm.example.com/MyProject");
+    
+    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    
+    Assert.assertEquals("443", connectionString);
+  }
+
+  @Test
+  public void testGitHideConfidentialInformationWithoutPortProtocolGIT() throws Exception {
+    
+    Properties versionInfo = new Properties();
+    versionInfo.setProperty("type", "git");
+    versionInfo.setProperty("port", "git://scm.example.com/MyProject");
+    
+    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    
+    Assert.assertEquals("9418", connectionString);
+  }
+
+  @Test
+  public void testGitHideConfidentialInformationWithoutPortAndWithoutProtocol() throws Exception {
+    
+    Properties versionInfo = new Properties();
+    versionInfo.setProperty("type", "git");
+    versionInfo.setProperty("port", "scm.example.com/MyProject");
+    
+    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    
+    Assert.assertEquals("-1", connectionString);
+  }
+
   
   @Test(expected=IllegalStateException.class)
   public void testPerforceNoPort() throws Exception {

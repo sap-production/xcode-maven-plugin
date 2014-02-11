@@ -22,6 +22,8 @@ package com.sap.prd.mobile.ios.mios;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -31,7 +33,15 @@ public class ConnectionStringProvider {
   private static final String THREEDOTS = "...";
   private static final String PROTOCOL_PREFIX_PERFORCE = "scm:perforce:";
   private static final String PROTOCOL_PREFIX_GIT = "scm:git:";
-  private static final int GIT_DEFAULT_SSH_PORT= 29418;
+  
+  private final static Map<String, Integer> gitDefaultPorts = new HashMap<String, Integer>();
+  
+  static {
+    gitDefaultPorts.put("ssh", 29418);
+    gitDefaultPorts.put("http", 80);
+    gitDefaultPorts.put("https", 443);
+    gitDefaultPorts.put("git", 9418);
+  }
 
   public static String getConnectionString(final Properties versionInfo, final boolean hideConfidentialInformation) throws IOException {
     final String type = versionInfo.getProperty("type");
@@ -45,9 +55,16 @@ public class ConnectionStringProvider {
     if (type != null && type.equals("git")) {
       if(hideConfidentialInformation) {
         try {
-          int _port = new URI(port).getPort();
-          if(_port == -1)
-            _port = GIT_DEFAULT_SSH_PORT; 
+          URI uri = new URI(port);
+          int _port = uri.getPort();
+          if(_port == -1) 
+          {
+            final String scheme = uri.getScheme();
+            if(scheme != null && gitDefaultPorts.containsKey(scheme))
+            {
+              _port = gitDefaultPorts.get(scheme);
+            }
+          }
           connectionString.append(_port);
         }
         catch (URISyntaxException e) {
