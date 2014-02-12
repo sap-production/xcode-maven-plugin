@@ -61,29 +61,33 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
  * all its dependencies. Expects a sync.info file in the root folder of the project as input.
  * 
  * 
- * The sync.info file is a property file and must contain the following entries: <code>
+ * The sync.info file is a property file. If used with perforce it must contain the following entries: 
+ * <code>
  * <ul>
- *   <li> type=TYPE
- *   <li> port=PORT
- *   <li> depotpath=DEPOT_PATH
- *   <li> changelist=CHANGELIST
+ *   <li> type=perforce
+ *   <li> port=&lt;The url of the perforce server&gt;
+ *   <li> depotpath=&lt;The path synced on the perforce server&gt;
+ *   <li> changelist=&lt;The changelist of the change that is being built&gt
  * </ul>
  * </code>
  *
+ * 
+ * If used with git it must contain the following entries:
+ * 
+ * <code>
  * <ul>
- *   <li>TYPE git|perforce For git based project the type property must present and contain the value "git". For perforce based projects this property should contain the value "perforce" or this property should not be present.
- *   <li>PORT for perforce based projects: entry is the SCM server where the project is located (e.g. perforce.example.com:1666). For git based projects the url of the project on a git server (e.g. "git.example.com:29418/MyProject")<br>
- *   <li>DEPOT_PATH This property is expected for perforce based projects only. The depot path is the path to the project on the SCM server.  DEPOT_PATH has
- * the following format //DEPOT_PATH/... <br>
- *   <li>CHANGELIST For perforce based projects: is the revision synced. For git based projects: the change id synced.
+ *   <li> type=git
+ *   <li> repo=&lt;The git repository&gt;
+ *   <li> commitId=&lt;The commitId of the change that is being built&gt;
  * </ul>
+ * </code>
  * 
  * For git based projects the sync.info file can be created with the following code snipped executed before the xcode-maven-plugin is triggered.
  * 
  * <pre>
  * echo "type=git" > sync.info
- * echo "port=scm:git:$(git remote -v |awk '/fetch/ {print $2;}')" >> sync.info
- * echo "changelist=$(git rev-parse HEAD)" >> sync.info
+ * echo "repo=scm:git:$(git remote -v |awk '/fetch/ {print $2;}')" >> sync.info
+ * echo "commitId=$(git rev-parse HEAD)" >> sync.info
  * </pre>
  * 
  * @goal attach-version-info
