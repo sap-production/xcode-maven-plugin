@@ -19,12 +19,13 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ConnectionStringProviderTest
+public class SCMUtilTest
 {
 
   @Test
@@ -34,7 +35,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("port", "scm.example.com:1234");
     versionInfo.setProperty("depotpath", "//root/TEST_Project/dev/");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, false);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, false);
     
     Assert.assertEquals("scm:perforce:scm.example.com:1234://root/TEST_Project/dev/", connectionString);
   }
@@ -46,7 +47,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("port", "scm.example.com:1234");
     versionInfo.setProperty("depotpath", "//root/TEST_Project/dev/");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, true);
     
     Assert.assertEquals("1234//root/TEST_Project/dev/", connectionString);
   }
@@ -58,7 +59,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("type", "git");
     versionInfo.setProperty("repo", "ssh://scm.example.com:1234/MyProject");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, false);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, false);
     
     Assert.assertEquals("scm:git:ssh://scm.example.com:1234/MyProject", connectionString);
   }
@@ -70,7 +71,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("type", "git");
     versionInfo.setProperty("repo", "ssh://scm.example.com/MyProject");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, true);
     
     Assert.assertEquals("29418/MyProject", connectionString); // git default ssh port.
   }
@@ -83,7 +84,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("type", "git");
     versionInfo.setProperty("repo", "ssh://scm.example.com:1234/MyProject");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, true);
     
     Assert.assertEquals("1234/MyProject", connectionString);
   }
@@ -95,7 +96,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("type", "git");
     versionInfo.setProperty("repo", "ssh://scm.example.com/MyProject");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, true);
     
     Assert.assertEquals("29418/MyProject", connectionString);
   }
@@ -107,7 +108,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("type", "git");
     versionInfo.setProperty("repo", "http://scm.example.com/MyProject");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, true);
     
     Assert.assertEquals("80/MyProject", connectionString);
   }
@@ -119,7 +120,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("type", "git");
     versionInfo.setProperty("repo", "https://scm.example.com/MyProject");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, true);
     
     Assert.assertEquals("443/MyProject", connectionString);
   }
@@ -131,7 +132,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("type", "git");
     versionInfo.setProperty("repo", "git://scm.example.com/MyProject");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, true);
     
     Assert.assertEquals("9418/MyProject", connectionString);
   }
@@ -143,7 +144,7 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("type", "git");
     versionInfo.setProperty("repo", "//scm.example.com/MyProject");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, true);
     
     Assert.assertEquals("-1/MyProject", connectionString);
   }
@@ -156,23 +157,22 @@ public class ConnectionStringProviderTest
     versionInfo.setProperty("type", "git");
     versionInfo.setProperty("repo", "scm.example.com/MyProject");
     
-    String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
+    String connectionString = SCMUtil.getConnectionString(versionInfo, true);
     
     Assert.assertEquals("-1", connectionString);
   }
 
-  
   @Test(expected=IllegalStateException.class)
   public void testPerforceNoPort() throws Exception {
     Properties versionInfo = new Properties();
-    ConnectionStringProvider.getConnectionString(versionInfo, true);    
+    SCMUtil.getConnectionString(versionInfo, true);    
   }
   
   @Test(expected=IllegalStateException.class)
   public void testGitNoPort() throws Exception {
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git"); 
-    ConnectionStringProvider.getConnectionString(versionInfo, true);    
+    SCMUtil.getConnectionString(versionInfo, true);    
   }
   
   @Test(expected=IllegalStateException.class)
@@ -180,7 +180,18 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("port", "scm.example.com:1234");    
-    ConnectionStringProvider.getConnectionString(versionInfo, false);
+    SCMUtil.getConnectionString(versionInfo, false);
+  }
+
+  @Test(expected=IllegalStateException.class)
+  public void testGitMultipleRepositories() throws Exception {
+
+    Properties versionInfo = new Properties();
+    versionInfo.setProperty("type", "git");
+    versionInfo.setProperty("repo_1", "scm.example1.com:1234");    
+    versionInfo.setProperty("repo_2", "scm.example2.com:1234");    
+    
+    SCMUtil.getConnectionString(versionInfo, false);
   }
   
 }

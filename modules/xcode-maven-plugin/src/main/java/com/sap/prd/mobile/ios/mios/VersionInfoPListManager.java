@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
@@ -70,8 +71,8 @@ public class VersionInfoPListManager
   {
     try {
 
-      final String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, hideConfidentialInformation);
-      
+      final String connectionString = SCMUtil.getConnectionString(versionInfo, hideConfidentialInformation);
+      final String revision = SCMUtil.getRevision(versionInfo);
       PListAccessor plistAccessor = new PListAccessor(file);
       plistAccessor.createPlist();
 
@@ -82,8 +83,7 @@ public class VersionInfoPListManager
 
       plistAccessor.addElement("scm", "dict");
       plistAccessor.addStringValueToDict("connection", connectionString, "scm");
-      plistAccessor.addStringValueToDict("revision", versionInfo.getProperty("changelist"), "scm");
-
+      plistAccessor.addStringValueToDict("revision", revision, "scm");
       addDependencyToPlist(dependencies, plistAccessor, "dependencies:", hideConfidentialInformation);
 
     }

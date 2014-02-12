@@ -109,8 +109,8 @@ public class VersionInfoXmlManager
         versions.addDependency(dep);
 
       final SCM scm = new SCM();
-      scm.setConnection(ConnectionStringProvider.getConnectionString(versionInfo, false));
-      scm.setRevision(versionInfo.getProperty("changelist"));
+      scm.setConnection(SCMUtil.getConnectionString(versionInfo, false));
+      scm.setRevision(SCMUtil.getRevision(versionInfo));
 
       final Coordinates coordinates = new Coordinates();
       coordinates.setGroupId(groupId);

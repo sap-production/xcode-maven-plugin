@@ -28,7 +28,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
-public class ConnectionStringProvider {
+public class SCMUtil {
 
   private static final String THREEDOTS = "...";
   private static final String PROTOCOL_PREFIX_PERFORCE = "scm:perforce:";
@@ -56,7 +56,11 @@ public class ConnectionStringProvider {
 
       if(StringUtils.isBlank(repo))
       {
-        throw new IllegalStateException("No SCM repository provided. ");
+        if(! StringUtils.isBlank(versionInfo.getProperty("repo_1")))
+        {
+          throw new IllegalStateException("Multipe git repositories provided. This use case is not supported. Provide only one git repository."); 
+        }
+        throw new IllegalStateException("No git repository provided. ");
       }
 
       if(hideConfidentialInformation) {
@@ -120,6 +124,28 @@ public class ConnectionStringProvider {
     }
 
     return connectionString.toString();
+  }
+  
+  public static String getRevision(final Properties versionInfo) {
+
+    final String type = versionInfo.getProperty("type");
+    final String key;
+    
+    if(type != null && type.equals("git"))
+    {
+      key = "commitId";
+    } else {
+      key = "changelist";
+    }
+    
+    final String value = versionInfo.getProperty(key);
+    
+    if(StringUtils.isBlank(value)) 
+    {
+      throw new IllegalStateException(String.format("%s has not been provided in sync.info file.", key));
+    }
+    
+    return value;
   }
 
   private static String getDepotPath(String fullDepotPath)
