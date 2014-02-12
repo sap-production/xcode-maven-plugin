@@ -125,7 +125,7 @@ public class VersionInfoManagerTest
     } finally {
       byteOs.close();    
     }
-    Assert.assertEquals(IOUtil.toString(new FileInputStream("src/test/resources/git-sync.info.expected")), new String(byteOs.toByteArray()));
+    Assert.assertEquals(IOUtil.toString(new FileInputStream("src/test/resources/git-versions.xml.expected")), new String(byteOs.toByteArray()));
   };
 
 }
