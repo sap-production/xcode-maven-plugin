@@ -45,28 +45,33 @@ public class ConnectionStringProvider {
   private static final int PERFORCE_DEFAULT_PORT = 1666;
 
   public static String getConnectionString(final Properties versionInfo, final boolean hideConfidentialInformation) throws IOException {
+
     final String type = versionInfo.getProperty("type");
 
     final StringBuilder connectionString = new StringBuilder(128);
 
-    final String port = versionInfo.getProperty("port");
-    if(StringUtils.isBlank(port))
-      throw new IllegalStateException("No SCM port provided.");
-
     if (type != null && type.equals("git")) {
+
+      final String repo = versionInfo.getProperty("repo");
+
+      if(StringUtils.isBlank(repo))
+      {
+        throw new IllegalStateException("No SCM repository provided. ");
+      }
+
       if(hideConfidentialInformation) {
         try {
-          URI uri = new URI(port);
-          int _port = uri.getPort();
-          if(_port == -1) 
+          URI uri = new URI(repo);
+          int port = uri.getPort();
+          if(port == -1) 
           {
             final String scheme = uri.getScheme();
             if(scheme != null && gitDefaultPorts.containsKey(scheme))
             {
-              _port = gitDefaultPorts.get(scheme);
+              port = gitDefaultPorts.get(scheme);
             }
           }
-          connectionString.append(_port);
+          connectionString.append(port);
 
           if(uri.getHost() != null)
           {
@@ -74,14 +79,19 @@ public class ConnectionStringProvider {
           }
         }
         catch (URISyntaxException e) {
-          throw new IllegalStateException(String.format("Invalid port: %s", port));
+          throw new IllegalStateException(String.format("Invalid repository uri: %s", repo));
         }
       } else {
-        connectionString.append(PROTOCOL_PREFIX_GIT).append(versionInfo.getProperty("port"));
+        connectionString.append(PROTOCOL_PREFIX_GIT).append(repo);
       }
 
     } else {
 
+      final String port = versionInfo.getProperty("port");
+
+      if(StringUtils.isBlank(port))
+        throw new IllegalStateException("No SCM port provided.");
+            
       final String depotPath = versionInfo.getProperty("depotpath");
 
       if(hideConfidentialInformation) {

@@ -56,7 +56,7 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");
-    versionInfo.setProperty("port", "ssh://scm.example.com:1234/MyProject");
+    versionInfo.setProperty("repo", "ssh://scm.example.com:1234/MyProject");
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, false);
     
@@ -68,7 +68,7 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");
-    versionInfo.setProperty("port", "ssh://scm.example.com/MyProject");
+    versionInfo.setProperty("repo", "ssh://scm.example.com/MyProject");
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
@@ -81,7 +81,7 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");
-    versionInfo.setProperty("port", "ssh://scm.example.com:1234/MyProject");
+    versionInfo.setProperty("repo", "ssh://scm.example.com:1234/MyProject");
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
@@ -93,7 +93,7 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");
-    versionInfo.setProperty("port", "ssh://scm.example.com/MyProject");
+    versionInfo.setProperty("repo", "ssh://scm.example.com/MyProject");
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
@@ -105,7 +105,7 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");
-    versionInfo.setProperty("port", "http://scm.example.com/MyProject");
+    versionInfo.setProperty("repo", "http://scm.example.com/MyProject");
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
@@ -117,7 +117,7 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");
-    versionInfo.setProperty("port", "https://scm.example.com/MyProject");
+    versionInfo.setProperty("repo", "https://scm.example.com/MyProject");
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
@@ -129,7 +129,7 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");
-    versionInfo.setProperty("port", "git://scm.example.com/MyProject");
+    versionInfo.setProperty("repo", "git://scm.example.com/MyProject");
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
@@ -141,7 +141,7 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");
-    versionInfo.setProperty("port", "//scm.example.com/MyProject");
+    versionInfo.setProperty("repo", "//scm.example.com/MyProject");
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
@@ -154,7 +154,7 @@ public class ConnectionStringProviderTest
     
     Properties versionInfo = new Properties();
     versionInfo.setProperty("type", "git");
-    versionInfo.setProperty("port", "scm.example.com/MyProject");
+    versionInfo.setProperty("repo", "scm.example.com/MyProject");
     
     String connectionString = ConnectionStringProvider.getConnectionString(versionInfo, true);
     
