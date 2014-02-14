@@ -10,6 +10,20 @@ Release Notes
 
 ===
 
+* 1.14.0
+
+** Features
+
+*** Git support for versions.xml
+
+   When scm releated information is provided to the plugin (for details see {{{./attach-version-info-mojo.html} here}}) a file containing
+   this information will be attached as side artifact and the corresponding information is also contained in applications (ipa files).
+   Up to now only perforce was supported as scm. With this release also git is supported.
+
+*** Bug fixes
+
+   <No bug fixes>
+
 * 1.13.0
 
 ** Features
