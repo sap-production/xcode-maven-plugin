@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>FileUtils.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">FileUtils.java</span></div><h1>FileUtils.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.UnArchiver;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+
+<span class="nc" id="L39">public class FileUtils</span>
+{
+
+  private final static String DOT = &quot;.&quot;;
+
+  public static void mkdirs(final File f) throws IOException
+  {
+<span class="pc bpc" id="L46" title="2 of 4 branches missed.">    if(f.exists() &amp;&amp; !f.isDirectory())</span>
+<span class="nc" id="L47">      throw new IOException(String.format(&quot;'%s' does already exist but is not a directory.&quot;, f));</span>
+
+<span class="pc bpc" id="L49" title="3 of 4 branches missed.">    if (!f.exists() &amp;&amp; !f.mkdirs())</span>
+<span class="nc" id="L50">      throw new IOException(&quot;Could not create folder '&quot; + f + &quot;'.&quot;);</span>
+<span class="fc" id="L51">  }</span>
+
+  public static void deleteDirectory(final File directory) throws IOException
+  {
+<span class="fc" id="L55">    org.codehaus.plexus.util.FileUtils.deleteDirectory(directory);</span>
+<span class="fc" id="L56">  }</span>
+
+  /**
+   * 
+   * @param parent
+   *          The parent directory
+   * @param child
+   *          The child direcory
+   * @return the part of the path that represents the delta between &lt;code&gt;parent&lt;/code&gt; and
+   *         &lt;code&gt;child&lt;/code&gt;.
+   * @throws IllegalStateExcpetion
+   *           in case &lt;code&gt;child&lt;/code&gt; is not a child of &lt;code&gt;parent&lt;/code&gt;.
+   */
+  public static String getDelta(File parent, File child)
+  {
+
+<span class="fc" id="L72">    final List&lt;String&gt; _parent = split(parent.getAbsoluteFile());</span>
+<span class="fc" id="L73">    final List&lt;String&gt; _child = split(child.getAbsoluteFile());</span>
+
+<span class="fc bfc" id="L75" title="All 2 branches covered.">    if (!isChild(_parent, _child))</span>
+<span class="fc" id="L76">      throw new IllegalStateException(&quot;Child directory '&quot; + child + &quot;' is not a child of the base directory '&quot;</span>
+            + parent + &quot;'.&quot;);
+
+<span class="fc" id="L79">    StringBuilder path = new StringBuilder();</span>
+
+<span class="fc" id="L81">    int index = getNumberOfCommonElements(_parent, _child);</span>
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">    for (int size = _child.size(); index &lt; size; index++) {</span>
+
+<span class="fc bfc" id="L85" title="All 2 branches covered.">      if (path.length() != 0)</span>
+<span class="fc" id="L86">        path.append(File.separator);</span>
+<span class="fc" id="L87">      path.append(_child.get(index));</span>
+    }
+
+<span class="fc" id="L90">    return path.toString();</span>
+  }
+
+  private static int getNumberOfCommonElements(List&lt;String&gt; _parent, List&lt;String&gt; _child)
+  {
+<span class="fc" id="L95">    int index = 0;</span>
+
+<span class="fc bfc" id="L97" title="All 2 branches covered.">    for (int size = Math.min(_parent.size(), _child.size()); index &lt; size; index++)</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">      if (!_parent.get(index).equals(_child.get(index)))</span>
+<span class="nc" id="L99">        break;</span>
+
+<span class="fc" id="L101">    return index;</span>
+  }
+
+  private static List&lt;String&gt; split(File dir)
+  {
+
+<span class="fc" id="L107">    List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+
+    do {
+
+<span class="fc" id="L111">      result.add(dir.getName());</span>
+<span class="fc" id="L112">      dir = dir.getParentFile();</span>
+
+<span class="fc bfc" id="L114" title="All 2 branches covered.">    } while (dir != null);</span>
+
+<span class="fc" id="L116">    Collections.reverse(result);</span>
+
+<span class="fc" id="L118">    return result;</span>
+
+  }
+
+  /**
+   * Get the relative path from one file to another, specifying the directory separator. If one of
+   * the provided resources does not exist, it is assumed to be a file unless it ends with '/' or
+   * '\'.
+   * 
+   * Copied from http://stackoverflow.com/a/3054692/933106.
+   * 
+   * @param target
+   *          targetPath is calculated to this file
+   * @param base
+   *          basePath is calculated from this file
+   * @param separator
+   *          directory separator. The platform default is not assumed so that we can test Unix
+   *          behaviour when running on Windows (for example)
+   * @return
+   */
+  public static String getRelativePath(String targetPath, String basePath, String pathSeparator)
+  {
+
+    // Normalize the paths
+<span class="nc" id="L142">    String normalizedTargetPath = FilenameUtils.normalizeNoEndSeparator(targetPath);</span>
+<span class="nc" id="L143">    String normalizedBasePath = FilenameUtils.normalizeNoEndSeparator(basePath);</span>
+
+    // Undo the changes to the separators made by normalization
+<span class="nc bnc" id="L146" title="All 2 branches missed.">    if (pathSeparator.equals(&quot;/&quot;)) {</span>
+<span class="nc" id="L147">      normalizedTargetPath = FilenameUtils.separatorsToUnix(normalizedTargetPath);</span>
+<span class="nc" id="L148">      normalizedBasePath = FilenameUtils.separatorsToUnix(normalizedBasePath);</span>
+
+    }
+<span class="nc bnc" id="L151" title="All 2 branches missed.">    else if (pathSeparator.equals(&quot;\\&quot;)) {</span>
+<span class="nc" id="L152">      normalizedTargetPath = FilenameUtils.separatorsToWindows(normalizedTargetPath);</span>
+<span class="nc" id="L153">      normalizedBasePath = FilenameUtils.separatorsToWindows(normalizedBasePath);</span>
+
+    }
+    else {
+<span class="nc" id="L157">      throw new IllegalArgumentException(&quot;Unrecognised dir separator '&quot; + pathSeparator + &quot;'&quot;);</span>
+    }
+
+<span class="nc" id="L160">    String[] base = normalizedBasePath.split(Pattern.quote(pathSeparator));</span>
+<span class="nc" id="L161">    String[] target = normalizedTargetPath.split(Pattern.quote(pathSeparator));</span>
+
+    // First get all the common elements. Store them as a string,
+    // and also count how many of them there are.
+<span class="nc" id="L165">    StringBuilder common = new StringBuilder();</span>
+
+<span class="nc" id="L167">    int commonIndex = 0;</span>
+    while (commonIndex &lt; target.length &amp;&amp; commonIndex &lt; base.length
+<span class="nc bnc" id="L169" title="All 6 branches missed.">          &amp;&amp; target[commonIndex].equals(base[commonIndex])) {</span>
+<span class="nc" id="L170">      common.append(target[commonIndex] + pathSeparator);</span>
+<span class="nc" id="L171">      commonIndex++;</span>
+    }
+
+<span class="nc bnc" id="L174" title="All 2 branches missed.">    if (commonIndex == 0) {</span>
+      // No single common path element. This most
+      // likely indicates differing drive letters, like C: and D:.
+      // These paths cannot be relativized.
+<span class="nc" id="L178">      throw new PathResolutionException(&quot;No common path element found for '&quot; + normalizedTargetPath + &quot;' and '&quot;</span>
+            + normalizedBasePath
+            + &quot;'&quot;);
+    }
+
+    // The number of directories we have to backtrack depends on whether the base is a file or a dir
+    // For example, the relative path from
+    //
+    // /foo/bar/baz/gg/ff to /foo/bar/baz
+    // 
+    // &quot;..&quot; if ff is a file
+    // &quot;../..&quot; if ff is a directory
+    //
+    // The following is a heuristic to figure out if the base refers to a file or dir. It's not perfect, because
+    // the resource referred to by this path may not actually exist, but it's the best I can do
+<span class="nc" id="L193">    boolean baseIsFile = true;</span>
+
+<span class="nc" id="L195">    File baseResource = new File(normalizedBasePath);</span>
+
+<span class="nc bnc" id="L197" title="All 2 branches missed.">    if (baseResource.exists()) {</span>
+<span class="nc" id="L198">      baseIsFile = baseResource.isFile();</span>
+
+    }
+<span class="nc bnc" id="L201" title="All 2 branches missed.">    else if (basePath.endsWith(pathSeparator)) {</span>
+<span class="nc" id="L202">      baseIsFile = false;</span>
+    }
+
+<span class="nc" id="L205">    StringBuilder relative = new StringBuilder();</span>
+
+<span class="nc bnc" id="L207" title="All 2 branches missed.">    if (base.length != commonIndex) {</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">      int numDirsUp = baseIsFile ? base.length - commonIndex - 1 : base.length - commonIndex;</span>
+
+<span class="nc bnc" id="L210" title="All 2 branches missed.">      for (int i = 0; i &lt; numDirsUp; i++) {</span>
+<span class="nc" id="L211">        relative.append(&quot;..&quot; + pathSeparator);</span>
+      }
+    }
+<span class="nc" id="L214">    relative.append(normalizedTargetPath.substring(common.length()));</span>
+<span class="nc" id="L215">    return relative.toString();</span>
+  }
+
+  static class PathResolutionException extends RuntimeException
+  {
+
+    private static final long serialVersionUID = -6747166042664389937L;
+
+    PathResolutionException(String msg)
+    {
+<span class="nc" id="L225">      super(msg);</span>
+<span class="nc" id="L226">    }</span>
+  }
+
+  public static boolean isSymbolicLink(File file) throws IOException
+  {
+<span class="pc bpc" id="L231" title="1 of 4 branches missed.">    if (file == null || !file.exists())</span>
+<span class="fc" id="L232">      return false;</span>
+
+<span class="fc" id="L234">    PrintStream printStream = new PrintStream(new ByteArrayOutputStream(), true, Charset.defaultCharset().name());</span>
+    try {
+<span class="fc" id="L236">      int result = Forker.forkProcess(printStream, file.getParentFile(), &quot;test&quot;, &quot;-L&quot;, file.getName());</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">      return result == 0;</span>
+    }
+    finally {
+<span class="pc" id="L240">      IOUtils.closeQuietly(printStream);</span>
+    }
+  }
+
+  public static void createSymbolicLink(final File source, final File target) throws IOException
+  {
+<span class="fc" id="L246">    System.out.println(&quot;[INFO] Creating symbolic link. Source:&quot; + source.getAbsolutePath() + &quot;, target: &quot;</span>
+          + target.getAbsolutePath() + &quot;.&quot;);
+
+<span class="fc" id="L249">    mkdirs(target.getParentFile());</span>
+
+<span class="fc" id="L251">    int returnValue = Forker.forkProcess(System.out, null, &quot;ln&quot;, &quot;-sf&quot;, source.getAbsolutePath(),</span>
+          target.getAbsolutePath());
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">    if (returnValue != 0) {</span>
+<span class="nc" id="L254">      throw new RuntimeException(&quot;Cannot create symbolic link from '&quot; + source + &quot;' to '&quot; + target + &quot;'. Return value:&quot;</span>
+            + returnValue);
+    }
+<span class="fc" id="L257">  }</span>
+
+  public static boolean isChild(File parent, File child)
+  {
+<span class="fc" id="L261">    return isChild(split(parent.getAbsoluteFile()), split(child.getAbsoluteFile()));</span>
+  }
+
+  private static boolean isChild(List&lt;String&gt; parent, List&lt;String&gt; child)
+  {
+
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">    if (child.size() &lt; parent.size())</span>
+<span class="nc" id="L268">      return false;</span>
+
+<span class="fc bfc" id="L270" title="All 2 branches covered.">    for (int index = 0, size = parent.size(); index &lt; size; index++)</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">      if (!parent.get(index).equals(child.get(index)))</span>
+<span class="fc" id="L272">        return false;</span>
+
+<span class="fc" id="L274">    return true;</span>
+
+  }
+
+  public static String ensureLeadingSlash(final String path)
+  {
+<span class="fc bfc" id="L280" title="All 2 branches covered.">    return path.startsWith(&quot;/&quot;) ? path : &quot;/&quot; + path;</span>
+  }
+
+  public static String getAppendix(final File f)
+  {
+
+<span class="fc" id="L286">    final String fileName = f.getName();</span>
+<span class="fc" id="L287">    int indexOfLastDot = fileName.lastIndexOf(DOT);</span>
+
+<span class="fc bfc" id="L289" title="All 2 branches covered.">    if (indexOfLastDot &lt; 0) {</span>
+<span class="fc" id="L290">      return null;</span>
+    }
+
+<span class="fc" id="L293">    return fileName.substring(indexOfLastDot + DOT.length());</span>
+  }
+
+  static void unarchive(final ArchiverManager archiverManager, final String archiverId, final File source,
+        final File destinationDirectory)
+  {
+    try {
+<span class="nc" id="L300">      UnArchiver unarchiver = archiverManager.getUnArchiver(archiverId);</span>
+<span class="nc" id="L301">      unarchiver.setSourceFile(source);</span>
+<span class="nc" id="L302">      unarchiver.setDestDirectory(destinationDirectory);</span>
+<span class="nc" id="L303">      unarchiver.extract();</span>
+    }
+<span class="nc" id="L305">    catch (NoSuchArchiverException e) {</span>
+<span class="nc" id="L306">      throw new RuntimeException(e);</span>
+    }
+<span class="nc" id="L308">    catch (ArchiverException e) {</span>
+<span class="nc" id="L309">      throw new RuntimeException(e);</span>
+<span class="nc" id="L310">    }</span>
+<span class="nc" id="L311">  }</span>
+  
+  static String getCanonicalPath(File f) throws IORuntimeException
+  {
+    try {
+<span class="nc" id="L316">      return f.getCanonicalPath();</span>
+    }
+<span class="nc" id="L318">    catch (final IOException ex) {</span>
+<span class="nc" id="L319">      throw new IORuntimeException(ex.getMessage(), ex);</span>
+    }
+  }
+
+  static File getCanonicalFile(File f) throws IORuntimeException
+  {
+    try {
+<span class="nc" id="L326">      return f.getCanonicalFile();</span>
+    }
+<span class="nc" id="L328">    catch (final IOException ex) {</span>
+<span class="nc" id="L329">      throw new IORuntimeException(ex.getMessage(), ex);</span>
+    }
+  }
+  
+<span class="nc" id="L333">  public static class IORuntimeException extends RuntimeException {</span>
+    
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -833352788241793404L;
+
+    public IORuntimeException(String message, Throwable cause) {
+<span class="nc" id="L341">      super(message, cause);</span>
+<span class="nc" id="L342">    }</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

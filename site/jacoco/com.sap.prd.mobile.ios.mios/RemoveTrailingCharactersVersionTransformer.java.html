@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>RemoveTrailingCharactersVersionTransformer.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">RemoveTrailingCharactersVersionTransformer.java</span></div><h1>RemoveTrailingCharactersVersionTransformer.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+class RemoveTrailingCharactersVersionTransformer
+{
+
+  private final int limit;
+
+  RemoveTrailingCharactersVersionTransformer()
+  {
+<span class="fc" id="L34">    this(-1);</span>
+<span class="fc" id="L35">  }</span>
+
+  RemoveTrailingCharactersVersionTransformer(final int limit)
+<span class="fc" id="L38">  {</span>
+<span class="fc" id="L39">    this.limit = limit;</span>
+<span class="fc" id="L40">  }</span>
+
+  public String transform(String version) throws NumberFormatException
+  {
+
+<span class="fc" id="L45">    final String originalVersion = version;</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">    if (version == null)</span>
+<span class="fc" id="L48">      throw new NullPointerException(&quot;Version was null.&quot;);</span>
+
+<span class="fc" id="L50">    String[] parts = version.split(&quot;\\.&quot;);</span>
+
+<span class="fc" id="L52">    List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+
+<span class="fc bfc" id="L54" title="All 2 branches covered.">    int length = (limit == -1 ? parts.length : Math.min(parts.length, limit));</span>
+
+<span class="fc bfc" id="L56" title="All 2 branches covered.">    for (int i = 0; i &lt; length; i++) {</span>
+
+<span class="fc" id="L58">      String part = removeTrailingNonNumbers(parts[i]);</span>
+
+<span class="fc bfc" id="L60" title="All 2 branches covered.">      if (part.trim().isEmpty())</span>
+<span class="fc" id="L61">        part = &quot;0&quot;;</span>
+
+<span class="fc bfc" id="L63" title="All 2 branches covered.">      if (Long.parseLong(part) &lt; 0) {</span>
+<span class="fc" id="L64">        throw new NumberFormatException(&quot;Invalid version found: '&quot; + originalVersion</span>
+              + &quot;'. Negativ version part found: &quot; + parts[i] + &quot;.&quot;);
+      }
+
+<span class="fc" id="L68">      result.add(part);</span>
+
+<span class="fc bfc" id="L70" title="All 2 branches covered.">      if (!parts[i].matches(&quot;\\d+&quot;))</span>
+<span class="fc" id="L71">        break;</span>
+
+    }
+
+<span class="fc bfc" id="L75" title="All 2 branches covered.">    while (result.size() &lt; limit)</span>
+<span class="fc" id="L76">      result.add(&quot;0&quot;);</span>
+
+<span class="fc" id="L78">    return StringUtils.join(result, '.');</span>
+  }
+
+  private String removeTrailingNonNumbers(String part)
+  {
+<span class="fc" id="L83">    StringBuilder result = new StringBuilder(part.length());</span>
+
+<span class="fc" id="L85">    char[] c = new char[1];</span>
+
+<span class="fc bfc" id="L87" title="All 2 branches covered.">    for (int i = 0, l = part.length(); i &lt; l; i++) {</span>
+
+<span class="fc" id="L89">      c[0] = part.charAt(i);</span>
+
+<span class="fc bfc" id="L91" title="All 6 branches covered.">      if (new String(c).matches(&quot;\\d&quot;) || (i == 0 &amp;&amp; new String(c).matches(&quot;-&quot;)))</span>
+<span class="fc" id="L92">        result.append(c);</span>
+      else
+        break;
+    }
+
+<span class="fc" id="L97">    return result.toString();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

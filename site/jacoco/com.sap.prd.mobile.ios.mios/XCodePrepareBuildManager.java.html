@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodePrepareBuildManager.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodePrepareBuildManager.java</span></div><h1>XCodePrepareBuildManager.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import static com.sap.prd.mobile.ios.mios.FileUtils.mkdirs;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.sonatype.aether.RepositorySystem;
+import org.sonatype.aether.RepositorySystemSession;
+import org.sonatype.aether.repository.RemoteRepository;
+
+class XCodePrepareBuildManager
+{
+<span class="nc" id="L48">  private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());</span>
+  
+  private final static String TYPE_HEADERS = &quot;headers.tar&quot;, TYPE_ARCHIVE = &quot;a&quot;;
+
+  private final ArchiverManager archiverManager;
+  private final XCodeDownloadManager downloadManager;
+  private final boolean useSymbolicLinks;
+  private Map&lt;String, String&gt; additionalPackagingTypes;
+
+  private boolean preferFatLibs;
+
+  XCodePrepareBuildManager(final ArchiverManager archiverManager,
+        final RepositorySystemSession repoSystemSession, final RepositorySystem repoSystem,
+        final List&lt;RemoteRepository&gt; projectRepos, final boolean useSymbolicLinks,
+        final Map&lt;String, String&gt; additionalPackagingTypes)
+<span class="nc" id="L63">  {</span>
+<span class="nc" id="L64">    this.archiverManager = archiverManager;</span>
+<span class="nc" id="L65">    this.downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSystemSession);</span>
+<span class="nc" id="L66">    this.useSymbolicLinks = useSymbolicLinks;</span>
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">    if (additionalPackagingTypes == null) {</span>
+<span class="nc" id="L69">      this.additionalPackagingTypes = Collections.emptyMap();</span>
+    }
+    else {
+<span class="nc" id="L72">      this.additionalPackagingTypes = additionalPackagingTypes;</span>
+
+    }
+
+<span class="nc" id="L76">  }</span>
+
+  public XCodePrepareBuildManager setPreferFalLibs(boolean preferFatLibs)
+  {
+<span class="nc" id="L80">    this.preferFatLibs = preferFatLibs;</span>
+<span class="nc" id="L81">    return this;</span>
+  }
+
+  void prepareBuild(final MavenProject project, Set&lt;String&gt; configurations,
+        final Set&lt;String&gt; sdks) throws MojoExecutionException, XCodeException, IOException
+  {
+
+<span class="nc" id="L88">    prepareRootFolders(project, configurations, sdks);</span>
+
+<span class="nc" id="L90">    final Iterator&lt;Artifact&gt; dependentArtifacts = project.getArtifacts().iterator();</span>
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">    if (!dependentArtifacts.hasNext()) {</span>
+<span class="nc" id="L93">      LOGGER.info(&quot;No dependencies found.&quot;);</span>
+    }
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">    while (dependentArtifacts.hasNext()) {</span>
+
+<span class="nc" id="L98">      final Artifact mainArtifact = (Artifact) dependentArtifacts.next();</span>
+
+<span class="nc" id="L100">      LOGGER.info(&quot;Preparing dependency: &quot; + mainArtifact.getId());</span>
+
+<span class="nc bnc" id="L102" title="All 2 branches missed.">      if (PackagingType.LIB.getMavenPackaging().equals(mainArtifact.getType())) {</span>
+<span class="nc" id="L103">        prepareLibrary(project, configurations, sdks, mainArtifact);</span>
+      }
+<span class="nc bnc" id="L105" title="All 2 branches missed.">      else if (PackagingType.FRAMEWORK.getMavenPackaging().equals(mainArtifact.getType())) {</span>
+<span class="nc" id="L106">        prepareFramework(project, mainArtifact, configurations);</span>
+      }
+<span class="nc bnc" id="L108" title="All 2 branches missed.">      else if (additionalPackagingTypes.keySet().contains(mainArtifact.getType())) {</span>
+
+<span class="nc" id="L110">        final PackagingTypeAction packagingTypeAction = PackagingTypeAction.valueOf(additionalPackagingTypes</span>
+          .get(mainArtifact.getType()));
+<span class="nc" id="L112">        LOGGER.info(&quot;Packaging type '&quot; + mainArtifact.getType() + &quot;' found in pom. Action: &quot; + packagingTypeAction);</span>
+<span class="nc" id="L113">        packagingTypeAction.perform(archiverManager, project, mainArtifact);</span>
+<span class="nc" id="L114">      }</span>
+      else {
+
+<span class="nc" id="L117">        LOGGER.warning(&quot;Unknown dependency type detected: '&quot; + mainArtifact.getType() + &quot;'. The corresponding dependency '&quot;</span>
+              + mainArtifact.getGroupId() + &quot;:&quot; + mainArtifact.getArtifactId() + &quot;:&quot; + mainArtifact.getVersion()
+              + &quot;' will be ignored.&quot;);
+      }
+<span class="nc" id="L121">    }</span>
+<span class="nc" id="L122">  }</span>
+
+  private void prepareLibrary(final MavenProject project,
+        Set&lt;String&gt; configurations, final Set&lt;String&gt; sdks,
+        final Artifact mainArtifact) throws MojoExecutionException,
+        IOException, XCodeException
+  {
+<span class="nc bnc" id="L129" title="All 2 branches missed.">    for (final String xcodeConfiguration : configurations) {</span>
+
+<span class="nc" id="L131">      Map&lt;String, File&gt; thinLibs = new HashMap&lt;String, File&gt;();</span>
+
+<span class="nc bnc" id="L133" title="All 2 branches missed.">      for (final String sdk : sdks) {</span>
+
+<span class="nc" id="L135">        thinLibs.put(sdk, resolveThinLib(project, xcodeConfiguration, sdk, mainArtifact));</span>
+
+        try {
+<span class="nc" id="L138">          prepareHeaders(project, xcodeConfiguration, sdk, mainArtifact);</span>
+        }
+<span class="nc" id="L140">        catch (SideArtifactNotFoundException e) {</span>
+<span class="nc" id="L141">          LOGGER.info(&quot;Headers not found for: '&quot; + mainArtifact.getGroupId() + &quot;:&quot; + mainArtifact.getArtifactId()</span>
+                + &quot;:&quot;
+                + mainArtifact.getVersion() + &quot;:&quot; + mainArtifact.getType() + &quot;'.&quot;);
+<span class="nc" id="L144">        }</span>
+<span class="nc" id="L145">      }</span>
+
+<span class="nc" id="L147">      File fatLib = resolveFatLib(project, xcodeConfiguration, mainArtifact);</span>
+
+<span class="nc bnc" id="L149" title="All 2 branches missed.">      if (thinLibs.values().contains(null)) {</span>
+
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (fatLib != null) {</span>
+<span class="nc" id="L152">          provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);</span>
+        }
+        else {
+<span class="nc" id="L155">          throw new XCodeException(&quot;Neither all thin libs nor fat lib available for &quot; + mainArtifact.getId() + &quot;.&quot;);</span>
+        }
+      }
+      else {
+
+<span class="nc bnc" id="L160" title="All 4 branches missed.">        if (preferFatLibs &amp;&amp; fatLib != null)</span>
+<span class="nc" id="L161">          provideFatLib(fatLib, project, xcodeConfiguration, mainArtifact, sdks);</span>
+        else
+<span class="nc" id="L163">          provideThinLibs(thinLibs, xcodeConfiguration, mainArtifact, project);</span>
+      }
+<span class="nc" id="L165">    }</span>
+
+    try {
+<span class="nc" id="L168">      prepareBundles(project, mainArtifact);</span>
+    }
+<span class="nc" id="L170">    catch (SideArtifactNotFoundException e) {</span>
+<span class="nc" id="L171">      LOGGER.info(&quot;Bundle not found for: '&quot; + mainArtifact.getGroupId() + &quot;:&quot; + mainArtifact.getArtifactId() + &quot;:&quot;</span>
+            + mainArtifact.getVersion() + &quot;:&quot; + mainArtifact.getType() + &quot;'.&quot;);
+<span class="nc" id="L173">    }</span>
+<span class="nc" id="L174">  }</span>
+
+  private static void prepareRootFolders(MavenProject project, Set&lt;String&gt; configurations, Set&lt;String&gt; sdks)
+        throws IOException
+  {
+<span class="nc" id="L179">    mkdirs(FolderLayout.getFolderForExtractedMainArtifact(project));</span>
+<span class="nc" id="L180">    mkdirs(FolderLayout.getFolderForExtractedBundles(project));</span>
+<span class="nc" id="L181">    mkdirs(FolderLayout.getFolderForExtractedFrameworks(project));</span>
+
+<span class="nc bnc" id="L183" title="All 2 branches missed.">    for (String configuration : configurations) {</span>
+
+<span class="nc" id="L185">      mkdirs(FolderLayout.getFolderForExtractedFatLibs(project, configuration));</span>
+
+<span class="nc bnc" id="L187" title="All 2 branches missed.">      for (String sdk : sdks) {</span>
+<span class="nc" id="L188">        mkdirs(FolderLayout.getFolderForExtractedHeaders(project, configuration, sdk));</span>
+<span class="nc" id="L189">        mkdirs(FolderLayout.getFolderForExtractedLibs(project, configuration, sdk));</span>
+<span class="nc" id="L190">      }</span>
+<span class="nc" id="L191">    }</span>
+<span class="nc" id="L192">  }</span>
+
+  private File resolveThinLib(MavenProject project, final String xcodeConfiguration, final String sdk,
+        final Artifact primaryArtifact)
+  {
+    try {
+<span class="nc" id="L198">      return downloadManager.resolveSideArtifact(primaryArtifact,</span>
+            xcodeConfiguration + &quot;-&quot; + sdk, TYPE_ARCHIVE).getFile();
+    }
+<span class="nc" id="L201">    catch (SideArtifactNotFoundException ex) {</span>
+<span class="nc" id="L202">      LOGGER.info(&quot;Library not found for: &quot; + primaryArtifact.getGroupId() + &quot;:&quot;</span>
+            + primaryArtifact.getArtifactId() + &quot;:&quot; + primaryArtifact.getVersion() + &quot;:&quot;
+            + primaryArtifact.getClassifier()
+            + &quot;:&quot; + primaryArtifact.getType());
+<span class="nc" id="L206">      return null;</span>
+    }
+  }
+
+  void provideThinLibs(Map&lt;String, File&gt; thinLibs, String xcodeConfiguration, Artifact mainArtifact,
+        MavenProject project) throws IOException
+  {
+<span class="nc bnc" id="L213" title="All 2 branches missed.">    for (Map.Entry&lt;String, File&gt; e : thinLibs.entrySet()) {</span>
+<span class="nc" id="L214">      provideThinLib(e.getValue(), project, xcodeConfiguration, e.getKey(), mainArtifact);</span>
+<span class="nc" id="L215">    }</span>
+<span class="nc" id="L216">  }</span>
+
+  private void prepareBundles(MavenProject project, final Artifact primaryArtifact) throws MojoExecutionException,
+        SideArtifactNotFoundException, IOException
+  {
+<span class="nc" id="L221">    List&lt;String&gt; bundles = readBundleInformation(project, primaryArtifact);</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">    if (bundles == null)</span>
+<span class="nc" id="L223">      return;</span>
+
+<span class="nc bnc" id="L225" title="All 2 branches missed.">    for (String coords : bundles) {</span>
+<span class="nc" id="L226">      prepareBundle(project, primaryArtifact, coords);</span>
+<span class="nc" id="L227">    }</span>
+<span class="nc" id="L228">  }</span>
+
+  private void prepareBundle(MavenProject project, final Artifact primaryArtifact, String coords)
+        throws SideArtifactNotFoundException, MojoExecutionException
+  {
+<span class="nc" id="L233">    Artifact bundleArtifact = GAVUtil.getArtifact(coords);</span>
+
+<span class="nc" id="L235">    final org.sonatype.aether.artifact.Artifact artifact = downloadManager.resolveSideArtifact(bundleArtifact);</span>
+
+<span class="nc bnc" id="L237" title="All 2 branches missed.">    if (artifact != null) {</span>
+<span class="nc" id="L238">      final File source = artifact.getFile();</span>
+
+<span class="nc" id="L240">      final File target = new File(FolderLayout.getFolderForExtractedBundlesWithGA(project,</span>
+            primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), bundleArtifact.getClassifier().replaceAll(
+            &quot;~&quot;, File.separator)
+            + &quot;.bundle&quot;);
+
+<span class="nc" id="L245">      createDirectory(target);</span>
+<span class="nc" id="L246">      com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, &quot;zip&quot;, source, target);</span>
+
+<span class="nc" id="L248">      LOGGER.info(&quot;Bundle unarchived from &quot; + source + &quot; to &quot; + target);</span>
+
+    }
+<span class="nc" id="L251">  }</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  private List&lt;String&gt; readBundleInformation(MavenProject project, Artifact primaryArtifact) throws IOException
+  {
+
+<span class="nc" id="L257">    final File mainArtifactExtracted = FolderLayout.getFolderForExtractedPrimaryArtifact(project,</span>
+          primaryArtifact);
+
+<span class="nc bnc" id="L260" title="All 2 branches missed.">    if (mainArtifactExtracted.exists())</span>
+<span class="nc" id="L261">      com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(mainArtifactExtracted);</span>
+
+<span class="nc bnc" id="L263" title="All 2 branches missed.">    if (!mainArtifactExtracted.mkdirs())</span>
+<span class="nc" id="L264">      throw new IOException(&quot;Cannot create directory for expanded mainartefact of &quot; + primaryArtifact.getGroupId()</span>
+            + &quot;:&quot; + primaryArtifact.getArtifactId() + &quot; (&quot; + mainArtifactExtracted + &quot;).&quot;);
+
+<span class="nc" id="L267">    com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, &quot;tar&quot;, primaryArtifact.getFile(),</span>
+          mainArtifactExtracted);
+
+<span class="nc" id="L270">    LOGGER.info(&quot;Main artifact extracted to '&quot; + mainArtifactExtracted + &quot;'.&quot;);</span>
+
+<span class="nc" id="L272">    File bundleFile = new File(mainArtifactExtracted, &quot;bundles.txt&quot;);</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">    if (!bundleFile.exists())</span>
+<span class="nc" id="L274">      return null;</span>
+
+    try {
+<span class="nc" id="L277">      return FileUtils.readLines(bundleFile);</span>
+    }
+<span class="nc" id="L279">    catch (IOException e) {</span>
+<span class="nc" id="L280">      throw new RuntimeException(e);</span>
+    }
+
+  }
+
+  private void provideThinLib(final File source, MavenProject project, final String xcodeConfiguration,
+        final String sdk, final Artifact primaryArtifact) throws IOException
+  {
+
+<span class="nc" id="L289">    final File target = new File(FolderLayout.getFolderForExtractedLibsWithGA(project, xcodeConfiguration,</span>
+          sdk,
+          primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
+
+<span class="nc bnc" id="L293" title="All 4 branches missed.">    if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion()) || !useSymbolicLinks()) {</span>
+<span class="nc" id="L294">      FileUtils.copyFile(source, target);</span>
+    }
+    else {
+<span class="nc" id="L297">      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);</span>
+    }
+<span class="nc" id="L299">  }</span>
+
+  private File resolveFatLib(MavenProject project, final String xcodeConfiguration, final Artifact primaryArtifact)
+  {
+    try {
+<span class="nc" id="L304">      return downloadManager.resolveSideArtifact(primaryArtifact,</span>
+            xcodeConfiguration + XCodeFatLibraryMojo.FAT_LIBRARY_CLASSIFIER_SUFFIX,
+            TYPE_ARCHIVE).getFile();
+    }
+<span class="nc" id="L308">    catch (SideArtifactNotFoundException ex) {</span>
+<span class="nc" id="L309">      LOGGER.info(&quot;There does not exist a fat library for the artifact &quot; + primaryArtifact.getId());</span>
+<span class="nc" id="L310">      return null;</span>
+    }
+  }
+
+  private void provideFatLib(File source, MavenProject project, final String xcodeConfiguration,
+        final Artifact primaryArtifact, Set&lt;String&gt; sdks) throws IOException
+  {
+
+<span class="nc" id="L318">    final File target = new File(FolderLayout.getFolderForExtractedFatLibsWithGA(project, xcodeConfiguration,</span>
+          primaryArtifact.getGroupId(), primaryArtifact.getArtifactId()), getArchiveFileName(primaryArtifact));
+
+<span class="nc bnc" id="L321" title="All 4 branches missed.">    if (ArtifactUtils.isSnapshot(primaryArtifact.getVersion()) || !useSymbolicLinks()) {</span>
+<span class="nc" id="L322">      FileUtils.copyFile(source, target);</span>
+    }
+    else {
+<span class="nc" id="L325">      com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(source, target);</span>
+    }
+
+<span class="nc" id="L328">    final FatLibAnalyzer lipoHelper = new FatLibAnalyzer(target);</span>
+
+    //
+    // TODO improve hard coded strings for iphoneos and iphonesimulator below
+    //
+<span class="nc bnc" id="L333" title="All 2 branches missed.">    if (sdks.contains(&quot;iphoneos&quot;)) {</span>
+<span class="nc bnc" id="L334" title="All 2 branches missed.">      if (!lipoHelper.containsArmv())</span>
+<span class="nc" id="L335">        LOGGER.warning(&quot;Fat library '&quot; + lipoHelper.getFatLibrary() + &quot;' does not contain a library for armv*.&quot;);</span>
+      else
+<span class="nc" id="L337">        LOGGER.info(&quot;Fat library '&quot; + lipoHelper.getFatLibrary() + &quot;'contains a library for armv*.&quot;);</span>
+    }
+<span class="nc bnc" id="L339" title="All 2 branches missed.">    else if (sdks.contains(&quot;iphonesimulator&quot;)) {</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">      if (!lipoHelper.containsI386())</span>
+<span class="nc" id="L341">        LOGGER.warning(&quot;Fat library '&quot; + lipoHelper.getFatLibrary() + &quot;' does not contain a library for i386.&quot;);</span>
+      else
+<span class="nc" id="L343">        LOGGER.info(&quot;Fat library '&quot; + lipoHelper.getFatLibrary() + &quot;'contains a library for i386.&quot;);</span>
+    }
+<span class="nc" id="L345">  }</span>
+
+  private boolean useSymbolicLinks()
+  {
+<span class="nc" id="L349">    return this.useSymbolicLinks;</span>
+  }
+
+  private void prepareHeaders(MavenProject project, String xcodeConfiguration,
+        final String sdk, final Artifact primaryArtifact) throws MojoExecutionException, SideArtifactNotFoundException
+  {
+
+<span class="nc" id="L356">    final org.sonatype.aether.artifact.Artifact headersArtifact = downloadManager.resolveSideArtifact(primaryArtifact,</span>
+          xcodeConfiguration + &quot;-&quot; + sdk, TYPE_HEADERS);
+
+<span class="nc bnc" id="L359" title="All 2 branches missed.">    if (headersArtifact != null) {</span>
+
+<span class="nc" id="L361">      final File headersDirectory = FolderLayout.getFolderForExtractedHeadersWithGA(project,</span>
+            xcodeConfiguration, sdk,
+            primaryArtifact.getGroupId(), primaryArtifact.getArtifactId());
+
+<span class="nc" id="L365">      createDirectory(headersDirectory);</span>
+
+<span class="nc" id="L367">      extractHeaders(headersDirectory, headersArtifact.getFile());</span>
+    }
+<span class="nc" id="L369">  }</span>
+
+  private void prepareFramework(MavenProject project, final Artifact primaryArtifact, Collection&lt;String&gt; configurations)
+        throws MojoExecutionException
+  {
+
+<span class="nc bnc" id="L375" title="All 2 branches missed.">    for (String configuration : configurations) {</span>
+      try {
+<span class="nc" id="L377">        org.sonatype.aether.artifact.Artifact frameworkArtifact = downloadManager.resolveSideArtifact(primaryArtifact,</span>
+              configuration, Types.FRAMEWORK);
+<span class="nc" id="L379">        extractFramework(project, primaryArtifact, configuration, frameworkArtifact.getFile());</span>
+      }
+<span class="nc" id="L381">      catch (SideArtifactNotFoundException e) {</span>
+<span class="nc" id="L382">        LOGGER</span>
+          .warning(&quot;Framework '&quot;
+                + primaryArtifact
+                + &quot;' does not contain configuration specific variant. Will download the generic framework for configuration '&quot;
+                + configuration + &quot;'.&quot;);
+<span class="nc" id="L387">        handlePrimaryArtifact(project, primaryArtifact, configurations);</span>
+<span class="nc" id="L388">      }</span>
+<span class="nc" id="L389">    }</span>
+<span class="nc" id="L390">  }</span>
+
+  private void extractFramework(MavenProject project, final Artifact primaryArtifact, String configuration,
+        File frameworkArtifact) throws MojoExecutionException
+  {
+<span class="nc" id="L395">    File target = FolderLayout.getFolderForExtractedFrameworkswithGA(project, primaryArtifact.getGroupId(),</span>
+          primaryArtifact.getArtifactId(), configuration);
+<span class="nc" id="L397">    createDirectory(target);</span>
+    try {
+<span class="nc" id="L399">      extractFileWithShellScript(frameworkArtifact, target, new File(project.getBuild().getDirectory()));</span>
+    }
+<span class="nc" id="L401">    catch (IOException ioe) {</span>
+<span class="nc" id="L402">      throw new MojoExecutionException(&quot;Cannot unarchive framework from &quot; + frameworkArtifact + &quot; to &quot;</span>
+            + target);
+<span class="nc" id="L404">    }</span>
+<span class="nc" id="L405">  }</span>
+
+  private void handlePrimaryArtifact(MavenProject project, final Artifact primaryArtifact,
+        Collection&lt;String&gt; configurations)
+        throws MojoExecutionException
+  {
+<span class="nc bnc" id="L411" title="All 2 branches missed.">    if (primaryArtifact != null) {</span>
+<span class="nc" id="L412">      final File source = primaryArtifact.getFile();</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">      for (String configuration : configurations) {</span>
+<span class="nc" id="L414">        final File target = FolderLayout.getFolderForExtractedFrameworkswithGA(project,</span>
+              primaryArtifact.getGroupId(), primaryArtifact.getArtifactId());
+<span class="nc" id="L416">        extractFramework(project, primaryArtifact, configuration, source);</span>
+
+        try {
+<span class="nc" id="L419">          extractFileWithShellScript(source, target, new File(project.getBuild().getDirectory()));</span>
+        }
+<span class="nc" id="L421">        catch (IOException ioe) {</span>
+<span class="nc" id="L422">          throw new MojoExecutionException(&quot;Cannot unarchive framework from &quot; + source + &quot; to &quot; + target);</span>
+<span class="nc" id="L423">        }</span>
+
+<span class="nc" id="L425">        LOGGER.info(&quot;Framework unarchived from &quot; + source + &quot; to &quot; + target);</span>
+<span class="nc" id="L426">      }</span>
+    }
+<span class="nc" id="L428">  }</span>
+
+  private static String getArchiveFileName(final Artifact primaryArtifact)
+  {
+<span class="nc" id="L432">    return &quot;lib&quot; + primaryArtifact.getArtifactId() + &quot;.a&quot;;</span>
+  }
+
+  private void extractHeaders(final File headersDirectory, final File headers)
+  {
+<span class="nc" id="L437">    com.sap.prd.mobile.ios.mios.FileUtils.unarchive(archiverManager, &quot;tar&quot;, headers, headersDirectory);</span>
+<span class="nc" id="L438">  }</span>
+
+  /**
+   * Creates a directory. If the directory already exists the directory is deleted beforehand.
+   * 
+   * @param directory
+   * @throws MojoExecutionException
+   */
+  private static void createDirectory(final File directory) throws MojoExecutionException
+  {
+
+    try {
+<span class="nc" id="L450">      com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(directory);</span>
+    }
+<span class="nc" id="L452">    catch (IOException ex) {</span>
+<span class="nc" id="L453">      throw new MojoExecutionException(&quot;&quot;, ex);</span>
+<span class="nc" id="L454">    }</span>
+
+<span class="nc bnc" id="L456" title="All 2 branches missed.">    if (!directory.mkdirs())</span>
+<span class="nc" id="L457">      throw new MojoExecutionException(&quot;Cannot create directory (&quot; + directory + &quot;)&quot;);</span>
+<span class="nc" id="L458">  }</span>
+
+  private void extractFileWithShellScript(File sourceFile, File destinationFolder, File tmpFolder) throws IOException
+  {
+<span class="nc" id="L462">    File workingDirectory = new File(tmpFolder, &quot;scriptWorkingDir&quot;);</span>
+<span class="nc" id="L463">    workingDirectory.deleteOnExit();</span>
+<span class="nc" id="L464">    ScriptRunner.copyAndExecuteScript(System.out, &quot;/com/sap/prd/mobile/ios/mios/unzip.sh&quot;, workingDirectory,</span>
+          sourceFile.getCanonicalPath(),
+          destinationFolder.getCanonicalPath());
+<span class="nc" id="L467">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

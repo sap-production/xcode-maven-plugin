@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>VersionInfoXmlManager.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">VersionInfoXmlManager.java</span></div><h1>VersionInfoXmlManager.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Properties;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
+import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Coordinates;
+import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
+import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.SCM;
+import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Versions;
+
+/**
+ * Generates a &lt;artifact-id&gt;-&lt;version&gt;-version.xml for reproducibility reasons. This versions.xml
+ * contains information about the scm location and revision of the built project and all its
+ * dependencies. Expects a sync.info file in the root folder of the project as input. Additionally,
+ * in case of dependencies, the information from the versions.xml files of the dependent projects is
+ * added.
+ * 
+ */
+<span class="fc" id="L62">public class VersionInfoXmlManager</span>
+{
+  private static final String THREEDOTS = &quot;...&quot;;
+
+  private final static String SCHEMA_VERSION = &quot;1.2.2&quot;;
+  private final static String SCHEMA_GROUP_ID = &quot;com.sap.prd.mobile.ios.mios&quot;;
+  private final static String SCHEMA_ARTIFACT_ID = &quot;versionschema&quot;;
+  private final static String SCHEMA_REPOSITORY = &quot;deploy.release.ondevice.hosted&quot;;
+  private final static String NEXUS_URL = &quot;http://nexus.wdf.sap.corp:8081/nexus&quot;;
+
+  void createVersionInfoFile(final String groupId, final String artifactId, final String version,
+        final File syncInfoFile, List&lt;Dependency&gt; dependencies, OutputStream versionInfoStream)
+        throws MojoExecutionException
+  {
+
+<span class="fc" id="L77">    InputStream is = null;</span>
+
+    try {
+
+<span class="fc" id="L81">      is = new FileInputStream(syncInfoFile);</span>
+
+<span class="fc" id="L83">      final Properties versionInfo = new Properties();</span>
+
+<span class="fc" id="L85">      versionInfo.load(is);</span>
+
+<span class="fc" id="L87">      createVersionInfoFile(groupId, artifactId, version, versionInfo, dependencies, versionInfoStream);</span>
+
+    }
+<span class="nc" id="L90">    catch (IOException e) {</span>
+<span class="nc" id="L91">      throw new MojoExecutionException(&quot;Could not load sync info from file '&quot; + syncInfoFile + &quot;'.&quot;, e);</span>
+    }
+<span class="nc" id="L93">    catch (JAXBException e) {</span>
+<span class="nc" id="L94">      throw new MojoExecutionException(&quot;Could not load sync info from file '&quot; + syncInfoFile + &quot;'.&quot;, e);</span>
+    } finally {
+<span class="pc" id="L96">      IOUtils.closeQuietly(is);</span>
+<span class="fc" id="L97">    }</span>
+<span class="fc" id="L98">  }</span>
+
+  private void createVersionInfoFile(final String groupId, final String artifactId, final String version,
+        Properties versionInfo, List&lt;Dependency&gt; dependencies, OutputStream os)
+        throws MojoExecutionException, JAXBException
+  {
+    try {
+
+<span class="fc" id="L106">      final Versions versions = new Versions();</span>
+
+<span class="fc bfc" id="L108" title="All 2 branches covered.">      for (final Dependency dep : dependencies)</span>
+<span class="fc" id="L109">        versions.addDependency(dep);</span>
+
+<span class="fc" id="L111">      final SCM scm = new SCM();</span>
+<span class="fc" id="L112">      scm.setConnection(SCMUtil.getConnectionString(versionInfo, false));</span>
+<span class="fc" id="L113">      scm.setRevision(SCMUtil.getRevision(versionInfo));</span>
+
+<span class="fc" id="L115">      final Coordinates coordinates = new Coordinates();</span>
+<span class="fc" id="L116">      coordinates.setGroupId(groupId);</span>
+<span class="fc" id="L117">      coordinates.setArtifactId(artifactId);</span>
+<span class="fc" id="L118">      coordinates.setVersion(version);</span>
+
+<span class="fc" id="L120">      versions.setScm(scm);</span>
+<span class="fc" id="L121">      versions.setCoordinates(coordinates);</span>
+
+<span class="fc" id="L123">      final JAXBContext context = JAXBContext.newInstance(Versions.class);</span>
+
+<span class="fc" id="L125">      final Marshaller marshaller = context.createMarshaller();</span>
+<span class="fc" id="L126">      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);</span>
+<span class="fc" id="L127">      marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, &quot;urn:xml.sap.com:XCodePlugin:VersionInfo&quot; + &quot; &quot;</span>
+            + NEXUS_URL + &quot;/content/repositories/&quot; + SCHEMA_REPOSITORY + &quot;/&quot; + SCHEMA_GROUP_ID.replace(&quot;.&quot;, &quot;/&quot;) + &quot;/&quot;
+            + SCHEMA_ARTIFACT_ID + &quot;/&quot; + SCHEMA_VERSION + &quot;/&quot; + SCHEMA_ARTIFACT_ID + &quot;-&quot; + SCHEMA_VERSION + &quot;.xsd&quot;);
+
+<span class="fc" id="L131">      final ByteArrayOutputStream byteOs = new ByteArrayOutputStream();</span>
+
+<span class="fc" id="L133">      marshaller.marshal(versions, byteOs);</span>
+
+<span class="fc" id="L135">      final byte[] b = byteOs.toByteArray();</span>
+
+<span class="fc" id="L137">      DomUtils.validateDocument(DocumentBuilderFactory.newInstance().newDocumentBuilder()</span>
+        .parse(new ByteArrayInputStream(b)));
+
+<span class="fc" id="L140">      IOUtils.write(b, os);</span>
+    }
+<span class="nc" id="L142">    catch (ParserConfigurationException e) {</span>
+<span class="nc" id="L143">      throw new MojoExecutionException(&quot;Cannot create versions.xml.&quot;, e);</span>
+    }
+<span class="nc" id="L145">    catch (IOException e) {</span>
+<span class="nc" id="L146">      throw new MojoExecutionException(&quot;Cannot create versions.xml.&quot;, e);</span>
+    }
+<span class="nc" id="L148">    catch (SAXException e) {</span>
+<span class="nc" id="L149">      throw new MojoExecutionException(&quot;Cannot create versions.xml.&quot;, e);</span>
+<span class="fc" id="L150">    }</span>
+<span class="fc" id="L151">  }</span>
+
+  private static String getDepotPath(String fullDepotPath)
+  {
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">    if (fullDepotPath.endsWith(THREEDOTS)) {</span>
+<span class="fc" id="L156">      fullDepotPath = fullDepotPath.substring(0, fullDepotPath.length() - THREEDOTS.length());</span>
+    }
+<span class="fc" id="L158">    return fullDepotPath;</span>
+  }
+
+  static Dependency parseDependency(final File f) throws JAXBException, SAXException, IOException
+  {
+
+<span class="fc" id="L164">    final String schemaVersion = getSchemaVersion(f);</span>
+
+<span class="fc bfc" id="L166" title="All 2 branches covered.">    if (schemaVersion == null) {</span>
+<span class="fc" id="L167">      return parseOldDependency(f);</span>
+    }
+<span class="fc bfc" id="L169" title="All 2 branches covered.">    else if (schemaVersion.equals(&quot;1.2.0&quot;)) {</span>
+<span class="fc" id="L170">      return parseOldVersionsWithoutSchema(f);</span>
+    }
+<span class="pc bpc" id="L172" title="2 of 4 branches missed.">    else if ((schemaVersion.equals(&quot;1.2.1&quot;)) || (schemaVersion.equals(&quot;1.2.2&quot;))) {</span>
+<span class="fc" id="L173">      return parseDependency_1_2_2(f);</span>
+    }
+<span class="nc" id="L175">    throw new IllegalStateException(&quot;Unknown schemaVersion: '&quot; + schemaVersion + &quot;'.&quot;);</span>
+  }
+
+  private static Dependency parseOldDependency(File f) throws JAXBException
+  {
+<span class="fc" id="L180">    final JAXBContext context = JAXBContext</span>
+      .newInstance(com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0.Versions.class);
+<span class="fc" id="L182">    final Unmarshaller unmarshaller = context.createUnmarshaller();</span>
+
+<span class="fc" id="L184">    final com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0.Versions versions = (com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0.Versions) unmarshaller</span>
+      .unmarshal(f);
+
+<span class="fc" id="L187">    final Coordinates coordinates = new Coordinates();</span>
+<span class="fc" id="L188">    coordinates.setGroupId(versions.getCoordinates().getGroupId());</span>
+<span class="fc" id="L189">    coordinates.setArtifactId(versions.getCoordinates().getArtifactId());</span>
+<span class="fc" id="L190">    coordinates.setVersion(versions.getCoordinates().getVersion());</span>
+
+<span class="fc" id="L192">    final SCM scm = new SCM();</span>
+<span class="fc" id="L193">    scm.setConnection(&quot;scm:perforce:&quot; + versions.getScm().getRepository() + &quot;:&quot;</span>
+          + getDepotPath(versions.getScm().getPath()));
+<span class="fc" id="L195">    scm.setRevision(versions.getScm().getSnapshotId());</span>
+
+<span class="fc" id="L197">    final Dependency dependency = new Dependency();</span>
+<span class="fc" id="L198">    dependency.setCoordinates(coordinates);</span>
+<span class="fc" id="L199">    dependency.setScm(scm);</span>
+
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">    if (versions.getDependencies() != null) {</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">      for (com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0.Dependency d : versions.getDependencies()) {</span>
+
+<span class="fc" id="L204">        marshalOldDependencies(dependency, d);</span>
+<span class="fc" id="L205">      }</span>
+    }
+
+<span class="fc" id="L208">    return dependency;</span>
+  }
+
+  private static void marshalOldDependencies(final Dependency dependency,
+        com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0.Dependency d)
+  {
+<span class="fc" id="L214">    Dependency _d = new Dependency();</span>
+<span class="fc" id="L215">    Coordinates depCoorinates = new Coordinates();</span>
+<span class="fc" id="L216">    depCoorinates.setGroupId(d.getCoordinates().getGroupId());</span>
+<span class="fc" id="L217">    depCoorinates.setArtifactId(d.getCoordinates().getArtifactId());</span>
+<span class="fc" id="L218">    depCoorinates.setVersion(d.getCoordinates().getVersion());</span>
+<span class="fc" id="L219">    _d.setCoordinates(depCoorinates);</span>
+
+<span class="fc" id="L221">    SCM depSCM = new SCM();</span>
+<span class="fc" id="L222">    depSCM.setConnection(&quot;scm:perforce:&quot; + d.getScm().getRepository() + &quot;:&quot; + getDepotPath(d.getScm().getPath()));</span>
+<span class="fc" id="L223">    depSCM.setRevision(d.getScm().getSnapshotId());</span>
+<span class="fc" id="L224">    _d.setScm(depSCM);</span>
+<span class="fc" id="L225">    dependency.addDependency(_d);</span>
+
+<span class="fc bfc" id="L227" title="All 2 branches covered.">    for (com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0.Dependency __d : d.getDependencies())</span>
+<span class="fc" id="L228">      marshalOldDependencies(_d, __d);</span>
+<span class="fc" id="L229">  }</span>
+
+  private static Dependency parseOldVersionsWithoutSchema(File f) throws JAXBException
+  {
+<span class="fc" id="L233">    final JAXBContext context = JAXBContext</span>
+      .newInstance(com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0.Versions.class);
+<span class="fc" id="L235">    final Unmarshaller unmarshaller = context.createUnmarshaller();</span>
+
+<span class="fc" id="L237">    final com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0.Versions versions = (com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0.Versions) unmarshaller</span>
+      .unmarshal(f);
+
+<span class="fc" id="L240">    final Coordinates coordinates = new Coordinates();</span>
+<span class="fc" id="L241">    coordinates.setGroupId(versions.getCoordinates().getGroupId());</span>
+<span class="fc" id="L242">    coordinates.setArtifactId(versions.getCoordinates().getArtifactId());</span>
+<span class="fc" id="L243">    coordinates.setVersion(versions.getCoordinates().getVersion());</span>
+
+<span class="fc" id="L245">    final SCM scm = new SCM();</span>
+<span class="fc" id="L246">    scm.setConnection(versions.getScm().getConnection());</span>
+<span class="fc" id="L247">    scm.setRevision(versions.getScm().getRevision());</span>
+
+<span class="fc" id="L249">    final Dependency dependency = new Dependency();</span>
+<span class="fc" id="L250">    dependency.setCoordinates(coordinates);</span>
+<span class="fc" id="L251">    dependency.setScm(scm);</span>
+
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">    if (versions.getDependencies() != null) {</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">      for (com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0.Dependency d : versions.getDependencies()) {</span>
+<span class="fc" id="L255">        marshalDependenciesVersionsWithoutSchema(dependency, d);</span>
+<span class="fc" id="L256">      }</span>
+    }
+
+<span class="fc" id="L259">    return dependency;</span>
+  }
+
+  private static void marshalDependenciesVersionsWithoutSchema(final Dependency dependency,
+        com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0.Dependency d)
+  {
+<span class="fc" id="L265">    Dependency _d = new Dependency();</span>
+<span class="fc" id="L266">    Coordinates depCoorinates = new Coordinates();</span>
+<span class="fc" id="L267">    depCoorinates.setGroupId(d.getCoordinates().getGroupId());</span>
+<span class="fc" id="L268">    depCoorinates.setArtifactId(d.getCoordinates().getArtifactId());</span>
+<span class="fc" id="L269">    depCoorinates.setVersion(d.getCoordinates().getVersion());</span>
+<span class="fc" id="L270">    _d.setCoordinates(depCoorinates);</span>
+
+<span class="fc" id="L272">    SCM depSCM = new SCM();</span>
+<span class="fc" id="L273">    depSCM.setConnection(d.getScm().getConnection());</span>
+<span class="fc" id="L274">    depSCM.setRevision(d.getScm().getRevision());</span>
+<span class="fc" id="L275">    _d.setScm(depSCM);</span>
+<span class="fc" id="L276">    dependency.addDependency(_d);</span>
+
+<span class="fc bfc" id="L278" title="All 2 branches covered.">    for (com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0.Dependency __d : d.getDependencies())</span>
+<span class="fc" id="L279">      marshalDependenciesVersionsWithoutSchema(_d, __d);</span>
+<span class="fc" id="L280">  }</span>
+
+  private static Dependency parseDependency_1_2_2(File f) throws JAXBException
+  {
+<span class="fc" id="L284">    final JAXBContext context = JAXBContext.newInstance(Versions.class);</span>
+<span class="fc" id="L285">    final Unmarshaller unmarshaller = context.createUnmarshaller();</span>
+
+<span class="fc" id="L287">    final Versions versions = (Versions) unmarshaller.unmarshal(f);</span>
+
+<span class="fc" id="L289">    final Dependency dependency = new Dependency();</span>
+<span class="fc" id="L290">    dependency.setCoordinates(versions.getCoordinates());</span>
+<span class="fc" id="L291">    dependency.setScm(versions.getScm());</span>
+
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">    if (versions.getDependencies() != null)</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">      for (Dependency d : versions.getDependencies())</span>
+<span class="fc" id="L295">        dependency.addDependency(d);</span>
+
+<span class="fc" id="L297">    return dependency;</span>
+  }
+
+  private static String getSchemaVersion(final File f) throws SAXException, IOException
+  {
+
+<span class="fc" id="L303">    class StopParsingException extends SAXException</span>
+    {
+      private static final long serialVersionUID = -7499102356648608429L;
+    };
+
+<span class="fc" id="L308">    XMLReader xmlReader = XMLReaderFactory.createXMLReader();</span>
+
+<span class="fc" id="L310">    final InputStream s = new FileInputStream(f);</span>
+
+<span class="fc" id="L312">    final String[] result = new String[1];</span>
+
+    try {
+
+<span class="fc" id="L316">      xmlReader.setContentHandler(new ContentHandler() {</span>
+
+<span class="fc" id="L318">        boolean repositoryTagFound = false;</span>
+
+        @Override
+        public void startPrefixMapping(String prefix, String uri) throws SAXException
+        {
+<span class="fc" id="L323">        }</span>
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException
+        {
+<span class="fc bfc" id="L328" title="All 2 branches covered.">          if (localName.equals(&quot;versions&quot;)) {</span>
+<span class="fc" id="L329">            result[0] = atts.getValue(&quot;schemaVersion&quot;);</span>
+
+<span class="fc bfc" id="L331" title="All 2 branches covered.">            if (result[0] != null)</span>
+<span class="fc" id="L332">              throw new StopParsingException();</span>
+          }
+
+<span class="fc bfc" id="L335" title="All 2 branches covered.">          if (localName.equals(&quot;repository&quot;)) {</span>
+<span class="fc" id="L336">            repositoryTagFound = true;</span>
+          }
+<span class="fc" id="L338">        }</span>
+
+        @Override
+        public void startDocument() throws SAXException
+        {
+<span class="fc" id="L343">        }</span>
+
+        @Override
+        public void skippedEntity(String name) throws SAXException
+        {
+<span class="nc" id="L348">        }</span>
+
+        @Override
+        public void setDocumentLocator(Locator locator)
+        {
+<span class="fc" id="L353">        }</span>
+
+        @Override
+        public void processingInstruction(String target, String data) throws SAXException
+        {
+<span class="nc" id="L358">        }</span>
+
+        @Override
+        public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException
+        {
+<span class="nc" id="L363">        }</span>
+
+        @Override
+        public void endPrefixMapping(String prefix) throws SAXException
+        {
+<span class="nc" id="L368">        }</span>
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException
+        {
+<span class="fc" id="L373">        }</span>
+
+        @Override
+        public void endDocument() throws SAXException
+        {
+<span class="pc bpc" id="L378" title="1 of 4 branches missed.">          if (!repositoryTagFound &amp;&amp; result[0] == null)</span>
+<span class="fc" id="L379">            result[0] = &quot;1.2.0&quot;;</span>
+<span class="fc" id="L380">        }</span>
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException
+        {
+<span class="fc" id="L385">        }</span>
+      });
+
+      try {
+<span class="fc" id="L389">        xmlReader.parse(new InputSource(s));</span>
+      }
+<span class="fc" id="L391">      catch (StopParsingException ex) {</span>
+        //OK, StopParsingException is thrown when we know all we need from the document.
+<span class="fc" id="L393">      }</span>
+    }
+    finally {
+<span class="fc" id="L396">      IOUtils.closeQuietly(s);</span>
+<span class="fc" id="L397">    }</span>
+<span class="fc" id="L398">    return result[0];</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

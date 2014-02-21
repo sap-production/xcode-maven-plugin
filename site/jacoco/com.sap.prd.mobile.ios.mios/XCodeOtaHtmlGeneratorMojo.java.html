@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodeOtaHtmlGeneratorMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodeOtaHtmlGeneratorMojo.java</span></div><h1>XCodeOtaHtmlGeneratorMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import static com.sap.prd.mobile.ios.mios.XCodeIpaPackageMojo.getIpaClassifier;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
+
+/**
+ * Generates over the air html files and prepares the generated artifacts for deployment.
+ * 
+ * @goal generate-ota-html
+ */
+
+<span class="nc" id="L45">public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo</span>
+{
+
+  final static String PARAMETER_PREFIX = &quot;mios.ota-service&quot;;
+  final static String OTA_CLASSIFIER_APPENDIX = &quot;-ota&quot;;
+  final static String OTA_HTML_FILE_APPENDIX = &quot;htm&quot;;
+
+  /**
+   * To enable the generation of Over-The-Air deployment HTML files you have to specify the URL to
+   * your &quot;HTML&quot; OTA Service (e.g. &lt;code&gt;http://server/ota-service/HTML&lt;/code&gt;).&lt;br/&gt;
+   * Here you find more information about the &lt;a
+   * href=&quot;https://github.com/sap-production/OTAService&quot;&gt;OTA Service Github Project&lt;/a&gt;.&lt;br/&gt;
+   * 
+   * @parameter expression=&quot;${mios.ota-service.url}&quot;
+   */
+  private URL miosOtaServiceUrl;
+
+  /**
+   * @parameter expression=&quot;${mios.ota-service.buildHtmlTemplate}&quot;
+   */
+  private String buildHtmlTemplate;
+
+  /**
+   * @component
+   */
+  private MavenProjectHelper projectHelper;
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+
+<span class="nc" id="L76">    final Set&lt;String&gt; sdks = getSDKs();</span>
+<span class="nc" id="L77">    final Set&lt;String&gt; configurations = getConfigurations();</span>
+
+<span class="nc" id="L79">    getLog().info(&quot;Configurations are:&quot; + configurations);</span>
+<span class="nc" id="L80">    getLog().info(&quot;SDKs are: &quot; + sdks);</span>
+
+<span class="nc bnc" id="L82" title="All 4 branches missed.">    if (configurations == null || configurations.size() == 0)</span>
+<span class="nc" id="L83">      throw new MojoExecutionException(&quot;Invalid configuration: \&quot;&quot; + configurations + &quot;\&quot;.&quot;);</span>
+
+<span class="nc bnc" id="L85" title="All 4 branches missed.">    if (sdks == null || sdks.size() == 0)</span>
+<span class="nc" id="L86">      throw new MojoExecutionException(&quot;Invalid sdks: \&quot;&quot; + sdks + &quot;\&quot;.&quot;);</span>
+
+<span class="nc bnc" id="L88" title="All 2 branches missed.">    for (final String configuration : configurations) {</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">      for (final String sdk : sdks) {</span>
+
+<span class="nc bnc" id="L91" title="All 4 branches missed.">        if (configuration == null || configuration.isEmpty())</span>
+<span class="nc" id="L92">          throw new IllegalStateException(&quot;Invalid configuration: '&quot; + configuration + &quot;'.&quot;);</span>
+
+<span class="nc" id="L94">        final String productName = getProductName(configuration, sdk);</span>
+
+<span class="nc" id="L96">        final String fixedProductName = getFixedProductName(productName);</span>
+
+<span class="nc" id="L98">        getLog().info(</span>
+              &quot;Using product name '&quot; + productName + &quot; (fixed product name '&quot; + fixedProductName + &quot;')&quot;
+                    + &quot;' for configuration '&quot; + configuration + &quot;' and sdk '&quot; + sdk + &quot;'.&quot;);
+
+<span class="nc" id="L102">        final File otaHtmlFile = new File(XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), configuration,</span>
+              sdk), fixedProductName + &quot;.htm&quot;);
+
+<span class="nc" id="L105">        final String otaClassifier = getOtaHtmlClassifier(configuration, sdk);</span>
+<span class="nc" id="L106">        final String ipaClassifier = getIpaClassifier(configuration, sdk);</span>
+
+        try {
+<span class="nc" id="L109">          PListAccessor plistAccessor = getInfoPListAccessor(XCodeContext.SourceCodeLocation.WORKING_COPY,</span>
+                configuration, sdk);
+
+<span class="nc" id="L112">          final OTAManager otaManager = new OTAManager(miosOtaServiceUrl, productName,</span>
+                plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER),
+                plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION),
+                ipaClassifier, otaClassifier, buildHtmlTemplate, getProperties());
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">          if (otaManager.generateOtaHTML()) {</span>
+
+<span class="nc" id="L119">            PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(otaHtmlFile), &quot;UTF-8&quot;));</span>
+
+            try {
+<span class="nc" id="L122">              otaManager.writeOtaHtml(pw);</span>
+<span class="nc" id="L123">              getLog().info(</span>
+                    &quot;OTA HTML file '&quot; + otaHtmlFile + &quot;' created for configuration '&quot; + configuration + &quot;' and sdk '&quot;
+                          + sdk + &quot;'&quot;);
+<span class="nc" id="L126">              prepareOtaHtmlFileForDeployment(project, otaClassifier, otaHtmlFile);</span>
+<span class="nc" id="L127">              getLog().info(</span>
+                    &quot;OTA HTML file '&quot; + otaHtmlFile + &quot;' attached as additional artifact for configuration '&quot;
+                          + configuration + &quot;' and sdk '&quot;
+                          + sdk + &quot;'&quot;);
+            }
+            finally {
+<span class="nc" id="L133">              pw.close();</span>
+<span class="nc" id="L134">            }</span>
+<span class="nc" id="L135">          }</span>
+          else {
+<span class="nc" id="L137">            getLog().info(</span>
+                  &quot;OTA HTML file '&quot; + otaHtmlFile + &quot;' was not created for configuration '&quot; + configuration
+                        + &quot;' and sdk '&quot; + sdk + &quot;'&quot;);
+          }
+        }
+<span class="nc" id="L142">        catch (IOException e) {</span>
+<span class="nc" id="L143">          throw new MojoExecutionException(&quot;Cannot create OTA HTML file. Check log for details.&quot;, e);</span>
+        }
+<span class="nc" id="L145">        catch (XCodeException e) {</span>
+<span class="nc" id="L146">          throw new MojoExecutionException(&quot;Cannot create OTA HTML file. Check log for details.&quot;, e);</span>
+<span class="nc" id="L147">        }</span>
+<span class="nc" id="L148">      }</span>
+<span class="nc" id="L149">    }</span>
+
+<span class="nc" id="L151">  }</span>
+
+  private Map&lt;String, String&gt; getProperties()
+  {
+<span class="nc" id="L155">    Map&lt;String, String&gt; result = new HashMap&lt;String, String&gt;();</span>
+<span class="nc" id="L156">    Set&lt;String&gt; keys = this.getKeys(null);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">    for (String key : keys) {</span>
+<span class="nc" id="L158">      String value = this.getProperty(key);</span>
+<span class="nc" id="L159">      result.put(key, value);</span>
+<span class="nc" id="L160">    }</span>
+<span class="nc" id="L161">    return result;</span>
+  }
+
+  /**
+   * Generates the classifier used for OTA HTML deployment
+   * 
+   * @param configuration
+   * @param sdk
+   * @return
+   */
+  static String getOtaHtmlClassifier(String configuration, String sdk)
+  {
+<span class="nc" id="L173">    return configuration + &quot;-&quot; + sdk + OTA_CLASSIFIER_APPENDIX;</span>
+  }
+
+  private void prepareOtaHtmlFileForDeployment(final MavenProject mavenProject, final String classifier,
+        final File otaHtmlFile)
+  {
+<span class="nc" id="L179">    projectHelper.attachArtifact(mavenProject, OTA_HTML_FILE_APPENDIX, classifier, otaHtmlFile);</span>
+<span class="nc" id="L180">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

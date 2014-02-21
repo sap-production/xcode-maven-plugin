@@ -1,0 +1,124 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0,Dependency,44,23,2,2,9,5,5,5,4,4
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0,Versions,48,19,3,1,9,5,6,4,4,4
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0,SCM,17,17,0,0,1,7,1,5,1,5
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_0,Coordinates,32,24,0,0,1,10,1,7,1,7
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2,Dependency,22,45,1,3,1,13,2,8,1,7
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2,Versions,33,44,2,2,4,14,5,7,3,7
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2,SCM,17,17,0,0,1,7,1,5,1,5
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2,Coordinates,32,24,0,0,1,10,1,7,1,7
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo,Coordinates,3,0,0,0,1,0,1,0,1,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,Options,157,203,34,24,21,36,23,15,2,7
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeOtaHtmlGeneratorMojo,359,0,20,0,49,0,15,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeCopySourcesMojo.new FileFilter() {...},45,0,8,0,3,0,6,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,UpdateCFBundleVersionInPListTask,0,21,0,0,0,6,0,2,0,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo,814,112,37,13,140,18,30,8,10,3
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeProjectFileDoesNotExistException,12,4,0,0,6,2,3,1,3,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,Settings,201,181,29,19,25,35,22,11,4,5
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePackageMojo,106,0,6,0,21,0,5,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeProjectNotFoundException,12,4,0,0,6,2,3,1,3,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeManager,18,37,1,1,1,7,1,3,0,3
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo.Protocol,0,101,0,4,0,14,0,9,0,7
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,CheckPrerequisitesMojo,161,0,8,0,30,0,9,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePluginLogger,19,60,3,1,5,8,3,3,1,3
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,FolderLayout,161,97,0,2,12,8,12,6,12,5
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePackageManager,586,80,14,4,90,10,21,4,14,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo.Location,17,77,2,6,2,17,2,4,0,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeRootFolderDoesNotExistException,12,4,0,0,6,2,3,1,3,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeBuildLayout,66,0,2,0,7,0,6,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePackageFrameworkMojo,284,0,10,0,43,0,12,0,7,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo.Protocol.2.new X509TrustManager() {...},10,0,0,0,4,0,4,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeDownloadManager.new DependencyVisitor() {...},143,0,8,0,14,0,7,0,3,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo.Protocol.2.new X509HostnameVerifier() {...},11,0,0,0,5,0,5,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeDownloadManager.new Comparator() {...},44,0,6,0,8,0,5,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,UpdateVersionInPListTask,102,88,7,7,11,21,7,6,0,6
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,SideArtifactNotFoundException,17,0,0,0,6,0,3,0,3,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PackagingTypeAction.new PackagingTypeAction() {...},45,0,4,0,8,0,4,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,CFBundleShortVersionStringValidator,24,5,1,1,3,2,2,1,1,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PackagingTypeAction.new PackagingTypeAction() {...},45,0,4,0,7,0,4,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PackagingTypeAction.new PackagingTypeAction() {...},57,0,4,0,8,0,4,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePackageDSymMojo,255,0,16,0,37,0,13,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeDefaultDoxygenConfigurationMojo,101,0,10,0,19,0,7,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeDefaultConfigurationMojo,386,0,14,0,42,0,11,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,FileUtils.PathResolutionException,4,0,0,0,2,0,1,0,1,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PackagingType,101,0,6,0,14,0,9,0,6,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeInvalidVersionException,20,0,0,0,8,0,4,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo.NoProtocolException,0,5,0,0,0,2,0,1,0,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeChangeAppIDMojo,140,52,13,1,25,11,9,4,2,4
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,CFBundleVersionValidator,24,5,1,1,3,2,2,1,1,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,VersionInfoPListManager,67,267,3,11,7,49,3,9,0,5
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,CodeSignManager.ExecutionResultVerificationException,15,9,0,0,1,4,1,1,1,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeProjectValidateMojo,59,0,0,0,7,0,2,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PackagingTypeAction,48,0,0,0,4,0,4,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeProjectLayoutValidator,3,97,0,8,1,10,1,5,1,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,UpdateVersionInPomMojo,366,0,30,0,64,0,21,0,6,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,SCMUtil,43,220,5,29,7,52,6,16,1,4
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,AbstractXCodeMojo,361,11,29,1,56,4,24,2,9,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeProjectLayoutValidator.new FileFilter() {...},0,8,0,0,0,2,0,2,0,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeProjectLayoutValidator.new FileFilter() {...},0,19,1,3,0,2,1,3,0,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,DomUtils,76,45,10,2,19,11,8,1,2,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationException,12,4,0,0,6,2,3,1,3,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PackagingType.UnknownPackagingTypeException,4,0,0,0,2,0,1,0,1,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeContext.InvalidBuildActionException,0,4,0,0,0,2,0,1,0,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PreDeployMojo,148,144,10,28,29,34,11,14,4,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,LoggerMojo,113,0,8,0,17,0,6,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeIpaPackageMojo,201,0,16,0,25,0,12,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,EffectiveBuildSettings,289,0,8,0,44,0,11,0,7,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,BuildType,47,0,2,0,3,0,6,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeContext,197,212,36,20,32,42,26,20,5,13
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,GAVUtil.new DefaultArtifact() {...},8,10,0,0,2,1,2,1,2,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePackageAppMojo,108,0,4,0,16,0,6,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,Types,10,0,0,0,3,0,2,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeConstants,12,0,0,0,3,0,2,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVersionInfoMojo,532,54,24,2,95,8,18,2,5,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,VersionInfoXmlManager.new ContentHandler() {...},4,56,1,9,4,17,5,12,4,8
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,InvalidAlternatePublicHeaderPathException,0,4,0,0,0,2,0,1,0,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeBuildMojo,109,0,8,0,21,0,6,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,CodeSignManager,118,135,3,3,12,18,5,6,3,5
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo.InvalidProtocolException,0,5,0,0,0,2,0,1,0,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,FileUtils.IORuntimeException,5,0,0,0,2,0,1,0,1,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,VersionInfoXmlManager,72,586,6,22,11,126,6,19,0,11
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PreDeployMojo.PrepareIpaPointerFileTransferListener,227,0,20,0,47,0,20,0,10,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,FileUtils,287,282,31,29,54,49,24,22,5,11
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,RemoveTrailingCharactersVersionTransformer,0,157,0,22,0,30,0,15,0,4
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,VersionInfoXmlManager.new SAXException() {...},0,3,0,0,0,1,0,1,0,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,FrameworkStructureValidator,288,0,14,0,38,0,12,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeContext.SourceCodeLocation,38,0,0,0,2,0,4,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeFatLibraryMojo,185,0,8,0,30,0,8,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePluginLogger.new Handler() {...},103,28,15,3,17,8,11,3,2,3
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeException,10,10,0,0,4,4,2,2,2,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,CodeSignManager.ExecResult,81,52,15,9,16,16,13,3,2,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,AbstractDeployMojo,72,0,2,0,8,0,5,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,OTAManager,5,105,0,6,0,24,0,7,0,4
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeAdjustArtifactIdMojo,69,0,4,0,9,0,4,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,Options.IllegalOptionException,0,10,0,0,0,4,0,2,0,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,CleanMojo,90,0,4,0,14,0,4,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeChangeVersionInPListMojo,166,0,14,0,31,0,10,0,3,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeCopySourcesMojo,291,0,24,0,45,0,17,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PostDeployMojo,57,0,2,0,13,0,3,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePackageAppStoreMetaDataMojo,192,0,10,0,40,0,10,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,FatLibAnalyzer,45,150,5,11,5,34,6,8,1,5
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,Settings.ManagedSetting,5,122,0,4,0,13,1,8,1,6
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeSkipLibraryBuildMojo,25,0,2,0,4,0,3,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePrepareMojo,44,0,0,0,8,0,2,0,2,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,BuildContextAwareMojo,421,17,54,0,68,2,34,2,7,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,GAVUtil,17,65,2,2,2,10,3,3,1,3
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeDownloadManager,248,0,16,0,38,0,17,0,9,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,UpdateCFBundleShortVersionStringInPListTask,0,22,0,0,0,6,0,2,0,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,ScriptRunner,137,0,6,0,26,0,8,0,5,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePrepareBuildManager,1032,0,68,0,173,0,57,0,23,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,Options.ManagedOption,7,215,1,5,1,17,2,10,1,8
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodePackageXcodeprojMojo,316,0,10,0,40,0,8,0,3,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,PListAccessor,442,713,10,22,57,104,10,16,0,10
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo.Protocol.new XCodeVerificationCheckMojo.Protocol() {...},19,27,2,2,1,5,2,2,0,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,CommandLineBuilder,18,185,3,13,1,42,3,15,0,10
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo.Protocol.new XCodeVerificationCheckMojo.Protocol() {...},34,6,0,0,4,1,1,1,1,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios,XCodeVerificationCheckMojo.Protocol.new XCodeVerificationCheckMojo.Protocol() {...},107,6,0,0,19,1,1,1,1,1
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0,Check,11,27,0,0,5,11,3,8,3,8
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0,ObjectFactory,15,0,0,0,5,0,4,0,4,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0,Checks,5,9,1,1,1,3,1,2,0,2
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0,Configuration,10,0,0,0,4,0,3,0,3,0
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0,Dependency,44,23,2,2,9,5,5,5,4,4
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0,SCM,22,24,0,0,1,10,1,7,1,7
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0,Versions,44,23,2,2,9,5,5,5,4,4
+Xcode Maven Plugin,com.sap.prd.mobile.ios.mios.versioninfo.v_0_0_0,Coordinates,32,24,0,0,1,10,1,7,1,7

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>SCMUtil.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">SCMUtil.java</span></div><h1>SCMUtil.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
+
+<span class="nc" id="L31">public class SCMUtil {</span>
+
+  private static final String THREEDOTS = &quot;...&quot;;
+  private static final String PROTOCOL_PREFIX_PERFORCE = &quot;scm:perforce:&quot;;
+  private static final String PROTOCOL_PREFIX_GIT = &quot;scm:git:&quot;;
+  
+<span class="fc" id="L37">  private final static Map&lt;String, Integer&gt; gitDefaultPorts = new HashMap&lt;String, Integer&gt;();</span>
+  
+  static {
+<span class="fc" id="L40">    gitDefaultPorts.put(&quot;ssh&quot;, 29418);</span>
+<span class="fc" id="L41">    gitDefaultPorts.put(&quot;http&quot;, 80);</span>
+<span class="fc" id="L42">    gitDefaultPorts.put(&quot;https&quot;, 443);</span>
+<span class="fc" id="L43">    gitDefaultPorts.put(&quot;git&quot;, 9418);</span>
+<span class="fc" id="L44">  }</span>
+  private static final int PERFORCE_DEFAULT_PORT = 1666;
+
+  public static String getConnectionString(final Properties versionInfo, final boolean hideConfidentialInformation) throws IOException {
+
+<span class="fc" id="L49">    final String type = versionInfo.getProperty(&quot;type&quot;);</span>
+
+<span class="fc" id="L51">    final StringBuilder connectionString = new StringBuilder(128);</span>
+
+<span class="pc bpc" id="L53" title="1 of 4 branches missed.">    if (type != null &amp;&amp; type.equals(&quot;git&quot;)) {</span>
+
+<span class="fc" id="L55">      final String repo = versionInfo.getProperty(&quot;repo&quot;);</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">      if(StringUtils.isBlank(repo))</span>
+      {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if(! StringUtils.isBlank(versionInfo.getProperty(&quot;repo_1&quot;)))</span>
+        {
+<span class="fc" id="L61">          throw new IllegalStateException(&quot;Multipe git repositories provided. This use case is not supported. Provide only one git repository.&quot;); </span>
+        }
+<span class="fc" id="L63">        throw new IllegalStateException(&quot;No git repository provided. &quot;);</span>
+      }
+
+<span class="fc bfc" id="L66" title="All 2 branches covered.">      if(hideConfidentialInformation) {</span>
+        try {
+<span class="fc" id="L68">          URI uri = new URI(repo);</span>
+<span class="fc" id="L69">          int port = uri.getPort();</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">          if(port == -1) </span>
+          {
+<span class="fc" id="L72">            final String scheme = uri.getScheme();</span>
+<span class="pc bpc" id="L73" title="1 of 4 branches missed.">            if(scheme != null &amp;&amp; gitDefaultPorts.containsKey(scheme))</span>
+            {
+<span class="fc" id="L75">              port = gitDefaultPorts.get(scheme);</span>
+            }
+          }
+<span class="fc" id="L78">          connectionString.append(port);</span>
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">          if(uri.getHost() != null)</span>
+          {
+<span class="fc" id="L82">            connectionString.append(uri.getPath());</span>
+          }
+        }
+<span class="nc" id="L85">        catch (URISyntaxException e) {</span>
+<span class="nc" id="L86">          throw new IllegalStateException(String.format(&quot;Invalid repository uri: %s&quot;, repo));</span>
+<span class="fc" id="L87">        }</span>
+      } else {
+<span class="fc" id="L89">        connectionString.append(PROTOCOL_PREFIX_GIT).append(repo);</span>
+      }
+
+<span class="fc" id="L92">    } else {</span>
+
+<span class="fc" id="L94">      final String port = versionInfo.getProperty(&quot;port&quot;);</span>
+
+<span class="fc bfc" id="L96" title="All 2 branches covered.">      if(StringUtils.isBlank(port))</span>
+<span class="fc" id="L97">        throw new IllegalStateException(&quot;No SCM port provided.&quot;);</span>
+            
+<span class="fc" id="L99">      final String depotPath = versionInfo.getProperty(&quot;depotpath&quot;);</span>
+
+<span class="fc bfc" id="L101" title="All 2 branches covered.">      if(hideConfidentialInformation) {</span>
+        try {
+<span class="fc" id="L103">          URI perforceUri = new URI(&quot;perforce://&quot; + port);</span>
+          
+<span class="fc" id="L105">          int _port = perforceUri.getPort();</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">          if(_port == -1) {</span>
+<span class="nc" id="L107">            _port = PERFORCE_DEFAULT_PORT;</span>
+          }
+<span class="fc" id="L109">          connectionString.append(_port);</span>
+<span class="fc" id="L110">          connectionString.append(depotPath);</span>
+        }
+<span class="nc" id="L112">        catch (URISyntaxException e) {</span>
+<span class="nc" id="L113">          throw new IllegalStateException(String.format(&quot;Invalid port: %s&quot;, port));</span>
+<span class="fc" id="L114">        }</span>
+      } else {
+
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        if(StringUtils.isBlank(depotPath))</span>
+<span class="fc" id="L118">          throw new IllegalStateException(&quot;No depot path provided.&quot;);</span>
+
+<span class="fc" id="L120">        connectionString.append(PROTOCOL_PREFIX_PERFORCE)</span>
+        .append(port).append(&quot;:&quot;)
+        .append(getDepotPath(depotPath));
+      } 
+    }
+
+<span class="fc" id="L126">    return connectionString.toString();</span>
+  }
+  
+  public static String getRevision(final Properties versionInfo) {
+
+<span class="fc" id="L131">    final String type = versionInfo.getProperty(&quot;type&quot;);</span>
+    final String key;
+    
+<span class="pc bpc" id="L134" title="1 of 4 branches missed.">    if(type != null &amp;&amp; type.equals(&quot;git&quot;))</span>
+    {
+<span class="fc" id="L136">      key = &quot;commitId&quot;;</span>
+    } else {
+<span class="fc" id="L138">      key = &quot;changelist&quot;;</span>
+    }
+    
+<span class="fc" id="L141">    final String value = versionInfo.getProperty(key);</span>
+    
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">    if(StringUtils.isBlank(value)) </span>
+    {
+<span class="nc" id="L145">      throw new IllegalStateException(String.format(&quot;%s has not been provided in sync.info file.&quot;, key));</span>
+    }
+    
+<span class="fc" id="L148">    return value;</span>
+  }
+
+  private static String getDepotPath(String fullDepotPath)
+  {
+<span class="fc bfc" id="L153" title="All 2 branches covered.">    if (fullDepotPath.endsWith(THREEDOTS)) {</span>
+<span class="fc" id="L154">      fullDepotPath = fullDepotPath.substring(0, fullDepotPath.length() - THREEDOTS.length());</span>
+    }
+<span class="fc" id="L156">    return fullDepotPath;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>
