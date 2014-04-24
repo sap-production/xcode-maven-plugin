@@ -21,6 +21,9 @@ package com.sap.prd.mobile.ios.mios;
 
 import static com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -78,20 +81,50 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       if (checkoutDirectory.exists())
         com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(checkoutDirectory);
 
-      copy(baseDirectory, checkoutDirectory, new FileFilter() {
+      /**
+       * Initially, FileUtils was used to copy files over.
+       * But this was causing issues with some of the builds as the copy didn't
+       * deal with permissions/execution bit flags/symlinks/etc.
+       * Executing an rsync operations works 100% of the time and is a
+       * better mechanism than the FileUtils.
+       * Thanks to Tracy Keeling for finding the fix.
+       *
+       */
+      List<String> rsyncArgs = new ArrayList<String>();
 
-        @Override
-        public boolean accept(final File pathname)
-        {
-          final File canonicalPathName = getCanonicalFile(pathname);
+      rsyncArgs.add("rsync");
+      rsyncArgs.add("--recursive");
+      rsyncArgs.add("--perms");
+      rsyncArgs.add("--executability");
+      rsyncArgs.add("--links");
+      rsyncArgs.add("--safe-links");
 
-          return !(checkoutDirectory.equals(canonicalPathName) ||
-                originalLibDir.equals(canonicalPathName) ||
-                originalHeadersDir.equals(canonicalPathName) ||
-                originalXcodeDepsDir.equals(canonicalPathName));
-        }
+      //TODO: We simply need to exclude buildDirPath, but doing
+      // all this to maintain functionality with previous versions
 
-      });
+      rsyncArgs.add("--exclude");
+      rsyncArgs.add(checkoutDirectory.getAbsolutePath());
+
+      rsyncArgs.add("--exclude");
+      rsyncArgs.add(originalLibDir.getAbsolutePath());
+
+      rsyncArgs.add("--exclude");
+      rsyncArgs.add(originalHeadersDir.getAbsolutePath());
+
+      rsyncArgs.add("--exclude");
+      rsyncArgs.add(originalXcodeDepsDir.getAbsolutePath());
+
+      rsyncArgs.add(baseDirectory.getAbsolutePath() + "/");
+      rsyncArgs.add(checkoutDirectory.getAbsolutePath());
+
+      int returnValue = Forker.forkProcess(
+                                           System.out,
+                                           null,
+                                           rsyncArgs.toArray(new String[rsyncArgs.size()]));
+
+      if (returnValue != 0) {
+          throw new RuntimeException("Could not copy '" + baseDirectory + "' to '"  + checkoutDirectory + "'. Return value:" + returnValue);
+      }
 
       if (originalLibDir.exists()) {
         if (useSymbolicLinks()) {
@@ -136,28 +169,4 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       .getDirectory()));
   }
 
-  private void copy(final File source, final File targetDirectory, final FileFilter excludes) throws IOException
-  {
-
-    for (final File sourceFile : source.listFiles()) {
-      final File destFile = new File(targetDirectory, sourceFile.getName());
-      if (sourceFile.isDirectory()) {
-
-        if (excludes.accept(sourceFile)) {
-          copy(sourceFile, destFile, excludes);
-        }
-        else {
-          getLog().info("File '" + sourceFile + "' ommited.");
-        }
-      }
-      else {
-        FileUtils.copyFile(sourceFile, destFile);
-        if (sourceFile.canExecute()) {
-          destFile.setExecutable(true);
-        }
-        getLog().debug(
-              (destFile.canExecute() ? "Executable" : "File '") + sourceFile + "' copied to '" + destFile + "'.");
-      }
-    }
-  }
 }
