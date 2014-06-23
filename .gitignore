@@ -7,6 +7,7 @@
 /modules/integration-tests/it-xcode-maven-plugin-verification-checks/target/
 /modules/integration-tests/it-xcode-maven-plugin/target/
 /modules/integration-tests/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/src/xcode/build/
+/modules/integration-tests/target/
 /modules/xcode-maven-plugin/target/
 /modules/plist-parser/target/
 /modules/integration-tests/it-xcode-maven-plugin/src/test/projects/straight-forward/MyApp/target/
@@ -20,3 +21,5 @@ xcuserdata/
 bin
 modules/xcode-maven-plugin/src/test/projects/MyLib2/
 modules/xcode-maven-plugin/src/test/projects/MyLib3/
+.DS_Store
+.m2

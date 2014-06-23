@@ -23,7 +23,6 @@ import static com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile;
 
 import java.util.List;
 import java.util.ArrayList;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -103,16 +102,16 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
       // all this to maintain functionality with previous versions
 
       rsyncArgs.add("--exclude");
-      rsyncArgs.add(checkoutDirectory.getAbsolutePath());
+      rsyncArgs.add(getRelativePath(baseDirectory, checkoutDirectory));
 
       rsyncArgs.add("--exclude");
-      rsyncArgs.add(originalLibDir.getAbsolutePath());
+      rsyncArgs.add(getRelativePath(baseDirectory, originalLibDir));
 
       rsyncArgs.add("--exclude");
-      rsyncArgs.add(originalHeadersDir.getAbsolutePath());
+      rsyncArgs.add(getRelativePath(baseDirectory, originalHeadersDir));
 
       rsyncArgs.add("--exclude");
-      rsyncArgs.add(originalXcodeDepsDir.getAbsolutePath());
+      rsyncArgs.add(getRelativePath(baseDirectory, originalXcodeDepsDir));
 
       rsyncArgs.add(baseDirectory.getAbsolutePath() + "/");
       rsyncArgs.add(checkoutDirectory.getAbsolutePath());
@@ -159,7 +158,16 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
     }
   }
 
-  /**
+  private String getRelativePath(File baseDirectory, File childDir) throws IOException {
+    String base = baseDirectory.getAbsolutePath();
+    String child = childDir.getAbsolutePath();
+    if(!child.startsWith(base)) throw new IOException("base dir no parent of child dir. base: '"+ base + "', child: '" + child + "'");
+    String relative = child.substring(base.length());
+    if(relative.startsWith("/")) relative = relative.substring(1);
+	return relative;
+  }
+
+/**
    * // Return the part of the path between project base directory and project build directory. //
    * Assumption is: project build directory is located below project base directory.
    **/
