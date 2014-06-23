@@ -89,44 +89,12 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
        * Thanks to Tracy Keeling for finding the fix.
        *
        */
-      List<String> rsyncArgs = new ArrayList<String>();
-
-      rsyncArgs.add("rsync");
-      rsyncArgs.add("--recursive");
-      rsyncArgs.add("--perms");
-      rsyncArgs.add("--executability");
-      rsyncArgs.add("--links");
-      rsyncArgs.add("--safe-links");
-
-      //TODO: We simply need to exclude buildDirPath, but doing
-      // all this to maintain functionality with previous versions
-
-      rsyncArgs.add("--exclude");
-      rsyncArgs.add(getRelativePath(baseDirectory, checkoutDirectory));
-
-      rsyncArgs.add("--exclude");
-      rsyncArgs.add(getRelativePath(baseDirectory, originalLibDir));
-
-      rsyncArgs.add("--exclude");
-      rsyncArgs.add(getRelativePath(baseDirectory, originalHeadersDir));
-
-      rsyncArgs.add("--exclude");
-      rsyncArgs.add(getRelativePath(baseDirectory, originalXcodeDepsDir));
-
-      rsyncArgs.add(baseDirectory.getAbsolutePath() + "/");
-      rsyncArgs.add(checkoutDirectory.getAbsolutePath());
-
-      int returnValue = Forker.forkProcess(
-                                           System.out,
-                                           null,
-                                           rsyncArgs.toArray(new String[rsyncArgs.size()]));
-
-      if (returnValue != 0) {
-          throw new RuntimeException("Could not copy '" + baseDirectory + "' to '"  + checkoutDirectory + "'. Return value:" + returnValue);
-      }
+      copyWithRsync(baseDirectory, checkoutDirectory, 
+          checkoutDirectory, originalLibDir, originalHeadersDir, originalXcodeDepsDir);
 
       if (originalLibDir.exists()) {
         if (useSymbolicLinks()) {
+          if (copyOfLibDir.exists()) com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(copyOfLibDir);
           com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalLibDir, copyOfLibDir);
         }
         else {
@@ -136,6 +104,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if (originalHeadersDir.exists()) {
         if (useSymbolicLinks) {
+          if (copyOfHeadersDir.exists()) com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(copyOfHeadersDir);
           com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir, copyOfHeadersDir);
         }
         else {
@@ -145,6 +114,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if (originalXcodeDepsDir.exists()) {
         if (useSymbolicLinks) {
+          if (copyOfXcodeDepsDir.exists()) com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(copyOfXcodeDepsDir);
           com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalXcodeDepsDir, copyOfXcodeDepsDir);
         }
         else {
@@ -155,6 +125,37 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
     }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
+    }
+  }
+
+  private void copyWithRsync(final File baseDirectory,
+      final File checkoutDirectory, final File... excludes) throws IOException {
+    List<String> rsyncArgs = new ArrayList<String>();
+
+    rsyncArgs.add("rsync");
+    rsyncArgs.add("--recursive");
+    rsyncArgs.add("--perms");
+    rsyncArgs.add("--executability");
+    rsyncArgs.add("--links");
+    rsyncArgs.add("--safe-links");
+
+    // TODO: We simply need to exclude buildDirPath, but doing
+    // all this to maintain functionality with previous versions
+
+    for(File exclude : excludes) {
+      rsyncArgs.add("--exclude");
+      rsyncArgs.add(getRelativePath(baseDirectory, exclude));
+    }
+
+    rsyncArgs.add(baseDirectory.getAbsolutePath() + "/");
+    rsyncArgs.add(checkoutDirectory.getAbsolutePath());
+
+    int returnValue = Forker.forkProcess(System.out, null,
+        rsyncArgs.toArray(new String[rsyncArgs.size()]));
+
+    if (returnValue != 0) {
+      throw new RuntimeException("Could not copy '" + baseDirectory + "' to '"
+          + checkoutDirectory + "'. Return value:" + returnValue);
     }
   }
 
