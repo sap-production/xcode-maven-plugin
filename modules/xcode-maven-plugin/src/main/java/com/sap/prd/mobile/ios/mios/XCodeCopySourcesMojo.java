@@ -136,8 +136,12 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
     rsyncArgs.add("--recursive");
     rsyncArgs.add("--perms");
     rsyncArgs.add("--executability");
-    rsyncArgs.add("--links");
-    rsyncArgs.add("--safe-links");
+    
+    // The "checkout" directory by intention shall not contain symlinks but only copies.
+    // We have to ensure the original sources are not modified - that's why we copy them to "checkout" 
+    rsyncArgs.add("--copy-links");
+    //rsyncArgs.add("--links");
+    //rsyncArgs.add("--safe-links");
 
     // TODO: We simply need to exclude buildDirPath, but doing
     // all this to maintain functionality with previous versions
