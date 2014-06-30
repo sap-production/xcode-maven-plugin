@@ -23,7 +23,6 @@ import static com.sap.prd.mobile.ios.mios.FileUtils.getCanonicalFile;
 
 import java.util.List;
 import java.util.ArrayList;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -90,44 +89,12 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
        * Thanks to Tracy Keeling for finding the fix.
        *
        */
-      List<String> rsyncArgs = new ArrayList<String>();
-
-      rsyncArgs.add("rsync");
-      rsyncArgs.add("--recursive");
-      rsyncArgs.add("--perms");
-      rsyncArgs.add("--executability");
-      rsyncArgs.add("--links");
-      rsyncArgs.add("--safe-links");
-
-      //TODO: We simply need to exclude buildDirPath, but doing
-      // all this to maintain functionality with previous versions
-
-      rsyncArgs.add("--exclude");
-      rsyncArgs.add(checkoutDirectory.getAbsolutePath());
-
-      rsyncArgs.add("--exclude");
-      rsyncArgs.add(originalLibDir.getAbsolutePath());
-
-      rsyncArgs.add("--exclude");
-      rsyncArgs.add(originalHeadersDir.getAbsolutePath());
-
-      rsyncArgs.add("--exclude");
-      rsyncArgs.add(originalXcodeDepsDir.getAbsolutePath());
-
-      rsyncArgs.add(baseDirectory.getAbsolutePath() + "/");
-      rsyncArgs.add(checkoutDirectory.getAbsolutePath());
-
-      int returnValue = Forker.forkProcess(
-                                           System.out,
-                                           null,
-                                           rsyncArgs.toArray(new String[rsyncArgs.size()]));
-
-      if (returnValue != 0) {
-          throw new RuntimeException("Could not copy '" + baseDirectory + "' to '"  + checkoutDirectory + "'. Return value:" + returnValue);
-      }
+      copyWithRsync(baseDirectory, checkoutDirectory, 
+          checkoutDirectory, originalLibDir, originalHeadersDir, originalXcodeDepsDir);
 
       if (originalLibDir.exists()) {
         if (useSymbolicLinks()) {
+          if (copyOfLibDir.exists()) com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(copyOfLibDir);
           com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalLibDir, copyOfLibDir);
         }
         else {
@@ -137,6 +104,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if (originalHeadersDir.exists()) {
         if (useSymbolicLinks) {
+          if (copyOfHeadersDir.exists()) com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(copyOfHeadersDir);
           com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalHeadersDir, copyOfHeadersDir);
         }
         else {
@@ -146,6 +114,7 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
 
       if (originalXcodeDepsDir.exists()) {
         if (useSymbolicLinks) {
+          if (copyOfXcodeDepsDir.exists()) com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(copyOfXcodeDepsDir);
           com.sap.prd.mobile.ios.mios.FileUtils.createSymbolicLink(originalXcodeDepsDir, copyOfXcodeDepsDir);
         }
         else {
@@ -159,7 +128,51 @@ public class XCodeCopySourcesMojo extends AbstractXCodeMojo
     }
   }
 
-  /**
+  private void copyWithRsync(final File baseDirectory,
+      final File checkoutDirectory, final File... excludes) throws IOException {
+    List<String> rsyncArgs = new ArrayList<String>();
+
+    rsyncArgs.add("rsync");
+    rsyncArgs.add("--recursive");
+    rsyncArgs.add("--perms");
+    rsyncArgs.add("--executability");
+    
+    // The "checkout" directory by intention shall not contain symlinks but only copies.
+    // We have to ensure the original sources are not modified - that's why we copy them to "checkout" 
+    rsyncArgs.add("--copy-links");
+    //rsyncArgs.add("--links");
+    //rsyncArgs.add("--safe-links");
+
+    // TODO: We simply need to exclude buildDirPath, but doing
+    // all this to maintain functionality with previous versions
+
+    for(File exclude : excludes) {
+      rsyncArgs.add("--exclude");
+      rsyncArgs.add(getRelativePath(baseDirectory, exclude));
+    }
+
+    rsyncArgs.add(baseDirectory.getAbsolutePath() + "/");
+    rsyncArgs.add(checkoutDirectory.getAbsolutePath());
+
+    int returnValue = Forker.forkProcess(System.out, null,
+        rsyncArgs.toArray(new String[rsyncArgs.size()]));
+
+    if (returnValue != 0) {
+      throw new RuntimeException("Could not copy '" + baseDirectory + "' to '"
+          + checkoutDirectory + "'. Return value:" + returnValue);
+    }
+  }
+
+  private String getRelativePath(File baseDirectory, File childDir) throws IOException {
+    String base = baseDirectory.getAbsolutePath();
+    String child = childDir.getAbsolutePath();
+    if(!child.startsWith(base)) throw new IOException("base dir no parent of child dir. base: '"+ base + "', child: '" + child + "'");
+    String relative = child.substring(base.length());
+    if(relative.startsWith("/")) relative = relative.substring(1);
+	return relative;
+  }
+
+/**
    * // Return the part of the path between project base directory and project build directory. //
    * Assumption is: project build directory is located below project base directory.
    **/
