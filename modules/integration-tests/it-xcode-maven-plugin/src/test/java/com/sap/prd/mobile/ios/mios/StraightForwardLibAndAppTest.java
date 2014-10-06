@@ -19,9 +19,9 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -237,19 +237,6 @@ public class StraightForwardLibAndAppTest extends XCodeTest
     File versionsTestPListFile = new File("src/test/resources/MyApp-versions.plist");
 
     compareFilesContainingDynamicVersions(dynamicVersion, versionsTestPListFile, versionsPListInAppZip);
-  }
-
-  @Test
-  public void testVerifyCodesignIdentityInIpa() throws Exception
-  {
-    CodeSignManager.verify(new File(extractedIpaFolder, "Payload/MyApp.app"));
-    CodeSignManager.verify(new File(appstoreFolder, "MyApp.app"));
-  }
-
-  @Test
-  public void testVerifyCodesignIdentityInAppstoreFolder() throws Exception
-  {
-    CodeSignManager.verify(new File(appstoreFolder, "MyApp.app"));
   }
 
   @Test

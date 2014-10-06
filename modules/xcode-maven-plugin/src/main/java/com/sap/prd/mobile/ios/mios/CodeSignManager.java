@@ -29,10 +29,15 @@ import org.apache.commons.lang.StringUtils;
 
 public class CodeSignManager
 {
-  public static void verify(File appFolder) throws IOException
+  public static void verify(File appFolder, boolean noStrictVerify) throws IOException
   {
-    ExecResult exec = exec(new String[] { "/usr/bin/codesign", "--verify -v", "\"" + appFolder.getAbsolutePath() + "\"" });
-    checkExitValue(exec);
+    if (noStrictVerify) {
+      checkExitValue(exec(new String[] { "/usr/bin/codesign", "--verify --no-strict -v",
+          "\"" + appFolder.getAbsolutePath() + "\"" }));
+    }
+    else {
+      checkExitValue(exec(new String[] { "/usr/bin/codesign", "--verify -v", "\"" + appFolder.getAbsolutePath() + "\"" }));
+    }
   }
 
   public static void sign(String codeSignIdentity, File appFolder, boolean force) throws IOException
@@ -169,12 +174,11 @@ public class CodeSignManager
       this.result1 = result1;
       this.result2 = result2;
     }
-
+    
     @Override
     public String getMessage()
     {
       return String.format("Verification failed, results differ. Result 1: '%s', Result 2: '%s'", result1, result2);
     }
   }
-
 }

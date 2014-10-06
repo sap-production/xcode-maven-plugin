@@ -21,13 +21,18 @@ package com.sap.prd.mobile.ios.mios;
 
 import static java.lang.String.format;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,6 +47,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -143,6 +149,13 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
    * @parameter expression="${xcode.failOnMissingSyncInfo}" default-value="false"
    */
   private boolean failOnMissingSyncInfo;
+  
+  /**
+   * If <code>true</code> the codesign --verify will be called with --no-strict option
+   * 
+   * @parameter expression="${xcode.noStrictVerify}"
+   */
+  private String noStrictVerify;
 
   /**
    * If <code>true</code> confidential information is removed from artifacts to be released.
@@ -251,8 +264,8 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           File appFolder = new File(rootDir, productName + ".app");
           File versionsXmlInApp = new File(appFolder, "versions.xml");
           File versionsPListInApp = new File(appFolder, "versions.plist");
-
-          CodeSignManager.verify(appFolder);
+          
+          CodeSignManager.verify(appFolder, defineNoStrictVerifyBasedOnXcodeVersion());
           final ExecResult originalCodesignEntitlementsInfo = CodeSignManager
             .getCodesignEntitlementsInformation(appFolder);
           final ExecResult originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
@@ -278,7 +291,7 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           final ExecResult resignedCodesignEntitlementsInfo = CodeSignManager
             .getCodesignEntitlementsInformation(appFolder);
           final ExecResult resignedSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
-          CodeSignManager.verify(appFolder);
+          CodeSignManager.verify(appFolder, defineNoStrictVerifyBasedOnXcodeVersion());
           CodeSignManager.verify(originalCodesignEntitlementsInfo, resignedCodesignEntitlementsInfo);
           CodeSignManager.verify(originalSecurityCMSMessageInfo, resignedSecurityCMSMessageInfo);
         }
@@ -367,4 +380,70 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
             (sideArtifact.getFile() != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
     }
   }
+
+  protected boolean defineNoStrictVerifyBasedOnXcodeVersion() throws XCodeException
+  {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    PrintStream out;
+    if (noStrictVerify == null || noStrictVerify.isEmpty()) {
+      
+
+      int exitCode;
+      try {
+        out = new PrintStream(bos, true, Charset.defaultCharset().name());
+        exitCode = Forker.forkProcess(out, new File("."), new String[] { "xcodebuild", "-version" });
+        if (exitCode == 0) {
+          String output = bos.toString(Charset.defaultCharset().name());
+          DefaultArtifactVersion version = getVersion(output);
+          String buildVersion = getBuildVersion(output);
+          return checkVersions(version, buildVersion);
+        }
+        else {
+          throw new XCodeException(
+                "Could not get xcodebuild version (exit code = " + exitCode
+                      + ")");
+        }
+      }
+      catch (Exception e) {
+        throw new XCodeException(
+              "Could not get xcodebuild version");
+      }finally{
+        IOUtils.closeQuietly(bos);
+      }
+    } else {
+      return Boolean.parseBoolean(noStrictVerify);
+    }
+  }
+
+  private DefaultArtifactVersion getVersion(String output) throws Exception
+  {
+    Pattern versionPattern = Pattern.compile("Xcode (\\d+(\\.\\d+)+)", Pattern.CASE_INSENSITIVE);
+    Matcher versionMatcher = versionPattern.matcher(output);
+    if (versionMatcher.find()) {
+      return new DefaultArtifactVersion(versionMatcher.group(1));
+    }
+    throw new Exception("Could not get xcodebuild version");
+  }
+
+  private boolean checkVersions(DefaultArtifactVersion version, String buildVersion) throws Exception
+  {
+    DefaultArtifactVersion minXcodeVersion = new DefaultArtifactVersion(MIN_XCODE_VERSION_NO_STRICT_VERIFY);
+    if (version.compareTo(minXcodeVersion) < 0) {
+      return false;
+    }
+    return true;
+  }
+
+  public final static String MIN_XCODE_VERSION_NO_STRICT_VERIFY = "6.0.0";
+
+  private String getBuildVersion(String output) throws Exception
+  {
+    Pattern buildPattern = Pattern.compile("Build version (\\w+)", Pattern.CASE_INSENSITIVE);
+    Matcher buildMatcher = buildPattern.matcher(output);
+    if (buildMatcher.find()) {
+      return buildMatcher.group(1);
+    }
+    throw new Exception("Could not get xcodebuild build version");
+  }
+
 }
