@@ -19,20 +19,18 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.checkVersions;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getVersion;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getXCodeVersionString;
 import static java.lang.String.format;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -102,6 +100,11 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
 public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 {
 
+  private final static String MIN_XCODE_VERSION_NO_STRICT_VERIFY = "6.0.0";
+  private final static boolean DEFAULT_NO_STRICT_VERIFY_FOR_OLD_XCODE = false;
+  private final static boolean DEFAULT_NO_STRICT_VERIFY_FOR_NEW_XCODE = true;
+
+  
   /**
    * 
    * @parameter default-value="${session}"
@@ -298,6 +301,21 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
       }
     }
   }
+  
+  private boolean defineNoStrictVerifyBasedOnXcodeVersion() throws XCodeException
+  {
+    if (noStrictVerify != null && (noStrictVerify.equalsIgnoreCase("true") || noStrictVerify.equalsIgnoreCase("false"))) {
+      return Boolean.parseBoolean(noStrictVerify);
+    } else {
+      String xCodeVersionString = getXCodeVersionString();
+      DefaultArtifactVersion version = getVersion(xCodeVersionString);
+      if(checkVersions(version, MIN_XCODE_VERSION_NO_STRICT_VERIFY)) {
+        return DEFAULT_NO_STRICT_VERIFY_FOR_NEW_XCODE;
+      } else {
+        return DEFAULT_NO_STRICT_VERIFY_FOR_OLD_XCODE;
+      }
+    }
+  }
 
   void transformVersionsXml(File versionsXmlInBuild, File versionsXmlInApp)
         throws ParserConfigurationException, SAXException, IOException, TransformerFactoryConfigurationError,
@@ -379,71 +397,6 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
             "Version file '%s' for artifact '%s' contains invalid content (Scheme violation). Ignoring this file.",
             (sideArtifact.getFile() != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
     }
-  }
-
-  protected boolean defineNoStrictVerifyBasedOnXcodeVersion() throws XCodeException
-  {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    PrintStream out;
-    if (noStrictVerify == null || noStrictVerify.isEmpty()) {
-      
-
-      int exitCode;
-      try {
-        out = new PrintStream(bos, true, Charset.defaultCharset().name());
-        exitCode = Forker.forkProcess(out, new File("."), new String[] { "xcodebuild", "-version" });
-        if (exitCode == 0) {
-          String output = bos.toString(Charset.defaultCharset().name());
-          DefaultArtifactVersion version = getVersion(output);
-          String buildVersion = getBuildVersion(output);
-          return checkVersions(version, buildVersion);
-        }
-        else {
-          throw new XCodeException(
-                "Could not get xcodebuild version (exit code = " + exitCode
-                      + ")");
-        }
-      }
-      catch (Exception e) {
-        throw new XCodeException(
-              "Could not get xcodebuild version");
-      }finally{
-        IOUtils.closeQuietly(bos);
-      }
-    } else {
-      return Boolean.parseBoolean(noStrictVerify);
-    }
-  }
-
-  private DefaultArtifactVersion getVersion(String output) throws Exception
-  {
-    Pattern versionPattern = Pattern.compile("Xcode (\\d+(\\.\\d+)+)", Pattern.CASE_INSENSITIVE);
-    Matcher versionMatcher = versionPattern.matcher(output);
-    if (versionMatcher.find()) {
-      return new DefaultArtifactVersion(versionMatcher.group(1));
-    }
-    throw new Exception("Could not get xcodebuild version");
-  }
-
-  private boolean checkVersions(DefaultArtifactVersion version, String buildVersion) throws Exception
-  {
-    DefaultArtifactVersion minXcodeVersion = new DefaultArtifactVersion(MIN_XCODE_VERSION_NO_STRICT_VERIFY);
-    if (version.compareTo(minXcodeVersion) < 0) {
-      return false;
-    }
-    return true;
-  }
-
-  public final static String MIN_XCODE_VERSION_NO_STRICT_VERIFY = "6.0.0";
-
-  private String getBuildVersion(String output) throws Exception
-  {
-    Pattern buildPattern = Pattern.compile("Build version (\\w+)", Pattern.CASE_INSENSITIVE);
-    Matcher buildMatcher = buildPattern.matcher(output);
-    if (buildMatcher.find()) {
-      return buildMatcher.group(1);
-    }
-    throw new Exception("Could not get xcodebuild build version");
   }
 
 }

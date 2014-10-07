@@ -20,13 +20,10 @@ package com.sap.prd.mobile.ios.mios;
  * #L%
  */
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.Charset;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.checkVersions;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getBuildVersion;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getVersion;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getXCodeVersionString;
 
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -49,51 +46,18 @@ public class CheckPrerequisitesMojo extends AbstractXCodeMojo
   public void execute() throws MojoExecutionException, MojoFailureException
   {
     try {
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      PrintStream out = new PrintStream(bos, true, Charset.defaultCharset().name());
-      int exitCode = Forker.forkProcess(out, new File("."), new String[] { "xcodebuild", "-version" });
-      if (exitCode == 0) {
-        String output = bos.toString(Charset.defaultCharset().name());
-        DefaultArtifactVersion version = getVersion(output);
-        String buildVersion = getBuildVersion(output);
-        getLog().info("Using Xcode " + version + " " + buildVersion);
-        checkVersions(version, buildVersion);
-      }
-      else {
-        throw new MojoExecutionException("Could not get xcodebuild version (exit code = " + exitCode + ")");
+      String xCodeVersionString = getXCodeVersionString();
+      DefaultArtifactVersion version = getVersion(xCodeVersionString);
+      String buildVersion = getBuildVersion(xCodeVersionString);
+      getLog().info("Using Xcode " + version + " " + buildVersion);
+      if(!checkVersions(version, MIN_XCODE_VERSION)) {
+        throw new MojoExecutionException("Xcode " + MIN_XCODE_VERSION + " (or higher) is required (installed: " + version
+              + " " + buildVersion + ")");
       }
     }
-    catch (IOException e) {
+    catch (XCodeException e) {
       throw new MojoExecutionException("Could not get xcodebuild version", e);
     }
   }
 
-  private DefaultArtifactVersion getVersion(String output) throws MojoExecutionException
-  {
-    Pattern versionPattern = Pattern.compile("Xcode (\\d+(\\.\\d+)+)", Pattern.CASE_INSENSITIVE);
-    Matcher versionMatcher = versionPattern.matcher(output);
-    if (versionMatcher.find()) {
-      return new DefaultArtifactVersion(versionMatcher.group(1));
-    }
-    throw new MojoExecutionException("Could not get xcodebuild version");
-  }
-
-  private String getBuildVersion(String output) throws MojoExecutionException
-  {
-    Pattern buildPattern = Pattern.compile("Build version (\\w+)", Pattern.CASE_INSENSITIVE);
-    Matcher buildMatcher = buildPattern.matcher(output);
-    if (buildMatcher.find()) {
-      return buildMatcher.group(1);
-    }
-    throw new MojoExecutionException("Could not get xcodebuild build version");
-  }
-
-  private void checkVersions(DefaultArtifactVersion version, String buildVersion) throws MojoExecutionException
-  {
-    DefaultArtifactVersion minXcodeVersion = new DefaultArtifactVersion(MIN_XCODE_VERSION);
-    if (version.compareTo(minXcodeVersion) < 0) {
-      throw new MojoExecutionException("Xcode " + MIN_XCODE_VERSION + " (or higher) is required (installed: " + version
-            + " " + buildVersion + ")");
-    }
-  }
 }
