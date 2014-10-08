@@ -578,6 +578,5 @@ public abstract class XCodeTest
       map.put((String)entry.getKey(), (String)entry.getValue());
     }
     return map;
-  }
-  
+  }  
 }

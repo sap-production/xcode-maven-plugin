@@ -19,6 +19,9 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.checkVersions;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getVersion;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getXCodeVersionString;
 import static java.lang.String.format;
 
 import java.io.File;
@@ -42,6 +45,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -96,6 +100,11 @@ import com.sap.prd.mobile.ios.mios.versioninfo.v_1_2_2.Dependency;
 public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 {
 
+  private final static String MIN_XCODE_VERSION_NO_STRICT_VERIFY = "6.0.0";
+  private final static boolean DEFAULT_NO_STRICT_VERIFY_FOR_OLD_XCODE = false;
+  private final static boolean DEFAULT_NO_STRICT_VERIFY_FOR_NEW_XCODE = true;
+
+  
   /**
    * 
    * @parameter default-value="${session}"
@@ -143,6 +152,13 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
    * @parameter expression="${xcode.failOnMissingSyncInfo}" default-value="false"
    */
   private boolean failOnMissingSyncInfo;
+  
+  /**
+   * If <code>true</code> the codesign --verify will be called with --no-strict option
+   * 
+   * @parameter expression="${xcode.noStrictVerify}"
+   */
+  private String noStrictVerify;
 
   /**
    * If <code>true</code> confidential information is removed from artifacts to be released.
@@ -251,8 +267,8 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           File appFolder = new File(rootDir, productName + ".app");
           File versionsXmlInApp = new File(appFolder, "versions.xml");
           File versionsPListInApp = new File(appFolder, "versions.plist");
-
-          CodeSignManager.verify(appFolder);
+          
+          CodeSignManager.verify(appFolder, defineNoStrictVerifyBasedOnXcodeVersion());
           final ExecResult originalCodesignEntitlementsInfo = CodeSignManager
             .getCodesignEntitlementsInformation(appFolder);
           final ExecResult originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
@@ -278,10 +294,25 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           final ExecResult resignedCodesignEntitlementsInfo = CodeSignManager
             .getCodesignEntitlementsInformation(appFolder);
           final ExecResult resignedSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
-          CodeSignManager.verify(appFolder);
+          CodeSignManager.verify(appFolder, defineNoStrictVerifyBasedOnXcodeVersion());
           CodeSignManager.verify(originalCodesignEntitlementsInfo, resignedCodesignEntitlementsInfo);
           CodeSignManager.verify(originalSecurityCMSMessageInfo, resignedSecurityCMSMessageInfo);
         }
+      }
+    }
+  }
+  
+  private boolean defineNoStrictVerifyBasedOnXcodeVersion() throws XCodeException
+  {
+    if (noStrictVerify != null && (noStrictVerify.equalsIgnoreCase("true") || noStrictVerify.equalsIgnoreCase("false"))) {
+      return Boolean.parseBoolean(noStrictVerify);
+    } else {
+      String xCodeVersionString = getXCodeVersionString();
+      DefaultArtifactVersion version = getVersion(xCodeVersionString);
+      if(checkVersions(version, MIN_XCODE_VERSION_NO_STRICT_VERIFY)) {
+        return DEFAULT_NO_STRICT_VERIFY_FOR_NEW_XCODE;
+      } else {
+        return DEFAULT_NO_STRICT_VERIFY_FOR_OLD_XCODE;
       }
     }
   }
@@ -367,4 +398,5 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
             (sideArtifact.getFile() != null ? sideArtifact.getFile() : "<n/a>"), sideArtifact));
     }
   }
+
 }
