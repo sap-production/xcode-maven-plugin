@@ -9,7 +9,16 @@ Release Notes
 %{toc|section=1|fromDepth=2|toDepth=2}
 
 ===
+* 1.14.1
 
+** Features
+
+*** <no new feature introduced>
+
+*** Bug fixes
+
+   Signing of applications is not possible when building with newer (than 6.0.0) Xcode versions. 
+   
 * 1.14.0
 
 ** Features
