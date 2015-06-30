@@ -63,6 +63,16 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
   protected String codeSignIdentity;
 
   /**
+   * The code signing required is used to disable code signing when no
+   * developer provisioning certificate is available (e.g.
+   * <code>NO</code>, <code>YES</code>).
+   * 
+   * @parameter expression="${xcode.codeSigningRequired}"
+   * @since 1.14.1
+   */
+  protected String codeSigningRequired;
+  
+  /**
    * Can be used to override the provisioning profile defined in the Xcode project target. You can
    * set it to an empty String if you want to use the default provisioning profile.
    * 
@@ -127,8 +137,11 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     }
 
     HashMap<String, String> managedSettings = new HashMap<String, String>();
-    if (codeSignIdentity != null && !codeSignIdentity.trim().isEmpty())
+    if (codeSignIdentity != null)
       managedSettings.put(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name(), codeSignIdentity);
+
+    if (codeSigningRequired != null && !codeSigningRequired.trim().isEmpty())
+      managedSettings.put(Settings.ManagedSetting.CODE_SIGNING_REQUIRED.name(), codeSigningRequired);
 
     if (provisioningProfile != null)
       managedSettings.put(Settings.ManagedSetting.PROVISIONING_PROFILE.name(), provisioningProfile);
