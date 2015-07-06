@@ -47,8 +47,8 @@ class XCodeManager
     final int returnValue = Forker.forkProcess(ctx.getOut(), ctx.getProjectRootDirectory(),
           commandLineBuilder.createBuildCall());
     if (returnValue != 0) {
-      throw new XCodeException("Could not execute xcodebuild for configuration "
-            + ctx.getOptions().getAllOptions().get(Options.ManagedOption.CONFIGURATION.getOptionName()));
+      throw new XCodeException(String.format("Could not execute xcodebuild for configuration '%s'. XCode command line was: '%s'. Working directory was: '%s'.",
+            ctx.getOptions().getAllOptions().get(Options.ManagedOption.CONFIGURATION.getOptionName()), commandLineBuilder.toString(), ctx.getProjectRootDirectory()));
     }
   }
 }
