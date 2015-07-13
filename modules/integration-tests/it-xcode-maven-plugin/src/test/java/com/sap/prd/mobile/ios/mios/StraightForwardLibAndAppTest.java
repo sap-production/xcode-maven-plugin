@@ -200,14 +200,6 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   }
 
   @Test
-  public void testResourceRulesExistsInsideIPA() throws Exception
-  {
-    File resourceRulesPlistFile = new File(extractedIpaFolder, "Payload/MyApp.app/ResourceRules.plist");
-    assertTrue("ResourceRules pList file '" + resourceRulesPlistFile + "' does not exist.",
-          resourceRulesPlistFile.isFile());
-  }
-
-  @Test
   public void testAppNameInAppStoreUploadFile() throws Exception
   {
     File[] files = appstoreFolder.listFiles();
