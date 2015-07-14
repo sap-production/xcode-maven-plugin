@@ -9,8 +9,8 @@ The Xcode Maven Plugin can be used to integrate Xcode projects into a Maven buil
 
 ## Known Limitations
 
-The xcode-maven-plugin is currently only compatible with maven 3.0. For more details check https://github.com/sap-production/xcode-maven-plugin/issues/131
-The xcode-maven-plugin is currently only compatible with Jdk 1.7.X, Project will build successfully with Jdk 8 but integration tests are failing, We recommend to use Jdk 1.7.x.
+* The xcode-maven-plugin is currently only compatible with maven 3.0. For more details check https://github.com/sap-production/xcode-maven-plugin/issues/131
+* The xcode-maven-plugin is currently only compatible with Jdk 1.7.X, Project will build successfully with Jdk 8 but integration tests are failing, We recommend to use Jdk 1.7.x.
 
 ## Documentation
 
