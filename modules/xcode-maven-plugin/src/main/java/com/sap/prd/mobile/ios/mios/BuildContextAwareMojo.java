@@ -67,10 +67,10 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * developer provisioning certificate is available (e.g.
    * <code>NO</code>, <code>YES</code>).
    * 
-   * @parameter expression="${xcode.codeSigningRequired}"
+   * @parameter expression="${xcode.codeSigningRequired}" default-value = "true"
    * @since 1.14.1
    */
-  protected String codeSigningRequired;
+  protected boolean codeSigningRequired;
   
   /**
    * Can be used to override the provisioning profile defined in the Xcode project target. You can
@@ -140,8 +140,8 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     if (codeSignIdentity != null)
       managedSettings.put(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name(), codeSignIdentity);
 
-    if (codeSigningRequired != null && !codeSigningRequired.trim().isEmpty())
-      managedSettings.put(Settings.ManagedSetting.CODE_SIGNING_REQUIRED.name(), codeSigningRequired);
+    if (!codeSigningRequired)
+      managedSettings.put(Settings.ManagedSetting.CODE_SIGNING_REQUIRED.name(), "NO");
 
     if (provisioningProfile != null)
       managedSettings.put(Settings.ManagedSetting.PROVISIONING_PROFILE.name(), provisioningProfile);
