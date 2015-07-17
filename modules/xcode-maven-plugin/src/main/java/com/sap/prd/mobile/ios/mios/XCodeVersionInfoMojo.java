@@ -106,6 +106,25 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
   
   /**
+   * The code sign identity is used to select the provisioning profile (e.g.
+   * <code>iPhone Distribution</code>, <code>iPhone Developer</code>).
+   *
+   * @parameter expression="${xcode.codeSignIdentity}"
+   * @since 1.2.0
+   */
+  protected String codeSignIdentity;
+
+  /**
+   * The code signing required is used to disable code signing when no
+   * developer provisioning certificate is available (e.g.
+   * <code>NO</code>, <code>YES</code>).
+   *
+   * @parameter expression="${xcode.codeSigningRequired}" default-value = "true"
+   * @since 1.14.1
+   */
+  protected boolean codeSigningRequired;
+  
+  /**
    * 
    * @parameter default-value="${session}"
    * @required
@@ -267,12 +286,21 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           File appFolder = new File(rootDir, productName + ".app");
           File versionsXmlInApp = new File(appFolder, "versions.xml");
           File versionsPListInApp = new File(appFolder, "versions.plist");
-          
-          CodeSignManager.verify(appFolder, defineNoStrictVerifyBasedOnXcodeVersion());
-          final ExecResult originalCodesignEntitlementsInfo = CodeSignManager
-            .getCodesignEntitlementsInformation(appFolder);
-          final ExecResult originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
 
+          boolean isCodeSignActive = true;
+
+          if((codeSignIdentity == null ||codeSignIdentity.isEmpty()) && !codeSigningRequired )
+              isCodeSignActive = false;
+
+          ExecResult originalCodesignEntitlementsInfo = null;
+          ExecResult originalSecurityCMSMessageInfo = null;
+          if(isCodeSignActive)
+          {
+               CodeSignManager.verify(appFolder, defineNoStrictVerifyBasedOnXcodeVersion());
+               originalCodesignEntitlementsInfo = CodeSignManager
+                     .getCodesignEntitlementsInformation(appFolder);
+               originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
+          }
           try {
             if (hideConfidentialInformation) {
               transformVersionsXml(versionsXmlInBuild, versionsXmlInApp);
@@ -289,14 +317,18 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
           FileUtils.copyFile(versionsPListInBuild, versionsPListInApp);
           getLog().info("Versions.plist file copied from: '" + versionsPListInBuild + " ' to ' " + versionsPListInApp);
 
-          sign(rootDir, configuration, sdk);
+          if(isCodeSignActive)
+          { 
+               sign(rootDir, configuration, sdk);
+               final ExecResult resignedCodesignEntitlementsInfo = CodeSignManager
+                     .getCodesignEntitlementsInformation(appFolder);
+                      final ExecResult resignedSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
+                      CodeSignManager.verify(appFolder, defineNoStrictVerifyBasedOnXcodeVersion());
+                      CodeSignManager.verify(originalCodesignEntitlementsInfo, resignedCodesignEntitlementsInfo);
+                      CodeSignManager.verify(originalSecurityCMSMessageInfo, resignedSecurityCMSMessageInfo);
+          }
 
-          final ExecResult resignedCodesignEntitlementsInfo = CodeSignManager
-            .getCodesignEntitlementsInformation(appFolder);
-          final ExecResult resignedSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
-          CodeSignManager.verify(appFolder, defineNoStrictVerifyBasedOnXcodeVersion());
-          CodeSignManager.verify(originalCodesignEntitlementsInfo, resignedCodesignEntitlementsInfo);
-          CodeSignManager.verify(originalSecurityCMSMessageInfo, resignedSecurityCMSMessageInfo);
+    
         }
       }
     }
