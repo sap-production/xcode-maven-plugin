@@ -48,6 +48,15 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
    * @since 1.2.0
    */
   private String appIdSuffix;
+  
+  /**
+   * appType helps to inject the appIdSuffix in to appropriate location of appId in the <code>Info.plist</code>
+   * before the signing takes place.
+   * Without type appId will be suffixed with the given value, with type we are injecting value at appropriate location
+   * @parameter expression="${xcode.appType}"
+   */
+  private String appType;
+  
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -75,18 +84,18 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
                 + "' was already updated for another configuration. This file will be skipped.");
         }
         else {
-          changeAppId(infoPlistAccessor, appIdSuffix);
+          changeAppId(infoPlistAccessor, appIdSuffix , appType);
           alreadyUpdatedPlists.add(infoPlistFile);
         }
       }
     }
   }
 
-  static void changeAppId(PListAccessor infoPlistAccessor, String appIdSuffix) throws MojoExecutionException
+  static void changeAppId(PListAccessor infoPlistAccessor, String appIdSuffix, String appType) throws MojoExecutionException
   {
     ensurePListFileIsWritable(infoPlistAccessor.getPlistFile());
     try {
-      appendAppIdSuffix(infoPlistAccessor, appIdSuffix);
+      appendAppIdSuffix(infoPlistAccessor, appIdSuffix, appType);
     }
     catch (IOException e) {
       throw new MojoExecutionException(e.getMessage(), e);
@@ -103,12 +112,27 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
     }
   }
 
-  private static void appendAppIdSuffix(PListAccessor infoPlistAccessor, String appIdSuffix)
+  private static void appendAppIdSuffix(PListAccessor infoPlistAccessor, String appIdSuffix, String appType)
         throws IOException
   {
-    String newAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER) + "." + appIdSuffix;
+	
+    String newAppId;
+    if (appType == null || "".equals(appType.trim())) {
+    	newAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER) + "." + appIdSuffix;
+      }else{
+    	  LOGGER.info("appType = " + appType);
+    	  newAppId = injectAppId(appIdSuffix, infoPlistAccessor);
+      }
+   
     infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, newAppId);
     LOGGER.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set AppId to '" + newAppId + "'.");
+  }
+
+  private static String injectAppId(String appIdSuffix, PListAccessor infoPlistAccessor) throws IOException {
+	String originalAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
+	String firstPart= originalAppId.substring(0,originalAppId.lastIndexOf("."));
+    String lastPart = originalAppId.substring(originalAppId.lastIndexOf(".")+ 1);    
+	return firstPart + "." + appIdSuffix + "." + lastPart ;	
   }
 
 }

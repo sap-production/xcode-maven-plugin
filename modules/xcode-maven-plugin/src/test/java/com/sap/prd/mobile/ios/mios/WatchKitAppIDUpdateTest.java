@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class AppIDUpdateTest extends XCodeTest
+public class WatchKitAppIDUpdateTest extends XCodeTest
 {
 
   private static File projectDirectory;
@@ -41,7 +41,7 @@ public class AppIDUpdateTest extends XCodeTest
   public static void setupProjectDirectory()
   {
     projectDirectory = new File(new File(".").getAbsoluteFile(), "target/tests/"
-          + AppIDUpdateTest.class.getName());
+          + WatchKitAppIDUpdateTest.class.getName());
 
   }
 
@@ -65,17 +65,17 @@ public class AppIDUpdateTest extends XCodeTest
 
     LogManager.getLogManager().addLogger(new XCodePluginLogger());
 
-    File infoPlistFile = new File(projectDirectory, "MyApp/src/xcode/MyApp-Info.plist");
+    File infoPlistFile = new File(projectDirectory, "MyAppWatchKit/src/xcode/MyApp-Info.plist");
 
     PListAccessor plistAccessor = new PListAccessor(infoPlistFile);
 
-    assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.tip.production.inhouse.epdist",
+    assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.tip.production.inhouse.epdist.watchkit",
           plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
 
-    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal", null);
+    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal", "watchkit");
 
     PListAccessor plist = new PListAccessor(infoPlistFile);
-    assertEquals("com.sap.tip.production.inhouse.epdist.internal",
+    assertEquals("com.sap.tip.production.inhouse.epdist.internal.watchkit",
           plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
   }
 }
