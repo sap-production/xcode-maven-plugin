@@ -300,6 +300,10 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
                originalCodesignEntitlementsInfo = CodeSignManager
                      .getCodesignEntitlementsInformation(appFolder);
                originalSecurityCMSMessageInfo = CodeSignManager.getSecurityCMSInformation(appFolder);
+          }else{
+        	  getLog().info("CODE_SIGNING_REQUIRED=\"NO\"");
+        	  getLog().info("value of codeSignIdentity is "+codeSignIdentity);
+        	  getLog().info("value of codeSigningRequired is "+codeSigningRequired);
           }
           try {
             if (hideConfidentialInformation) {
@@ -377,13 +381,15 @@ public class XCodeVersionInfoMojo extends BuildContextAwareMojo
 
   private void sign(File rootDir, String configuration, String sdk) throws IOException, XCodeException
   {
-    String csi = EffectiveBuildSettings.getBuildSetting(
+    String csi = (codeSignIdentity !=null && codeSignIdentity.trim().length() > 0)? codeSignIdentity: EffectiveBuildSettings.getBuildSetting(
           getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk),
           EffectiveBuildSettings.CODE_SIGN_IDENTITY);
     File appFolder = new File(EffectiveBuildSettings.getBuildSetting(
           getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk),
           EffectiveBuildSettings.CODESIGNING_FOLDER_PATH));
     CodeSignManager.sign(csi, appFolder, true);
+    getLog().info("value of codeSignIdentity choosed for resign app:  "+EffectiveBuildSettings.CODE_SIGN_IDENTITY);
+    getLog().info("value of codeSigningRequired during resign "+codeSigningRequired);
   }
 
   private List<Dependency> getDependencies() throws IOException
