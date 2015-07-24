@@ -28,7 +28,7 @@ final class Options implements IOptions
 
   enum ManagedOption
   {
-    PROJECT(true, false), CONFIGURATION(false, false), SDK(false, false), TARGET(false, false), SHOWBUILDSETTINGS(
+    PROJECT(false, false), CONFIGURATION(false, false), SDK(false, false), TARGET(false, false), SHOWBUILDSETTINGS(
           "showBuildSettings", false, true),
     DRY_RUN("dry-run", false, true), SHOWSDKS(false, true), VERSION(false, true), LIST(false, true), USAGE(false, true), HELP(
           false, true), LICENSE(false, true);
@@ -91,7 +91,12 @@ final class Options implements IOptions
       this.managedOptions = Collections.unmodifiableMap(new HashMap<String, String>(managedOptions));
 
     validateManagedOptions(this.managedOptions);
+
     validateUserOptions(this.userOptions);
+
+    if(null == this.userOptions.get("scheme") && this.managedOptions.get(ManagedOption.PROJECT.getOptionName() )== null){
+	throw new IllegalOptionException(ManagedOption.PROJECT,"managed option \"project\" or user option \"scheme\" is not available");
+    }
   }
 
   public Map<String, String> getUserOptions()
