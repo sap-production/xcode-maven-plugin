@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>DomUtils.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">DomUtils.java</span></div><h1>DomUtils.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+
+import javax.xml.XMLConstants;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+public class DomUtils
+{
+
+  private DomUtils()
+<span class="nc" id="L47">  {</span>
+<span class="nc" id="L48">    throw new UnsupportedOperationException(&quot;To prevent getting instances.&quot;);</span>
+  }
+
+  /**
+   * Serializes a DOM. The OutputStream handed over to this method is not closed inside this method.
+   */
+  static void serialize(final Document doc, final OutputStream os, final String encoding)
+        throws TransformerFactoryConfigurationError, TransformerException, IOException
+  {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    if (doc == null)</span>
+<span class="nc" id="L58">      throw new IllegalArgumentException(&quot;No document provided.&quot;);</span>
+
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    if (os == null)</span>
+<span class="nc" id="L61">      throw new IllegalArgumentException(&quot;No output stream provided&quot;);</span>
+
+<span class="nc bnc" id="L63" title="All 4 branches missed.">    if (encoding == null || encoding.isEmpty())</span>
+<span class="nc" id="L64">      throw new IllegalArgumentException(&quot;No encoding provided.&quot;);</span>
+
+<span class="nc" id="L66">    final TransformerFactory transformerFactory = TransformerFactory.newInstance();</span>
+<span class="nc" id="L67">    transformerFactory.setAttribute(&quot;indent-number&quot;, Integer.valueOf(2));</span>
+<span class="nc" id="L68">    final Transformer t = transformerFactory.newTransformer();</span>
+
+<span class="nc" id="L70">    t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, &quot;no&quot;);</span>
+<span class="nc" id="L71">    t.setOutputProperty(OutputKeys.METHOD, &quot;xml&quot;);</span>
+<span class="nc" id="L72">    t.setOutputProperty(OutputKeys.INDENT, &quot;yes&quot;);</span>
+<span class="nc" id="L73">    t.setOutputProperty(OutputKeys.ENCODING, encoding);</span>
+
+<span class="nc" id="L75">    final OutputStreamWriter osw = new OutputStreamWriter(os, encoding);</span>
+<span class="nc" id="L76">    t.transform(new DOMSource(doc), new StreamResult(osw));</span>
+<span class="nc" id="L77">    osw.flush();</span>
+<span class="nc" id="L78">  }</span>
+
+  static void validateDocument(Document doc) throws SAXException, IOException
+  {
+<span class="fc" id="L82">    SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);</span>
+<span class="fc" id="L83">    InputStream schemaIs = null;</span>
+
+    try {
+<span class="fc" id="L86">      schemaIs = XCodeVersionInfoMojo.class</span>
+
+        .getResourceAsStream(&quot;/com/sap/tip/production/xcode/VersionInfoSchema.xsd&quot;);
+<span class="fc" id="L89">      StreamSource[] inputSources = new StreamSource[1];</span>
+<span class="fc" id="L90">      inputSources[0] = new StreamSource(schemaIs);</span>
+
+<span class="fc" id="L92">      Schema schema = schemaFactory.newSchema(inputSources);</span>
+
+<span class="fc" id="L94">      Validator validator = schema.newValidator();</span>
+
+<span class="fc" id="L96">      validator.validate(new DOMSource(doc));</span>
+    }
+    finally {
+<span class="pc bpc" id="L99" title="2 of 4 branches missed.">      if (schemaIs != null) {</span>
+<span class="fc" id="L100">        schemaIs.close();</span>
+      }
+    }
+<span class="fc" id="L103">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

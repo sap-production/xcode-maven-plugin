@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodePackageManager.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodePackageManager.java</span></div><h1>XCodePackageManager.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.archiver.Archiver;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+
+class XCodePackageManager
+{
+
+<span class="fc" id="L45">  private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());</span>
+  final ArchiverManager archiverManager;
+  final MavenProjectHelper projectHelper;
+  private static final String ZIPPED_BUNDLE_SUFFIX = &quot;xcode-bundle-zip&quot;;
+
+  XCodePackageManager(final ArchiverManager archiverManager, final MavenProjectHelper projectHelper)
+<span class="nc" id="L51">  {</span>
+
+<span class="nc" id="L53">    this.archiverManager = archiverManager;</span>
+<span class="nc" id="L54">    this.projectHelper = projectHelper;</span>
+<span class="nc" id="L55">  }</span>
+
+  /**
+   * Packages all the artifacts. The main artifact is set and all side artifacts are attached for
+   * deployment.
+   * 
+   * @param bundles
+   * 
+   * @param buildDir
+   */
+  void packageArtifacts(final File compileDir, final MavenProject project, final Set&lt;String&gt; bundles)
+        throws IOException, XCodeException
+  {
+
+<span class="nc" id="L69">    File mainArtifact = createMainArtifactFile(project);</span>
+
+<span class="nc" id="L71">    attachBundle(compileDir, project, bundles, mainArtifact);</span>
+
+<span class="nc" id="L73">    final File mainArtifactFile = archiveMainArtifact(project, mainArtifact);</span>
+<span class="nc" id="L74">    setMainArtifact(project, mainArtifactFile);</span>
+
+<span class="nc" id="L76">  }</span>
+
+  private void attachBundle(File compileDir, MavenProject project, Set&lt;String&gt; bundles, File mainArtifact)
+        throws IOException
+  {
+
+<span class="nc" id="L82">    final Set&lt;String&gt; bundleNames = new HashSet&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L84" title="All 2 branches missed.">    for (String bundleName : bundles) {</span>
+<span class="nc" id="L85">      File bundleDirectory = XCodeBuildLayout.getBundleDirectory(compileDir, bundleName);</span>
+
+<span class="nc bnc" id="L87" title="All 2 branches missed.">      if (!bundleDirectory.exists()) {</span>
+<span class="nc" id="L88">        LOGGER.info(&quot;Bundle directory '&quot; + bundleDirectory + &quot;' does not exist. Bundle will not be attached.&quot;);</span>
+<span class="nc" id="L89">        continue;</span>
+      }
+<span class="nc" id="L91">      final File bundleFile = new File(new File(project.getBuild().getDirectory()), bundleName + &quot;.bundle&quot;);</span>
+
+      try {
+
+<span class="nc" id="L95">        archive(&quot;zip&quot;, bundleDirectory, bundleFile, new String[] { &quot;**/*&quot; }, null);</span>
+<span class="nc" id="L96">        LOGGER.info(&quot;Bundle zip file created (&quot; + bundleFile + &quot;)&quot;);</span>
+      }
+<span class="nc" id="L98">      catch (XCodeException ex) {</span>
+<span class="nc" id="L99">        throw new RuntimeException(&quot;Could not archive header directory '&quot; + bundleDirectory + &quot;'&quot;, ex);</span>
+      }
+<span class="nc" id="L101">      catch (NoSuchArchiverException ex) {</span>
+<span class="nc" id="L102">        throw new RuntimeException(&quot;Could not archive header directory '&quot; + bundleDirectory + &quot;'&quot;, ex);</span>
+<span class="nc" id="L103">      }</span>
+
+<span class="nc" id="L105">      String escapedBundleName = escapeBundleName(bundleName);</span>
+<span class="nc" id="L106">      prepareBundleFileForDeployment(project, bundleFile, escapedBundleName);</span>
+<span class="nc" id="L107">      bundleNames.add(getBundleReference(project, escapedBundleName));</span>
+<span class="nc" id="L108">    }</span>
+
+<span class="nc" id="L110">    addBundleInfoToMainArtifact(bundleNames, new File(mainArtifact, &quot;bundles.txt&quot;));</span>
+<span class="nc" id="L111">  }</span>
+
+  private String getBundleReference(MavenProject project, String escapedBundleName)
+  {
+<span class="nc" id="L115">    return GAVUtil.toColonNotation(project.getGroupId(), project.getArtifactId(), project.getVersion(),</span>
+          ZIPPED_BUNDLE_SUFFIX,
+          escapedBundleName);
+  }
+
+  private File createMainArtifactFile(final MavenProject project) throws IOException
+  {
+<span class="nc" id="L122">    File mainArtifact = FolderLayout.getFolderForExtractedMainArtifact(project);</span>
+
+<span class="nc bnc" id="L124" title="All 2 branches missed.">    if (mainArtifact.exists())</span>
+<span class="nc" id="L125">      com.sap.prd.mobile.ios.mios.FileUtils.deleteDirectory(mainArtifact);</span>
+
+<span class="nc bnc" id="L127" title="All 2 branches missed.">    if (!mainArtifact.mkdirs())</span>
+<span class="nc" id="L128">      throw new IOException(&quot;Could not create directory '&quot; + mainArtifact + &quot;'.&quot;);</span>
+
+<span class="nc" id="L130">    FileUtils.writeStringToFile(new File(mainArtifact, &quot;README.TXT&quot;),</span>
+          &quot;This zip file may contain additonal information about the depoyed artifacts. \n&quot;);
+<span class="nc" id="L132">    return mainArtifact;</span>
+  }
+
+  private File archiveMainArtifact(final MavenProject project, File mainArtifact) throws IOException
+  {
+<span class="nc" id="L137">    final File mainArtifactTarFile = new File(new File(project.getBuild().getDirectory()), &quot;main.artifact.tar&quot;);</span>
+
+    try {
+
+<span class="nc" id="L141">      archive(&quot;tar&quot;, mainArtifact, mainArtifactTarFile, new String[] { &quot;**/*&quot; }, null);</span>
+<span class="nc" id="L142">      LOGGER.info(&quot;header tar file created (&quot; + mainArtifactTarFile + &quot;)&quot;);</span>
+    }
+<span class="nc" id="L144">    catch (XCodeException ex) {</span>
+<span class="nc" id="L145">      throw new RuntimeException(&quot;Could not archive main artifact directory '&quot; + mainArtifact + &quot;'&quot;, ex);</span>
+    }
+<span class="nc" id="L147">    catch (NoSuchArchiverException ex) {</span>
+<span class="nc" id="L148">      throw new RuntimeException(&quot;Could not archive main artifact directory '&quot; + mainArtifact + &quot;'&quot;, ex);</span>
+<span class="nc" id="L149">    }</span>
+<span class="nc" id="L150">    return mainArtifactTarFile;</span>
+  }
+
+  private void setMainArtifact(final MavenProject project, final File mainArtifactTarFile)
+  {
+<span class="nc" id="L155">    project.getArtifact().setFile(mainArtifactTarFile);</span>
+<span class="nc" id="L156">    LOGGER.info(&quot;Main artifact file '&quot; + mainArtifactTarFile + &quot;' attached for &quot; + project.getArtifact());</span>
+<span class="nc" id="L157">  }</span>
+
+  void packageHeaders(final XCodeContext xcodeContext, MavenProject project,
+        String relativeAlternatePublicHeaderFolderPath) throws IOException, XCodeException
+  {
+<span class="nc" id="L162">    final File publicHeaderFolderPath = getPublicHeaderFolderPath(EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.BUILT_PRODUCTS_DIR),</span>
+          EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH),
+          relativeAlternatePublicHeaderFolderPath);
+
+<span class="nc bnc" id="L166" title="All 2 branches missed.">    if (!publicHeaderFolderPath.canRead()) {</span>
+<span class="nc" id="L167">      LOGGER.warning(&quot;Public header folder path '&quot; + publicHeaderFolderPath + &quot;' cannot be read. Unable to package headers.&quot;);</span>
+<span class="nc" id="L168">      return;</span>
+    }
+
+<span class="nc" id="L171">    final File headersFile = new File(new File(new File(project.getBuild().getDirectory()),</span>
+          xcodeContext.getConfiguration() + &quot;-&quot; + xcodeContext.getSDK()),
+          &quot;headers.tar&quot;);
+
+    try {
+
+<span class="nc" id="L177">      archive(&quot;tar&quot;, publicHeaderFolderPath, headersFile, new String[] { &quot;**/*.h&quot; }, null);</span>
+<span class="nc" id="L178">      LOGGER.info(&quot;header tar file created (&quot; + headersFile + &quot;)&quot;);</span>
+    }
+<span class="nc" id="L180">    catch (XCodeException ex) {</span>
+<span class="nc" id="L181">      throw new RuntimeException(&quot;Could not archive header directory '&quot; + publicHeaderFolderPath + &quot;'&quot;, ex);</span>
+    }
+<span class="nc" id="L183">    catch (NoSuchArchiverException ex) {</span>
+<span class="nc" id="L184">      throw new RuntimeException(&quot;Could not archive header directory '&quot; + publicHeaderFolderPath + &quot;'&quot;, ex);</span>
+<span class="nc" id="L185">    }</span>
+
+<span class="nc" id="L187">    prepareHeaderFileForDeployment(project, xcodeContext.getConfiguration(), xcodeContext.getSDK(), headersFile);</span>
+
+<span class="nc" id="L189">  }</span>
+
+  private void prepareHeaderFileForDeployment(final MavenProject mavenProject, final String configuration,
+        final String sdk, final File headersFile)
+  {
+
+<span class="nc" id="L195">    projectHelper.attachArtifact(mavenProject, &quot;headers.tar&quot;, configuration + &quot;-&quot; + sdk, headersFile);</span>
+<span class="nc" id="L196">  }</span>
+
+  private void prepareBundleFileForDeployment(MavenProject mavenProject, File bundleFile, String escapedBundleName)
+  {
+<span class="nc" id="L200">    projectHelper.attachArtifact(mavenProject, ZIPPED_BUNDLE_SUFFIX, escapedBundleName, bundleFile);</span>
+<span class="nc" id="L201">  }</span>
+
+  String escapeBundleName(String bundleName)
+  {
+
+<span class="nc" id="L206">    return bundleName.replaceAll(&quot;/&quot;, &quot;~&quot;);</span>
+  }
+
+  private void addBundleInfoToMainArtifact(Set&lt;String&gt; bundleNames, File bundlesFile) throws IOException
+  {
+<span class="nc" id="L211">    final PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(bundlesFile), Charset.defaultCharset().name()));</span>
+
+    try {
+
+<span class="nc bnc" id="L215" title="All 2 branches missed.">      for (final String bundleName : bundleNames) {</span>
+<span class="nc" id="L216">        pw.println(bundleName);</span>
+
+<span class="nc" id="L218">      }</span>
+    }
+    finally {
+<span class="nc" id="L221">      pw.close();</span>
+<span class="nc" id="L222">    }</span>
+<span class="nc" id="L223">  }</span>
+
+  static void attachLibrary(final XCodeContext xcodeContext, File buildDir,
+        final MavenProject project, final MavenProjectHelper projectHelper)
+  {
+
+<span class="nc" id="L229">    final File fatBinary = XCodeBuildLayout.getBinary(buildDir, xcodeContext.getConfiguration(), xcodeContext.getSDK(),</span>
+          project.getArtifactId());
+
+<span class="nc bnc" id="L232" title="All 2 branches missed.">    if (!fatBinary.exists())</span>
+<span class="nc" id="L233">      throw new RuntimeException(fatBinary + &quot; should be attached but does not exist.&quot;);</span>
+
+<span class="nc" id="L235">    final String classifier = xcodeContext.getConfiguration() + &quot;-&quot; + xcodeContext.getSDK();</span>
+
+<span class="nc" id="L237">    projectHelper.attachArtifact(project, &quot;a&quot;, classifier, fatBinary);</span>
+
+<span class="nc" id="L239">    LOGGER.info(&quot;Archive file '&quot; + fatBinary + &quot;' attached as side artifact for '&quot; + project.getArtifact()</span>
+          + &quot;' with classifier '&quot; + classifier + &quot;'.&quot;);
+<span class="nc" id="L241">  }</span>
+
+  private final void archive(final String archiverType, final File rootDir, final File archive,
+        final String[] includes, final String[] excludes) throws NoSuchArchiverException,
+        IOException, XCodeException
+  {
+    try {
+<span class="nc" id="L248">      final Archiver archiver = archiverManager.getArchiver(archiverType);</span>
+<span class="nc" id="L249">      archiver.addDirectory(rootDir, includes, excludes);</span>
+<span class="nc" id="L250">      archiver.setDestFile(archive);</span>
+<span class="nc" id="L251">      archiver.createArchive();</span>
+    }
+<span class="nc" id="L253">    catch (ArchiverException ex) {</span>
+<span class="nc" id="L254">      throw new XCodeException(&quot;Could not archive folder '&quot; + rootDir + &quot;' into '&quot; + archive + &quot;': &quot; + ex.getMessage(),</span>
+            ex);
+<span class="nc" id="L256">    }</span>
+<span class="nc" id="L257">  }</span>
+
+  static File getPublicHeaderFolderPath(String builtProductDirInsideXcodeProject, String publicHeaderFolderPathInsideXcodeProject,
+        String relativeAlternatePublicHeaderFolderPath)
+        throws XCodeException
+  {
+
+<span class="fc" id="L264">    final String relativePublicHeaderFolderPathInXcodeProject = publicHeaderFolderPathInsideXcodeProject;</span>
+    final String relativePublicHeaderFolderPath;
+
+<span class="fc bfc" id="L267" title="All 2 branches covered.">    if (StringUtils.isEmpty(relativeAlternatePublicHeaderFolderPath)) {</span>
+
+<span class="fc" id="L269">      relativePublicHeaderFolderPath = relativePublicHeaderFolderPathInXcodeProject;</span>
+
+<span class="fc" id="L271">      LOGGER.info(</span>
+        &quot;Using public header folder path as it is configured in the xcode project: '&quot;
+              + relativePublicHeaderFolderPathInXcodeProject + &quot;'.&quot;);
+
+    }
+    else {
+
+<span class="fc" id="L278">      relativePublicHeaderFolderPath = relativeAlternatePublicHeaderFolderPath;</span>
+
+<span class="fc bfc" id="L280" title="All 2 branches covered.">      if (!com.sap.prd.mobile.ios.mios.FileUtils.isChild(</span>
+            new File(
+                  com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativeAlternatePublicHeaderFolderPath)),
+            new File(
+                  com.sap.prd.mobile.ios.mios.FileUtils
+                    .ensureLeadingSlash(relativePublicHeaderFolderPathInXcodeProject))))
+<span class="fc" id="L286">        throw new InvalidAlternatePublicHeaderPathException(</span>
+              &quot;Public header folder path configured on the level of xcode-maven-plugin configuration (&quot;
+                    + relativeAlternatePublicHeaderFolderPath
+                    + &quot;) is not a parent folder of the public header path configured inside the xcode project (&quot;
+                    + relativePublicHeaderFolderPathInXcodeProject + &quot;).&quot;);
+
+<span class="fc" id="L292">      LOGGER.info(</span>
+        &quot;Using public header folder path as it is defined inside the xcode-maven-plugin (&quot;
+              + relativeAlternatePublicHeaderFolderPath
+              + &quot;). In the xcode project '&quot; + relativePublicHeaderFolderPathInXcodeProject
+              + &quot;' is configured as public header folder path.&quot;);
+    }
+
+<span class="fc" id="L299">    return new File(builtProductDirInsideXcodeProject,</span>
+          com.sap.prd.mobile.ios.mios.FileUtils.ensureLeadingSlash(relativePublicHeaderFolderPath));
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

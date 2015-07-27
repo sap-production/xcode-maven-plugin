@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodePackageDSymMojo.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodePackageDSymMojo.java</span></div><h1>XCodePackageDSymMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.archiver.Archiver;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+
+/**
+ * Packages the debug symbols generated during the Xcode build and prepares the generated artifact
+ * for deployment. The debug symbols are generated only if the &quot;Generate Debug Symbols&quot; in Xcode is
+ * active.
+ * 
+ * @goal package-dsym
+ * 
+ */
+<span class="nc" id="L42">public class XCodePackageDSymMojo extends BuildContextAwareMojo</span>
+{
+
+  /**
+   * @component role=&quot;org.codehaus.plexus.archiver.manager.ArchiverManager&quot;
+   * @required
+   */
+  private ArchiverManager archiverManager;
+
+  /**
+   * @component
+   */
+  private MavenProjectHelper projectHelper;
+
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    for (final String sdk : getSDKs()) {</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">      for (final String config : getConfigurations()) {</span>
+
+        try {
+
+<span class="nc" id="L65">          packageAndAttachDSym(sdk, config);</span>
+
+        }
+<span class="nc" id="L68">        catch (IOException e) {</span>
+<span class="nc" id="L69">          throw new MojoExecutionException(e.getMessage(), e);</span>
+        }
+<span class="nc" id="L71">        catch (NoSuchArchiverException e) {</span>
+<span class="nc" id="L72">          throw new MojoExecutionException(e.getMessage(), e);</span>
+        }
+<span class="nc" id="L74">        catch (ArchiverException e) {</span>
+<span class="nc" id="L75">          throw new MojoExecutionException(e.getMessage(), e);</span>
+        }
+<span class="nc" id="L77">        catch (XCodeException e) {</span>
+<span class="nc" id="L78">          throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L79">        }</span>
+<span class="nc" id="L80">      }</span>
+<span class="nc" id="L81">    }</span>
+
+<span class="nc" id="L83">  }</span>
+
+  private void packageAndAttachDSym(String sdk, String config) throws IOException, NoSuchArchiverException,
+        ArchiverException, XCodeException, MojoExecutionException
+  {
+
+<span class="nc" id="L89">    final String productName = getProductName(config, sdk);</span>
+
+<span class="nc" id="L91">    final String fixedProductName = getFixedProductName(productName);</span>
+
+<span class="nc" id="L93">    final File root = XCodeBuildLayout.getAppFolder(getXCodeCompileDirectory(), config, sdk);</span>
+<span class="nc" id="L94">    final File dsymRoot = new File(root, productName + &quot;.app.dSYM&quot;);</span>
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">    if (dsymRoot.canRead()) {</span>
+
+<span class="nc" id="L98">      Archiver archiver = archiverManager.getArchiver(&quot;zip&quot;);</span>
+
+<span class="nc" id="L100">      File destination = new File(new File(new File(project.getBuild().getDirectory()), config + &quot;-&quot; + sdk),</span>
+            fixedProductName + &quot;.app.dSYM.zip&quot;);
+
+<span class="nc" id="L103">      archiver.addDirectory(root, new String[] { productName + &quot;.app.dSYM/**/*&quot; }, null);</span>
+<span class="nc" id="L104">      archiver.setDestFile(destination);</span>
+<span class="nc" id="L105">      archiver.createArchive();</span>
+<span class="nc" id="L106">      getLog().info(&quot;dSYM packaged (&quot; + destination + &quot;)&quot;);</span>
+
+<span class="nc" id="L108">      prepareDSymFileForDeployment(project, config, sdk, destination);</span>
+<span class="nc" id="L109">    }</span>
+    else {
+<span class="nc bnc" id="L111" title="All 2 branches missed.">      if (shouldExistDSym(sdk, config)) {</span>
+<span class="nc" id="L112">        throw new XCodeException(</span>
+              &quot;DSym file should be created but could not be found at the expected location: '&quot;
+                    + dsymRoot
+                    + &quot;'. In case you prefere not to have dSym files set Xcode properties '&quot;
+                    + EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS
+                    + &quot;' and '&quot;
+                    + EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT
+                    + &quot;' accordingly.&quot;);
+      }
+    }
+<span class="nc" id="L122">  }</span>
+
+  private boolean shouldExistDSym(final String sdk, final String config)
+        throws XCodeException
+  {
+<span class="nc" id="L127">    final String generateDSym = EffectiveBuildSettings.getBuildSetting(</span>
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
+                config, sdk), EffectiveBuildSettings.GCC_GENERATE_DEBUGGING_SYMBOLS);
+
+<span class="nc" id="L131">    final String debugFormat = EffectiveBuildSettings.getBuildSetting(</span>
+          getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY,
+                config, sdk), EffectiveBuildSettings.DEBUG_INFORMATION_FORMAT);
+
+<span class="nc bnc" id="L135" title="All 8 branches missed.">    return (generateDSym == null || generateDSym.equalsIgnoreCase(&quot;YES&quot;)</span>
+          &amp;&amp; (debugFormat != null &amp;&amp; debugFormat
+            .equalsIgnoreCase(&quot;dwarf-with-dsym&quot;)));
+  }
+
+  private void prepareDSymFileForDeployment(final MavenProject mavenProject, final String configuration,
+        final String sdk, final File dSymFile)
+  {
+
+<span class="nc" id="L144">    projectHelper.attachArtifact(mavenProject, &quot;zip&quot;, configuration + &quot;-&quot; + sdk + &quot;-app.dSYM&quot;, dSymFile);</span>
+<span class="nc" id="L145">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>XCodeContext.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodeContext.java</span></div><h1>XCodeContext.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Context object for Xcode build to hold relevant data: * projectName * Set of configurations * Set
+ * of SDKs * List of buildActions projectRootDirectory codeSignIdentity output stream xcode options
+ * xcode settings
+ */
+public class XCodeContext implements IXCodeContext
+{
+<span class="nc" id="L38">  enum SourceCodeLocation</span>
+  {
+<span class="nc" id="L40">    ORIGINAL, WORKING_COPY</span>
+  };
+
+<span class="fc" id="L43">  private final static String ls = System.getProperty(&quot;line.separator&quot;);</span>
+
+  private final List&lt;String&gt; buildActions;
+
+  private final File projectRootDirectory;
+
+  private PrintStream out;
+
+  private final Options options;
+
+  private final Settings settings;
+
+  public XCodeContext(List&lt;String&gt; buildActions,
+        File projectRootDirectory, PrintStream out, Settings settings, Options options)
+  {
+<span class="fc" id="L58">    super();</span>
+
+<span class="fc" id="L60">    raiseExceptionIfBuildActionsAreInvalid(&quot;buildActions&quot;, buildActions);</span>
+
+<span class="pc bpc" id="L62" title="1 of 4 branches missed.">    if (projectRootDirectory == null || !projectRootDirectory.canRead())</span>
+<span class="fc" id="L63">      throw new IllegalArgumentException(&quot;ProjectRootDirectory '&quot; + projectRootDirectory</span>
+            + &quot;' is null or cannot be read.&quot;);
+
+<span class="fc" id="L66">    this.buildActions = Collections.unmodifiableList(new ArrayList&lt;String&gt;(buildActions));</span>
+<span class="fc" id="L67">    this.projectRootDirectory = new File(projectRootDirectory, &quot;&quot;);</span>
+<span class="fc" id="L68">    setOut(out);</span>
+
+<span class="fc bfc" id="L70" title="All 2 branches covered.">    if (settings == null) {</span>
+<span class="fc" id="L71">      Map&lt;String, String&gt; userSettings = new HashMap&lt;String, String&gt;(), managedSettings = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L72">      this.settings = new Settings(userSettings, managedSettings);</span>
+<span class="fc" id="L73">    }</span>
+    else {
+<span class="fc" id="L75">      this.settings = settings;</span>
+    }
+
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">    if (options == null) {</span>
+<span class="nc" id="L79">      Map&lt;String, String&gt; userOptions = new HashMap&lt;String, String&gt;(), managedOptions = new HashMap&lt;String, String&gt;();</span>
+<span class="nc" id="L80">      this.options = new Options(userOptions, managedOptions);</span>
+<span class="nc" id="L81">    }</span>
+    else {
+<span class="fc" id="L83">      this.options = options;</span>
+    }
+<span class="fc" id="L85">  }</span>
+
+  public String getProjectName()
+  {
+<span class="fc" id="L89">    return options.getAllOptions().get(Options.ManagedOption.PROJECT.getOptionName());</span>
+  }
+
+  public List&lt;String&gt; getBuildActions()
+  {
+<span class="fc" id="L94">    return buildActions;</span>
+  }
+
+  public String getCodeSignIdentity()
+  {
+<span class="fc" id="L99">    return settings.getAllSettings().get(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name());</span>
+  }
+
+  public File getProjectRootDirectory()
+  {
+<span class="fc" id="L104">    return projectRootDirectory;</span>
+  }
+
+  public PrintStream getOut()
+  {
+<span class="fc" id="L109">    return out;</span>
+  }
+
+  public final void setOut(PrintStream out)
+  {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">    if (out == null)</span>
+<span class="fc" id="L115">      throw new IllegalArgumentException(&quot;PrintStream for log handling is not available.&quot;);</span>
+<span class="fc" id="L116">    this.out = out;</span>
+<span class="fc" id="L117">  }</span>
+
+  /* (non-Javadoc)
+   * @see com.sap.prd.mobile.ios.mios.IXCodeContext#getSDK()
+   */
+  @Override
+  public String getSDK()
+  {
+<span class="nc" id="L125">    return getOptions().getAllOptions().get(Options.ManagedOption.SDK.getOptionName());</span>
+  }
+
+  @Override
+  public String getConfiguration()
+  {
+<span class="nc" id="L131">    return getOptions().getAllOptions().get(Options.ManagedOption.CONFIGURATION.getOptionName());</span>
+  }
+
+  public String getProvisioningProfile()
+  {
+<span class="fc" id="L136">    return getSettings().getAllSettings().get(Settings.ManagedSetting.PROVISIONING_PROFILE.name());</span>
+  }
+
+  public String getTarget()
+  {
+<span class="nc" id="L141">    return getOptions().getAllOptions().get(Options.ManagedOption.TARGET.getOptionName());</span>
+  }
+
+  public Options getOptions()
+  {
+<span class="fc" id="L146">    return options;</span>
+  }
+
+  /* (non-Javadoc)
+   * @see com.sap.prd.mobile.ios.mios.IXCodeContext#getSettings()
+   */
+  public Settings getSettings()
+  {
+<span class="fc" id="L154">    return settings;</span>
+  }
+
+  @Override
+  public String toString()
+  {
+<span class="nc" id="L160">    final StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L161">    sb.append(ls).append(super.toString()).append(ls);</span>
+<span class="nc" id="L162">    sb.append(&quot;ProjectRootDirectory: &quot;).append(getProjectRootDirectory()).append(ls);</span>
+<span class="nc" id="L163">    sb.append(&quot;BuildActions: &quot;).append(buildActions).append(ls).append(ls);</span>
+<span class="nc" id="L164">    sb.append(&quot;Options:&quot;).append(ls);</span>
+<span class="nc" id="L165">    sb.append(options).append(ls).append(ls);</span>
+<span class="nc" id="L166">    sb.append(&quot;Settings:&quot;).append(ls);</span>
+<span class="nc" id="L167">    sb.append(settings).append(ls);</span>
+<span class="nc" id="L168">    return sb.toString();</span>
+  }
+
+  @Override
+  public int hashCode()
+  {
+<span class="fc" id="L174">    final int prime = 31;</span>
+<span class="fc" id="L175">    int result = 1;</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">    result = prime * result + ((buildActions == null) ? 0 : buildActions.hashCode());</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">    result = prime * result + ((options == null) ? 0 : options.hashCode());</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">    result = prime * result + ((projectRootDirectory == null) ? 0 : projectRootDirectory.hashCode());</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">    result = prime * result + ((settings == null) ? 0 : settings.hashCode());</span>
+<span class="fc" id="L180">    return result;</span>
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+<span class="nc bnc" id="L186" title="All 2 branches missed.">    if (this == obj) return true;</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">    if (obj == null) return false;</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">    if (getClass() != obj.getClass()) return false;</span>
+<span class="nc" id="L189">    XCodeContext other = (XCodeContext) obj;</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">    if (buildActions == null) {</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">      if (other.buildActions != null) return false;</span>
+    }
+<span class="nc bnc" id="L193" title="All 2 branches missed.">    else if (!buildActions.equals(other.buildActions)) return false;</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">    if (options == null) {</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">      if (other.options != null) return false;</span>
+    }
+<span class="nc bnc" id="L197" title="All 2 branches missed.">    else if (!options.equals(other.options)) return false;</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">    if (projectRootDirectory == null) {</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">      if (other.projectRootDirectory != null) return false;</span>
+    }
+<span class="nc bnc" id="L201" title="All 2 branches missed.">    else if (!projectRootDirectory.equals(other.projectRootDirectory)) return false;</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">    if (settings == null) {</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">      if (other.settings != null) return false;</span>
+    }
+<span class="nc bnc" id="L205" title="All 2 branches missed.">    else if (!settings.equals(other.settings)) return false;</span>
+<span class="nc" id="L206">    return true;</span>
+  }
+
+  private static void raiseExceptionIfBuildActionsAreInvalid(final String key, final Collection&lt;String&gt; buildActions)
+  {
+
+<span class="fc bfc" id="L212" title="All 2 branches covered.">    for (final String buildAction : buildActions) {</span>
+
+<span class="fc bfc" id="L214" title="All 4 branches covered.">      if (buildAction == null || buildAction.length() == 0)</span>
+<span class="fc" id="L215">        throw new InvalidBuildActionException(&quot;Build action array contained a null element or an empty element.&quot;);</span>
+
+<span class="fc bfc" id="L217" title="All 2 branches covered.">      if (!buildAction.matches(&quot;[A-Za-z0-9_]+&quot;))</span>
+<span class="fc" id="L218">        throw new InvalidBuildActionException(&quot;Build action array contains an invalid element (&quot; + buildAction + &quot;).&quot;);</span>
+<span class="fc" id="L219">    }</span>
+<span class="fc" id="L220">  }</span>
+
+  static class InvalidBuildActionException extends IllegalArgumentException
+  {
+
+    private static final long serialVersionUID = 6635006296438188082L;
+
+    InvalidBuildActionException(String message)
+    {
+<span class="fc" id="L229">      super(message);</span>
+<span class="fc" id="L230">    }</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>
