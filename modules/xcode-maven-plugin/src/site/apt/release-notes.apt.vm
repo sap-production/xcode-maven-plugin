@@ -10,6 +10,18 @@ Release Notes
 
 ===
 
+* 1.14.2
+
+** Features
+
+	scheme support added
+	
+	app build without signing support added: xcodebuild clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+
+*** Bug fixes
+
+   <No bug fixes>
+
 * 1.14.1
 
 ** Features
