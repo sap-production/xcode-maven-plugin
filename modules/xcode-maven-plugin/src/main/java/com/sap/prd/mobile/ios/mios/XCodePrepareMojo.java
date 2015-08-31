@@ -78,14 +78,23 @@ public class XCodePrepareMojo extends AbstractXCodeMojo
   protected List<RemoteRepository> projectRepos;
 
   /**
-   * If set to <code>true</code> the dependency resolution will try to retrieve the fat libs instead
-   * of the sdk specific ones. In all cases the lib resolution will try to fallback to the other
-   * library type if the preferred type is not available.
+   * Comma separated list of the Xcode build configurations that should not require
+   * dependencies to exists.
    * 
-   * @parameter expression="${xcode.preferFatLibs}" default-value="false"
-   * @since 1.5.2
+   * @parameter expression="${xcode.skipDependenciesForConfigurations}" default-value=""
+   * @since 1.14.3
    */
-  protected boolean preferFatLibs;
+  protected String skipDependenciesForConfigurations;
+
+    /**
+     * If set to <code>true</code> the dependency resolution will try to retrieve the fat libs instead
+     * of the sdk specific ones. In all cases the lib resolution will try to fallback to the other
+     * library type if the preferred type is not available.
+     *
+     * @parameter expression="${xcode.preferFatLibs}" default-value="false"
+     * @since 1.5.2
+     */
+    protected boolean preferFatLibs;
 
   /**
    * @parameter expression="${xcode.useSymbolicLinks}" default-value="false"
@@ -104,7 +113,7 @@ public class XCodePrepareMojo extends AbstractXCodeMojo
     try {
       new XCodePrepareBuildManager(archiverManager,
             repoSession, repoSystem, projectRepos, useSymbolicLinks,
-            additionalPackagingTypes).setPreferFalLibs(preferFatLibs)
+            additionalPackagingTypes).setPreferFalLibs(preferFatLibs).setSkipDependenciesForConfigurations(skipDependenciesForConfigurations)
         .prepareBuild(project, getConfigurations(), getSDKs());
     }
     catch (XCodeException ex) {
