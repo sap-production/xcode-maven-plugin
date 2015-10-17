@@ -31,7 +31,8 @@ abstract class XCodeConstants
     throw new UnsupportedOperationException("To prevent getting instances");
   }
 
-  final static String XCODE_PROJECT_EXTENTION = ".xcodeproj";
+  final static String XCODE_PROJECT_EXTENSION = ".xcodeproj";
+  final static String XCODE_WORKSPACE_EXTENSION = ".xcworkspace";
   final static String XCODE_CONFIGURATION_FILE_NAME = "project.pbxproj";
 
   @Override
