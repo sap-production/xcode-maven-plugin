@@ -159,9 +159,11 @@ class XCodePackageManager
   void packageHeaders(final XCodeContext xcodeContext, MavenProject project,
         String relativeAlternatePublicHeaderFolderPath) throws IOException, XCodeException
   {
-    final File publicHeaderFolderPath = getPublicHeaderFolderPath(EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.BUILT_PRODUCTS_DIR),
-          EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH),
-          relativeAlternatePublicHeaderFolderPath);
+    final String builtProductsDir = EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+    final String publicHeadersDir = EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
+
+    final File publicHeaderFolderPath =
+        getPublicHeaderFolderPath(builtProductsDir, publicHeadersDir, relativeAlternatePublicHeaderFolderPath);
 
     if (!publicHeaderFolderPath.canRead()) {
       LOGGER.warning("Public header folder path '" + publicHeaderFolderPath + "' cannot be read. Unable to package headers.");

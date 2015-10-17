@@ -92,8 +92,12 @@ public class XCodePackageMojo extends BuildContextAwareMojo
 
           new XCodePackageManager(archiverManager, projectHelper).packageHeaders(context, project,
                 relativeAlternatePublicHeaderFolderPath);
-          final File buildDir = XCodeBuildLayout.getBuildDir(projectRootDir);
-          XCodePackageManager.attachLibrary(context, buildDir, project, projectHelper);
+
+          final String builtProductsDir = EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+
+
+          final File buildDir = new File(builtProductsDir);
+          XCodePackageManager.attachLibrary(context, buildDir.getParentFile(), project, projectHelper);
         }
       }
 

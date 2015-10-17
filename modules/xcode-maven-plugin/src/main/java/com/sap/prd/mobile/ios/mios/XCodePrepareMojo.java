@@ -102,10 +102,9 @@ public class XCodePrepareMojo extends AbstractXCodeMojo
   {
 
     try {
-      new XCodePrepareBuildManager(archiverManager,
-            repoSession, repoSystem, projectRepos, useSymbolicLinks,
-            additionalPackagingTypes).setPreferFalLibs(preferFatLibs)
-        .prepareBuild(project, getConfigurations(), getSDKs());
+      new XCodePrepareBuildManager(archiverManager, repoSession, repoSystem, projectRepos, useSymbolicLinks, additionalPackagingTypes)
+          .setPreferFalLibs(preferFatLibs)
+          .prepareBuild(project, getConfigurations(), getSDKs());
     }
     catch (XCodeException ex) {
       throw new MojoExecutionException(
