@@ -29,9 +29,9 @@ final class Settings implements ISettings {
   private final static String XCODE_OUTPUT_DIRECTORY = "build";
 
   enum ManagedSetting {
-    DSTROOT(true, XCODE_OUTPUT_DIRECTORY),
 //    SYMROOT(true, XCODE_OUTPUT_DIRECTORY),
     SHARED_PRECOMPS_DIR(true, XCODE_OUTPUT_DIRECTORY),
+    DSTROOT(true, XCODE_OUTPUT_DIRECTORY),
     OBJROOT(true, XCODE_OUTPUT_DIRECTORY),
     CODE_SIGN_IDENTITY(false, null),
     CODE_SIGNING_REQUIRED(false, null),

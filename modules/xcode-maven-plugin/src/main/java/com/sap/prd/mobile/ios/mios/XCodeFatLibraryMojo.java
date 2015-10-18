@@ -73,10 +73,10 @@ public class XCodeFatLibraryMojo extends BuildContextAwareMojo
     for (String sdk : getSDKs()) {
       final XCodeContext context = getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);
 
-      final String builtProductsDir = EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+      final String builtProductsDir = EffectiveBuildSettings.getBuildSetting(context, "SYMROOT");
       final File buildDir = new File(builtProductsDir);
 
-      final String binaryPath = XCodeBuildLayout.getBinary(buildDir.getParentFile(), configuration, sdk, project.getArtifactId()).getAbsolutePath();
+      final String binaryPath = XCodeBuildLayout.getBinary(buildDir, configuration, sdk, project.getArtifactId()).getAbsolutePath();
       lipoCommand.add(binaryPath);
     }
     final File fatBinaryDestDirectory = new File(new File(project.getBuild().getDirectory()), configuration);

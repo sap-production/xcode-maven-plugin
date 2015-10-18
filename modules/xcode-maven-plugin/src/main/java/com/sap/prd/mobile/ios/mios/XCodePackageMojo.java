@@ -93,11 +93,10 @@ public class XCodePackageMojo extends BuildContextAwareMojo
           new XCodePackageManager(archiverManager, projectHelper).packageHeaders(context, project,
                 relativeAlternatePublicHeaderFolderPath);
 
-          final String builtProductsDir = EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
-
+          final String builtProductsDir = EffectiveBuildSettings.getBuildSetting(context, "SYMROOT");
 
           final File buildDir = new File(builtProductsDir);
-          XCodePackageManager.attachLibrary(context, buildDir.getParentFile(), project, projectHelper);
+          XCodePackageManager.attachLibrary(context, buildDir, project, projectHelper);
         }
       }
 

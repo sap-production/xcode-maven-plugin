@@ -159,7 +159,7 @@ class XCodePackageManager
   void packageHeaders(final XCodeContext xcodeContext, MavenProject project,
         String relativeAlternatePublicHeaderFolderPath) throws IOException, XCodeException
   {
-    final String builtProductsDir = EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.BUILT_PRODUCTS_DIR);
+    final String builtProductsDir = EffectiveBuildSettings.getBuildSetting(xcodeContext, "SYMROOT");
     final String publicHeadersDir = EffectiveBuildSettings.getBuildSetting(xcodeContext, EffectiveBuildSettings.PUBLIC_HEADERS_FOLDER_PATH);
 
     final File publicHeaderFolderPath =
