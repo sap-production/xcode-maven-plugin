@@ -9,7 +9,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Removes existing Pods and performs {@code pod install} execution in project compilation directory.
+ * Removes existing Pods and performs <code>pod install</code> execution in project compilation directory.
  *
  * @goal pod-install
  */
@@ -29,8 +29,8 @@ public class XCodePodInstallMojo extends AbstractMojo {
   private File xcodeCompileDirectory;
 
   /**
-   * Indicates whenever plugin should perform {@code pod install} before executing {@code xcodebuild}
-
+   * Indicates whenever plugin should perform <code>pod install</code> before executing <code>xcodebuild</code>.
+   *
    * @parameter expression="${xcode.installPods}"
    */
   private boolean installPods;

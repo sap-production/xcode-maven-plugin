@@ -55,6 +55,11 @@ Building an iOS Library
               <configuration>Release</configuration>
             </configurations>
           <configuration>
+          <options>
+              <scheme>BaseLibrary</scheme>
+          </options>
+          <buildWorkspace>true</buildWorkspace>
+          <installPods>true</installPods>
         -->
       </plugin>
     </plugins>

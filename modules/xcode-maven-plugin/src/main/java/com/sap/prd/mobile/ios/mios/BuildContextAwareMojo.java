@@ -91,8 +91,10 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
   protected String target;
 
   /**
-   * Indicates whenever plugin should build workspace instead of project
-
+   * Indicates whenever plugin should build workspace instead of project.
+   * Allows building projects which are using CocoaPods to resolve theirs dependencies.
+   * Please also see <code>installPods</code> property setting to read more about CocaPods integration.
+   *
    * @parameter expression="${xcode.buildWorkspace}"
    */
   protected boolean buildWorkspace;
