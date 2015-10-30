@@ -221,6 +221,14 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
           + ".");
 
   }
+  
+  protected File getProjectRootDirectory(XCodeContext.SourceCodeLocation location, String configuration, String sdk)
+		throws XCodeException {
+	XCodeContext context = getXCodeContext(location, configuration, sdk);
+
+	File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.SRC_ROOT));
+	return srcRoot;
+  }
 
   protected String getProductName(final String configuration, final String sdk) throws MojoExecutionException
   {
