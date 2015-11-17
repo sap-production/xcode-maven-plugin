@@ -72,7 +72,18 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
    *  @parameter expression="${xcode.watchkitExtentionPlist}"
    */  
   private static String watchkitExtentionPlist;
- 
+
+  /**
+   * These are the various parameters we need to change for watchkit apps
+   */
+  private static String WKCompanionAppBundleIdentifier;
+
+  private static String WKAppBundleIdentifier;
+
+  private static String CFBundleShortVersionString;
+
+  private static String CFBundleVersion;
+
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
@@ -107,6 +118,14 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
 							+ "' was already updated for another configuration. This file will be skipped.");
 				} else {
 					changeAppId(infoPlistAccessor, appIdSuffix, null);
+					try {
+						setCFBundleShortVersionString(infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING));
+						setCFBundleVersion(infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION));
+
+					} catch (IOException e) {
+						throw new MojoExecutionException(e.getMessage(), e);
+					}
+
 					alreadyUpdatedPlists.add(infoPlistFile);
 				}
         
@@ -146,7 +165,6 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
 				 * 
 				 */
 				
-				
         
 				if (!(appType == null || "".equals(appType.trim()))) {
 				    LOGGER.info("appType: " + appType + " value provided, needs to consider additional plist files for appIdSuffix injection");
@@ -159,6 +177,17 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
 							infoPlistFile = new File(srcRoot, watchkitAppPlist);
 							infoPlistAccessor = new PListAccessor(infoPlistFile);
 							changeAppId(infoPlistAccessor, appIdSuffix , appType);
+							try {
+								changeCompanionBundleId(infoPlistAccessor,getWKCompanionAppBundleIdentifier());
+								changeWatchAppBundleShortVersionString(infoPlistAccessor, getCFBundleShortVersionString());
+								changeWatchAppBundleVersion(infoPlistAccessor, getCFBundleVersion());
+
+							} catch (IOException e) {
+								throw new MojoExecutionException(e.getMessage(), e);
+							}
+
+							setWKAppBundleIdentifier(infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
+
 							alreadyUpdatedPlists.add(infoPlistFile);
 						}
 						
@@ -167,11 +196,14 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
 							infoPlistFile = new File(srcRoot, watchkitExtentionPlist);
 							infoPlistAccessor = new PListAccessor(infoPlistFile);
 							changeAppId(infoPlistAccessor, appIdSuffix , appType);
+							changeWKAppBundleIdentifier(infoPlistAccessor, getWKAppBundleIdentifier());
 							alreadyUpdatedPlists.add(infoPlistFile);
 						}
 		
 					} catch (XCodeException e) {
 						e.printStackTrace();
+					} catch (IOException e) {
+						throw new MojoExecutionException(e.getMessage(), e);
 					}
 				}
       }
@@ -199,6 +231,7 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
     }
   }
 
+
   private static void appendAppIdSuffix(PListAccessor infoPlistAccessor, String appIdSuffix, String appType)
         throws IOException
   {
@@ -210,6 +243,8 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
     	LOGGER.info("Original AppId value : "+ originalAppId);
         LOGGER.info("New upated AppID value: "+ newAppId);
         
+        setWKCompanionAppBundleIdentifier(newAppId);
+
         //TODO: MIOS: Bangalore team; We can also plan to draw the plist files dynamically using CFBundleName: Future work
     	String CFBundleName = infoPlistAccessor.getStringValue("CFBundleName");
     	LOGGER.info("CFBundleName : "+ CFBundleName);    	
@@ -221,6 +256,7 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
     LOGGER.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set AppId to '" + newAppId + "'.");
   }
 
+
   private static String injectAppId(String appIdSuffix, PListAccessor infoPlistAccessor) throws IOException {
 	  
 	String originalAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);
@@ -231,5 +267,74 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
     LOGGER.info("New upated AppID value: "+ newAppId);
 	return newAppId;
   }
+
+	private void changeWatchAppBundleVersion(PListAccessor infoPlistAccessor, String cfBundleVersion2)
+			throws IOException, MojoExecutionException {
+		ensurePListFileIsWritable(infoPlistAccessor.getPlistFile());
+		infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_VERSION, cfBundleVersion2);
+		LOGGER.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set "
+				+ PListAccessor.KEY_BUNDLE_VERSION + "cfBundleVersion '" + cfBundleVersion2 + "'.");
+
+	}
+
+	private void changeWatchAppBundleShortVersionString(PListAccessor infoPlistAccessor,
+			String keyBundleShortVersionString) throws IOException, MojoExecutionException {
+		ensurePListFileIsWritable(infoPlistAccessor.getPlistFile());
+		infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING, keyBundleShortVersionString);
+		LOGGER.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set "
+				+ PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING + "keyBundleShortVersionString '"
+				+ keyBundleShortVersionString + "'.");
+
+	}
+
+	private void changeWKAppBundleIdentifier(PListAccessor infoPlistAccessor, String wkAppBundleIdentifier2)
+			throws IOException, MojoExecutionException {
+		ensurePListFileIsWritable(infoPlistAccessor.getPlistFile());
+		infoPlistAccessor.updateStringValue(PListAccessor.KEY_WK_APP_BUNDLE_IDENTIFIER, wkAppBundleIdentifier2);
+		LOGGER.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set "
+				+ PListAccessor.KEY_WK_APP_BUNDLE_IDENTIFIER + "AppId to '" + wkAppBundleIdentifier2 + "'.");
+	}
+
+	private void changeCompanionBundleId(PListAccessor infoPlistAccessor, String wkCompanionAppBundleIdentifier2)
+			throws MojoExecutionException, IOException {
+		ensurePListFileIsWritable(infoPlistAccessor.getPlistFile());
+		infoPlistAccessor.updateStringValue(PListAccessor.KEY_WK_COMPANION_APP_BUNDLE_IDENTIFIER,
+				wkCompanionAppBundleIdentifier2);
+		LOGGER.info("PList file '" + infoPlistAccessor.getPlistFile() + "' updated: Set "
+				+ PListAccessor.KEY_WK_COMPANION_APP_BUNDLE_IDENTIFIER + "AppId to '" + wkCompanionAppBundleIdentifier2
+				+ "'.");
+	}
+
+	public static String getWKCompanionAppBundleIdentifier() {
+		return WKCompanionAppBundleIdentifier;
+	}
+
+	public static void setWKCompanionAppBundleIdentifier(String wKCompanionAppBundleIdentifier) {
+		WKCompanionAppBundleIdentifier = wKCompanionAppBundleIdentifier;
+	}
+
+	public static String getWKAppBundleIdentifier() {
+		return WKAppBundleIdentifier;
+	}
+
+	public static void setWKAppBundleIdentifier(String wKAppBundleIdentifier) {
+		WKAppBundleIdentifier = wKAppBundleIdentifier;
+	}
+
+	public static String getCFBundleShortVersionString() {
+		return CFBundleShortVersionString;
+	}
+
+	public static void setCFBundleShortVersionString(String cFBundleShortVersionString) {
+		CFBundleShortVersionString = cFBundleShortVersionString;
+	}
+
+	public static String getCFBundleVersion() {
+		return CFBundleVersion;
+	}
+
+	public static void setCFBundleVersion(String cFBundleVersion) {
+		CFBundleVersion = cFBundleVersion;
+	}
 
 }
