@@ -1,0 +1,246 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.sap.prd.mobile.ios.mios</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.14.3-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+  <artifactId>xcode-maven-plugin</artifactId>
+  <packaging>maven-plugin</packaging>
+  <name>Xcode Maven Plugin</name>
+  <description>
+    This plugin is used to run iOS Xcode builds with Maven. It also uses the Maven integration with a
+    central artifact repository and the dependency resolution.
+  </description>
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+    
+  <properties>
+    <license.roots>src/main,src/site,src/test/java,src/test/projects</license.roots>  <!--  skip src/test/resources as these files are used for file comparison and must not be changed-->
+    <jaxb.verification.checks.1_0_0.sources>${project.build.directory}/generated-sources/jaxb/verification-checks/1.0.0</jaxb.verification.checks.1_0_0.sources>
+    <verification.api.groupId>${project.groupId}</verification.api.groupId>
+    <verification.api.artifactId>verification-check-api</verification.api.artifactId>
+    <verification.api.version>1.0.0</verification.api.version>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+
+     <plugin>
+       <groupId>org.codehaus.mojo</groupId>
+       <artifactId>jaxb2-maven-plugin</artifactId>
+       <executions>
+         <execution>
+           <id>verifiction-checks</id>
+           <phase>generate-sources</phase>
+           <goals>
+             <goal>xjc</goal>
+           </goals>
+           <configuration>
+             <outputDirectory>${jaxb.verification.checks.1_0_0.sources}</outputDirectory>
+             <schemaDirectory>${basedir}/src/main/xsd/verification-checks/1.0.0</schemaDirectory>
+             <packageName>com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0</packageName>
+           </configuration>
+         </execution>
+       </executions>
+     </plugin>
+     
+     <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${jaxb.verification.checks.1_0_0.sources}</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.4.201502262128</version>
+     </plugin>
+
+    </plugins>
+      
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>${verification.api.groupId}</groupId>
+      <artifactId>${verification.api.artifactId}</artifactId>
+      <version>${verification.api.version}</version>
+    </dependency>
+   <dependency>
+      <groupId>com.sap.prd.mobile.ios.mios</groupId>
+      <artifactId>xcode-maven-plugin-utils</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.sap.prd.mobile.ios.mios</groupId>
+      <artifactId>versionschema</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.sap.prd.mobile.ios.ota</groupId>
+      <artifactId>com.sap.prd.mobile.ios.ota.library</artifactId>
+    </dependency>
+      <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-archiver</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-aether-provider</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-verifier</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-core</artifactId>
+    </dependency>
+  </dependencies>
+  
+  <profiles>
+    <profile>
+      <id>continuous-integration</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+
+  <reporting>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.4</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>dependencies</report>
+              <report>project-team</report>
+              <report>mailing-list</report>
+              <!-- <report>cim</report> -->
+              <report>issue-tracking</report>
+              <report>license</report>
+              <!-- <report>scm</report> -->
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>2.9</version>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>1.1</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.3</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <configuration>
+          <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </reporting>
+
+</project>

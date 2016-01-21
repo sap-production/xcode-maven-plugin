@@ -59,7 +59,7 @@ public class AppIDUpdateTest extends XCodeTest
     // MacFileUtil.deleteDirectory(projectDirectory);
   }
 
-  @Test
+  //@Test
   public void testUpdateAppID() throws Exception
   {
 
@@ -72,10 +72,65 @@ public class AppIDUpdateTest extends XCodeTest
     assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.tip.production.inhouse.epdist",
           plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
 
-    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal");
+    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal", null);
 
     PListAccessor plist = new PListAccessor(infoPlistFile);
     assertEquals("com.sap.tip.production.inhouse.epdist.internal",
           plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
+  }
+
+
+  @Test
+  public void testupdateWatchAppID() throws Exception
+  {
+	  LogManager.getLogManager().addLogger(new XCodePluginLogger());
+
+	    File infoPlistFile = new File(projectDirectory, "WatchOS2.0/src/xcode/WatchTest_2_0/Info.plist");
+	    PListAccessor plistAccessor = new PListAccessor(infoPlistFile);
+	    System.out.println("Hello Sree");
+
+	    assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.DS4M.Innovations.WatchTest-2-0",
+	          plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
+	    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal", null);
+
+	    PListAccessor plist = new PListAccessor(infoPlistFile);
+	    assertEquals("com.sap.DS4M.Innovations.WatchTest-2-0.internal",plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
+  }
+
+  @Test
+  public void testupdateWatchkitAppID() throws Exception
+  {
+	  LogManager.getLogManager().addLogger(new XCodePluginLogger());
+
+	    File infoPlistFile = new File(projectDirectory, "WatchOS2.0/src/xcode/WatchTest_2_0 WatchKit App/Info.plist");
+	    PListAccessor plistAccessor = new PListAccessor(infoPlistFile);
+
+	    assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.DS4M.Innovations.WatchTest-2-0.watchkitapp",
+	          plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
+
+	    XCodeChangeAppIDMojo.changeAppId(plistAccessor, "internal", "watchos");
+
+	    PListAccessor plist = new PListAccessor(infoPlistFile);
+	    assertEquals("com.sap.DS4M.Innovations.WatchTest-2-0.internal.watchkitapp",
+	          plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
+  }
+
+  @Test
+  public void testupdateWatchkitExtensionID() throws Exception
+  {
+	  LogManager.getLogManager().addLogger(new XCodePluginLogger());
+
+	    File infoPlistFile = new File(projectDirectory, "WatchOS2.0/src/xcode/WatchTest_2_0 WatchKit Extension/Info.plist");
+	    PListAccessor plistAccessor = new PListAccessor(infoPlistFile);
+
+	    assertEquals("Precondition not fulfilled, wrong AppId in Info Plist.", "com.sap.DS4M.Innovations.WatchTest-2-0.watchkitextension",
+	          plistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
+
+	    XCodeChangeAppIDMojo.setWKAppBundleIdentifier("com.sap.DS4M.Innovations.WatchTest-2-0.internal.watchkitapp");
+	    XCodeChangeAppIDMojo.changeAppIdForExtension(plistAccessor, "internal", "watchos");
+
+	    PListAccessor plist = new PListAccessor(infoPlistFile);
+	    assertEquals("com.sap.DS4M.Innovations.WatchTest-2-0.internal.watchkitapp.internal.watchkitextension",
+	          plist.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));
   }
 }

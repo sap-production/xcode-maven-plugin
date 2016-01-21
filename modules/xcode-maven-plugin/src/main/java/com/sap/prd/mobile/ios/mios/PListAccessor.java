@@ -38,6 +38,8 @@ public class PListAccessor
   public static final String KEY_BUNDLE_IDENTIFIER = "CFBundleIdentifier";
   public static final String KEY_BUNDLE_VERSION = "CFBundleVersion";
   public static final String KEY_BUNDLE_SHORT_VERSION_STRING = "CFBundleShortVersionString";
+  public static final String KEY_WK_COMPANION_APP_BUNDLE_IDENTIFIER ="WKCompanionAppBundleIdentifier";
+  public static final String KEY_WK_APP_BUNDLE_IDENTIFIER ="NSExtension:NSExtensionAttributes:WKAppBundleIdentifier";
 
   private final File plist;
 

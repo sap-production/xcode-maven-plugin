@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>coordinates</key>
+	<dict>
+		<key>artifactId</key>
+		<string>WatchTest_2_0</string>
+		<key>groupId</key>
+		<string>com.sap.DS4M.Innovations.AW-Test1</string>
+		<key>version</key>
+		<string>1.0.1-SNAPSHOT</string>
+	</dict>
+	<key>scm</key>
+	<dict>
+		<key>connection</key>
+		<string>1666//MY_DEPOT_PATH/...</string>
+		<key>revision</key>
+		<string>1234</string>
+	</dict>
+</dict>
+</plist>

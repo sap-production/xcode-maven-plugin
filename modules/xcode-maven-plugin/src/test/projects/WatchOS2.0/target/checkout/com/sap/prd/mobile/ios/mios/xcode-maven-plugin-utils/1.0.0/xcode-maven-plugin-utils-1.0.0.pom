@@ -1,0 +1,172 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.sap.prd.mobile.ios.mios</groupId>
+  <artifactId>xcode-maven-plugin-utils</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+
+    <inceptionYear>2013</inceptionYear>
+    <organization>
+        <name>SAP AG</name>
+    </organization>
+
+    <name>xcode-maven-plugin utilities</name>
+
+    <description>Some commonly used utility classes for the xcode-maven-plugin</description>
+    
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <url>https://github.com/sap-production/xcode-maven-plugin-utils</url>
+    
+    <properties>
+        <project.build.sourceEncoding>MacRoman</project.build.sourceEncoding>
+        <license.roots>src/main,src/test</license.roots>
+    </properties>
+    
+    
+    <scm>
+        <connection>scm:git:https://github.com/sap-production/xcode-maven-plugin-utils.git</connection>
+        <developerConnection>scm:git:https://github.com/sap-production/xcode-maven-plugin-utils.git</developerConnection>
+        <url>https://github.com/sap-production/xcode-maven-plugin-utils</url>
+    </scm>
+    
+    <mailingLists>
+        <mailingList>
+            <name>User List</name>
+            <subscribe>maven4ios-request@freelists.org?subject=subscribe</subscribe>
+            <unsubscribe>maven4ios-request@freelists.org?subject=unsubscribe</unsubscribe>
+            <post>maven4ios@freelists.org</post>
+            <archive>http://www.freelists.org/archive/maven4ios/</archive>
+        </mailingList>
+    </mailingLists>
+    
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/sap-production/xcode-maven-plugin-utils/issues/</url>
+    </issueManagement>
+    
+    <developers>
+        <developer>
+            <name>Irina Kirilova</name>
+            <email>irina.kirilova@sap.com</email>
+        </developer>
+        <developer>
+            <name>Marcus Holl</name>
+            <email>marcus.holl@sap.com</email>
+        </developer>
+        <developer>
+            <name>Alexander Link</name>
+            <email>alexander.link@sap.com</email>
+        </developer>
+    </developers>
+
+  <dependencies>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>1.3.2</version>
+      </dependency>
+      <dependency>
+      	<groupId>junit</groupId>
+      	<artifactId>junit</artifactId>
+      	<version>4.8.2</version>
+        <scope>test</scope>
+    </dependency>
+  </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+  <profiles>
+    <profile>
+      <id>gpg</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.4</version>
+            <executions>
+              <execution>
+                <id>gpg</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.4</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependencies</report>
+                            <report>project-team</report>
+                            <report>mailing-list</report>
+                            <report>issue-tracking</report>
+                            <report>license</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>2.9</version>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.1</version>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>
