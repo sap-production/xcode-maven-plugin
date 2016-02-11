@@ -263,7 +263,8 @@ public class XCodeChangeAppIDMojo extends BuildContextAwareMojo
 		try {
 			LOGGER.info("Watchkit extension bundle ID is combination of WatchkitApp BI and extension string");
 			LOGGER.info("WatchApp Bundle Identifier Value: "+getWKAppBundleIdentifier());
-			String watchkitExtensionBI= getWKAppBundleIdentifier()+"."+appIdSuffix+".watchkitextension";
+			//String watchkitExtensionBI= getWKAppBundleIdentifier()+"."+appIdSuffix+".watchkitextension";
+			String watchkitExtensionBI= getWKAppBundleIdentifier()+".watchkitextension";
 			LOGGER.info("So watchkitExtention BI: "+watchkitExtensionBI);
 			infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, watchkitExtensionBI);
 		}
