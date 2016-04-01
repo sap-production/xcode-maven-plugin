@@ -120,6 +120,25 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    */
   private MavenSession session;
 
+  /**
+   * @parameter expression="${xcode.watchapp}"
+   * For watchos2.0 we should not send the sdk value to xcodebuild, To differentiate between regular app and watch2.0 (Now it's specific)
+   * expecting this property from developer in pom.xml, on demand this will be considered.
+   *
+   * pom.xml entry:
+   *
+   * <pre>
+   * {@code
+   * <properties>
+   *  <xcode.watchapp>watchos2.0</xcode.watchapp>
+   * </properties>
+   * }
+   * </pre>
+   *
+   * @since 1.14.3
+   */
+  private String watchapp;
+
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,
         String configuration, String sdk)
   {
@@ -150,7 +169,13 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 
     if (configuration != null && !configuration.trim().isEmpty())
       managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), configuration);
-    if (sdk != null && !sdk.trim().isEmpty())
+
+    /**
+     * No specific check has been done here, If property specified then sdk entry will be ignored
+     * This can be extended with the specific check. I kept this as Generic because watchosX.X should support with this check,
+     * without confusing developers it will serve the purpose
+     */
+    if (sdk != null && !sdk.trim().isEmpty() && watchapp !=null && watchapp.isEmpty())
       managedOptions.put(Options.ManagedOption.SDK.getOptionName(), sdk);
     if (target != null && !target.trim().isEmpty())
       managedOptions.put(Options.ManagedOption.TARGET.getOptionName(), target);
@@ -220,6 +245,14 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     throw new IllegalStateException("Plist file " + plistFile + " is not located inside the xcode project " + srcRoot
           + ".");
 
+  }
+
+  protected File getProjectRootDirectory(XCodeContext.SourceCodeLocation location, String configuration, String sdk)
+		throws XCodeException {
+	XCodeContext context = getXCodeContext(location, configuration, sdk);
+
+	File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.SRC_ROOT));
+	return srcRoot;
   }
 
   protected String getProductName(final String configuration, final String sdk) throws MojoExecutionException
