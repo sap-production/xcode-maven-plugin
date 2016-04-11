@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>XCodeChangeAppIDMojo.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">XCodeChangeAppIDMojo.java</span></div><h1>XCodeChangeAppIDMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+
+/**
+ * Appends a suffix to the appId. No actions are taken if the suffix is not specified or the suffix
+ * has zero length.
+ * 
+ * @goal change-app-id
+ * 
+ */
+<span class="nc" id="L39">public class XCodeChangeAppIDMojo extends BuildContextAwareMojo</span>
+{
+
+<span class="fc" id="L42">	private final static Logger LOGGER = LogManager.getLogManager().getLogger(XCodePluginLogger.getLoggerName());</span>
+	/**
+	* This suffix gets appended to the appId as '.&amp;lt;appIdSuffix&gt;' in the &lt;code&gt;Info.plist&lt;/code&gt;
+	* before the signing takes place.
+	*
+	* @parameter expression=&quot;${xcode.appIdSuffix}&quot;
+	* @since 1.2.0
+	*/
+	private static String appIdSuffix;
+
+	/**
+	* appType helps to inject the appIdSuffix in to appropriate location of appId in the &lt;code&gt;Info.plist&lt;/code&gt;
+	* before the signing takes place.
+	* Without type appId will be suffixed with the given value, with type we are injecting value at appropriate location
+	* @parameter expression=&quot;${xcode.appType}&quot;
+	*/
+	private String appType;
+
+	/**
+	* watchkitAppPlist helps to know the location of watchkitApp plist file
+	* appIdSuffix will be injected to this plist file
+	*  @parameter expression=&quot;${xcode.watchkitAppPlist}&quot;
+	*/
+	private static String watchkitAppPlist;
+
+	/**
+	* watchkitExtensionPlist helps to know the location of watchkitExtension plist file
+	* appIdSuffix will be injected to this plist file
+	*  @parameter expression=&quot;${xcode.watchkitExtentionPlist}&quot;
+	*/
+	private static String watchkitExtentionPlist;
+
+	/**
+	* This is a variable in plist file of Watchkitapp
+	* This variable reference to the Bundle Identifier of the iphone app
+	*/
+	private static String wkCompanionAppBundleIdentifier;
+
+
+	/**
+	* This is a variable in plist file of watchkitextention
+	* This variable reference to the Bundle Identifier of the Watchkitapp
+	*/
+	private static String wkAppBundleIdentifier;
+
+	/**
+	* This is common variable in all the plist files, we need to make sure values are same in all plist files
+	*/
+	private static String cfBundleShortVersionString;
+
+	/**
+	* This is common variable in all the plist files, we need to make sure values are same in all plist files
+	*/
+	private static String cfBundleVersion;
+
+	/**
+	* This is a watchkit apps modified bundle identifier value, this needs to be extended for the watchkitextension bundle identifier
+	* Requirement for the watchos2.0 applications, without with build fails
+	*/
+
+	private static String watchkitAppBundleIdentifier;
+	/**
+	* @parameter expression=&quot;${xcode.watchapp}&quot;
+	* For watchos2.0 we should not send the sdk value to xcodebuild, To differentiate between regular app and watch2.0 (Now it's specific)
+	* expecting this property from developer in pom.xml, on demand this will be considered.
+	*
+	* pom.xml entry:
+	*
+	* &lt;pre&gt;
+	* {@code
+	* &lt;properties&gt;
+	*  &lt;xcode.watchapp&gt;watchos2.0&lt;/xcode.watchapp&gt;
+	* &lt;/properties&gt;
+	* }
+	* &lt;/pre&gt;
+	*
+	* @since 1.14.3
+	*/
+	private String watchapp;
+
+
+	@Override
+  public void execute() throws MojoExecutionException, MojoFailureException
+  {
+<span class="nc bnc" id="L126" title="All 4 branches missed.">    if (appIdSuffix == null || &quot;&quot;.equals(appIdSuffix.trim())) {</span>
+<span class="nc" id="L127">      return;</span>
+    }
+
+<span class="nc" id="L130">    LOGGER.info(&quot;appIdSuffix=&quot; + appIdSuffix);</span>
+
+<span class="nc" id="L132">	final Collection&lt;File&gt; alreadyUpdatedPlists = new HashSet&lt;File&gt;();</span>
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		for (final String configuration : getConfigurations()) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">			for (final String sdk : getSDKs()) {</span>
+
+<span class="nc" id="L137">				File infoPlistFile = null;</span>
+<span class="nc" id="L138">				File srcRoot = null;</span>
+<span class="nc" id="L139">				PListAccessor infoPlistAccessor = null;</span>
+
+				/*
+				 * Add appIdSuffix to the info.plist of Application
+				 */
+				try {
+<span class="nc" id="L145">					infoPlistFile = getPListFile(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk);</span>
+<span class="nc" id="L146">				} catch (XCodeException e) {</span>
+<span class="nc" id="L147">					throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L148">				}</span>
+
+<span class="nc" id="L150">				infoPlistAccessor = new PListAccessor(infoPlistFile);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">				if (alreadyUpdatedPlists.contains(infoPlistFile)) {</span>
+<span class="nc" id="L152">					LOGGER.finer(&quot;PList file '&quot; + infoPlistFile.getName()</span>
+							+ &quot;' was already updated for another configuration. This file will be skipped.&quot;);
+				} else {
+<span class="nc" id="L155">					changeAppId(infoPlistAccessor, appIdSuffix, null);</span>
+					try {
+<span class="nc" id="L157">						setCFBundleShortVersionString(infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING));</span>
+<span class="nc" id="L158">						setCFBundleVersion(infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_VERSION));</span>
+
+<span class="nc" id="L160">					} catch (IOException e) {</span>
+<span class="nc" id="L161">						throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L162">					}</span>
+
+<span class="nc" id="L164">					alreadyUpdatedPlists.add(infoPlistFile);</span>
+				}
+
+				/**
+				 * If appType provided explicitly; User also needs to specify the additional plist files for appId injection
+				 * Currently no strict check for the appType which can be extended for specific checks in future.
+				 * For watchkit Application support: User has to pass parameters as below in pom.xml
+				 *
+				 * &lt;pre&gt;
+				 * {@code
+				 * &lt;properties&gt;
+				 *  &lt;xcode.appType&gt;watchKit&lt;/xcode.appType&gt;
+				 *  &lt;xcode.watchkitAppPlist&gt;${watchkitApp-plist-file-path}&lt;/xcode.watchkitAppPlist&gt;
+				 *  &lt;xcode.watchkitExtentionPlist&gt;${watchkitExtention-plist-file-path}&lt;/xcode.watchkitExtentionPlist&gt;
+				 * &lt;/properties&gt;
+				 * }
+				 * &lt;/pre&gt;
+				 *
+				 * Sample:
+				 *
+				 * Provide the relative paths of the plist files: Project_Root_Dir\{plist-file-path}
+				 * Ex:
+				 * AppName: 						&quot;TodoList&quot;
+				 * WatchKit App plist file: 		&quot;TodoList WatchKit App\Info.plist&quot;
+				 * WatchKit Extension plist file: 	&quot;TodoList WatchKit Extension\Info.plist&quot;
+				 * pom.xml entry should look like,
+				 *
+				 * &lt;pre&gt;
+				 * {@code
+				 * &lt;properties&gt;
+				 *  &lt;xcode.appType&gt;watchKit&lt;/xcode.appType&gt;
+				 *  &lt;xcode.watchkitAppPlist&gt;TodoList WatchKit App\Info.plist&lt;/xcode.watchkitAppPlist&gt;
+				 *  &lt;xcode.watchkitExtentionPlist&gt;TodoList WatchKit Extension\Info.plist&lt;/xcode.watchkitExtentionPlist&gt;
+				 * &lt;/properties&gt;
+				 * }
+				 * &lt;/pre&gt;
+				 *
+				 */
+<span class="nc bnc" id="L202" title="All 4 branches missed.">				if (!(appType == null || &quot;&quot;.equals(appType.trim()))) {</span>
+<span class="nc" id="L203">					LOGGER.info(&quot;appType: &quot; + appType</span>
+							+ &quot; value provided, needs to consider additional plist files for appIdSuffix injection&quot;);
+
+					try {
+<span class="nc" id="L207">						srcRoot = getProjectRootDirectory(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration,</span>
+								sdk);
+
+<span class="nc bnc" id="L210" title="All 4 branches missed.">						if (watchkitAppPlist != null || &quot;&quot;.equals(watchkitAppPlist.trim())) {</span>
+<span class="nc" id="L211">							LOGGER.info(&quot;location of watchkitAppPlist: &quot; + watchkitAppPlist);</span>
+<span class="nc" id="L212">							infoPlistFile = new File(srcRoot, watchkitAppPlist);</span>
+<span class="nc" id="L213">							infoPlistAccessor = new PListAccessor(infoPlistFile);</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">							if (alreadyUpdatedPlists.contains(infoPlistFile)) {</span>
+<span class="nc" id="L215">								LOGGER.finer(&quot;PList file '&quot; + infoPlistFile.getName()</span>
+										+ &quot;' was already updated for another configuration. This file will be skipped.&quot;);
+							} else {
+								try {
+<span class="nc" id="L219">									changeAppId(infoPlistAccessor, appIdSuffix, appType);</span>
+
+<span class="nc" id="L221">									changePlistKeyValue(infoPlistFile,PListAccessor.KEY_WK_COMPANION_APP_BUNDLE_IDENTIFIER,getWKCompanionAppBundleIdentifier());</span>
+<span class="nc" id="L222">									changePlistKeyValue(infoPlistFile,PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING,getCFBundleShortVersionString());</span>
+<span class="nc" id="L223">									changePlistKeyValue(infoPlistFile,PListAccessor.KEY_BUNDLE_VERSION,getCFBundleVersion());</span>
+<span class="nc" id="L224">								} catch (IOException e) {</span>
+<span class="nc" id="L225">									throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L226">								}</span>
+							}
+<span class="nc" id="L228">							setWKAppBundleIdentifier(infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER));</span>
+<span class="nc" id="L229">							alreadyUpdatedPlists.add(infoPlistFile);</span>
+						}
+
+<span class="nc bnc" id="L232" title="All 4 branches missed.">						if (watchkitExtentionPlist != null || &quot;&quot;.equals(watchkitExtentionPlist.trim())) {</span>
+<span class="nc" id="L233">							LOGGER.info(&quot;location of watchkitExtentionPlist: &quot;</span>
+									+ watchkitExtentionPlist);
+<span class="nc" id="L235">							infoPlistFile = new File(srcRoot, watchkitExtentionPlist);</span>
+<span class="nc" id="L236">							infoPlistAccessor = new PListAccessor(infoPlistFile);</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">							if (alreadyUpdatedPlists.contains(infoPlistFile)) {</span>
+<span class="nc" id="L238">								LOGGER.finer(&quot;PList file '&quot; + infoPlistFile.getName()</span>
+										+ &quot;' was already updated for another configuration. This file will be skipped.&quot;);
+							} else {
+<span class="nc" id="L241">								changeAppIdForExtension(infoPlistFile, appIdSuffix, appType);</span>
+
+<span class="nc" id="L243">								changePlistKeyValue(infoPlistFile,PListAccessor.KEY_WK_APP_BUNDLE_IDENTIFIER,getWKAppBundleIdentifier());</span>
+<span class="nc" id="L244">								changePlistKeyValue(infoPlistFile,PListAccessor.KEY_BUNDLE_SHORT_VERSION_STRING,getCFBundleShortVersionString());</span>
+<span class="nc" id="L245">								changePlistKeyValue(infoPlistFile,PListAccessor.KEY_BUNDLE_VERSION,getCFBundleVersion());</span>
+<span class="nc" id="L246">								alreadyUpdatedPlists.add(infoPlistFile);</span>
+							}
+						}
+
+<span class="nc" id="L250">					} catch (XCodeException e) {</span>
+<span class="nc" id="L251">						throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L252">					} catch (IOException e) {</span>
+<span class="nc" id="L253">						throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L254">					}</span>
+				}
+<span class="nc" id="L256">			}</span>
+<span class="nc" id="L257">		}</span>
+<span class="nc" id="L258">	}</span>
+
+	static void changeAppIdForExtension(File plist, String appIdSuffix, String appType) throws MojoExecutionException {
+<span class="nc" id="L261">		PListAccessor infoPlistAccessor = new PListAccessor(plist);</span>
+<span class="nc" id="L262">		ensurePListFileIsWritable(infoPlistAccessor.getPlistFile());</span>
+		try {
+<span class="nc" id="L264">			LOGGER.info(&quot;Watchkit extension bundle ID is combination of WatchkitApp BI and extension string&quot;);</span>
+<span class="nc" id="L265">			LOGGER.info(&quot;WatchApp Bundle Identifier Value: &quot;+getWKAppBundleIdentifier());</span>
+			//String watchkitExtensionBI= getWKAppBundleIdentifier()+&quot;.&quot;+appIdSuffix+&quot;.watchkitextension&quot;;
+<span class="nc" id="L267">			String watchkitExtensionBI= getWKAppBundleIdentifier()+&quot;.watchkitextension&quot;;</span>
+<span class="nc" id="L268">			LOGGER.info(&quot;So watchkitExtention BI: &quot;+watchkitExtensionBI);</span>
+<span class="nc" id="L269">			infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, watchkitExtensionBI);</span>
+		}
+<span class="nc" id="L271">		catch (IOException e) {</span>
+<span class="nc" id="L272">			throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="nc" id="L273">		}</span>
+<span class="nc" id="L274">	}</span>
+
+	static void changeAppId(PListAccessor infoPlistAccessor, String appIdSuffix, String appType) throws MojoExecutionException{
+<span class="fc" id="L277">		ensurePListFileIsWritable(infoPlistAccessor.getPlistFile());</span>
+		try {
+<span class="fc" id="L279">			appendAppIdSuffix(infoPlistAccessor, appIdSuffix, appType);</span>
+		}
+<span class="nc" id="L281">		catch (IOException e) {</span>
+<span class="nc" id="L282">			throw new MojoExecutionException(e.getMessage(), e);</span>
+<span class="fc" id="L283">		}</span>
+<span class="fc" id="L284">	}</span>
+
+  private static void ensurePListFileIsWritable(File pListFile) throws MojoExecutionException
+	{
+<span class="pc bpc" id="L288" title="1 of 2 branches missed.">    if (!pListFile.canWrite()) {</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">    	if (!pListFile.setWritable(true, true))</span>
+<span class="nc" id="L290">    	throw new MojoExecutionException(&quot;Could not make plist file '&quot; + pListFile + &quot;' writable.&quot;);</span>
+<span class="nc" id="L291">		LOGGER.info(&quot;Made PList file '&quot; + pListFile + &quot;' writable.&quot;);</span>
+	}
+<span class="fc" id="L293">	}</span>
+
+  private static void appendAppIdSuffix(PListAccessor infoPlistAccessor, String appIdSuffix, String appType) throws IOException
+	{
+	String newAppId;
+<span class="pc bpc" id="L298" title="3 of 4 branches missed.">	if (appType == null || &quot;&quot;.equals(appType.trim())) {</span>
+<span class="fc" id="L299">		String originalAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);</span>
+<span class="fc" id="L300">		newAppId = originalAppId + &quot;.&quot; + appIdSuffix;</span>
+<span class="fc" id="L301">		LOGGER.info(&quot;Original AppId value : &quot;+ originalAppId);</span>
+<span class="fc" id="L302">		LOGGER.info(&quot;New upated AppID value: &quot;+ newAppId);</span>
+<span class="fc" id="L303">		setWKCompanionAppBundleIdentifier(newAppId);</span>
+
+<span class="fc" id="L305">		String CFBundleName = infoPlistAccessor.getStringValue(&quot;CFBundleName&quot;);</span>
+<span class="fc" id="L306">		LOGGER.info(&quot;CFBundleName : &quot;+ CFBundleName);</span>
+<span class="fc" id="L307">	}else{</span>
+<span class="nc" id="L308">			newAppId = injectAppIdSuffix(appIdSuffix, infoPlistAccessor);</span>
+		}
+
+<span class="fc" id="L311">	infoPlistAccessor.updateStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER, newAppId);</span>
+<span class="fc" id="L312">	LOGGER.info(&quot;PList file '&quot; + infoPlistAccessor.getPlistFile() + &quot;' updated: Set AppId to '&quot; + newAppId + &quot;'.&quot;);</span>
+<span class="fc" id="L313">	}</span>
+
+
+  private static String injectAppIdSuffix(String appIdSuffix, PListAccessor infoPlistAccessor) throws IOException {
+<span class="nc" id="L317">	String originalAppId = infoPlistAccessor.getStringValue(PListAccessor.KEY_BUNDLE_IDENTIFIER);</span>
+<span class="nc" id="L318">	String firstPart= originalAppId.substring(0,originalAppId.lastIndexOf(&quot;.&quot;));</span>
+<span class="nc" id="L319">	String lastPart = originalAppId.substring(originalAppId.lastIndexOf(&quot;.&quot;)+ 1);</span>
+<span class="nc" id="L320">	String newAppId = firstPart + &quot;.&quot; + appIdSuffix + &quot;.&quot; + lastPart;</span>
+<span class="nc" id="L321">	LOGGER.info(&quot;Original AppId value : &quot;+ originalAppId);</span>
+<span class="nc" id="L322">	LOGGER.info(&quot;New updated AppID value: &quot;+ newAppId);</span>
+<span class="nc" id="L323">	return newAppId;</span>
+	}
+
+  private static void changePlistKeyValue(File plist, String key, String value) throws MojoExecutionException, IOException{
+<span class="nc" id="L327">	  PListAccessor infoPlistAccessor = new PListAccessor(plist);</span>
+<span class="nc" id="L328">	  ensurePListFileIsWritable(infoPlistAccessor.getPlistFile());</span>
+<span class="nc" id="L329">	  infoPlistAccessor.updateStringValue(key, value);</span>
+<span class="nc" id="L330">	  LOGGER.info(&quot;PList file '&quot; + plist.getAbsolutePath() + &quot;' updated: Set &quot;</span>
+			  + &quot;Key &quot; + key  + &quot;and Value &quot; + value);
+<span class="nc" id="L332">    }</span>
+
+	public static String getWKCompanionAppBundleIdentifier() {
+<span class="nc" id="L335">		return wkCompanionAppBundleIdentifier;</span>
+	}
+
+	public static void setWKCompanionAppBundleIdentifier(String wKCompanionAppBundleIdentifier) {
+<span class="fc" id="L339">		wkCompanionAppBundleIdentifier = wKCompanionAppBundleIdentifier;</span>
+<span class="fc" id="L340">	}</span>
+
+	public static String getWKAppBundleIdentifier() {
+<span class="nc" id="L343">		return wkAppBundleIdentifier;</span>
+	}
+
+	public static void setWKAppBundleIdentifier(String wKAppBundleIdentifier) {
+<span class="nc" id="L347">		wkAppBundleIdentifier = wKAppBundleIdentifier;</span>
+<span class="nc" id="L348">	}</span>
+
+	public static String getCFBundleShortVersionString() {
+<span class="nc" id="L351">		return cfBundleShortVersionString;</span>
+	}
+
+	public static void setCFBundleShortVersionString(String cFBundleShortVersionString) {
+<span class="nc" id="L355">		cfBundleShortVersionString = cFBundleShortVersionString;</span>
+<span class="nc" id="L356">	}</span>
+
+	public static String getCFBundleVersion() {
+<span class="nc" id="L359">		return cfBundleVersion;</span>
+	}
+
+	public static void setCFBundleVersion(String cFBundleVersion) {
+<span class="nc" id="L363">		cfBundleVersion = cFBundleVersion;</span>
+<span class="nc" id="L364">	}</span>
+
+	 public static String getWatchkitAppBundleIdentifier() {
+<span class="nc" id="L367">			return watchkitAppBundleIdentifier;</span>
+	}
+
+	public static void setWatchkitAppBundleIdentifier(String watchkitAppBundleIdentifier) {
+<span class="nc" id="L371">			XCodeChangeAppIDMojo.watchkitAppBundleIdentifier = watchkitAppBundleIdentifier;</span>
+<span class="nc" id="L372">	}</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>
