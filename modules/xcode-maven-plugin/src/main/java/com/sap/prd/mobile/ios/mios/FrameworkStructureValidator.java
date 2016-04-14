@@ -53,17 +53,25 @@ public class FrameworkStructureValidator
   public List<String> validate()
   {
     errorMsgs = new ArrayList<String>();
+    String fmwkName = FilenameUtils.removeExtension(fmwkDir.getName());
     if (!fmwkDir.isDirectory()) {
       errorMsgs.add("'" + fmwkDir.getAbsolutePath() + "' is not a directory");
     }
     else {
       validateSubdirExistence("Versions", "Versions/A", "Versions/A/Headers", "Versions/A/Resources");
-      String fmwkName = FilenameUtils.removeExtension(fmwkDir.getName());
       validateLib("Versions/A/" + fmwkName);
       validateLink("Headers", "Versions/A/Headers");
       validateLink("Resources", "Versions/A/Resources");
       validateLink(fmwkName, "Versions/A/" + fmwkName);
       validateLink("Versions/Current", "Versions/A");
+    }
+    if (!errorMsgs.isEmpty()) {
+        int errors = errorMsgs.size();
+        validateSubdirExistence("Headers");
+        //validateLib(fmwkName);
+        if (errorMsgs.size() == errors) {
+            errorMsgs.clear();
+        }
     }
     return errorMsgs;
   }

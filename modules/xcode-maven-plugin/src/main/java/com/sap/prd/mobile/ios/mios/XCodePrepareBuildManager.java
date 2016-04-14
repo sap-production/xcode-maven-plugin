@@ -23,6 +23,8 @@ import static com.sap.prd.mobile.ios.mios.FileUtils.mkdirs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,8 +57,9 @@ class XCodePrepareBuildManager
   private Map<String, String> additionalPackagingTypes;
 
   private boolean preferFatLibs;
+  private List<String> skipDependenciesForConfigurations = new ArrayList<String>();
 
-  XCodePrepareBuildManager(final ArchiverManager archiverManager,
+    XCodePrepareBuildManager(final ArchiverManager archiverManager,
         final RepositorySystemSession repoSystemSession, final RepositorySystem repoSystem,
         final List<RemoteRepository> projectRepos, final boolean useSymbolicLinks,
         final Map<String, String> additionalPackagingTypes)
@@ -93,6 +96,7 @@ class XCodePrepareBuildManager
       LOGGER.info("No dependencies found.");
     }
 
+    configurations.removeAll(skipDependenciesForConfigurations);
     while (dependentArtifacts.hasNext()) {
 
       final Artifact mainArtifact = (Artifact) dependentArtifacts.next();
@@ -466,4 +470,10 @@ class XCodePrepareBuildManager
           destinationFolder.getCanonicalPath());
   }
 
+    public XCodePrepareBuildManager setSkipDependenciesForConfigurations(String skipDependenciesForConfigurations) {
+        if (skipDependenciesForConfigurations == null)
+            return this;
+        this.skipDependenciesForConfigurations = Arrays.asList(skipDependenciesForConfigurations.split(","));
+        return this;
+    }
 }
