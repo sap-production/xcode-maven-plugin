@@ -175,7 +175,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
      * This can be extended with the specific check. I kept this as Generic because watchosX.X should support with this check,
      * without confusing developers it will serve the purpose
      */
-    if (sdk != null && !sdk.trim().isEmpty() && watchapp !=null && watchapp.isEmpty())
+    if (sdk != null && !sdk.trim().isEmpty() && watchapp ==null)
       managedOptions.put(Options.ManagedOption.SDK.getOptionName(), sdk);
     if (target != null && !target.trim().isEmpty())
       managedOptions.put(Options.ManagedOption.TARGET.getOptionName(), target);

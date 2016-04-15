@@ -10,6 +10,16 @@ Release Notes
 
 ===
 
+* 1.14.3
+
+** Features
+
+  watchos2.0 support added to xcode-maven-plugin
+  
+*** Bug fixes
+
+   <No bug fixes>
+
 * 1.14.2
 
 ** Features
