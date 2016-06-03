@@ -24,22 +24,23 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-final class Settings implements ISettings
-{
+final class Settings implements ISettings {
 
   private final static String XCODE_OUTPUT_DIRECTORY = "build";
 
-  enum ManagedSetting
-  {
-    CODE_SIGN_IDENTITY(false, null), CODE_SIGNING_REQUIRED(false, null), PROVISIONING_PROFILE(false, null), 
-          DSTROOT(true, XCODE_OUTPUT_DIRECTORY), SYMROOT(true, XCODE_OUTPUT_DIRECTORY), SHARED_PRECOMPS_DIR(true, 
-          XCODE_OUTPUT_DIRECTORY), OBJROOT(true, XCODE_OUTPUT_DIRECTORY);
+  enum ManagedSetting {
+//    SYMROOT(true, XCODE_OUTPUT_DIRECTORY),
+    SHARED_PRECOMPS_DIR(true, XCODE_OUTPUT_DIRECTORY),
+    DSTROOT(true, XCODE_OUTPUT_DIRECTORY),
+    OBJROOT(true, XCODE_OUTPUT_DIRECTORY),
+    CODE_SIGN_IDENTITY(false, null),
+    CODE_SIGNING_REQUIRED(false, null),
+    PROVISIONING_PROFILE(false, null);
 
     private final boolean required;
     private String defaultValue;
 
-    static ManagedSetting forName(String name)
-    {
+    static ManagedSetting forName(String name) {
 
       for (ManagedSetting setting : values()) {
         if (setting.name().equals(name)) {
@@ -50,22 +51,19 @@ final class Settings implements ISettings
       return null;
     }
 
-    ManagedSetting(boolean required, String defaultValue)
-    {
+    ManagedSetting(boolean required, String defaultValue) {
       this.required = required;
       this.defaultValue = defaultValue;
     }
 
-    boolean isRequired()
-    {
+    boolean isRequired() {
       return required;
     }
 
-    String getDefaultValue()
-    {
+    String getDefaultValue() {
       return defaultValue;
     }
-  };
+  }
 
   private final static Map<String, String> REQUIRED = new LinkedHashMap<String, String>(7);
 
@@ -80,13 +78,11 @@ final class Settings implements ISettings
 
   private final Map<String, String> userSettings, managedSettings;
 
-  Settings(Map<String, String> userSettings, Map<String, String> managedSettings)
-  {
+  Settings(Map<String, String> userSettings, Map<String, String> managedSettings) {
 
     if (userSettings == null) {
       this.userSettings = Collections.emptyMap();
-    }
-    else {
+    } else {
       this.userSettings = Collections.unmodifiableMap(new HashMap<String, String>(userSettings));
     }
 
@@ -94,28 +90,29 @@ final class Settings implements ISettings
 
     if (managedSettings == null) {
       this.managedSettings = Collections.unmodifiableMap(new HashMap<String, String>(REQUIRED));
-    }
-    else {
+    } else {
 
       Map<String, String> _managedSettings = new HashMap<String, String>();
 
       for (Map.Entry<String, String> e : managedSettings.entrySet()) {
 
-        if (e.getKey() == null || e.getKey().trim().isEmpty())
+        if (e.getKey() == null || e.getKey().trim().isEmpty()) {
           throw new IllegalArgumentException("Empty key found in settings. Value was: '" + e.getValue() + "'.");
+        }
 
-        if (ManagedSetting.forName(e.getKey().trim()) == null)
+        if (ManagedSetting.forName(e.getKey().trim()) == null) {
           throw new IllegalArgumentException("Setting with key '" + e.getKey() + "' and value '" + e.getValue()
-                + "' was provided. This setting is managed by the plugin" +
-                "and must not be provided as managed setting.");
+              + "' was provided. This setting is managed by the plugin" +
+              "and must not be provided as managed setting.");
+        }
 
         if (e.getValue() == null) {
 
           if (e.getKey().equals(ManagedSetting.CODE_SIGN_IDENTITY.name())) {
             throw new IllegalArgumentException("CodesignIdentity was empty: '" + e.getValue()
-                  + "'. If you want to use the code"
-                  + " sign identity defined in the xCode project configuration just do"
-                  + " not provide the 'codeSignIdentity' in your Maven settings.");
+                + "'. If you want to use the code"
+                + " sign identity defined in the xCode project configuration just do"
+                + " not provide the 'codeSignIdentity' in your Maven settings.");
           }
 
           throw new IllegalArgumentException("No value provided for key '" + e.getKey() + "'.");
@@ -131,17 +128,16 @@ final class Settings implements ISettings
   public final Map<String, String> getUserSettings() {
     return Collections.unmodifiableMap(this.userSettings);
   }
-  
+
   public final Map<String, String> getManagedSettings() {
     return Collections.unmodifiableMap(this.managedSettings);
   }
-  
+
   /* (non-Javadoc)
    * @see com.sap.prd.mobile.ios.mios.ISettings#getAllSettings()
    */
   @Override
-  public final Map<String, String> getAllSettings()
-  {
+  public final Map<String, String> getAllSettings() {
     Map<String, String> result = new HashMap<String, String>(this.userSettings.size() + this.managedSettings.size());
     result.putAll(this.userSettings);
     result.putAll(this.managedSettings);
@@ -149,29 +145,26 @@ final class Settings implements ISettings
   }
 
   /**
-   * @param userSettings
-   *          to be validated.
+   * @param userSettings to be validated.
    * @return the passed in userSettings if validation passed without exception
-   * @throws IllegalArgumentException
-   *           if the userSettings contain a key of an XCode setting that is managed by the plugin.
+   * @throws IllegalArgumentException if the userSettings contain a key of an XCode setting that is managed by the
+   *                                  plugin.
    */
-  private final static Map<String, String> validateUserSettings(Map<String, String> userSettings)
-  {
+  private final static Map<String, String> validateUserSettings(Map<String, String> userSettings) {
 
     for (String key : userSettings.keySet()) {
       if (ManagedSetting.forName(key.trim()) != null) {
         throw new IllegalArgumentException(
-              "Setting '"
-                    + key
-                    + "' contained in user settings. This settings is managed by the plugin and must not be provided from outside.");
+            "Setting '"
+                + key
+                + "' contained in user settings. This settings is managed by the plugin and must not be provided from outside.");
       }
     }
     return userSettings;
   }
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     final String ls = System.getProperty("line.separator");
     StringBuffer buffer = new StringBuffer();
     for (Map.Entry<String, String> entry : getAllSettings().entrySet()) {
@@ -181,8 +174,7 @@ final class Settings implements ISettings
   }
 
   @Override
-  public int hashCode()
-  {
+  public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((managedSettings == null) ? 0 : managedSettings.hashCode());
@@ -191,20 +183,31 @@ final class Settings implements ISettings
   }
 
   @Override
-  public boolean equals(Object obj)
-  {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     Settings other = (Settings) obj;
     if (managedSettings == null) {
-      if (other.managedSettings != null) return false;
+      if (other.managedSettings != null) {
+        return false;
+      }
+    } else if (!managedSettings.equals(other.managedSettings)) {
+      return false;
     }
-    else if (!managedSettings.equals(other.managedSettings)) return false;
     if (userSettings == null) {
-      if (other.userSettings != null) return false;
+      if (other.userSettings != null) {
+        return false;
+      }
+    } else if (!userSettings.equals(other.userSettings)) {
+      return false;
     }
-    else if (!userSettings.equals(other.userSettings)) return false;
     return true;
   }
 }

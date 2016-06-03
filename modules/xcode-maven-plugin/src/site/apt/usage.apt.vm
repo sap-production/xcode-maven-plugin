@@ -39,11 +39,15 @@ Usage
     * {{{./xcodebuild-mojo.html#codeSignIdentity}codeSignIdentity}}
 
     * {{{./xcodebuild-mojo.html#provisioningProfile}provisioningProfile}}
-    
+
+    * {{{./xcodebuild-mojo.html#buildWorkspace}buildWorkspace}}
+
+    * {{{./pod-install-mojo#installPods}installPods}}
+
     * {{{./change-app-id-mojo.html#appIdSuffix}appIdSuffix}}
  
     * {{{./change-artifact-id-mojo#artifactIdSuffix}artifactIdSuffix}}
- 
+
 
   Example of a <<<pom.xml>>> that provides the above mentioned parameters:
   
@@ -81,9 +85,9 @@ Usage
             <sdk>iphonesimulator</sdk>
             <sdk>iphoneos</sdk>
           </sdks>
-          <defaultAppSdks>iphoneos,iphonesimulator</defaultAppSdks>  <!-- if <sdks> are explicitly provided this property has no effect. 
+          <defaultAppSdks>iphoneos,iphonesimulator</defaultAppSdks>  <!-- If <sdks> are explicitly provided this property has no effect.
                                                                           Can also be set via system property: ${xcode.app.defaultSdks} -->
-          <defaultLibSdks>iphoneos,iphonesimulator</defaultLibSdks>  <!-- if <sdks> are explicitly provided this property has no effect. 
+          <defaultLibSdks>iphoneos,iphonesimulator</defaultLibSdks>  <!-- If <sdks> are explicitly provided this property has no effect.
                                                                           Can also be set via system property: ${xcode.lib.defaultSdks} -->          
           <buildActions>
             <buildAction>clean</buildAction>
@@ -94,6 +98,14 @@ Usage
           <provisioningProfile>42CB38B0-62BB-4242-BD03-72EDB7570842</provisioningProfile> <!-- Can also be set via system property: ${xcode.provisioningProfile} -->
           <appIdSuffix>internal</appIdSuffix>                         <!-- Can also be set via system property: ${xcode.appIdSuffix} -->
           <artifactIdSuffix>release</artifactIdSuffix>                <!-- Can also be set via system property: ${xcode.artifactIdSuffix} -->
+          <options>
+            <scheme>MyLibrary</scheme>                                <!-- Scheme needs to be specified whenever bulding a workspace -->
+          </options>
+          <buildWorkspace>true</buildWorkspace>                       <!-- Indicates whenever `xcodebuild` should receive `-workspace` instaed of `-project`
+                                                                           parameter. Can be used for building projects which are using CocaPods.
+                                                                           Can also be set via system property: ${xcode.buildWorkspace} -->
+          <installPods>true</installPods>                             <!-- If enabled plugin will execute `pod install` before proceeding with build process.
+                                                                           Can also be set via system property: ${xcode.installPods} -->
         </configuration>
       </plugin>
     </plugins>
@@ -200,15 +212,15 @@ Usage
     
     * <<<DSTROOT>>> Is set to"build"
     
-    * <<<SYMROOT>>> Is set to "build"
-    
     * <<<SHARED_PRECOMPS_DIR>>> Is set to "build"
     
     * <<<OBJROOT>>> Is set to "build"
 
   * Managed Options
 
-    * <<<project>>> Is always the maven artifactId
+    * <<<project>>> Is always the maven artifactId. [default]
+
+    * <<<workspace>>> Is always the maven artifactId. Excludes "project" option. [optional]
 
     * <<<configuration>>> Can be provided as dedicated entry in the configuration section of the plugin. See pom.xml example above.
 

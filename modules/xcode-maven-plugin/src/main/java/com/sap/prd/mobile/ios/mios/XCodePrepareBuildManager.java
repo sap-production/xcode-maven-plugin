@@ -465,5 +465,4 @@ class XCodePrepareBuildManager
           sourceFile.getCanonicalPath(),
           destinationFolder.getCanonicalPath());
   }
-
 }
