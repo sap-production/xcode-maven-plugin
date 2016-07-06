@@ -31,6 +31,9 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
 
 /**
@@ -59,9 +62,8 @@ import org.apache.maven.project.MavenProjectHelper;
  * Please note that this goal is not part of the default lifecycle for xcode-lib and xcode-app
  * projects.
  * 
- * @goal package-xcodeproj
- * 
  */
+@Mojo(name="package-xcodeproj")
 public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
 {
 
@@ -95,9 +97,9 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
    *   &lt;/build>
    * </pre>
    * 
-   * @parameter
    * @since 1.3.2
    */
+  @Parameter
   private List<String> additionalArchivePaths;
 
   /**
@@ -126,14 +128,12 @@ public class XCodePackageXcodeprojMojo extends AbstractXCodeMojo
    *   &lt;/build>
    * </pre>
    * 
-   * @parameter
    * @since 1.3.3
    */
+  @Parameter
   private List<String> excludes;
 
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
   @Override

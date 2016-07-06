@@ -61,7 +61,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -74,15 +73,18 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.collection.DependencyCollectionException;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.repository.RemoteRepository;
 
 import com.sap.prd.mobile.ios.mios.XCodeContext.SourceCodeLocation;
 import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Check;
@@ -107,10 +109,8 @@ import com.sap.prd.mobile.ios.mios.verificationchecks.v_1_0_0.Checks;
  *   &lt;check groupId="my.group.id" artifactId="artifactId" version="1.0.0" severity="WARNING" class="com.my.MyVerificationCheck2"/&gt;
  * &lt;/checks&gt;
  * </pre>
- * 
- * @goal verification-check
- * 
  */
+@Mojo(name="verification-check")
 public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 {
   private final static String COLON = ":", DOUBLE_SLASH = "//";
@@ -270,34 +270,29 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
   /**
    * The entry point to Aether, i.e. the component doing all the work.
-   * 
-   * @component
    */
+  @Component
   protected RepositorySystem repoSystem;
 
   /**
    * The current repository/network configuration of Maven.
-   * 
-   * @parameter default-value="${repositorySystemSession}"
-   * @readonly
    */
+  @Parameter(readonly=true, defaultValue="${repositorySystemSession}")
   protected RepositorySystemSession repoSession;
 
   /**
    * The project's remote repositories to use for the resolution of project dependencies.
-   * 
-   * @parameter default-value="${project.remoteProjectRepositories}"
-   * @readonly
    */
+  @Parameter(readonly=true, defaultValue="${project.remoteProjectRepositories}")
   protected List<RemoteRepository> projectRepos;
 
   /**
    * Parameter, which controls the verification goal execution. By default, the verification goal
    * will be skipped.
    * 
-   * @parameter expression="${xcode.verification.checks.skip}" default-value="true"
    * @since 1.9.3
    */
+  @Parameter(property="xcode.verification.checks.skip", defaultValue="true")
   private boolean skip;
 
   /**
@@ -310,9 +305,9 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
    * <li>-Dxcode.verification.checks.definitionFile=https://example.com/checkDefinitionFile.xml
    * </ul>
    * 
-   * @parameter expression="${xcode.verification.checks.definitionFile}"
    * @since 1.9.3
    */
+  @Parameter(property="xcode.verification.checks.definitionFile")
   private String checkDefinitionFile;
 
   @Override
@@ -508,7 +503,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
   private ClassRealm extendClasspath(Check check) throws XCodeException, DependencyCollectionException,
         DuplicateRealmException, MalformedURLException
   {
-    final org.sonatype.aether.artifact.Artifact artifact = parseDependency(check);
+    final org.eclipse.aether.artifact.Artifact artifact = parseDependency(check);
 
     final ClassLoader loader = this.getClass().getClassLoader();
 
@@ -532,14 +527,14 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
 
     final XCodeDownloadManager downloadManager = new XCodeDownloadManager(projectRepos, repoSystem, repoSession);
 
-    final Set<org.sonatype.aether.artifact.Artifact> theEmptyOmitsSet = Collections.emptySet();
-    final Set<org.sonatype.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
+    final Set<org.eclipse.aether.artifact.Artifact> theEmptyOmitsSet = Collections.emptySet();
+    final Set<org.eclipse.aether.artifact.Artifact> omits = downloadManager.resolveArtifactWithTransitveDependencies(
           new Dependency(getVerificationAPIGav(), org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes,
           theEmptyOmitsSet);
 
     omits.add(getVerificationAPIGav());
 
-    final Set<org.sonatype.aether.artifact.Artifact> artifacts = downloadManager
+    final Set<org.eclipse.aether.artifact.Artifact> artifacts = downloadManager
       .resolveArtifactWithTransitveDependencies(new Dependency(artifact,
             org.apache.maven.artifact.Artifact.SCOPE_COMPILE), scopes, omits);
 
@@ -565,16 +560,16 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  private void addDependencies(final ClassRealm childClassRealm, Set<org.sonatype.aether.artifact.Artifact> artifacts)
+  private void addDependencies(final ClassRealm childClassRealm, Set<org.eclipse.aether.artifact.Artifact> artifacts)
         throws MalformedURLException
   {
-    for (org.sonatype.aether.artifact.Artifact a : artifacts)
+    for (org.eclipse.aether.artifact.Artifact a : artifacts)
     {
       childClassRealm.addURL(a.getFile().toURI().toURL());
     }
   }
 
-  static org.sonatype.aether.artifact.Artifact parseDependency(final Check check)
+  static org.eclipse.aether.artifact.Artifact parseDependency(final Check check)
         throws XCodeException
   {
     final String groupId = check.getGroupId();
@@ -613,7 +608,7 @@ public class XCodeVerificationCheckMojo extends BuildContextAwareMojo
     }
   }
 
-  org.sonatype.aether.artifact.Artifact getVerificationAPIGav() throws XCodeException
+  org.eclipse.aether.artifact.Artifact getVerificationAPIGav() throws XCodeException
   {
 
     InputStream is = null;

@@ -28,16 +28,15 @@ import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getXCodeVersionString
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Assures that the following required prerequisites are fulfilled:
  * <ul>
  * <li>Xcode version {@value #MIN_XCODE_VERSION} or higher is installed</li>
  * </ul>
- * 
- * @goal check-prerequisites
- * 
  */
+@Mojo(name="check-prerequisites")
 public class CheckPrerequisitesMojo extends AbstractXCodeMojo
 {
   public final static String MIN_XCODE_VERSION = "4.4";

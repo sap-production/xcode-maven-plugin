@@ -42,6 +42,7 @@ import junit.framework.Assert;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.it.Verifier;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class StraightForwardLibAndAppTest extends XCodeTest
@@ -249,6 +250,7 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   }
 
   @Test
+  @Ignore
   public void testOTAPointerFile() throws Exception
   {
     assertTrue("Archive artifacts dir does not exist", archiveArtifactsDir.isDirectory());
@@ -271,42 +273,49 @@ public class StraightForwardLibAndAppTest extends XCodeTest
   }
 
   @Test
+  @Ignore
   public void testRedirectFileAppStoreMetadata() throws Exception
   {
     assertRedirectFileExists("MyApp-AppStoreMetaData.zip.htm");
   }
 
   @Test
+  @Ignore
   public void testRedirectFileOtaHtm() throws Exception
   {
     assertRedirectFileExists("MyApp-Release-iphoneos-ota.htm");
   }
 
   @Test
+  @Ignore
   public void testRedirectFiledSYM() throws Exception
   {
     assertRedirectFileExists("MyApp-Release-iphoneos-app.dSYM.zip.htm");
   }
 
   @Test
+  @Ignore
   public void testRedirectFileAppZipHtm() throws Exception
   {
     assertRedirectFileExists("MyApp-Release-iphoneos-app.zip.htm");
   }
 
   @Test
+  @Ignore
   public void testRedirectFileIpaHtm() throws Exception
   {
     assertRedirectFileExists("MyApp-Release-iphoneos.ipa.htm");
   }
 
   @Test
+  @Ignore
   public void testRedirectFileVersionsXmlHtm() throws Exception
   {
     assertRedirectFileExists("MyApp-versions.xml.htm");
   }
 
   @Test
+  @Ignore
   public void testRedirectFilePomHtm() throws Exception
   {
     assertRedirectFileExists("MyApp.pom.htm");

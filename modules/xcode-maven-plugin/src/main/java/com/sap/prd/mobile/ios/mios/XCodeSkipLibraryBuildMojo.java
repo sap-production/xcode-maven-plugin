@@ -21,6 +21,8 @@ package com.sap.prd.mobile.ios.mios;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Prevents building of libraries or frameworks during Company Build.
@@ -28,11 +30,8 @@ import org.apache.maven.plugin.MojoFailureException;
  * The apps must be code signed. In case of signing with multiple certificates, e.g Enterprise and
  * Company, apps must be built twice. The libraries and the frameworks do not need to be signed and
  * must be built once.
- * 
- * 
- * @goal skip-library-build
- * 
  */
+@Mojo(name="skip-library-build")
 public class XCodeSkipLibraryBuildMojo extends AbstractXCodeMojo
 {
 
@@ -40,9 +39,9 @@ public class XCodeSkipLibraryBuildMojo extends AbstractXCodeMojo
    * If set to <code>true</code> the build aborts with an exception if a lib (in comparison with an
    * app) is built.
    * 
-   * @parameter expression="${xcode.forbidLibBuild}"
    * @since 1.2.0
    */
+  @Parameter(property="xcode.forbidLibBuild")
   private boolean forbidLibBuild;
 
   @Override

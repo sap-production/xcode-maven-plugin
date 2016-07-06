@@ -27,27 +27,25 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.sonatype.aether.transfer.TransferCancelledException;
-import org.sonatype.aether.transfer.TransferEvent;
-import org.sonatype.aether.transfer.TransferListener;
+import org.eclipse.aether.transfer.TransferCancelledException;
+import org.eclipse.aether.transfer.TransferEvent;
+import org.eclipse.aether.transfer.TransferListener;
 
 /**
  * Registers a TransferListener on Aether that reacts on successful deployments. For each ipa file
  * deployed successfully a pointer file is written. This pointer file redirects to XXX
- * 
- * 
- * @goal pre-deploy
- * 
  */
+@Mojo(name="pre-deploy")
 public class PreDeployMojo extends AbstractDeployMojo
 {
 
   /**
    * The folder used for hudson archiving
-   * 
-   * @parameter expression="${archive.dir}" default-value="${project.build.directory}"
    */
+  @Parameter(defaultValue="${project.build.directory}", property="archive.dir")
   private File archiveFolder;
 
   private final static String HTML_TEMPLATE = "<html><head><meta http-equiv=\"refresh\" content=\"0; URL=$LOCATION\">" +
@@ -70,6 +68,12 @@ public class PreDeployMojo extends AbstractDeployMojo
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException
   {
+
+    if(! setTransferListener) {
+      getLog().info("Setup of transfer listener for redirect files has been skipped.");
+      return;
+    }
+
     try {
       archiveFolder = archiveFolder.getCanonicalFile();
     }

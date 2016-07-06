@@ -22,8 +22,9 @@ package com.sap.prd.mobile.ios.mios;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.transfer.TransferListener;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.transfer.TransferListener;
 
 /**
  * Registers a TransferListener on Aether that reacts on successful deployments. For each ipa file
@@ -32,12 +33,14 @@ import org.sonatype.aether.transfer.TransferListener;
  */
 abstract class AbstractDeployMojo extends AbstractXCodeMojo
 {
+  @Parameter(property="set.transfer.listener", defaultValue="false")
+  protected boolean setTransferListener;
+
+  
   /**
    * The current repository/network configuration of Maven.
-   * 
-   * @parameter default-value="${repositorySystemSession}"
-   * @readonly
    */
+  @Parameter(readonly=true, defaultValue="${repositorySystemSession}")
   protected RepositorySystemSession repoSession;
 
   protected TransferListener getTransferListener() throws SecurityException, IllegalAccessException,
@@ -56,7 +59,6 @@ abstract class AbstractDeployMojo extends AbstractXCodeMojo
   protected void setTransferListener(TransferListener transferListener) throws SecurityException,
         IllegalAccessException, InvocationTargetException, NoSuchMethodException
   {
-
     this.repoSession.getClass().getMethod("setTransferListener", new Class[] { TransferListener.class })
       .invoke(this.repoSession, transferListener);
 

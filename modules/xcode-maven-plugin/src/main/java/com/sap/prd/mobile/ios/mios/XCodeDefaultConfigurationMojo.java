@@ -27,13 +27,14 @@ import java.util.logging.LogManager;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 /**
  * Sets default values needed during Xcode build.
- * 
- * @goal set-default-configuration
  */
+@Mojo(name="set-default-configuration")
 public class XCodeDefaultConfigurationMojo extends AbstractMojo
 {
 
@@ -45,10 +46,7 @@ public class XCodeDefaultConfigurationMojo extends AbstractMojo
   private static final String XCODE_COMPILE_DIR = "xcode.compileDirectory";
   static final String XCODE_SOURCE_DIRECTORY = "xcode.sourceDirectory";
 
-  /**
-   * @parameter expression="${project}"
-   * @required
-   */
+  @Parameter(property="project", required=true)
   protected MavenProject project;
 
   private static XCodePluginLogger logger = new XCodePluginLogger();

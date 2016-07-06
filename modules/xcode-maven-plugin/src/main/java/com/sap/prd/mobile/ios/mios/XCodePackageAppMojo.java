@@ -23,20 +23,18 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * Packages the application built by Xcode and prepares the generated artifact for deployment.
- * 
- * @goal package-application
- * 
  */
+@Mojo(name="package-application")
 public class XCodePackageAppMojo extends BuildContextAwareMojo
 {
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
   @Override
