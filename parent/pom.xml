@@ -76,6 +76,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.apache.maven.plugin-tools</groupId>
+        <artifactId>maven-plugin-annotations</artifactId>
+        <version>3.2</version>
+      </dependency>
+      <dependency>
         <groupId>com.sap.prd.mobile.ios.mios</groupId>
         <artifactId>xcode-maven-plugin</artifactId>
         <version>${project.version}</version>
@@ -108,12 +113,12 @@
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-plugin-api</artifactId>
-        <version>3.0.2</version>
+        <version>3.1.1</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
-        <version>3.0.7</version>
+        <version>3.0.15</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
@@ -124,12 +129,6 @@
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
         <version>2.4.0</version>
-      </dependency>
-      <dependency>
-        <groupId>plexus</groupId>
-        <artifactId>plexus-archiver</artifactId>
-        <version>1.0-alpha-2</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -144,12 +143,12 @@
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-aether-provider</artifactId>
-        <version>3.0.2</version>
+        <version>3.1.1</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-core</artifactId>
-        <version>3.0.3</version>
+        <version>3.1.1</version>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
@@ -209,7 +208,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <version>3.1</version>
+          <version>3.3</version>
           <dependencies>
             <dependency>
               <groupId>org.apache.maven.doxia</groupId>

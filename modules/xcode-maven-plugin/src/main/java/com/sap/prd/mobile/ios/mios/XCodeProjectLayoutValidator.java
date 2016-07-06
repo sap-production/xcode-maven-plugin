@@ -46,7 +46,7 @@ class XCodeProjectLayoutValidator
             + "\" that is the root folder of the xcode project \"" + projectName + "\" does not exist.");
     }
 
-    final String xcodeProjectFolderName = projectName + XCodeConstants.XCODE_PROJECT_EXTENTION;
+    final String xcodeProjectFolderName = projectName + XCodeConstants.XCODE_PROJECT_EXTENSION;
 
     final Collection<File> xcodeProjectFolders = Arrays.asList(xcodeFolder.listFiles(new FileFilter() {
 

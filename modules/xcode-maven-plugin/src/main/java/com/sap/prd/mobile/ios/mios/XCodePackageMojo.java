@@ -26,33 +26,26 @@ import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 
 /**
  * Packages all the artifacts for Xcode libraries and prepares the generated artifacts for
  * deployment.
- * 
- * @goal xcode-package
- * 
  */
+@Mojo(name="xcode-package")
 public class XCodePackageMojo extends BuildContextAwareMojo
 {
-
-  /**
-   * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
-   * @required
-   */
+  @Component(role=ArchiverManager.class)
   private ArchiverManager archiverManager;
 
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
-  /**
-   * @parameter
-   */
+  @Parameter
   private Set<String> bundles;
 
   /**
@@ -67,9 +60,9 @@ public class XCodePackageMojo extends BuildContextAwareMojo
    * inside the xcode project. That directory structure establishes a package like namespacing for
    * the headers that are packaged.
    * 
-   * @parameter alias="alternatePublicHeaderFolderPath"
    * @since 1.9.0
    */
+  @Parameter(alias="alternatePublicHeaderFolderPath")
   private String relativeAlternatePublicHeaderFolderPath;
 
   @Override

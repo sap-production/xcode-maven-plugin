@@ -29,20 +29,20 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.collection.CollectRequest;
-import org.sonatype.aether.collection.CollectResult;
-import org.sonatype.aether.collection.DependencyCollectionException;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.graph.DependencyVisitor;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.resolution.ArtifactRequest;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
-import org.sonatype.aether.resolution.ArtifactResult;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.CollectResult;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.graph.DependencyVisitor;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.artifact.DefaultArtifact;
 
 class XCodeDownloadManager
 {
@@ -61,13 +61,13 @@ class XCodeDownloadManager
     this.repoSession = repoSession;
   }
 
-  org.sonatype.aether.artifact.Artifact resolveArtifact(final org.sonatype.aether.artifact.Artifact artifact)
+  org.eclipse.aether.artifact.Artifact resolveArtifact(final org.eclipse.aether.artifact.Artifact artifact)
         throws SideArtifactNotFoundException
   {
     return resolveSideArtifact(artifact, null, artifact.getExtension());
   }
 
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.apache.maven.artifact.Artifact mainArtifact,
+  org.eclipse.aether.artifact.Artifact resolveSideArtifact(final org.apache.maven.artifact.Artifact mainArtifact,
         final String classifier,
         final String type) throws SideArtifactNotFoundException
   {
@@ -75,8 +75,8 @@ class XCodeDownloadManager
           mainArtifact.getVersion()), classifier, type);
   }
 
-  public Set<org.sonatype.aether.artifact.Artifact> resolveArtifactWithTransitveDependencies(
-        final Dependency dependency, final Set<String> scopes, final Set<org.sonatype.aether.artifact.Artifact> omits)
+  public Set<org.eclipse.aether.artifact.Artifact> resolveArtifactWithTransitveDependencies(
+        final Dependency dependency, final Set<String> scopes, final Set<org.eclipse.aether.artifact.Artifact> omits)
         throws DependencyCollectionException, SideArtifactNotFoundException
   {
 
@@ -87,13 +87,13 @@ class XCodeDownloadManager
 
     final DependencyNode root = collectedDependencies.getRoot();
 
-    final Set<org.sonatype.aether.artifact.Artifact> artifacts = new HashSet<org.sonatype.aether.artifact.Artifact>();
+    final Set<org.eclipse.aether.artifact.Artifact> artifacts = new HashSet<org.eclipse.aether.artifact.Artifact>();
 
-    final Set<org.sonatype.aether.artifact.Artifact> _omits = new TreeSet<org.sonatype.aether.artifact.Artifact>(
-          new Comparator<org.sonatype.aether.artifact.Artifact>() {
+    final Set<org.eclipse.aether.artifact.Artifact> _omits = new TreeSet<org.eclipse.aether.artifact.Artifact>(
+          new Comparator<org.eclipse.aether.artifact.Artifact>() {
 
             @Override
-            public int compare(org.sonatype.aether.artifact.Artifact a1, org.sonatype.aether.artifact.Artifact a2)
+            public int compare(org.eclipse.aether.artifact.Artifact a1, org.eclipse.aether.artifact.Artifact a2)
             {
               if (a1.getGroupId().compareTo(a2.getGroupId()) != 0) {
                 return a1.getGroupId().compareTo(a2.getGroupId());
@@ -148,10 +148,10 @@ class XCodeDownloadManager
       }
     });
 
-    final Set<org.sonatype.aether.artifact.Artifact> result = new HashSet<org.sonatype.aether.artifact.Artifact>();
+    final Set<org.eclipse.aether.artifact.Artifact> result = new HashSet<org.eclipse.aether.artifact.Artifact>();
 
-    for (org.sonatype.aether.artifact.Artifact myArtifact : artifacts) {
-      org.sonatype.aether.artifact.Artifact resolvedArtifact = resolveArtifact(myArtifact);
+    for (org.eclipse.aether.artifact.Artifact myArtifact : artifacts) {
+      org.eclipse.aether.artifact.Artifact resolvedArtifact = resolveArtifact(myArtifact);
       result.add(resolvedArtifact);
     }
     return result;
@@ -165,12 +165,12 @@ class XCodeDownloadManager
    * @throws SideArtifactNotFoundException
    *           If the requested artifact does not exist inside the remote repositories
    */
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.sonatype.aether.artifact.Artifact mainArtifact,
+  org.eclipse.aether.artifact.Artifact resolveSideArtifact(final org.eclipse.aether.artifact.Artifact mainArtifact,
         final String classifier,
         final String type)
         throws SideArtifactNotFoundException
   {
-    final org.sonatype.aether.artifact.Artifact sideArtifact = getSideArtifact(mainArtifact, classifier, type);
+    final org.eclipse.aether.artifact.Artifact sideArtifact = getSideArtifact(mainArtifact, classifier, type);
 
     final ArtifactRequest artifactRequest = new ArtifactRequest();
     artifactRequest.setRepositories(projectRepos);
@@ -201,18 +201,18 @@ class XCodeDownloadManager
    *         inside the remote repositories
    * @throws SideArtifactNotFoundException
    */
-  org.sonatype.aether.artifact.Artifact resolveSideArtifact(final org.apache.maven.artifact.Artifact artifact)
+  org.eclipse.aether.artifact.Artifact resolveSideArtifact(final org.apache.maven.artifact.Artifact artifact)
         throws SideArtifactNotFoundException
   {
     return resolveSideArtifact(artifact, artifact.getClassifier(), artifact.getType());
   }
 
-  private org.sonatype.aether.artifact.Artifact getResolvedSideArtifact(
-        final org.sonatype.aether.artifact.Artifact sideArtifact,
+  private org.eclipse.aether.artifact.Artifact getResolvedSideArtifact(
+        final org.eclipse.aether.artifact.Artifact sideArtifact,
         final ArtifactResult result) throws SideArtifactNotFoundException
   {
 
-    org.sonatype.aether.artifact.Artifact resolvedArtifact = result.getArtifact();
+    org.eclipse.aether.artifact.Artifact resolvedArtifact = result.getArtifact();
 
     final File artifactFile = resolvedArtifact.getFile();
 
@@ -224,7 +224,7 @@ class XCodeDownloadManager
     return resolvedArtifact;
   }
 
-  private DefaultArtifact getSideArtifact(final org.sonatype.aether.artifact.Artifact mainArtifact,
+  private DefaultArtifact getSideArtifact(final org.eclipse.aether.artifact.Artifact mainArtifact,
         final String classifier,
         String type)
   {

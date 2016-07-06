@@ -24,6 +24,9 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
@@ -33,30 +36,20 @@ import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 
 /**
  * Packages the AppStore metadata information and prepares the generated artifact for deployment.
- * 
- * @goal package-metadata
- * 
  */
+@Mojo(name="package-metadata")
 public class XCodePackageAppStoreMetaDataMojo extends BuildContextAwareMojo
 {
-
-  /**
-   * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
-   * @required
-   */
+  @Component
   private ArchiverManager archiverManager;
 
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
   /**
    * The folders which contains additional metatdata needed for the upload of the app into AppStore.
-   * 
-   * @parameter expression="${xcode.appStoreMetadataDirectory}"
-   *            default-value="${project.basedir}/src/AppStoreMetadata";
    */
+  @Parameter(defaultValue="${project.basedir}/src/AppStoreMetadata", property="xcode.appStoreMetadataDirectory")
   private File appStoreMetadata;
 
   @Override

@@ -26,41 +26,27 @@ import java.io.IOException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-/**
- * 
- * @goal clean
- * 
- */
+@Mojo(name="clean")
 public class CleanMojo extends AbstractMojo
 {
 
   /**
    * The folder used for hudson archiving
-   * 
-   * @parameter expression="${archive.dir}" default-value="${project.build.directory}"
-   * @readonly
    */
+  @Parameter(property="archive.dir", defaultValue="${project.build.directory}", readonly=true)
   private File archiveDirectory;
 
-  /**
-   * @parameter default-value="${project.build.directory}"
-   * @readonly
-   */
+  @Parameter(defaultValue="${project.build.directory}", readonly=true)
   private File buildDirectory;
 
-  /**
-   * @parameter expression="${basedir}"
-   * @readonly
-   */
+  @Parameter(property="basedir", readonly=true)
   private File baseDirectory;
 
-  /**
-   * @parameter expression="${project}"
-   * @readonly
-   * @required
-   */
+  @Parameter(property="project", readonly=true, required=true)
   protected MavenProject project;
 
   @Override

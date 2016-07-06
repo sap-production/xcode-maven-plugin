@@ -30,11 +30,11 @@ import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Contains all parameters and methods that are needed for mojos that invoke the 'xcodebuild'
  * command.
- * 
  */
 public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 {
@@ -48,18 +48,17 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
   /**
    * The Xcode build action to to execute (e.g. clean, build, install). By default
    * <code>clean</code> and <code>build</code> are executed.
-   * 
-   * @parameter
    */
+  @Parameter
   protected List<String> buildActions;
 
   /**
    * The code sign identity is used to select the provisioning profile (e.g.
    * <code>iPhone Distribution</code>, <code>iPhone Developer</code>).
    * 
-   * @parameter expression="${xcode.codeSignIdentity}"
    * @since 1.2.0
    */
+  @Parameter(property="xcode.codeSignIdentity")
   protected String codeSignIdentity;
 
   /**
@@ -67,66 +66,58 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * developer provisioning certificate is available (e.g.
    * <code>NO</code>, <code>YES</code>).
    * 
-   * @parameter expression="${xcode.codeSigningRequired}" default-value = "true"
    * @since 1.14.1
    */
+  @Parameter(property="xcode.codeSigningRequired", defaultValue = "true")
   protected boolean codeSigningRequired;
   
   /**
    * Can be used to override the provisioning profile defined in the Xcode project target. You can
    * set it to an empty String if you want to use the default provisioning profile.
    * 
-   * @parameter expression="${xcode.provisioningProfile}"
    * @since 1.2.1
    */
+  @Parameter(property="xcode.provisioningProfile")
   protected String provisioningProfile;
 
   /**
    * The Xcode target to be built. If not specified, the default target (the first target) will be
    * built.
    * 
-   * @parameter expression="${xcode.target}"
    * @since 1.4.1
    */
+  @Parameter(property="xcode.target")
   protected String target;
+
+  @Parameter(property="product.name")
+  private String productName;
 
   /**
    * Indicates whenever plugin should build workspace instead of project.
    * Allows building projects which are using CocoaPods to resolve theirs dependencies.
    * Please also see <code>installPods</code> property setting to read more about CocaPods integration.
-   *
-   * @parameter expression="${xcode.buildWorkspace}"
    */
+  @Parameter(property="xcode.buildWorkspace")
   protected boolean buildWorkspace;
-
-  /**
-   * @parameter expression="${product.name}"
-   */
-  private String productName;
-
   /**
    * Settings to pass to XCode - if any are explicitly defined here, this plugin will not provide
    * default settings to XCode.
    * 
-   * @parameter
    * @since 1.6.2
    */
+  @Parameter
   private Map<String, String> settings;
 
   /**
    * Options to pass to XCode - if any are explicitly defined here, this plugin will not provide
    * default options to XCode.
    * 
-   * @parameter
    * @since 1.6.2
    */
+  @Parameter
   private Map<String, String> options;
 
-  /**
-   * @parameter expression="${session}"
-   * @required
-   * @readonly
-   */
+  @Parameter(property="session", required=true, readonly=true)
   private MavenSession session;
 
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,

@@ -26,23 +26,22 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * Calls the lipo tool for creating universal (multi-architecture) libraries and prepares the
  * generated artifacts for deployment.
- * 
- * @goal package-fat-lib
  */
+@Mojo(name="package-fat-lib")
 public class XCodeFatLibraryMojo extends BuildContextAwareMojo
 {
 
   public final static String FAT_LIBRARY_CLASSIFIER_SUFFIX = "-fat-binary";
 
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
   @Override

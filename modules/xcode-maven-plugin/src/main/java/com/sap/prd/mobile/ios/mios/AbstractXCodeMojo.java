@@ -27,6 +27,7 @@ import java.util.logging.LogManager;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -61,23 +62,17 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    * itself we copy the whole Xcode source directory during the build into another "checkout"
    * directory that by default named <code>checkout</code> and located below the Maven build (
    * <code>target</code>) directory.
-   * 
-   * @parameter expression="${xcode.checkoutDirectory}";
    */
+  @Parameter(property="xcode.checkoutDirectory")
   private File checkoutDirectory;
 
   /**
    * The xcode directory of the copied sources below the checkout directory.
-   * 
-   * @parameter expression="${xcode.compileDirectory}"
    */
+  @Parameter(property="xcode.compileDirectory")
   private File xcodeCompileDirectory;
 
-  /**
-   * @parameter expression="${project}"
-   * @readonly
-   * @required
-   */
+  @Parameter(readonly=true, required=true, property="project")
   protected MavenProject project;
 
   /**
@@ -86,16 +81,11 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    * If no configuration is provided in the plugin's <code>configuration</code> section of the
    * <code>pom.xml</code> it defaults to the values provided in the
    * <code>defaultAppConfigurations</code> or <code>defaultLibConfigurations</code> parameters
-   * 
-   * @parameter
    */
+  @Parameter
   private Set<String> configurations;
 
-  /**
-   * @parameter expression="${project.packaging}"
-   * @readonly
-   * @required
-   */
+  @Parameter(readonly=true, required=true, property="project.packaging")
   protected String packaging;
 
   /**
@@ -104,9 +94,8 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    * If no configuration is provided in the plugin's <code>configuration</code> section of the
    * <code>pom.xml</code> it defaults to the values provided in the <code>defaultAppSdks</code> or
    * <code>defaultLibSdks</code> parameters
-   * 
-   * @parameter
    */
+  @Parameter
   private Set<String> sdks;
 
   /**
@@ -114,10 +103,9 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    * (in contrast to libraries). These values only apply if no "configurations" are explicitly
    * provided in the POM.
    * 
-   * @parameter expression="${xcode.app.defaultConfigurations}" default-value="Release,Debug"
    * @since 1.2.0
-   * 
    */
+  @Parameter(defaultValue="Release,Debug", property="xcode.app.defaultConfigurations")
   private String defaultAppConfigurations;
 
   /**
@@ -125,30 +113,27 @@ public abstract class AbstractXCodeMojo extends AbstractMojo
    * libraries (in contrast to apps). These values only apply if no "configurations" are explicitly
    * provided in the POM.
    * 
-   * @parameter expression="${xcode.lib.defaultConfigurations}" default-value="Release,Debug"
    * @since 1.2.0
-   * 
    */
+  @Parameter(defaultValue="Release,Debug", property="xcode.lib.defaultConfigurations")
   private String defaultLibConfigurations;
 
   /**
    * Comma separated list of the default Xcode SDKs that should be used for apps (in contrast to
    * libs). These values only apply if no "sdks" are explicitly provided in the POM.
    * 
-   * @parameter expression="${xcode.app.defaultSdks}" default-value="iphoneos,iphonesimulator"
    * @since 1.2.0
-   * 
    */
+  @Parameter(defaultValue="iphoneos,iphonesimulator", property="xcode.app.defaultSdks")
   private String defaultAppSdks;
 
   /**
    * Comma separated list of the default Xcode SDKs that should be used for libraries (in contrast
    * to apps). These values only apply if no "sdks" are explicitly provided in the POM.
    * 
-   * @parameter expression="${xcode.lib.defaultSdks}" default-value="iphoneos,iphonesimulator"
    * @since 1.2.0
-   * 
    */
+  @Parameter(defaultValue="iphoneos,iphonesimulator", property="xcode.lib.defaultSdks")
   private String defaultLibSdks;
 
   protected Set<String> getSDKs()

@@ -24,23 +24,19 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * Sets default values needed during Doxygen generation.
- * 
- * @goal set-default-doxygen-configuration
  */
+@Mojo(name="set-default-doxygen-configuration")
 public class XCodeDefaultDoxygenConfigurationMojo extends BuildContextAwareMojo
 {
-
-  /**
-   * @parameter expression="${doxygen.default.config}" default-value="Release"
-   */
+  @Parameter(defaultValue="Release", property="doxygen.default.config")
   private String doxygenDefaultConfig;
 
-  /**
-   * @parameter expression="${doxygen.default.sdk}" default-value="iphoneos"
-   */
+  @Parameter(defaultValue="iphoneos", property="doxygen.default.sdk")
   private String doxygenDefaultSdk;
 
   @Override

@@ -74,7 +74,7 @@
   		<artifactId>maven-verifier</artifactId>
   	</dependency>
   	<dependency>
-  		<groupId>plexus</groupId>
+  		<groupId>org.codehaus.plexus</groupId>
   		<artifactId>plexus-archiver</artifactId>
   	</dependency>
   </dependencies>

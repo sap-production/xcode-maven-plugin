@@ -24,20 +24,19 @@ import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * Packages the ipa files and prepares the generated artifacts for deployment.
- * 
- * @goal package-ipa
  */
+@Mojo(name="package-ipa")
 public class XCodeIpaPackageMojo extends BuildContextAwareMojo
 {
 
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
   @Override

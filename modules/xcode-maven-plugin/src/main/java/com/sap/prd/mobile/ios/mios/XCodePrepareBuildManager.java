@@ -39,9 +39,9 @@ import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.repository.RemoteRepository;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.RemoteRepository;
 
 class XCodePrepareBuildManager
 {
@@ -232,7 +232,7 @@ class XCodePrepareBuildManager
   {
     Artifact bundleArtifact = GAVUtil.getArtifact(coords);
 
-    final org.sonatype.aether.artifact.Artifact artifact = downloadManager.resolveSideArtifact(bundleArtifact);
+    final org.eclipse.aether.artifact.Artifact artifact = downloadManager.resolveSideArtifact(bundleArtifact);
 
     if (artifact != null) {
       final File source = artifact.getFile();
@@ -353,7 +353,7 @@ class XCodePrepareBuildManager
         final String sdk, final Artifact primaryArtifact) throws MojoExecutionException, SideArtifactNotFoundException
   {
 
-    final org.sonatype.aether.artifact.Artifact headersArtifact = downloadManager.resolveSideArtifact(primaryArtifact,
+    final org.eclipse.aether.artifact.Artifact headersArtifact = downloadManager.resolveSideArtifact(primaryArtifact,
           xcodeConfiguration + "-" + sdk, TYPE_HEADERS);
 
     if (headersArtifact != null) {
@@ -374,7 +374,7 @@ class XCodePrepareBuildManager
 
     for (String configuration : configurations) {
       try {
-        org.sonatype.aether.artifact.Artifact frameworkArtifact = downloadManager.resolveSideArtifact(primaryArtifact,
+        org.eclipse.aether.artifact.Artifact frameworkArtifact = downloadManager.resolveSideArtifact(primaryArtifact,
               configuration, Types.FRAMEWORK);
         extractFramework(project, primaryArtifact, configuration, frameworkArtifact.getFile());
       }

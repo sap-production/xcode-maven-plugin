@@ -19,7 +19,7 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
-import org.sonatype.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.Artifact;
 
 public class SideArtifactNotFoundException extends XCodeException
 {

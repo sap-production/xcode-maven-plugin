@@ -33,15 +33,16 @@ import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * Generates over the air html files and prepares the generated artifacts for deployment.
- * 
- * @goal generate-ota-html
  */
-
+@Mojo(name="generate-ota-html")
 public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
 {
 
@@ -54,19 +55,14 @@ public class XCodeOtaHtmlGeneratorMojo extends BuildContextAwareMojo
    * your "HTML" OTA Service (e.g. <code>http://server/ota-service/HTML</code>).<br/>
    * Here you find more information about the <a
    * href="https://github.com/sap-production/OTAService">OTA Service Github Project</a>.<br/>
-   * 
-   * @parameter expression="${mios.ota-service.url}"
    */
+  @Parameter(property="mios.ota-service.url")
   private URL miosOtaServiceUrl;
 
-  /**
-   * @parameter expression="${mios.ota-service.buildHtmlTemplate}"
-   */
+  @Parameter(property="mios.ota-service.buildHtmlTemplate")
   private String buildHtmlTemplate;
 
-  /**
-   * @component
-   */
+  @Component
   private MavenProjectHelper projectHelper;
 
   @Override

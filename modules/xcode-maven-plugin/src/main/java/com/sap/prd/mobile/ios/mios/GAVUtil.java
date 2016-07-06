@@ -26,7 +26,7 @@ import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.GROUP_ID;
 import static com.sap.prd.mobile.ios.mios.versioninfo.Coordinates.VERSION;
 
 import org.apache.maven.artifact.handler.ArtifactHandler;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
 
 // Format:  <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>
 class GAVUtil
