@@ -35,7 +35,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * Contains all parameters and methods that are needed for mojos that invoke the 'xcodebuild'
  * command.
- * 
  */
 public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 {
@@ -67,10 +66,9 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * developer provisioning certificate is available (e.g.
    * <code>NO</code>, <code>YES</code>).
    * 
-   * @parameter expression="${xcode.codeSigningRequired}" default-value = "true"
    * @since 1.14.1
    */
-  @Parameter(property="xcode.codeSigningRequired", defaultValue=true)
+  @Parameter(property="xcode.codeSigningRequired", defaultValue = "true")
   protected boolean codeSigningRequired;
   
   /**
