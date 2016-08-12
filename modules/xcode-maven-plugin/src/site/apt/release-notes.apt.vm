@@ -10,6 +10,16 @@ Release Notes
 
 ===
 
+* 1.14.4
+
+** Features
+
+   <No Features>
+
+*** Bug fixes
+
+   Removed SYMROOT from default/managed settings and allowed developer to override it.
+
 * 1.14.3
 
 ** Features
