@@ -73,8 +73,7 @@ public class CommandLineBuilderTest
     XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null,
           options);
     expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-sdk",
-          "mysdk", "-configuration", "Release", "clean", "build", "OBJROOT=build", "SYMROOT=build", "DSTROOT=build",
-          "SHARED_PRECOMPS_DIR=build");
+          "mysdk", "-configuration", "Release", "clean", "build", "OBJROOT=build", "SHARED_PRECOMPS_DIR=build", "DSTROOT=build");
   }
 
   @Test
@@ -95,7 +94,7 @@ public class CommandLineBuilderTest
     XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, settings,
           options);
     expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-sdk",
-          "mysdk", "-configuration", "Release", "clean", "build", "OBJROOT=build", "SYMROOT=build", "DSTROOT=build",
+          "mysdk", "-configuration", "Release", "clean", "build", "OBJROOT=build", "DSTROOT=build",
           "CONFIGURATION_BUILD_DIR=/Users/me/projects/myapp/target/xcode/src/main/xcode/build",
           "SHARED_PRECOMPS_DIR=build", "VALID_ARCHS=i386");
   }
@@ -117,8 +116,8 @@ public class CommandLineBuilderTest
     XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, null,
           options);
     expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-arch", "i386", "-sdk",
-          "mysdk", "-configuration", "Release", "clean", "build", "OBJROOT=build", "SYMROOT=build", "DSTROOT=build",
-          "SHARED_PRECOMPS_DIR=build");
+          "mysdk", "-configuration", "Release", "clean", "build", "OBJROOT=build", "SHARED_PRECOMPS_DIR=build","DSTROOT=build"
+          );
   }
 
   @Test
@@ -220,7 +219,7 @@ public class CommandLineBuilderTest
     XCodeContext context = new XCodeContext(Arrays.asList("clean", "build"), projectDirectory, System.out, settings,
           options);
     expect(context, "xcodebuild", "-project", "MyLib.xcodeproj", "-arch", "i386", "-target", "MyLib", "-sdk",
-          "iphoneos", "-configuration", "Debug", "clean", "build", "OBJROOT=build", "SYMROOT=build", "DSTROOT=build",
+          "iphoneos", "-configuration", "Debug", "clean", "build", "OBJROOT=build", "DSTROOT=build",
           "CONFIGURATION_BUILD_DIR=MyLib/build", "SHARED_PRECOMPS_DIR=build", "VALID_ARCHS=i386");
   }
 }
