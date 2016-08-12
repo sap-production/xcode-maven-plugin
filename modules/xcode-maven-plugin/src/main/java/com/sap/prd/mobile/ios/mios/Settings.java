@@ -31,8 +31,8 @@ final class Settings implements ISettings
 
   enum ManagedSetting
   {
-    CODE_SIGN_IDENTITY(false, null), CODE_SIGNING_REQUIRED(false, null), PROVISIONING_PROFILE(false, null), 
-          DSTROOT(true, XCODE_OUTPUT_DIRECTORY), SYMROOT(true, XCODE_OUTPUT_DIRECTORY), SHARED_PRECOMPS_DIR(true, 
+    CODE_SIGN_IDENTITY(false, null), CODE_SIGNING_REQUIRED(false, null), PROVISIONING_PROFILE(false, null),
+          DSTROOT(true, XCODE_OUTPUT_DIRECTORY), SYMROOT(false, XCODE_OUTPUT_DIRECTORY), SHARED_PRECOMPS_DIR(true,
           XCODE_OUTPUT_DIRECTORY), OBJROOT(true, XCODE_OUTPUT_DIRECTORY);
 
     private final boolean required;
@@ -40,7 +40,6 @@ final class Settings implements ISettings
 
     static ManagedSetting forName(String name)
     {
-
       for (ManagedSetting setting : values()) {
         if (setting.name().equals(name)) {
           return setting;
