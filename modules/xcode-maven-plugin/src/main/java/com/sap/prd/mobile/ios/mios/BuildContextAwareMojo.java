@@ -139,6 +139,14 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    */
   private String watchapp;
 
+  /**
+   * Allowed developers to override the SYMROOT settings
+   *
+   * @parameter expression="${xcode.symroot}" default-value = "build"
+   * @since 1.14.4
+   */
+  private String symRootDir;
+
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,
         String configuration, String sdk)
   {
@@ -158,6 +166,9 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     HashMap<String, String> managedSettings = new HashMap<String, String>();
     if (codeSignIdentity != null)
       managedSettings.put(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name(), codeSignIdentity);
+
+    if (symRootDir != null)
+        managedSettings.put(Settings.ManagedSetting.SYMROOT.name(), symRootDir);
 
     if (!codeSigningRequired)
       managedSettings.put(Settings.ManagedSetting.CODE_SIGNING_REQUIRED.name(), "NO");
