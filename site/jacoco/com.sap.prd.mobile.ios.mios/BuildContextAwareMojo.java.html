@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BuildContextAwareMojo.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Xcode Maven Plugin</a> &gt; <a href="index.html" class="el_package">com.sap.prd.mobile.ios.mios</a> &gt; <span class="el_source">BuildContextAwareMojo.java</span></div><h1>BuildContextAwareMojo.java</h1><pre class="source lang-java linenums">/*
+ * #%L
+ * xcode-maven-plugin
+ * %%
+ * Copyright (C) 2012 SAP AG
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+package com.sap.prd.mobile.ios.mios;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.MojoExecutionException;
+
+/**
+ * Contains all parameters and methods that are needed for mojos that invoke the 'xcodebuild'
+ * command.
+ * 
+ */
+<span class="fc" id="L39">public abstract class BuildContextAwareMojo extends AbstractXCodeMojo</span>
+{
+
+  private static final String PREFIX_XCODE_OPTIONS = &quot;xcode.options.&quot;;
+  private static final String PREFIX_XCODE_SETTINGS = &quot;xcode.settings.&quot;;
+
+<span class="fc" id="L45">  protected final static List&lt;String&gt; DEFAULT_BUILD_ACTIONS = Collections.unmodifiableList(Arrays.asList(&quot;clean&quot;,</span>
+        &quot;build&quot;));
+
+  /**
+   * The Xcode build action to to execute (e.g. clean, build, install). By default
+   * &lt;code&gt;clean&lt;/code&gt; and &lt;code&gt;build&lt;/code&gt; are executed.
+   * 
+   * @parameter
+   */
+  protected List&lt;String&gt; buildActions;
+
+  /**
+   * The code sign identity is used to select the provisioning profile (e.g.
+   * &lt;code&gt;iPhone Distribution&lt;/code&gt;, &lt;code&gt;iPhone Developer&lt;/code&gt;).
+   * 
+   * @parameter expression=&quot;${xcode.codeSignIdentity}&quot;
+   * @since 1.2.0
+   */
+  protected String codeSignIdentity;
+
+  /**
+   * The code signing required is used to disable code signing when no
+   * developer provisioning certificate is available (e.g.
+   * &lt;code&gt;NO&lt;/code&gt;, &lt;code&gt;YES&lt;/code&gt;).
+   * 
+   * @parameter expression=&quot;${xcode.codeSigningRequired}&quot; default-value = &quot;true&quot;
+   * @since 1.14.1
+   */
+  protected boolean codeSigningRequired;
+  
+  /**
+   * Can be used to override the provisioning profile defined in the Xcode project target. You can
+   * set it to an empty String if you want to use the default provisioning profile.
+   * 
+   * @parameter expression=&quot;${xcode.provisioningProfile}&quot;
+   * @since 1.2.1
+   */
+  protected String provisioningProfile;
+
+  /**
+   * The Xcode target to be built. If not specified, the default target (the first target) will be
+   * built.
+   * 
+   * @parameter expression=&quot;${xcode.target}&quot;
+   * @since 1.4.1
+   */
+  protected String target;
+
+  /**
+   * @parameter expression=&quot;${product.name}&quot;
+   */
+  private String productName;
+
+  /**
+   * Settings to pass to XCode - if any are explicitly defined here, this plugin will not provide
+   * default settings to XCode.
+   * 
+   * @parameter
+   * @since 1.6.2
+   */
+  private Map&lt;String, String&gt; settings;
+
+  /**
+   * Options to pass to XCode - if any are explicitly defined here, this plugin will not provide
+   * default options to XCode.
+   * 
+   * @parameter
+   * @since 1.6.2
+   */
+  private Map&lt;String, String&gt; options;
+
+  /**
+   * @parameter expression=&quot;${session}&quot;
+   * @required
+   * @readonly
+   */
+  private MavenSession session;
+
+  /**
+   * @parameter expression=&quot;${xcode.watchapp}&quot;
+   * For watchos2.0 we should not send the sdk value to xcodebuild, To differentiate between regular app and watch2.0 (Now it's specific)
+   * expecting this property from developer in pom.xml, on demand this will be considered.
+   *
+   * pom.xml entry:
+   *
+   * &lt;pre&gt;
+   * {@code
+   * &lt;properties&gt;
+   *  &lt;xcode.watchapp&gt;watchos2.0&lt;/xcode.watchapp&gt;
+   * &lt;/properties&gt;
+   * }
+   * &lt;/pre&gt;
+   *
+   * @since 1.14.3
+   */
+  private String watchapp;
+
+  /**
+   * Allowed developers to override the SYMROOT settings
+   *
+   * @parameter expression=&quot;${xcode.symroot}&quot; default-value = &quot;build&quot;
+   * @since 1.14.4
+   */
+  private String symRootDir;
+
+  protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,
+        String configuration, String sdk)
+  {
+<span class="nc" id="L153">    final String projectName = project.getArtifactId();</span>
+<span class="nc" id="L154">    File projectDirectory = null;</span>
+
+<span class="nc bnc" id="L156" title="All 2 branches missed.">    if (sourceCodeLocation == XCodeContext.SourceCodeLocation.WORKING_COPY) {</span>
+<span class="nc" id="L157">      projectDirectory = getXCodeCompileDirectory();</span>
+    }
+<span class="nc bnc" id="L159" title="All 2 branches missed.">    else if (sourceCodeLocation == XCodeContext.SourceCodeLocation.ORIGINAL) {</span>
+<span class="nc" id="L160">      projectDirectory = getXCodeSourceDirectory();</span>
+    }
+    else {
+<span class="nc" id="L163">      throw new IllegalStateException(&quot;Invalid source code location: '&quot; + sourceCodeLocation + &quot;'&quot;);</span>
+    }
+
+<span class="nc" id="L166">    HashMap&lt;String, String&gt; managedSettings = new HashMap&lt;String, String&gt;();</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">    if (codeSignIdentity != null)</span>
+<span class="nc" id="L168">      managedSettings.put(Settings.ManagedSetting.CODE_SIGN_IDENTITY.name(), codeSignIdentity);</span>
+
+<span class="nc bnc" id="L170" title="All 2 branches missed.">    if (symRootDir != null)</span>
+<span class="nc" id="L171">        managedSettings.put(Settings.ManagedSetting.SYMROOT.name(), symRootDir);</span>
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">    if (!codeSigningRequired)</span>
+<span class="nc" id="L174">      managedSettings.put(Settings.ManagedSetting.CODE_SIGNING_REQUIRED.name(), &quot;NO&quot;);</span>
+
+<span class="nc bnc" id="L176" title="All 2 branches missed.">    if (provisioningProfile != null)</span>
+<span class="nc" id="L177">      managedSettings.put(Settings.ManagedSetting.PROVISIONING_PROFILE.name(), provisioningProfile);</span>
+
+<span class="nc" id="L179">    HashMap&lt;String, String&gt; managedOptions = new HashMap&lt;String, String&gt;();</span>
+
+<span class="nc bnc" id="L181" title="All 4 branches missed.">    if (configuration != null &amp;&amp; !configuration.trim().isEmpty())</span>
+<span class="nc" id="L182">      managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), configuration);</span>
+
+    /**
+     * No specific check has been done here, If property specified then sdk entry will be ignored
+     * This can be extended with the specific check. I kept this as Generic because watchosX.X should support with this check,
+     * without confusing developers it will serve the purpose
+     */
+<span class="nc bnc" id="L189" title="All 6 branches missed.">    if (sdk != null &amp;&amp; !sdk.trim().isEmpty() &amp;&amp; watchapp ==null)</span>
+<span class="nc" id="L190">      managedOptions.put(Options.ManagedOption.SDK.getOptionName(), sdk);</span>
+<span class="nc bnc" id="L191" title="All 4 branches missed.">    if (target != null &amp;&amp; !target.trim().isEmpty())</span>
+<span class="nc" id="L192">      managedOptions.put(Options.ManagedOption.TARGET.getOptionName(), target);</span>
+
+<span class="nc bnc" id="L194" title="All 2 branches missed.">    Map&lt;String, String&gt; _settings = new HashMap&lt;String, String&gt;(settings == null ? new HashMap&lt;String, String&gt;()</span>
+          : settings);
+
+<span class="nc bnc" id="L197" title="All 2 branches missed.">    for (String key : getKeys(PREFIX_XCODE_SETTINGS)) {</span>
+<span class="nc" id="L198">      _settings.put(key.substring(PREFIX_XCODE_SETTINGS.length()), getProperty(key));</span>
+<span class="nc" id="L199">    }</span>
+
+<span class="nc bnc" id="L201" title="All 2 branches missed.">    Map&lt;String, String&gt; _options = new HashMap&lt;String, String&gt;(options == null ? new HashMap&lt;String, String&gt;()</span>
+          : options);
+
+<span class="nc bnc" id="L204" title="All 2 branches missed.">    for (String key : getKeys(PREFIX_XCODE_OPTIONS)) {</span>
+<span class="nc" id="L205">      _options.put(key.substring(PREFIX_XCODE_OPTIONS.length()), getProperty(key));</span>
+<span class="nc" id="L206">    }</span>
+
+<span class="nc bnc" id="L208" title="All 2 branches missed.">    if (null == _options.get(&quot;scheme&quot;))</span>
+<span class="nc" id="L209">    managedOptions.put(Options.ManagedOption.PROJECT.getOptionName(), projectName + &quot;.xcodeproj&quot;);</span>
+
+
+<span class="nc" id="L212">    return new XCodeContext(getBuildActions(), projectDirectory, System.out, new Settings(_settings, managedSettings),</span>
+          new Options(_options, managedOptions));
+  }
+
+  protected List&lt;String&gt; getBuildActions()
+  {
+<span class="nc bnc" id="L218" title="All 4 branches missed.">    return (buildActions == null || buildActions.isEmpty()) ? DEFAULT_BUILD_ACTIONS : Collections</span>
+      .unmodifiableList(buildActions);
+  }
+
+  /**
+   * Retrieves the Info Plist out of the effective Xcode project settings and returns the accessor
+   * to it.
+   */
+  protected PListAccessor getInfoPListAccessor(XCodeContext.SourceCodeLocation location, String configuration,
+        String sdk)
+        throws MojoExecutionException, XCodeException
+  {
+<span class="nc" id="L230">    File plistFile = getPListFile(location, configuration, sdk);</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">    if (!plistFile.isFile()) {</span>
+<span class="nc" id="L232">      throw new MojoExecutionException(&quot;The Xcode project refers to the Info.plist file '&quot; + plistFile</span>
+            + &quot;' that does not exist.&quot;);
+    }
+<span class="nc" id="L235">    return new PListAccessor(plistFile);</span>
+  }
+
+  protected File getPListFile(XCodeContext.SourceCodeLocation location, String configuration, String sdk)
+        throws XCodeException
+  {
+
+<span class="nc" id="L242">    XCodeContext context = getXCodeContext(location, configuration, sdk);</span>
+
+<span class="nc" id="L244">    String plistFileName = EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.INFOPLIST_FILE);</span>
+<span class="nc" id="L245">    File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.SRC_ROOT));</span>
+
+<span class="nc" id="L247">    final File plistFile = new File(plistFileName);</span>
+
+<span class="nc bnc" id="L249" title="All 2 branches missed.">    if (!plistFile.isAbsolute()) {</span>
+<span class="nc" id="L250">      return new File(srcRoot, plistFileName);</span>
+    }
+
+<span class="nc bnc" id="L253" title="All 2 branches missed.">    if (FileUtils.isChild(srcRoot, plistFile))</span>
+<span class="nc" id="L254">      return plistFile;</span>
+
+<span class="nc" id="L256">    throw new IllegalStateException(&quot;Plist file &quot; + plistFile + &quot; is not located inside the xcode project &quot; + srcRoot</span>
+          + &quot;.&quot;);
+
+  }
+
+  protected File getProjectRootDirectory(XCodeContext.SourceCodeLocation location, String configuration, String sdk)
+		throws XCodeException {
+<span class="nc" id="L263">	XCodeContext context = getXCodeContext(location, configuration, sdk);</span>
+
+<span class="nc" id="L265">	File srcRoot = new File(EffectiveBuildSettings.getBuildSetting(context, EffectiveBuildSettings.SRC_ROOT));</span>
+<span class="nc" id="L266">	return srcRoot;</span>
+  }
+
+  protected String getProductName(final String configuration, final String sdk) throws MojoExecutionException
+  {
+
+    final String productName;
+
+<span class="nc bnc" id="L274" title="All 2 branches missed.">    if (this.productName != null) {</span>
+<span class="nc" id="L275">      productName = this.productName;</span>
+<span class="nc" id="L276">      getLog().info(&quot;Production name obtained from pom file&quot;);</span>
+    }
+    else {
+
+      try {
+<span class="nc" id="L281">        productName = EffectiveBuildSettings.getBuildSetting(</span>
+              getXCodeContext(XCodeContext.SourceCodeLocation.WORKING_COPY, configuration, sdk), EffectiveBuildSettings.PRODUCT_NAME);
+<span class="nc" id="L283">        getLog().info(&quot;Product name obtained from effective build settings file&quot;);</span>
+
+      }
+<span class="nc" id="L286">      catch (final XCodeException ex) {</span>
+<span class="nc" id="L287">        throw new MojoExecutionException(&quot;Cannot get product name: &quot; + ex.getMessage(), ex);</span>
+<span class="nc" id="L288">      }</span>
+    }
+
+<span class="nc bnc" id="L291" title="All 4 branches missed.">    if (productName == null || productName.trim().length() == 0)</span>
+<span class="nc" id="L292">      throw new MojoExecutionException(&quot;Invalid product name. Was null or empty.&quot;);</span>
+
+<span class="nc" id="L294">    return productName;</span>
+  }
+
+  /**
+   * Returns all keys of project properties and user properties matching the &lt;code&gt;prefix&lt;/code&gt;.
+   * 
+   * @param prefix
+   *          all keys if null
+   * @return
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  protected Set&lt;String&gt; getKeys(String prefix)
+  {
+
+<span class="nc" id="L308">    Set&lt;String&gt; result = new HashSet&lt;String&gt;();</span>
+
+    @SuppressWarnings(&quot;rawtypes&quot;)
+<span class="nc" id="L311">    final Set keys = new HashSet();</span>
+<span class="nc" id="L312">    keys.addAll(session.getUserProperties().keySet());</span>
+<span class="nc" id="L313">    keys.addAll(project.getProperties().keySet());</span>
+
+<span class="nc bnc" id="L315" title="All 2 branches missed.">    if (prefix == null) return keys;</span>
+
+<span class="nc bnc" id="L317" title="All 2 branches missed.">    for (Object key : keys) {</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">      if (((String) key).startsWith(prefix))</span>
+<span class="nc" id="L319">        result.add((String) key);</span>
+<span class="nc" id="L320">    }</span>
+
+<span class="nc" id="L322">    return result;</span>
+  }
+
+  protected String getProperty(String key)
+  {
+<span class="nc" id="L327">    String value = session.getUserProperties().getProperty(key);</span>
+
+<span class="nc bnc" id="L329" title="All 2 branches missed.">    if (value == null)</span>
+    {
+<span class="nc" id="L331">      value = project.getProperties().getProperty(key);</span>
+    }
+
+<span class="nc" id="L334">    return value;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>
