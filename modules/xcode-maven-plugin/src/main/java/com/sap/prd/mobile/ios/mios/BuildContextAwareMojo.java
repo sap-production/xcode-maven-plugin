@@ -19,6 +19,10 @@
  */
 package com.sap.prd.mobile.ios.mios;
 
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.checkVersions;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getVersion;
+import static com.sap.prd.mobile.ios.mios.XCodeVersionUtil.getXCodeVersionString;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -41,6 +46,8 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 
   private static final String PREFIX_XCODE_OPTIONS = "xcode.options.";
   private static final String PREFIX_XCODE_SETTINGS = "xcode.settings.";
+  public final static String MIN_XCODE_VERSION = "8.0";
+
 
   protected final static List<String> DEFAULT_BUILD_ACTIONS = Collections.unmodifiableList(Arrays.asList("clean",
         "build"));
@@ -146,6 +153,35 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * @since 1.14.4
    */
   private String symRootDir;
+  /**
+   * Allowed developers to override the xcconfig settings through pom.xml
+   * Signing methodology has been changed with xcode8 onwards, to enable this we are expecting dev to give singing related parameters
+   * This is only for the Apps with Entitlements like Push notification, Wallet etc...
+   * @parameter expression="${xcode.xcconfig}"
+   *
+   * pom.xml entry:
+   *
+   * <pre>
+   * {@code
+   * <properties>
+   *  <xcode.xcconfig>$XCCONFG_FILE_PATH</xcode.xcconfig>
+   * </properties>
+   * }
+   * </pre>
+   * where XCCONFG_FILE_PATH = Relative path to xccofig file
+   *
+   * @since 1.14.5
+   */
+  private String xcconfigDir;
+
+  /**
+   * For simple application central team manages the xcconfig.
+   * This will be managed in settings.xml
+   *
+   * @parameter expression="${xcode.xcconfig.default}"
+   * @since 1.14.5
+   */
+  private String defaultxcconfig;
 
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,
         String configuration, String sdk)
@@ -180,6 +216,38 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 
     if (configuration != null && !configuration.trim().isEmpty())
       managedOptions.put(Options.ManagedOption.CONFIGURATION.getOptionName(), configuration);
+		try {
+
+			String xCodeVersionString = getXCodeVersionString();
+			DefaultArtifactVersion version = getVersion(xCodeVersionString);
+			File file;
+			if (checkVersions(version, MIN_XCODE_VERSION)) {
+				if (defaultxcconfig != null) {
+					getLog().info("Using xccconfig provided by the central team: " + defaultxcconfig);
+
+					file = new File(defaultxcconfig);
+					if (file.exists()) {
+						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), defaultxcconfig);
+					} else {
+						getLog().error("xcconfig file not found in locaion " + defaultxcconfig);
+					}
+				} else if (xcconfigDir != null) {
+					getLog().info("Using xccconfig provided by the dev team: " + xcconfigDir);
+
+					file = new File(xcconfigDir);
+					if (file.exists()) {
+						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), xcconfigDir);
+					} else {
+						getLog().error("xcconfig file not found in locaion " + xcconfigDir);
+					}
+				} else
+					getLog().info(
+							"To build the application using Xcode 8 and above, plugin expects xcconfig file /n For simple app: Central team manages it in settings.xml "
+									+ "For apps with entitlement dev needs to provide the xcconfig content in pom.xml");
+			}
+		} catch (XCodeException e) {
+			throw new IllegalStateException("Could not get xcodebuild version", e);
+		}
 
     /**
      * No specific check has been done here, If property specified then sdk entry will be ignored
