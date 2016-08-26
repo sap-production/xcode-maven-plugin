@@ -31,7 +31,7 @@ final class Options implements IOptions
     PROJECT(false, false), CONFIGURATION(false, false), SDK(false, false), TARGET(false, false), SHOWBUILDSETTINGS(
           "showBuildSettings", false, true),
     DRY_RUN("dry-run", false, true), SHOWSDKS(false, true), VERSION(false, true), LIST(false, true), USAGE(false, true), HELP(
-          false, true), LICENSE(false, true);
+          false, true), LICENSE(false, true), XCCONFIG(false, false);
 
     static ManagedOption forName(String name)
     {
