@@ -143,7 +143,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * Allowed developers to override the SYMROOT settings
    *
    * @parameter expression="${xcode.symroot}" default-value = "build"
-   * @since 1.14.5-SNAPSHOT
+   * @since 1.14.4
    */
   private String symRootDir;
 
