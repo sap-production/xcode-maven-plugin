@@ -232,14 +232,14 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 					} else {
 						getLog().error("xcconfig file not found in locaion " + xcconfigDir);
 					}
-				}else if (xcconfigDir != null) {
-					getLog().info("Using xccconfig provided by the dev team: " + xcconfigDir);
+				} else if (defaultxcconfig != null) {
+					getLog().info("Using xccconfig provided by the central team: " + defaultxcconfig);
 
-					file = new File(xcconfigDir);
+					file = new File(defaultxcconfig);
 					if (file.exists()) {
-						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), xcconfigDir);
+						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), defaultxcconfig);
 					} else {
-						getLog().error("xcconfig file not found in locaion " + xcconfigDir);
+						getLog().error("xcconfig file not found in locaion " + defaultxcconfig);
 					}
 				} else
 					getLog().info(
