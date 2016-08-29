@@ -168,7 +168,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * </properties>
    * }
    * </pre>
-   * where XCCONFG_FILE_PATH = Relative path to xccofig file
+   * where XCCONFG_FILE_PATH = Relative path to xcconfig file, ideally we expect developer to keep in xcode project level
    *
    * @since 1.14.5
    */
@@ -222,16 +222,8 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 			DefaultArtifactVersion version = getVersion(xCodeVersionString);
 			File file;
 			if (checkVersions(version, MIN_XCODE_VERSION)) {
-				if (defaultxcconfig != null) {
-					getLog().info("Using xccconfig provided by the central team: " + defaultxcconfig);
 
-					file = new File(defaultxcconfig);
-					if (file.exists()) {
-						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), defaultxcconfig);
-					} else {
-						getLog().error("xcconfig file not found in locaion " + defaultxcconfig);
-					}
-				} else if (xcconfigDir != null) {
+				if (xcconfigDir != null) {
 					getLog().info("Using xccconfig provided by the dev team: " + xcconfigDir);
 
 					file = new File(xcconfigDir);
@@ -239,6 +231,15 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), xcconfigDir);
 					} else {
 						getLog().error("xcconfig file not found in locaion " + xcconfigDir);
+					}
+				} else if (defaultxcconfig != null) {
+					getLog().info("Using xccconfig provided by the central team: " + defaultxcconfig);
+
+					file = new File(defaultxcconfig);
+					if (file.exists()) {
+						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), defaultxcconfig);
+					} else {
+						getLog().error("xcconfig file not found in locaion " + defaultxcconfig);
 					}
 				} else
 					getLog().info(
