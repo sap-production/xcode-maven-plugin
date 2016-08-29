@@ -10,6 +10,17 @@ Release Notes
 
 ===
 
+* 1.14.5
+
+** Features
+
+*** xcode8 signing support added
+   Singing methodology has been changed such that developer allowed to specify the signing identities via xcconfig
+
+*** Bug fixes
+
+   <No bug fixes>
+
 * 1.14.4
 
 ** Features
