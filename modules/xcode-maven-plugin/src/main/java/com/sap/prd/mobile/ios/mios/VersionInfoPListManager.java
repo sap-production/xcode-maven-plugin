@@ -138,7 +138,9 @@ public class VersionInfoPListManager
         if(!parts[0].equals("scm"))
           throw new IllegalStateException(String.format("Invalid connection string: '%s'.", dep.getScm().getConnection()));
         
-        if(parts[1].equals("perforce")) {
+        if(parts[3].startsWith("//github")){
+		return ""; //scm:git:git://host/user/path
+        } else if(parts[1].equals("perforce")) {
           index = 3; //scm:perforce:PERFORCEHOST:4321:PATH
         } else if(parts[1].equals("git")) {
           index = 4; //scm:git:ssh://user@host:port/path
