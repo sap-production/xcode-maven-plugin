@@ -177,8 +177,20 @@ public class VersionInfoPListManagerTest
   }
   
   @Test 
+  public void testScmPortForGitHubHideConfidentialInformation() {
+
+    SCM scm = new SCM();
+
+    scm.setConnection("scm:git:git://github.wdf.sap.corp/user/MyProject");
+    Dependency dependency = new Dependency();
+    dependency.setScm(scm);
+    String port = VersionInfoPListManager.getScmPort(dependency, true);
+    Assert.assertEquals("", port);
+  }
+
+  @Test
   public void testScmPortForGitHideConfidentialInformation() {
-    
+
     SCM scm = new SCM();
 
     scm.setConnection("scm:git:ssh://user@git.example.com:29418/MyProject");
@@ -197,6 +209,18 @@ public class VersionInfoPListManagerTest
     dependency.setScm(scm);
     String port = VersionInfoPListManager.getScmPort(dependency, true);
     Assert.assertEquals("1666//MyProject", port);
+  }
+
+  @Test
+  public void testScmPortForGitHubShowConfidentialInformation() {
+
+    SCM scm = new SCM();
+
+    scm.setConnection("scm:git:git://github.wdf.sap.corp/user/MyProject");
+    Dependency dependency = new Dependency();
+    dependency.setScm(scm);
+    String port = VersionInfoPListManager.getScmPort(dependency, false);
+    Assert.assertEquals("scm:git:git://github.wdf.sap.corp/user/MyProject", port);
   }
   
   @Test 
