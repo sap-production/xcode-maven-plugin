@@ -10,6 +10,16 @@ Release Notes
 
 ===
 
+* 1.14.6
+
+** Features
+
+   <No Features>
+
+*** Bug fixes
+
+   For GitHub dependencies, SCM port issue resolved during version.plist file creation
+
 * 1.14.5
 
 ** Features
