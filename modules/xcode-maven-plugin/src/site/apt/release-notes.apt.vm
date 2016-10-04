@@ -10,6 +10,16 @@ Release Notes
 
 ===
 
+* 1.14.7
+
+** Features
+
+   Enabled xcode8 signing for local, enterprise and release builds.
+
+*** Bug fixes
+
+   "xcodebuild -showBuildSettings" issue in xcode8 for core data framework consumption has been resolved.
+
 * 1.14.6
 
 ** Features
