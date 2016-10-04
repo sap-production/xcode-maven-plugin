@@ -157,31 +157,88 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
    * Allowed developers to override the xcconfig settings through pom.xml
    * Signing methodology has been changed with xcode8 onwards, to enable this we are expecting dev to give singing related parameters
    * This is only for the Apps with Entitlements like Push notification, Wallet etc...
-   * @parameter expression="${xcode.xcconfig}"
+   * @parameter expression="${xcode.xcconfig.enterprise}"
    *
    * pom.xml entry:
    *
    * <pre>
    * {@code
    * <properties>
-   *  <xcode.xcconfig>$XCCONFG_FILE_PATH</xcode.xcconfig>
+   *  <xcode.xcconfig.enterprise>$ENTERPRISE_XCCONFG_FILE_PATH</xcode.xcconfig.enterprise>
    * </properties>
    * }
    * </pre>
-   * where XCCONFG_FILE_PATH = Relative path to xcconfig file, ideally we expect developer to keep in xcode project level
+   * where ENTERPRISE_XCCONFG_FILE_PATH = Relative path to enterprise xcconfig file, ideally we expect developer to keep in xcode project level
    *
-   * @since 1.14.5
+   * @since 1.14.7
    */
-  private String xcconfigDir;
+  private String enterpriseXcconfig;
 
   /**
-   * For simple application central team manages the xcconfig.
+   * Allowed developers to override the xcconfig settings through pom.xml for the release builds
+   * This has to be provided for the every release builds, because generic profiles can't used for building release projects
+   * @parameter expression="${xcode.xcconfig.naas}"
+   *
+   * pom.xml entry:
+   *
+   * <pre>
+   * {@code
+   * <properties>
+   *  <xcode.xcconfig.naas>$NAAS_XCCONFG_FILE_PATH</xcode.xcconfig.naas>
+   * </properties>
+   * }
+   * </pre>
+   * where NAAS_XCCONFG_FILE_PATH = Relative path to release xcconfig file, ideally we expect developer to keep in xcode project level
+   *
+   * @since 1.14.7
+   */
+  private String naasXcconfig;
+
+  /**
+   * Allowed developers to override the xcconfig settings through pom.xml for the local builds
+   * This has to be provided for the every release builds, because generic profiles can't used for building release projects
+   * @parameter expression="${xcode.xcconfig.local}"
+   *
+   * pom.xml entry:
+   *
+   * <pre>
+   * {@code
+   * <properties>
+   *  <xcode.xcconfig.local>$LOCAL_XCCONFG_FILE_PATH</xcode.xcconfig.local>
+   * </properties>
+   * }
+   * </pre>
+   * where LOCAL_XCCONFG_FILE_PATH = Relative path to development xcconfig file, ideally we expect developer to keep in xcode project level
+   *
+   * @since 1.14.7
+   */
+  private String localXcconfig;
+
+  /**
+   * For simple application central team manages the xcconfig for enterprise builds
    * This will be managed in settings.xml
    *
-   * @parameter expression="${xcode.xcconfig.default}"
-   * @since 1.14.5
+   * @parameter expression="${xcode.xcconfig.generic}"
+   * @since 1.14.7
    */
-  private String defaultxcconfig;
+  private String genericXcconfig;
+
+  /**
+   * To differentiate type of build in central build infrastructure
+   * This will take LOCAL, ENTERPRISE, COMPANY Values
+   * @parameter expression = "${build_profile}" default-value = "local"
+   */
+
+  private String buildProfile;
+
+  /**
+   * This is to add additional build phase to xcodebuild
+   * xcodebuild -showBuildSettings : Apple induced error for -showBuildSettings, fails all our builds
+   *
+   * @parameter expression="${xcode.coredata.framework}" default-value = "false"
+   * @since 1.14.7
+   */
+  public static boolean isCoreDataFramework;
 
   protected XCodeContext getXCodeContext(final XCodeContext.SourceCodeLocation sourceCodeLocation,
         String configuration, String sdk)
@@ -220,31 +277,37 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
 
 			String xCodeVersionString = getXCodeVersionString();
 			DefaultArtifactVersion version = getVersion(xCodeVersionString);
-			File file;
 			if (checkVersions(version, MIN_XCODE_VERSION)) {
 
-				if (xcconfigDir != null) {
-					getLog().info("Using xccconfig provided by the dev team: " + xcconfigDir);
-
-					file = new File(xcconfigDir);
-					if (file.exists()) {
-						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), xcconfigDir);
-					} else {
-						getLog().error("xcconfig file not found in locaion " + xcconfigDir);
+				if (buildProfile.equals("dev") | buildProfile.equals("ent")) {
+					getLog().info("Enterprise Signing ....... ");
+					if (isXcconfigAvailable(enterpriseXcconfig)){
+						getLog().info("Enterprise build, xcconfig provided by developer xcode.xcconfig.enterprise: "+enterpriseXcconfig);
+						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), enterpriseXcconfig);
 					}
-				} else if (defaultxcconfig != null) {
-					getLog().info("Using xccconfig provided by the central team: " + defaultxcconfig);
-
-					file = new File(defaultxcconfig);
-					if (file.exists()) {
-						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), defaultxcconfig);
-					} else {
-						getLog().error("xcconfig file not found in locaion " + defaultxcconfig);
+					else if(isXcconfigAvailable(genericXcconfig)){
+						getLog().info("Enterprise build, xcconfig maintained by central team xcode.xcconfig.generic: "+genericXcconfig);
+						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), genericXcconfig);
 					}
-				} else
-					getLog().info(
-							"To build the application using Xcode 8 and above, plugin expects xcconfig file /n For simple app: Central team manages it in settings.xml "
-									+ "For apps with entitlement dev needs to provide the xcconfig content in pom.xml");
+					else
+						getLog().info("Enterprise build expects the xcconfig from Dev source code or from Generic content in build server .....");
+				}else if (buildProfile.equals("comp")){
+					getLog().info("Company Singing ....... ");
+					if (isXcconfigAvailable(naasXcconfig)){
+						getLog().info("Company build, xcconfig provided by developer xcode.xcconfig.naas: "+naasXcconfig);
+						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), naasXcconfig);
+					}
+					else
+						getLog().info("Company build expects the xcconfig entry in pom.xml for xcode8 builds, Please contact release team for the same");
+				}else{
+					getLog().info("Development Singing ....... ");
+					if (isXcconfigAvailable(localXcconfig)){
+						getLog().info("Developer build, xcconfig provided by developer xcode.xcconfig.local: "+localXcconfig);
+						managedOptions.put(Options.ManagedOption.XCCONFIG.getOptionName(), localXcconfig);
+					}
+					else
+						getLog().info("None of the xcconfig file or buildProfile provided, it's considered as the local build and Build settings will be considered for signing");
+				}
 			}
 		} catch (XCodeException e) {
 			throw new IllegalStateException("Could not get xcodebuild version", e);
@@ -281,6 +344,16 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
     return new XCodeContext(getBuildActions(), projectDirectory, System.out, new Settings(_settings, managedSettings),
           new Options(_options, managedOptions));
   }
+
+  private boolean isXcconfigAvailable(String configFilePath) {
+	  getLog().info("Using xccconfig and the location is: " + configFilePath);
+		if (null != configFilePath){
+			return(new File(configFilePath).exists());
+		}else{
+			getLog().info("configFile value is null, please provide valid entry");
+			return(false);
+		}
+}
 
   protected List<String> getBuildActions()
   {

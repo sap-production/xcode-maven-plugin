@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -93,6 +94,10 @@ public class EffectiveBuildSettings implements IEffectiveBuildSettings
   private static Properties extractBuildSettings(final IXCodeContext context) throws XCodeException
   {
     List<String> buildActions = Collections.emptyList();
+    if(BuildContextAwareMojo.isCoreDataFramework){
+        LOGGER.info("Core data framework has been used, so adding 'clean' phase");
+        buildActions = Arrays.asList("clean");
+    }
     IOptions options = context.getOptions();
     Map<String, String> managedOptions = new HashMap<String, String>(options.getManagedOptions());
     managedOptions.put(Options.ManagedOption.SHOWBUILDSETTINGS.getOptionName(), null);
