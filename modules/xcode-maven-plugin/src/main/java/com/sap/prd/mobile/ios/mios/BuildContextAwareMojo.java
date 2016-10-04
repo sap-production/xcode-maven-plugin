@@ -226,7 +226,7 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
   /**
    * To differentiate type of build in central build infrastructure
    * This will take LOCAL, ENTERPRISE, COMPANY Values
-   * @parameter expression = "${build_profile}" default-value = "local"
+   * @parameter expression = "${build-profile}" default-value = "local"
    */
 
   private String buildProfile;
@@ -234,6 +234,14 @@ public abstract class BuildContextAwareMojo extends AbstractXCodeMojo
   /**
    * This is to add additional build phase to xcodebuild
    * xcodebuild -showBuildSettings : Apple induced error for -showBuildSettings, fails all our builds
+   *
+   * * <pre>
+   * {@code
+   * <properties>
+   *  <xcode.coredata.framework>true</xcode.coredata.framework>
+   * </properties>
+   * }
+   * </pre>
    *
    * @parameter expression="${xcode.coredata.framework}" default-value = "false"
    * @since 1.14.7
