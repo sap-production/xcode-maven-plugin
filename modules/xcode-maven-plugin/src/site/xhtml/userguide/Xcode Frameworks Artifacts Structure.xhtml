@@ -1,0 +1,94 @@
+<!--
+  #%L
+  Xcode Maven Plugin
+  %%
+  Copyright (C) 2012 SAP AG
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Xcode Frameworks Artifacts Structure</title>
+</head>
+
+<body>
+
+
+	<h1>Introduction</h1>
+
+	<p>This page describes all the artifacts, produced out of a build
+		of Xcode framework project with the xcode-maven-plugin.</p>
+
+	<h1>Mandatory Artifacts</h1>
+
+	<h3>Pom File</h3>
+	<blockquote>
+		<p>&lt;artifact-id&gt;-&lt;version&gt;.pom</p>
+	</blockquote>
+
+	<p>
+		The project pom file as defined in the project. More information in <a
+			href="Project Pom.html" title="Project Pom">Project Pom</a>.
+	</p>
+
+	<h3>Versions Information</h3>
+	<blockquote>
+		<p>&lt;artifact-id&gt;&#45;&lt;version&gt;&#45;versions.xml</p>
+	</blockquote>
+
+	<p>
+		The file containing the reproducibility information of the project
+		built and its (transitive) dependencies. More information in <a
+			href="Version information.html" title="Version information">Version
+			information</a>.
+	</p>
+
+	<h3>
+		Main Artifact
+		<blockquote>
+			<p>&lt;artifact-id&gt;-&lt;version&gt;.xcode-framework-zip</p>
+		</blockquote>
+	</h3>
+
+	<p>
+		The framework containg the headers, the library and bundles in the appropriate format
+                so that it can be referenced from an xcode project.
+                The framework available as main artifact corresponds to the configuration specified by
+                parameter &quot;xcode.primaryFmwkConfiguration&quot;. If this parameter is not provided
+                it defaults to &quot;Release&quot;
+                
+	</p>
+
+	<h1>Additional Artifacts</h1>
+
+	<h3>Configuration specific frameworks</h3>
+	<blockquote>
+		<p>&lt;artifact-id&gt;-&lt;version&gt;$lt;classifier&gt;.xcode-framework-zip</p>
+	</blockquote>
+
+	<p>The classifier denotes the configuration for that the framework was built.
+        </p>
+
+	<p>If a configuration specific framework version is found the configuration specific version will
+           be used by a build for the relevant configuration. If there is no configuration specific framework
+           is found, the default framework available as main artifact will be used instead.</p>
+	<blockquote>
+		<p>
+		<p>&lt;artifact-id&gt;-&lt;version&gt;&lt;Release&gt;.xcode-framework-zip</p>
+		<p>&lt;artifact-id&gt;-&lt;version&gt;&lt;Debug&gt;.xcode-framework-zip</p>
+		</p>
+	</blockquote>
+</body>
+</html>
