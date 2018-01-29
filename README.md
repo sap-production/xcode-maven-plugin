@@ -1,5 +1,10 @@
 # Xcode Maven Plugin
 
+## Finally..!! This repo can atlast be retired..!!
+The way xcode-maven-plugin building a project (generation of .app and archive to ipa) is no more supported by apple. Generated ipa is not  eligible for appStore upload. Changes around the xcode are very dynamic it's not realistic to adopt these changes to xcode-maven-plugin. We will not assure further contribution to this project from SAP. Officially closing our support to this repository.
+
+Please refer for Apple's latest [App Distribution Workflow](https://developer.apple.com/library/content/documentation/IDEs/Conceptual/AppDistributionGuide/Introduction/Introduction.html#//apple_ref/doc/uid/TP40012582-CH1-SW1)
+
 ## Overview
 
 The Xcode Maven Plugin can be used to integrate Xcode projects into a Maven build system. Especially it offers the following features:
